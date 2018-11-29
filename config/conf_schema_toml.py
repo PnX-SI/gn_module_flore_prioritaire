@@ -13,11 +13,10 @@ list_visit_message = {"emptyMessage": "Aucune visite sur ce site ", "totalMessag
 detail_list_visit_message = {"emptyMessage": "Aucune autre visite sur ce site ", "totalMessage": "visites au total"}
 
 default_maplist_zp_columns = [
-    {"name": 'Identifiant', "prop": 'id_base_site', "width": 90},
-    {"name": 'Taxon', "prop": 'nom_taxon', "width": 350},
-    {"name": 'Nombre de visites', "prop": 'nb_visit', "width": 120},
-    {"name": 'Date de la dernière visite', "prop": 'date_max', "width": 160},
-    {"name": 'Organisme', "prop": 'organisme', "width": 200}
+    {"name": 'Identifiant', "prop": 'indexzp', "width": 90},
+    {"name": 'Taxon', "prop": 'cd_nom', "width": 350},
+    {"name": 'Date min', "prop": 'date_min', "width": 160},
+    {"name": 'Date max', "prop": 'date_max', "width": 160}
 ]
 
 default_list_visit_columns = [

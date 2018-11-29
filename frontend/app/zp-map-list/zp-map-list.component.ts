@@ -1,206 +1,79 @@
-import { Component, OnInit, AfterViewInit, Input, Output, EventEmitter } from '@angular/core';
-import { Router } from '@angular/router';
-import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
-
-import { MapService } from '@geonature_common/map/map.service';
+import { Component, OnInit, Input, AfterViewInit, ViewChild } from '@angular/core';
+import { GeoJSON } from 'leaflet';
 import { MapListService } from '@geonature_common/map-list/map-list.service';
-
+import { MapService } from '@geonature_common/map/map.service';
+import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
+import { FormService } from '@geonature_common/form/form.service';
+import { FormGroup, FormBuilder } from "@angular/forms";
 import { DataService } from '../services/data.service';
-import { StoreService } from '../services/store.service';
-import { ModuleConfig } from '../module.config';
+import { Router, ActivatedRoute } from '@angular/router';
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { ModuleConfig } from "../module.config";
 
 @Component({
   selector: 'pnx-zp-map-list',
-  templateUrl: './zp-map-list.component.html',
-  styleUrls: ['./zp-map-list.component.scss']
+  templateUrl: 'zp-map-list.component.html',
+  styleUrls: ['zp-map-list.component.scss'],
   providers: [MapListService]
-});
-export class ZpMapListComponent implements OnInit {
-  public displayColumns: Array<any>;
-  public availableColumns: Array<any>;
-  public pathEdit: string;
-  public pathInfo: string;
-  public idName: string;
-  public apiEndPoint: string;
-  public occtaxConfig: any;
-  public formsDefinition = FILTERSLIST;
+})
+export class ZpMapListComponent implements OnInit, AfterViewInit {
+  public leafletDrawOptions = leafletDrawOption;
+  public myGeoJSON: GeoJSON;
   public dynamicFormGroup: FormGroup;
-  public formsSelected = [];
-  // provisoire
-  public tableMessages = {
-    emptyMessage: "Aucune observation à afficher",
-    totalMessage: "observation(s) au total"
-  };
-
-  @Input()
-  searchTaxon: string;
-
-  public filteredData = [];
-  public tabOrganism = [];
-  public taxonForm = new FormControl();
-  public idName: string;
-  public filtreForm: FormGroup;
-  public paramApp = {
-    id_application: ModuleConfig.id_application,
-    id_area_type: ModuleConfig.id_type_commune
-  };
-
-  public oldFilterDate;
-  public oldFilterTax;
-  public tabCom = [];
-  @Output()
-  onDeleteFiltre = new EventEmitter<any>();
-
+  @ViewChild(NgbModal)
+  public modalCol: NgbModal;
   constructor(
-    public mapService: MapService,
-    private _api: DataService,
+    private _ms: MapService,
+    private mapListService: MapListService,
+    private _fb: FormBuilder,
     public router: Router,
-    public storeService: StoreService,
-    public mapListService: MapListService,
-    private _fb: FormBuilder
+    public ngbModal: NgbModal,
+    public api: DataService
   ) {}
 
   ngOnInit() {
-    this.mapListService.idName = 'id_infos_site';
+    this.leafletDrawOptions.draw.rectangle = true;
+    this.leafletDrawOptions.draw.circle = true;
+    this.leafletDrawOptions.draw.polyline = false;
+    this.leafletDrawOptions.edit.remove = true;
 
-    this.filtreForm = this._fb.group({
-      filtreYear: null,
-      filtreOrga: null,
-      filtreCom: null
+    this.dynamicFormGroup = this._fb.group({
+      cd_nom: null,
+      date_up: null,
+      date_low: null
+    }); 
+
+    this.api.getZProspects().subscribe(data => {
+      this.myGeoJSON = data;
+      console.log(this.myGeoJSON)
+
     });
 
-    this.onChargeList(this.paramApp);
-    //  quand on fait la recherche
-    this.filtreForm.controls.filtreYear.valueChanges
-      .filter(input => input !== null && input.toString().length === 4)
-      .subscribe(year => {
-        this.onSearchDate(year);
-      });
-
-    this.filtreForm.controls.filtreYear.valueChanges
-      // quand on efface le filtre
-      .filter(input => !input || input === null || input === '')
-      .subscribe(year => {
-        this.onDeleteParams('year', this.oldFilterDate);
-        this.onDeleteFiltre.emit();
-        this.onDelete();
-      });
-
-    this.filtreForm.controls.filtreOrga.valueChanges
-      .filter(select => !select || select !== null)
-      .subscribe(org => {
-        this.onSearchOrganisme(org);
-      });
-
-    this.filtreForm.controls.filtreOrga.valueChanges
-      .filter(input => !input || input === null)
-      .subscribe(org => {
-        this.onDeleteParams('organisme', org);
-        this.onDeleteFiltre.emit();
-        this.onDelete();
-      });
-
-    this.filtreForm.controls.filtreCom.valueChanges
-      .filter(select => !select || select !== null)
-      .subscribe(com => {
-        this.onSearchCom(com);
-      });
-
-    this.filtreForm.controls.filtreCom.valueChanges
-      .filter(input => !input || input === null)
-      .subscribe(com => {
-        this.onDeleteParams('commune', com);
-        this.onDeleteFiltre.emit();
-        this.onDelete();
-      });
+    // parameters for maplist
+    // columns to be default displayed
+    //this.displayColumns = ModuleConfig.default_zp_columns;
+    //this.mapListService.displayColumns = this.displayColumns;
+  
+    
   }
 
-  onChargeList(param) {
-    this._api.getZp(param).subscribe(data => {
-      this.zps = data;
-      this.mapListService.loadTableData(data);
-      this.filteredData = this.mapListService.tableData;
-    });
+  
+
+  openModalCol(event, modal) {
+    this.ngbModal.open(modal);
   }
 
   ngAfterViewInit() {
-    this.mapListService.enableMapListConnexion(this.mapService.getMap());
-
-    this._api.getOrganisme().subscribe(elem => {
-      elem.forEach(orga => {
-        this.tabOrganism.push(orga.nom_organisme);
-        this.tabOrganism.sort((a, b) => {
-          return a.localeCompare(b);
-        });
-      });
-    });
-
-    this._api
-      .getCommune(ModuleConfig.id_application, {
-        id_area_type: this.storeService.sftConfig.id_type_commune
-      })
-      .subscribe(info => {
-        info.forEach(com => {
-          this.tabCom.push(com.nom_commune);
-          this.tabCom.sort((a, b) => {
-            return a.localeCompare(b);
-          });
-        });
-      });
+    // event from the list
+    // this.mapListService.onTableClick(this._ms.getMap());
   }
 
-  onEachFeature(feature, layer) {
-    this.mapListService.layerDict[feature.id] = layer;
-
-    layer.on({
-      click: e => {
-        this.mapListService.toggleStyle(layer);
-        this.mapListService.mapSelected.next(feature.id);
-      }
-    });
+  getGeojson(geojson) {
+    alert(JSON.stringify(geojson))
+    
   }
 
-  onInfo(id_base_site) {
-    this.router.navigate([`${ModuleConfig.api_url}/listVisit`, id_base_site]);
-  }
-
-  onSearchDate(event) {
-    this.onChargeList({
-      id_application: ModuleConfig.id_application,
-      year: event
-    });
-    this.oldFilterDate = event;
-
-    this.onSetParams('year', event);
-  }
-
-  onDelete() {
-    this.onChargeList(this.paramApp);
-  }
-
-  onSearchOrganisme(event) {
-    this.onChargeList({ id_application: ModuleConfig.id_application, organisme: event });
-    this.onSetParams('organisme', event);
-  }
-
-  onTaxonChanged(event) {
-    this.onChargeList({ id_application: ModuleConfig.id_application, cd_nom: event.item.cd_nom });
-    this.onSetParams('cd_nom', event.item.cd_nom);
-    this.oldFilterTax = event.item.cd_nom;
-  }
-
-  onSearchCom(event) {
-    this.onChargeList({ id_application: ModuleConfig.id_application, commune: event });
-    this.onSetParams('commune', event);
-  }
-
-  onSetParams(param: string, value) {
-    //  ajouter le queryString pour télécharger les données
-    this.storeService.queryString = this.storeService.queryString.set(param, value);
-  }
-
-  onDeleteParams(param: string, value) {
-    // effacer le queryString (de filtre)pour télécharger
-    this.storeService.queryString = this.storeService.queryString.delete(param, value);
+  deleteControlValue() {
+    console.log('Suppression')
   }
 }
