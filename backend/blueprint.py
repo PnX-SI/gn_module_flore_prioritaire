@@ -19,4 +19,12 @@ def get_zprospect():
     data = q.all()
     return [d.as_geofeature('geom_4326', 'indexzp') for d in data]
 
+@blueprint.route('/form', methods=['POST'])
+@json_resp
+def post_visit():
+    '''
+    Poste une nouvelle visite ou éditer une ancienne
+    '''
+    data = dict(request.get_json())
+    
 

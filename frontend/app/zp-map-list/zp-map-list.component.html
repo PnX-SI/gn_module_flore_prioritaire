@@ -1,5 +1,5 @@
 <div class="card" id="specific-filter">
-  <!-- <div class="row row-sm">
+  <div class="row row-sm">
     <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
       <pnx-taxonomy label="{{ 'Taxon.Taxon' | translate }}" [parentFormControl]="dynamicFormGroup.controls.cd_nom"
         [charNumber]="3" [listLength]="20">
@@ -13,7 +13,9 @@
       <pnx-date label="{{ 'Releve.MaxDate' | translate }} " [parentFormControl]="dynamicFormGroup.controls.date_up">
       </pnx-date>
     </div>
-  </div> -->
+  </div>
+form
+  {{ dynamicFormGroup.value |json }}
 
   <div class="row row-sm">
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm">

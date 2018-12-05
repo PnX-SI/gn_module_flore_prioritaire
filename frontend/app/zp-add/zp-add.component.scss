@@ -1,3 +1,8 @@
+.map-card {
+  min-height: 85vh;
+  margin: -25px -15px -15px -15px;
+}
+
 #redirect {
   position: absolute;
   right: 1%;
@@ -156,3 +161,4 @@ ngx-datatable {
 :host /deep/ .filter-control {
   width: 40%;
 }
+
