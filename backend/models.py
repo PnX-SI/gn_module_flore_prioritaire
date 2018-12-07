@@ -24,7 +24,19 @@ class TZprospect(DB.Model):
     topo_valid = DB.Column(DB.Unicode)
     initial_insert  = DB.Column(DB.Unicode)
     cd_nom = DB.Column(DB.Integer)
-    geom_4326 = DB.Column(
-        Geometry('GEOMETRY', 4326)
-    )
+    geom_4326 = DB.Column(Geometry('GEOMETRY', 4326))
 
+
+@serializable
+class CorZpObs(DB.Model):
+    __tablename__ = 'cor_zp_obs'
+    __table_args__ = {'schema': 'pr_priority_flora'}
+    indexzp = DB.Column(DB.Integer, primary_key=True)
+    id_role = DB.Column(DB.Integer, primary_key=True)
+
+@serializable
+class CorZpArea(DB.Model):
+    __tablename__ = 'cor_zp_area'
+    __table_args__ = {'schema': 'pr_priority_flora'}
+    indexzp = DB.Column(DB.Integer, primary_key=True)
+    id_area = DB.Column(DB.Integer, primary_key=True)

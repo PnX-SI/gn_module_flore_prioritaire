@@ -1,7 +1,13 @@
 from flask import Blueprint,request
 
+from shapely.geometry import asShape
+from geoalchemy2.shape import from_shape
+
 from geonature.utils.env import DB
-from geonature.utils.utilssqlalchemy import json_resp
+from geonature.utils.utilssqlalchemy import (
+    json_resp,
+    GenericTable
+)
 from .models import TZprospect
 
 blueprint = Blueprint('pr_priority_flora', __name__)
@@ -26,5 +32,12 @@ def post_visit():
     Poste une nouvelle visite ou éditer une ancienne
     '''
     data = dict(request.get_json())
+    shape = asShape(data['geom_4326'])
+    releve= TZprospect(**data)
+    releve.geom_4326 = from_shape(shape, srid=4326)
+    DB.session.add(releve)
+    DB.session.commit()
+    DB.session.flush()
+    return releve.as_geofeature('geom_4326','indexzp',True)
     
 

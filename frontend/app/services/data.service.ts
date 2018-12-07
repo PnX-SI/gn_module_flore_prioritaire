@@ -18,6 +18,11 @@ export class DataService {
     });
     return test;
   }
+  postVisit(data: any) {
+    console.log(data);
+
+    return this._http.post<any>(`${AppConfig.API_ENDPOINT}/flore_prioritaire/form`, data);
+  }
 }
 
 

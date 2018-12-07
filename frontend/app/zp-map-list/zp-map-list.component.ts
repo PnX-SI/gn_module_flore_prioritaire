@@ -39,14 +39,13 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
     this.dynamicFormGroup = this._fb.group({
       cd_nom: null,
-      date_up: null,
-      date_low: null
+      date_min: null,
+      date_max: null
     }); 
 
     this.api.getZProspects().subscribe(data => {
       this.myGeoJSON = data;
       console.log(this.myGeoJSON)
-
     });
 
     // parameters for maplist
@@ -57,8 +56,10 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     
   }
 
+  onAddZp() {
+    this.router.navigate(["flore_prioritaire/form"]); 
+  }
   
-
   openModalCol(event, modal) {
     this.ngbModal.open(modal);
   }

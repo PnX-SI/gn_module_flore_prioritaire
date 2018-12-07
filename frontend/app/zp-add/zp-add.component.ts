@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, AfterViewInit, ViewChild } from '@angular/core';
 import { GeoJSON } from 'leaflet';
+import { ToastrService } from 'ngx-toastr';
+import { NgbDateParserFormatter } from "@ng-bootstrap/ng-bootstrap";
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
@@ -26,8 +28,10 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     private mapListService: MapListService,
     private _fb: FormBuilder,
     public router: Router,
+    private toastr: ToastrService,
     public ngbModal: NgbModal,
-    public api: DataService
+    public api: DataService,
+    private _dateParser: NgbDateParserFormatter
   ) {}
 
   ngOnInit() {
@@ -37,15 +41,10 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     this.leafletDrawOptions.edit.remove = true;
 
     this.dynamicFormGroup = this._fb.group({
-      date_up: null,
-      date_low: null
+      date_min: null,
+      date_max: null,
+      geom_4326: null
     }); 
-
-    this.api.getZProspects().subscribe(data => {
-      this.myGeoJSON = data;
-      console.log(this.myGeoJSON)
-
-    });
 
     // parameters for maplist
     // columns to be default displayed
@@ -55,7 +54,25 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     
   }
 
+  onPostZp() {
+
+  const finalForm = JSON.parse(JSON.stringify(this.dynamicFormGroup.value));
   
+  finalForm.date_min = this._dateParser.format(
+    finalForm.date_min
+  );
+  
+  finalForm.date_max = this._dateParser.format(
+    finalForm.date_max
+  );
+
+  this.api.postVisit(finalForm).subscribe(
+    data => {
+      this.toastr.success('Zone de prospection enregistrée', '', {
+        positionClass: 'toast-top-center'
+      });
+    } 
+  } 
 
   ngAfterViewInit() {
     // event from the list
@@ -63,8 +80,9 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   }
 
   getGeojson(geojson) {
-    alert(JSON.stringify(geojson))
-    
+    this.dynamicFormGroup.patchValue(
+      {'geom_4326': geojson.geometry}
+    )
   }
 
   deleteControlValue() {

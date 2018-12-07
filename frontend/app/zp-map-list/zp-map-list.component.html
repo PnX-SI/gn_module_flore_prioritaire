@@ -6,11 +6,11 @@
       </pnx-taxonomy>
     </div>
     <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 padding-sm">
-      <pnx-date label="{{ 'Releve.MinDate' | translate }} " [parentFormControl]="dynamicFormGroup.controls.date_low">
+      <pnx-date label="{{ 'Releve.MinDate' | translate }} " [parentFormControl]="dynamicFormGroup.controls.date_min">
       </pnx-date>
     </div>
     <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 padding-sm">
-      <pnx-date label="{{ 'Releve.MaxDate' | translate }} " [parentFormControl]="dynamicFormGroup.controls.date_up">
+      <pnx-date label="{{ 'Releve.MaxDate' | translate }} " [parentFormControl]="dynamicFormGroup.controls.date_max">
       </pnx-date>
     </div>
   </div>
@@ -84,7 +84,9 @@ form
         </tr>       
         
       <!-- </ngx-datatable> -->
-
+      <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onAddZp()">
+        <i class="fa fa-plus-circle" aria-hidden="true"> </i> {{ 'Releve.AddReleve' | translate }}
+      </button>
 
 
 
