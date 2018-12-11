@@ -23,20 +23,26 @@ class TZprospect(DB.Model):
     date_max = DB.Column(DB.DateTime)
     topo_valid = DB.Column(DB.Unicode)
     initial_insert  = DB.Column(DB.Unicode)
-    cd_nom = DB.Column(DB.Integer)
     geom_4326 = DB.Column(Geometry('GEOMETRY', 4326))
 
 
 @serializable
-class CorZpObs(DB.Model):
-    __tablename__ = 'cor_zp_obs'
+@geoserializable
+class TApresence(DB.Model):
+    __tablename__ = 't_apresence'
     __table_args__ = {'schema': 'pr_priority_flora'}
-    indexzp = DB.Column(DB.Integer, primary_key=True)
-    id_role = DB.Column(DB.Integer, primary_key=True)
+    indexap = DB.Column(DB.Integer,primary_key=True)
+    topo_valid = DB.Column(DB.Unicode)
+    initial_insert  = DB.Column(DB.Unicode)
+    altitude_min = DB.Column(DB.Integer)
+    altitude_max = DB.Column(DB.Integer)
+    nb_transects_frequency = DB.Column(DB.Integer)
+    nb_points_frequency = DB.Column(DB.Integer)
+    nb_contacts_frequency = DB.Column(DB.Integer)
+    nb_plots_count = DB.Column(DB.Integer)
+    nb_sterile_plots = DB.Column(DB.Integer)
+    total_fertile = DB.Column(DB.Integer)
+    total_sterile = DB.Column(DB.Integer)
+    geom_4326 = DB.Column(Geometry('GEOMETRY', 4326))
 
-@serializable
-class CorZpArea(DB.Model):
-    __tablename__ = 'cor_zp_area'
-    __table_args__ = {'schema': 'pr_priority_flora'}
-    indexzp = DB.Column(DB.Integer, primary_key=True)
-    id_area = DB.Column(DB.Integer, primary_key=True)
+

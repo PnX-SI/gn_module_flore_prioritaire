@@ -29,7 +29,7 @@ def get_zprospect():
 @json_resp
 def post_visit():
     '''
-    Poste une nouvelle visite ou éditer une ancienne
+    Poste une nouvelle zone de prospection
     '''
     data = dict(request.get_json())
     shape = asShape(data['geom_4326'])
