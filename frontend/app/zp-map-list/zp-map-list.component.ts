@@ -39,6 +39,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     //   date_min: null,
     //   date_max: null
     // }); 
+    this.mapListService.idName = 'indexzp';
 
     this.api.getZProspects().subscribe(data => {
       console.log(data)
@@ -73,5 +74,15 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
   deleteControlValue() {
     console.log('Suppression')
+  }
+
+  onEachFeature(feature, layer) {
+    this.mapListService.layerDict[feature.id] = layer;
+    layer.on({
+      click: e => {
+        this.mapListService.toggleStyle(layer);
+        this.mapListService.mapSelected.next(feature.id);
+      }
+    });
   }
 }

@@ -21,6 +21,7 @@ class TZprospect(DB.Model):
     indexzp = DB.Column(DB.Integer,primary_key=True)
     date_min = DB.Column(DB.DateTime)
     date_max = DB.Column(DB.DateTime)
+    cd_nom = DB.Column(DB.Integer)
     topo_valid = DB.Column(DB.Unicode)
     initial_insert  = DB.Column(DB.Unicode)
     geom_4326 = DB.Column(Geometry('GEOMETRY', 4326))
