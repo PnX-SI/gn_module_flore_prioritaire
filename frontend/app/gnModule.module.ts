@@ -24,7 +24,7 @@ const routes: Routes = [
   imports: [CommonModule, GN2CommonModule, RouterModule.forChild(routes)],
   declarations: [ZpMapListComponent, ZpAddComponent],
   
-  providers: [DataService] 
+  providers: [DataService, StoreService] 
   
 })
 export class GeonatureModule {}

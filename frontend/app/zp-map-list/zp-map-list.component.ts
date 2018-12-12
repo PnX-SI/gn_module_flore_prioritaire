@@ -6,8 +6,8 @@ import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { FormService } from '@geonature_common/form/form.service';
 import { FormGroup, FormBuilder } from "@angular/forms";
 import { DataService } from '../services/data.service';
+import { StoreService } from '../services/store.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { ModuleConfig } from "../module.config";
 
 @Component({
@@ -20,40 +20,37 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   public leafletDrawOptions = leafletDrawOption;
   public myGeoJSON: GeoJSON;
   public dynamicFormGroup: FormGroup;
-  @ViewChild(NgbModal)
-  public modalCol: NgbModal;
+  public filteredData = [];
+  public dataLoaded = false;
+  
   constructor(
     private _ms: MapService,
     private mapListService: MapListService,
     private _fb: FormBuilder,
     public router: Router,
-    public ngbModal: NgbModal,
+    public storeService: StoreService,
     public api: DataService
   ) {}
 
   ngOnInit() {
-    this.leafletDrawOptions.draw.rectangle = true;
-    this.leafletDrawOptions.draw.circle = true;
-    this.leafletDrawOptions.draw.polyline = false;
-    this.leafletDrawOptions.edit.remove = true;
 
-    this.dynamicFormGroup = this._fb.group({
-      cd_nom: null,
-      date_min: null,
-      date_max: null
-    }); 
+    // this.dynamicFormGroup = this._fb.group({
+    //   cd_nom: null,
+    //   date_min: null,
+    //   date_max: null
+    // }); 
 
     this.api.getZProspects().subscribe(data => {
+      console.log(data)
       this.myGeoJSON = data;
+      this.mapListService.loadTableData(data);
+      this.filteredData = this.mapListService.tableData;
+
+      this.dataLoaded = true;
       console.log(this.myGeoJSON)
     });
 
-    // parameters for maplist
-    // columns to be default displayed
-    //this.displayColumns = ModuleConfig.default_zp_columns;
-    //this.mapListService.displayColumns = this.displayColumns;
   
-    
   }
 
   onAddZp() {

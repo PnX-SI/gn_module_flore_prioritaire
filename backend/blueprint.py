@@ -2,6 +2,7 @@ from flask import Blueprint,request
 
 from shapely.geometry import asShape
 from geoalchemy2.shape import from_shape
+from geojson import FeatureCollection
 
 from geonature.utils.env import DB
 from geonature.utils.utilssqlalchemy import (
@@ -23,7 +24,9 @@ def get_zprospect():
     if 'indexzp' in parameters:
         q = q.filter(TZprospect.indexzp == parameters['indexzp'])
     data = q.all()
-    return [d.as_geofeature('geom_4326', 'indexzp') for d in data]
+    return FeatureCollection(
+        [d.as_geofeature('geom_4326', 'indexzp') for d in data]
+    )
 
 @blueprint.route('/form', methods=['POST'])
 @json_resp
