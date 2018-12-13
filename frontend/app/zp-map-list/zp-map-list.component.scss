@@ -1,0 +1,246 @@
+.map-card {
+  min-height: 85vh;
+  margin: -25px -15px -15px -15px;
+}
+
+#redirect {
+  position: absolute;
+  right: 1%;
+  z-index: 1000;
+  margin-left: 15px;
+  margin-top: 15px;
+  padding-right: 0px;
+  padding-left: 0px;
+  cursor: pointer;
+  height: 40px;
+  width: 40px;
+  border-radius: 30px;
+  //padding: 0px;
+}
+
+#search-btn {
+  position: absolute;
+  right: 1%;
+  top: 25%;
+  height: 35px;
+  font-size: 15px;
+}
+
+#download-btn {
+  margin-top: 5px;
+  padding: 5px;
+}
+
+#add-btn {
+  float: right;
+  margin-top: 5px;
+  margin-right: 5px;
+  padding: 5px;
+}
+
+#refresh-filter {
+  color: red;
+}
+
+.actions {
+  height: 35px;
+  margin-left: 5px;
+  margin-top: 21px;
+  padding: 8px;
+}
+
+.filter-control {
+  height: 2.1rem !important;
+}
+
+.dynamic-form {
+  display: flex;
+  margin-right: 5px;
+  max-width: 15%;
+}
+
+.trash-btn {
+  margin-top: 30px;
+  margin-left: 5px;
+}
+
+#specific-filter {
+  margin-top: -5px;
+  padding-bottom: 5px;
+}
+
+:host /deep/ #button-input {
+  height: 2rem;
+}
+
+.col-list {
+  list-style: none;
+}
+
+.modal-body {
+  text-align: left !important;
+}
+
+.tab-container {
+  max-height: 81vh;
+  height: 80vh;
+}
+ngx-datatable {
+  max-height: 79vh !important;
+  box-shadow: none !important;
+  overflow-y: scroll;
+}
+
+.form-control-sm {
+  height: 5rem !important;
+}
+
+:host /deep/ #dataset-form  {
+  height: 2.05rem !important;
+}
+
+:host /deep/ .ngx-datatable.material .datatable-footer .page-count {
+  padding: 5px;
+  line-height: 1.2;
+  height: 40px;
+}
+
+.modal-body {
+  text-align: center;
+}
+:host /deep/ .datatable-body-row.active .datatable-row-group {
+  background-color: rgb(117, 227, 118) !important;
+}
+.card-padding {
+  background-color: white;
+  padding: 10px;
+}
+
+.ngx-datatable.material {
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12) !important;
+}
+
+.disabled {
+  cursor: not-allowed !important;
+}
+
+.export-button {
+  width: 70%;
+  margin: 0 auto;
+}
+
+.modal-dialog {
+  max-width: none !important;
+  width: 50%;
+}
+
+#modal-download {
+  max-width: none !important;
+  width: 50%;
+}
+
+.format-btn {
+  margin-left: 5px;
+}
+
+:host /deep/ .dynamic-form-wrapper {
+  display: flex;
+}
+:host /deep/ .dynamic-form {
+  display: flex;
+}
+
+:host /deep/ .trash-btn {
+  position: relative;
+  top: 28px;
+  left: 5px;
+  margin-right: 5px;
+}
+
+:host /deep/ .filter-control {
+  width: 40%;
+}
+
+.list-sht {
+  max-height: 94vh;
+  overflow-y: auto;
+  padding-bottom: 5px;
+}
+
+.searchSite {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.box-shadow {
+  box-shadow: 4px 5px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+fieldset {
+  padding: 0.35em 0.625em 0.75em !important;
+  border: 1px solid silver !important;
+  margin: 0 2px !important;
+  border-radius: 3px;
+  // background-color: #f3f3f3;
+}
+
+legend {
+  width: auto;
+  font-size: inherit;
+}
+
+.wrapper {
+  margin-bottom: 18px;
+}
+
+:host /deep/ .single-selection .datatable-body-row.active .datatable-row-group {
+  background-color: rgb(154, 217, 247) !important;
+}
+
+#cover-spin {
+  position: fixed;
+  width: 100%;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.39);
+  z-index: 9999;
+}
+
+@-webkit-keyframes spin {
+  from {
+      -webkit-transform: rotate(0deg);
+  }
+  to {
+      -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  from {
+      transform: rotate(0deg);
+  }
+  to {
+      transform: rotate(360deg);
+  }
+}
+
+#cover-spin::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 48%;
+  top: 40%;
+  width: 40px;
+  height: 40px;
+  border-style: solid;
+  border-color: black;
+  border-top-color: transparent;
+  border-width: 4px;
+  border-radius: 50%;
+  -webkit-animation: spin 0.8s linear infinite;
+  animation: spin 0.8s linear infinite;
+}

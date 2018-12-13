@@ -1,0 +1,87 @@
+<div class="card" id="specific-filter">
+  <div class="row row-sm">
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm">
+      <!-- MAP -->
+      <pnx-map height="94vh" class="map-card" [center]="storeService.shtConfig.zoom_center" [zoom]="storeService.shtConfig.zoom">
+        <!-- <pnx-leaflet-draw [options]="leafletDrawOptions" (layerDrawed)="sendGeoInfo($event)"> </pnx-leaflet-draw> -->
+        <pnx-geojson [onEachFeature]="onEachFeature.bind(this)" [geojson]="myGeoJSON">
+        </pnx-geojson>
+      </pnx-map>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm tab-container">
+        <div class="card-body">
+          <form class="wrapper wrapper-filter">
+              <fieldset>
+                  <legend> <h3>Consultation des Zones de Prospection</h3> </legend>
+                  <div class="row">
+                      <div class="searchSite col">
+                          <small> Année de visite </small>
+                          <input type="number" class="form-control">
+                      </div>
+                      <div class="searchSite col">
+                          <small> Taxon </small>
+                          <select class="form-control" name="monSelect" >
+                              <option [ngValue]=null> -- Sélectionnez un filtre -- </option>
+                              <option [ngValue]=null> Tous </option>
+                          </select>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="searchSite col">
+                          <small> Organisme </small>
+                          <select class="form-control" name="monSelect" >
+                              <option [ngValue]=null> -- Sélectionnez un filtre -- </option>
+                              <option [ngValue]=null> Tous </option>
+                          </select>
+                      </div>
+                      <div class="searchSite col">
+                          <small> Commune </small>
+                          <select class="form-control" name="monSelect" >
+                              <option [ngValue]=null> -- Sélectionnez un filtre -- </option>
+                              <option [ngValue]=null> Tous </option>
+                          </select>
+                      </div>
+                  </div>
+              </fieldset>
+          </form>
+          <div class="wrapper wrapper-datatable">
+              <ngx-datatable #table class="material" [rows]="filteredData" maxWidth="90" [headerHeight]="50" [footerHeight]="50" [rowHeight]="'auto'"
+              [columnMode]="'force'" [selected]="mapListService.selectedRow" [selectionType]="'single'" (select)="mapListService.onRowSelect($event)"
+              [rowClass]="mapListService.getRowClass" [offset]="mapListService.page.pageNumber" [limit]="mapListService.page.size" [messages]="storeService.shtConfig.zp_message">
+            
+                <ngx-datatable-column *ngFor="let col of storeService.shtConfig.default_zp_columns" [name]="col.name" [prop]="col.prop" [maxWidth]="col.width"> 
+                </ngx-datatable-column>
+          
+                <ngx-datatable-column maxWidth="90">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost" (click)="onInfo(row.id_base_visit)"
+                            title="Visualiser">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        </button>
+                    </ng-template>
+                </ngx-datatable-column>
+
+                <ngx-datatable-column maxWidth="90">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost" (click)="onInfo(row.id_base_visit)"
+                            title="Editer">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                    </ng-template>
+                </ngx-datatable-column>
+                
+              </ngx-datatable>
+          </div>
+        </div>      
+        
+      <!-- </ngx-datatable> -->
+      <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onAddZp()">
+        <i class="fa fa-plus-circle" aria-hidden="true"> </i> {{ 'Releve.AddReleve' | translate }}
+      </button>
+
+
+
+      <!-- END COL 6 -->
+    </div>
+  </div>
+</div>
