@@ -1,10 +1,8 @@
 import { Component, OnInit, Input, AfterViewInit, ViewChild } from '@angular/core';
-import { GeoJSON } from 'leaflet';
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { FormService } from '@geonature_common/form/form.service';
-import { FormGroup, FormBuilder } from "@angular/forms";
 import { DataService } from '../services/data.service';
 import { StoreService } from '../services/store.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -18,15 +16,13 @@ import { ModuleConfig } from "../module.config";
 })
 export class ZpMapListComponent implements OnInit, AfterViewInit {
   public leafletDrawOptions = leafletDrawOption;
-  public myGeoJSON: GeoJSON;
-  public dynamicFormGroup: FormGroup;
+  public myGeoJSON;
   public filteredData = [];
   public dataLoaded = false;
   
   constructor(
-    private _ms: MapService,
+    public mapService: MapService,
     private mapListService: MapListService,
-    private _fb: FormBuilder,
     public router: Router,
     public storeService: StoreService,
     public api: DataService
@@ -58,18 +54,14 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     this.router.navigate(["flore_prioritaire/form"]); 
   }
   
-  openModalCol(event, modal) {
-    this.ngbModal.open(modal);
-  }
 
   ngAfterViewInit() {
     // event from the list
-    // this.mapListService.onTableClick(this._ms.getMap());
+    this.mapListService.enableMapListConnexion(this.mapService.getMap());
   }
 
   getGeojson(geojson) {
-    alert(JSON.stringify(geojson))
-    
+    alert(JSON.stringify(geojson)) 
   }
 
   deleteControlValue() {
