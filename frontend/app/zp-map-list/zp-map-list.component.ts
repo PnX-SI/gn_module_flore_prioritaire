@@ -19,6 +19,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   public myGeoJSON;
   public filteredData = [];
   public dataLoaded = false;
+  public displayColumns: Array<any>;
   
   constructor(
     public mapService: MapService,
@@ -30,11 +31,10 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
 
-    // this.dynamicFormGroup = this._fb.group({
-    //   cd_nom: null,
-    //   date_min: null,
-    //   date_max: null
-    // }); 
+    
+    this.displayColumns = ModuleConfig.default_zp_columns;
+    this.mapListService.displayColumns = this.displayColumns;
+    
     this.mapListService.idName = 'indexzp';
 
     this.api.getZProspects().subscribe(data => {

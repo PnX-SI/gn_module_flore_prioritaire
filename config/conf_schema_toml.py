@@ -14,7 +14,7 @@ detail_list_visit_message = {"emptyMessage": "Aucune autre visite sur ce site ",
 
 default_maplist_zp_columns = [
     {"name": 'Identifiant', "prop": 'indexzp', "width": 90},
-    {"name": 'Taxon', "prop": 'cd_nom', "width": 350},
+    {"name": 'Taxon', "prop": 'taxon.nom_complet', "width": 350},
     {"name": 'Date min', "prop": 'date_min', "width": 160},
     {"name": 'Date max', "prop": 'date_max', "width": 160}
 ]

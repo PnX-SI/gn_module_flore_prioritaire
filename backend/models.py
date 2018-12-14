@@ -46,4 +46,3 @@ class TApresence(DB.Model):
     total_sterile = DB.Column(DB.Integer)
     geom_4326 = DB.Column(Geometry('GEOMETRY', 4326))
 
-

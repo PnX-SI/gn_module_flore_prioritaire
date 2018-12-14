@@ -9,7 +9,9 @@ from geonature.utils.utilssqlalchemy import (
     json_resp,
     GenericTable
 )
+
 from .models import TZprospect
+from  geonature.core.taxonomie.models import Taxref
 
 blueprint = Blueprint('pr_priority_flora', __name__)
 
@@ -20,13 +22,32 @@ def get_zprospect():
     Retourne toutes les zones de prospections du module
     '''
     parameters = request.args
-    q = DB.session.query(TZprospect)
+    q = (
+        DB.session.query(
+        TZprospect,
+        Taxref
+        ).join(
+            Taxref, TZprospect.cd_nom == Taxref.cd_nom
+        )
+    )
     if 'indexzp' in parameters:
         q = q.filter(TZprospect.indexzp == parameters['indexzp'])
+
+    if 'cd_nom' in parameters:
+        q = q.filter(Taxref.cd_nom == parameters['cd_nom'])
+
     data = q.all()
-    return FeatureCollection(
-        [d.as_geofeature('geom_4326', 'indexzp') for d in data]
-    )
+
+    features = []
+
+    for d in data:
+        feature = d[0].as_geofeature('geom_4326','indexzp',True)
+        id_zp = feature['properties']['indexzp']
+        feature['properties']['taxon'] = d[1].as_dict()
+        features.append(feature)
+        
+    return FeatureCollection(features)
+
 
 @blueprint.route('/form', methods=['POST'])
 @json_resp
@@ -43,4 +64,3 @@ def post_visit():
     DB.session.flush()
     return releve.as_geofeature('geom_4326','indexzp',True)
     
-
