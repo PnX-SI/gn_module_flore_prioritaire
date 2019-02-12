@@ -18,6 +18,17 @@ export class DataService {
     });
     return test;
   }
+  getVisits(params: any) {
+    let myParams = new HttpParams();
+  
+    for (let key in params) {
+      myParams = myParams.set(key, params[key]);
+      }  
+      return this._http.get<any>(`${AppConfig.API_ENDPOINT}/flore_prioritaire/apresences`, {
+        params: myParams
+      }); 
+  
+  }
   postVisit(data: any) {
     console.log(data);
 

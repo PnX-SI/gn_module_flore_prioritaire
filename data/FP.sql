@@ -167,3 +167,46 @@ CREATE TABLE pr_priority_flora.cor_ap_physionomie(
 WITH (
   OIDS=FALSE
 );
+
+------------------------------------------------------------
+-- Trigger: actualisation de cor_ap_area
+------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION pr_priority_flora.fct_trg_cor_ap_area()
+  RETURNS trigger AS
+$BODY$
+BEGIN
+
+	DELETE FROM pr_priority_flora.cor_ap_area WHERE indexap = NEW.indexap;
+	INSERT INTO pr_priority_flora.cor_ap_area
+	SELECT NEW.indexap, (ref_geo.fct_get_area_intersection(NEW.geom)).id_area;
+
+  RETURN NEW;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION pr_priority_flora.fct_trg_cor_ap_area()
+  OWNER TO geonatuser;
+
+------------------------------------------------------------
+-- Trigger: actualisation de cor_zp_area
+------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION pr_priority_flora.fct_trg_cor_zp_area()
+  RETURNS trigger AS
+$BODY$
+BEGIN
+
+	DELETE FROM pr_priority_flora.cor_zp_area WHERE indexzp = NEW.indexzp;
+	INSERT INTO pr_priority_flora.cor_zp_area
+	SELECT NEW.indexzp, (ref_geo.fct_get_area_intersection(NEW.geom)).id_area;
+
+  RETURN NEW;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION pr_priority_flora.fct_trg_cor_zp_area()
+  OWNER TO geonatuser;
+

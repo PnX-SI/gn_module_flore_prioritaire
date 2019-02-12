@@ -33,6 +33,8 @@ class TApresence(DB.Model):
     __tablename__ = 't_apresence'
     __table_args__ = {'schema': 'pr_priority_flora'}
     indexap = DB.Column(DB.Integer,primary_key=True)
+    indexzp = DB.Column(DB.ForeignKey(
+        'pr_priority_flora.t_zprospect.indexzp'), nullable=False)
     topo_valid = DB.Column(DB.Unicode)
     initial_insert  = DB.Column(DB.Unicode)
     altitude_min = DB.Column(DB.Integer)

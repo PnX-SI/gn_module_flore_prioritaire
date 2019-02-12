@@ -21,9 +21,15 @@ default_maplist_zp_columns = [
 
 default_list_visit_columns = [
     {"name": 'Date', "prop": 'visit_date_min'},
-    {"name": 'Observateur(s)', "prop": "observers"},
-    {"name": 'Présence/ Absence ? ', "prop": "state"},
+    {"name": 'Observateur(s)', "prop": 'observers'},
+    {"name": 'Présence/ Absence ? ', "prop": 'state'},
     # {"name": 'identifiant', "prop": "id_base_visit"}
+]
+
+default_ap_columns = [
+   {"name": 'Fréquence', "prop": 'nb_transects_frequency'},
+    {"name": 'Altitude', "prop": 'altitude_min'},
+    {"name": 'Altitude max', "prop": 'altitude_max'}
 
 ]
 
@@ -36,6 +42,7 @@ class GnModuleSchemaConf(GnModuleProdConf):
     detail_list_visit_message = fields.Dict(missing=detail_list_visit_message)
     export_available_format = fields.List(fields.String(), missing=available_export_format)
     default_zp_columns = fields.List(fields.Dict(), missing=default_maplist_zp_columns)
+    default_ap_columns = fields.List(fields.Dict(), missing=default_ap_columns)
     default_list_visit_columns = fields.List(fields.Dict(), missing=default_list_visit_columns)
     id_type_maille = fields.Integer(missing=32)
     id_type_commune = fields.Integer(missing=25)

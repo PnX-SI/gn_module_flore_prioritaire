@@ -10,7 +10,7 @@ from geonature.utils.utilssqlalchemy import (
     GenericTable
 )
 
-from .models import TZprospect
+from .models import TZprospect, TApresence
 from  geonature.core.taxonomie.models import Taxref
 
 blueprint = Blueprint('pr_priority_flora', __name__)
@@ -48,6 +48,18 @@ def get_zprospect():
         
     return FeatureCollection(features)
 
+@blueprint.route('/apresences', methods=['GET'])
+@json_resp
+def get_apresences():
+    '''
+    Retourne toutes les aires de présence d'une zone de prospection
+    '''
+    parameters = request.args
+    q = DB.session.query(TApresence)
+    if 'indexzp' in parameters:
+        q = q.filter(TApresence.indexzp == parameters['indexzp'])
+    data = q.all()
+    return [d.as_dict(True) for d in data]
 
 @blueprint.route('/form', methods=['POST'])
 @json_resp

@@ -1,0 +1,77 @@
+<div class="row row-0">
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm">
+        <pnx-map height="94vh">
+            <pnx-geojson #geojson [onEachFeature]="onEachFeature.bind(this)" [geojson]="site">
+            </pnx-geojson>
+        </pnx-map>
+    </div>
+    <div class="card col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm tab-container list-sht">
+        <div>
+            <button type="button" class="btn btn-link btn-sm back-button" (click)="backToSites()">
+                <i class="fa fa-arrow-left" aria-hidden="true"> </i>
+                Retour à la liste des zones de prospections
+            </button>
+        </div>
+        <h3> Consultation des aires de présence de la {{ indexZp }} </h3>
+        <div class="wrapper">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#infoGen" role="tab">
+                        <i class="fa fa-info-circle"> </i> Informations Générales </a>
+                </li>
+                <li class="nav-item" *ngIf="show">
+                    <a class="nav-link" data-toggle="tab" href="#details" role="tab">
+                        <i class="fa fa-search police"> </i> Détails </a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane active modal-header  list-group-item" id="infoGen" role="tabpanel">
+                    <p> <span> Identifiant Zone de propspection : </span> <span class="strong "> {{ indexZp }} </span></p>
+                    <p> <span> Date : </span> <span class="strong" innerHTML="{{ nomHabitat }}"> {{ dateMin }}
+                        </span></p>
+                    <p> <span> Observateur(s) : </span> <span class="strong"> {{ organisme }} </span></p>
+                    <p> <span> Taxon : </span> <span class="strong"> {{ nomCommune}} </span></p>
+                </div>
+                <div class="tab-pane modal-header list-group-item " id="details" role="tabpanel">
+                    <p> <span> Nom du site : </span> <span class="strong"> {{ siteName }} </span></p>
+                    <p> <span> Description du site : </span> <span class="strong"> {{ siteDesc }} </span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="wrapper">
+            <ngx-datatable class="material" [columnMode]="'force'" [rows]="rows" [headerHeight]="50" [footerHeight]="50"
+                [rowHeight]="'auto'" [messages]="storeService.shtConfig.list_visit_message" [offset]="mapListService.page.pageNumber"
+                [limit]="mapListService.page.size">
+
+                <ngx-datatable-column *ngFor="let col of storeService.shtConfig.default_ap_columns" [name]="col.name"
+                    [prop]="col.prop" maxWidth="col.maxWidth">
+                </ngx-datatable-column>
+
+                <ngx-datatable-column maxWidth="120">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost" (click)="onInfo(row.id_base_visit)"
+                        title="Visualiser">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        </button>
+                    </ng-template>
+                </ngx-datatable-column>
+
+            </ngx-datatable>
+        </div>
+
+        <div id="end-btn">
+            <pnx-modal-download labelButton='Télécharger ces visites' [pathDownload]='storeService.urlLoad' [exportFormat]='storeService.shtConfig.export_available_format'
+            [queryString]='storeService.queryString' >
+            </pnx-modal-download>
+            <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost" (click)="onInfo(row.id_base_visit)"
+                        title="Ajouter une nouvelle aire de présence">
+                            <i class="fa fa-info-circle" aria-hidden="true" (visitsUp)='getVisits()'></i>
+            </button>   
+
+        </div>
+    </div>
+    
+
+</div>

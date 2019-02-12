@@ -31,7 +31,6 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
 
-    
     this.displayColumns = ModuleConfig.default_zp_columns;
     this.mapListService.displayColumns = this.displayColumns;
     
@@ -46,7 +45,6 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       this.dataLoaded = true;
       console.log(this.myGeoJSON)
     });
-
   
   }
 
@@ -54,6 +52,12 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     this.router.navigate(["flore_prioritaire/form"]); 
   }
   
+  onInfo(indexzp) {
+    this.router.navigate([
+      `${ModuleConfig.api_url}/APlist`,
+      indexzp
+    ]);
+  }
 
   ngAfterViewInit() {
     // event from the list
