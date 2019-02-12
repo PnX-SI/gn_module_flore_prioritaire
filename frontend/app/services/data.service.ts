@@ -18,6 +18,7 @@ export class DataService {
     });
     return test;
   }
+
   getVisits(params: any) {
     let myParams = new HttpParams();
   
@@ -26,9 +27,39 @@ export class DataService {
       }  
       return this._http.get<any>(`${AppConfig.API_ENDPOINT}/flore_prioritaire/apresences`, {
         params: myParams
-      }); 
-  
+      });
+  } 
+
+  getSites(params) {
+      return this._http.get<any>(
+        `${AppConfig.API_ENDPOINT}/flore_prioritaire/sites`,
+        {
+          params: params
+        }
+      );
   }
+
+  getOrganisme() {
+    return this._http.get<any>(
+      `${AppConfig.API_ENDPOINT}/flore_prioritaire/organismes`
+    );
+  }
+
+  getCommune(id_module: number, params: any) {
+    let myParams = new HttpParams();
+
+    for (let key in params) {
+      myParams = myParams.set(key, params[key]);
+    }
+
+    return this._http.get<any>(
+      `${
+        AppConfig.API_ENDPOINT
+      }/flore_prioritaire/communes/${id_module}`,
+      { params: myParams }
+    );
+  }
+
   postVisit(data: any) {
     console.log(data);
 

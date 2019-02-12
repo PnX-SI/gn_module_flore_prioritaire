@@ -48,3 +48,87 @@ class TApresence(DB.Model):
     total_sterile = DB.Column(DB.Integer)
     geom_4326 = DB.Column(Geometry('GEOMETRY', 4326))
 
+corApArea = DB.Table(
+    'cor_ap_area',
+    DB.MetaData(schema='pr_priority_flora'),
+    DB.Column(
+        'indexap',
+        DB.Integer,
+        ForeignKey('pr_priority_flora.t_apresence.indexap'),
+        primary_key=True
+    ),
+    DB.Column(
+        'id_area',
+        DB.Integer,
+        ForeignKey('ref_geo.l_areas.id_area'),
+        primary_key=True
+    )
+)
+
+corApPerturb = DB.Table(
+    'cor_ap_perturb',
+    DB.MetaData(schema='pr_priority_flora'),
+    DB.Column(
+        'indexap',
+        DB.Integer,
+        ForeignKey('pr_priority_flora.t_apresence.indexap'),
+        primary_key=True
+    ),
+    DB.Column(
+        'id_nomenclature',
+        DB.Integer,
+        ForeignKey('ref_nomenclatures.t_nomenclatures.id_nomenclature'),
+        primary_key=True
+    )
+)
+
+corApPhysio = DB.Table(
+    'cor_ap_physionomie',
+    DB.MetaData(schema='pr_priority_flora'),
+    DB.Column(
+        'indexap',
+        DB.Integer,
+        ForeignKey('pr_priority_flora.t_apresence.indexap'),
+        primary_key=True
+    ),
+    DB.Column(
+        'id_nomenclature',
+        DB.Integer,
+        ForeignKey('ref_nomenclatures.t_nomenclatures.id_nomenclature'),
+        primary_key=True
+    )
+)
+
+corZpArea = DB.Table(
+    'cor_zp_area',
+    DB.MetaData(schema='pr_priority_flora'),
+    DB.Column(
+        'indexzp',
+        DB.Integer,
+        ForeignKey('pr_priority_flora.t_zprospect.indexzp'),
+        primary_key=True
+    ),
+    DB.Column(
+        'id_area',
+        DB.Integer,
+        ForeignKey('ref_geo.l_areas.id_area'),
+        primary_key=True
+    )
+)
+
+corZpObs = DB.Table(
+    'cor_zp_obs',
+    DB.MetaData(schema='pr_priority_flora'),
+    DB.Column(
+        'indexzp',
+        DB.Integer,
+        ForeignKey('pr_priority_flora.t_zprospect.indexzp'),
+        primary_key=True
+    ),
+    DB.Column(
+        'id_role',
+        DB.Integer,
+        ForeignKey('utilisateurs.t_roles.id_role'),
+        primary_key=True
+    )
+)

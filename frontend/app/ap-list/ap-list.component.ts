@@ -21,18 +21,15 @@ export class ApListComponent implements OnInit, OnDestroy {
   public currentSite = {};
   public show = true;
   public idSite;
-  public nomHabitat;
-  public organisme;
-  public nomCommune;
-  public siteName;
-  public siteCode;
+  public observateur;
+  public dateMin;
+  public indexZp;
   public siteDesc;
-  public cdHabitat;
   public taxons;
   public rows = [];
   public paramApp = this.storeService.queryString.append(
     "id_application",
-    ModuleConfig.ID_MODULE
+    ModuleConfig.id_application
   );
 
   @ViewChild("geojson")
@@ -63,7 +60,7 @@ export class ApListComponent implements OnInit, OnDestroy {
   }
 
   getVisits() {
-    this._api.getVisits({ id_base_site: this.idSite }).subscribe(
+    this._api.getVisits({ indexzp: this.idSite }).subscribe(
       data => {
         data.forEach(visit => {
           let fullName = "";
@@ -110,7 +107,7 @@ export class ApListComponent implements OnInit, OnDestroy {
         this.site = data[1];
 
         let properties = data[1].features[0].properties;
-        this.organisme = properties.organisme;
+        this.observateur = properties.observateur;
         this.nomCommune = properties.nom_commune;
         this.nomHabitat = properties.nom_habitat;
         this.siteName = properties.base_site_name;
