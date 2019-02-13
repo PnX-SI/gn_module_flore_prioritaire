@@ -13,7 +13,7 @@ export class DataService {
       myParams = myParams.set(key, params[key]);
     }
 
-    const test = this._http.get<any>(`${AppConfig.API_ENDPOINT}/flore_prioritaire/z_prospects`, {
+    const test = this._http.get<any>(`${AppConfig.API_ENDPOINT}/pr_priority_flora/z_prospects`, {
       params: myParams
     });
     return test;
@@ -25,14 +25,14 @@ export class DataService {
     for (let key in params) {
       myParams = myParams.set(key, params[key]);
       }  
-      return this._http.get<any>(`${AppConfig.API_ENDPOINT}/flore_prioritaire/apresences`, {
+      return this._http.get<any>(`${AppConfig.API_ENDPOINT}/pr_priority_flora/apresences`, {
         params: myParams
       });
   } 
 
   getSites(params) {
       return this._http.get<any>(
-        `${AppConfig.API_ENDPOINT}/flore_prioritaire/sites`,
+        `${AppConfig.API_ENDPOINT}/pr_priority_flora/sites`,
         {
           params: params
         }
@@ -41,7 +41,7 @@ export class DataService {
 
   getOrganisme() {
     return this._http.get<any>(
-      `${AppConfig.API_ENDPOINT}/flore_prioritaire/organismes`
+      `${AppConfig.API_ENDPOINT}/pr_priority_flora/organismes`
     );
   }
 
@@ -55,7 +55,7 @@ export class DataService {
     return this._http.get<any>(
       `${
         AppConfig.API_ENDPOINT
-      }/flore_prioritaire/communes/${id_module}`,
+      }/pr_priority_flora/communes/${id_module}`,
       { params: myParams }
     );
   }
@@ -63,7 +63,7 @@ export class DataService {
   postVisit(data: any) {
     console.log(data);
 
-    return this._http.post<any>(`${AppConfig.API_ENDPOINT}/flore_prioritaire/form`, data);
+    return this._http.post<any>(`${AppConfig.API_ENDPOINT}/pr_priority_flora/form`, data);
   }
 }
 

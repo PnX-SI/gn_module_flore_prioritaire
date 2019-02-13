@@ -26,31 +26,34 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   public oldFilterDate;
   public filterForm: FormGroup;
   public displayColumns: Array<any>;
+  private _map;
+  public center;
+  public zoom;
   
   constructor(
     public mapService: MapService,
     private mapListService: MapListService,
     public router: Router,
     public storeService: StoreService,
-    public api: DataService
+    public api: DataService,
+    private _fb: FormBuilder
   ) {}
 
   ngOnInit() {
-    this.onChargeList();
-    this.displayColumns = ModuleConfig.default_zp_columns;
-    this.mapListService.displayColumns = this.displayColumns;
     
-    this.mapListService.idName = 'indexzp';
-
-    this.api.getZProspects().subscribe(data => {
-      console.log(data)
-      this.myGeoJSON = data;
-      this.mapListService.loadTableData(data);
-      this.filteredData = this.mapListService.tableData;
-
-      this.dataLoaded = true;
+      this.displayColumns = ModuleConfig.default_zp_columns;
+      this.mapListService.displayColumns = this.displayColumns;
+      this.mapListService.idName = 'indexzp';
+      this.api.getZProspects().subscribe(data => {
+        console.log(data)
+        this.myGeoJSON = data;
+        this.mapListService.loadTableData(data);
+        this.filteredData = this.mapListService.tableData;
+        this.dataLoaded = true;
+      }
+      );
       console.log(this.myGeoJSON)
-    });
+    
 
     this.filterForm = this._fb.group({
       filterYear: null,
@@ -128,7 +131,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       });
   }
   
-  onChargeList(param?) {
+  onChargeList() {
     this.api.getZProspects().subscribe(data => {
       console.log(data)
       this.myGeoJSON = data;
@@ -136,33 +139,16 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       this.filteredData = this.mapListService.tableData;
 
       this.dataLoaded = true;
-      },
-      error => {
-        if (error.status == 404) {
-          this.page.totalElements = 0;
-          this.page.size = 0;
-          this.filteredData = [];
-        } else {
-          this.toastr.error(
-            "Une erreur est survenue lors de la récupération des données",
-            "",
-            {
-              positionClass: "toast-top-right"
-            }
-          );
-          console.log("error getsites: ", error);
-        }
-        this.dataLoaded = true;
       }
     );
   }
   onAddZp() {
-    this.router.navigate(["flore_prioritaire/form"]); 
+    this.router.navigate(["pr_priority_flora/form"]); 
   }
   
   onInfo(indexzp) {
     this.router.navigate([
-      `${ModuleConfig.api_url}/APlist`,
+      `${ModuleConfig.MODULE_URL}/APlist`,
       indexzp
     ]);
   }
@@ -183,7 +169,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       });
     });
   
-    this.api.getCommune(ModuleConfig.id_application, {
+    this.api.getCommune(ModuleConfig.ID_MODULE, {
         id_area_type: this.storeService.shtConfig.id_type_commune
       })
       .subscribe(info => {
@@ -212,6 +198,27 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
         this.mapListService.mapSelected.next(feature.id);
       }
     });
+  }
+
+  addCustomControl() {
+    let initzoomcontrol = new L.Control();
+    initzoomcontrol.setPosition("topleft");
+    initzoomcontrol.onAdd = () => {
+      var container = L.DomUtil.create(
+        "button",
+        " btn btn-sm btn-outline-shadow leaflet-bar leaflet-control leaflet-control-custom"
+      );
+      container.innerHTML =
+        '<i class="material-icons" style="line-height:normal;">crop_free</i>';
+      container.style.padding = "1px 4px";
+      container.title = "Réinitialiser l'emprise de la carte";
+      container.onclick = () => {
+        console.log("buttonClicked");
+        this._map.setView(this.center, this.zoom);
+      };
+      return container;
+    };
+    initzoomcontrol.addTo(this._map);
   }
 
   // Filters

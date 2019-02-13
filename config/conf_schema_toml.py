@@ -3,8 +3,6 @@
 '''
 
 from marshmallow import Schema, fields
-from geonature.utils.config_schema import GnModuleProdConf
-
 
 available_export_format = ['geojson', 'csv', 'shapefile']
 
@@ -36,7 +34,7 @@ default_ap_columns = [
 coor_zoom_center = [44.982667966765845, 6.062455200884894]
 
 
-class GnModuleSchemaConf(GnModuleProdConf):
+class GnModuleSchemaConf(Schema):
     zp_message = fields.Dict(missing=zp_message)
     list_visit_message = fields.Dict(missing=list_visit_message)
     detail_list_visit_message = fields.Dict(missing=detail_list_visit_message)
