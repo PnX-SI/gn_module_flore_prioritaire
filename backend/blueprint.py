@@ -119,11 +119,28 @@ def get_commune():
     data = q.all()
     if data:
         tab_commune = []
-
         for d in data:
             nom_com = dict()
             nom_com['nom_commune'] = str(d[0])
             tab_commune.append(nom_com)
         return tab_commune
-        print (tab_commune)
+    return None
+
+@blueprint.route('/taxs', methods=['GET'])
+@json_resp
+def get_taxons():
+    '''
+    Retourne tous les taxons présents dans le module
+    '''
+
+    q = DB.session.query(Taxref.nom_complet).distinct().join(TZprospect, TZprospect.cd_nom == Taxref.cd_nom)
+
+    data = q.all()
+    if data:
+        taxons = []
+        for d in data:
+            taxon = dict()
+            taxon['nom_complet'] = str(d[0])
+            taxons.append(taxon)
+        return taxons
     return None

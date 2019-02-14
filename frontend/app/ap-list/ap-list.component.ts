@@ -22,8 +22,9 @@ export class ApListComponent implements OnInit, OnDestroy {
   public show = true;
   public idSite;
   public observateur;
+  public organisme;
   public dateMin;
-  public indexZp;
+  public nomCommune;
   public siteDesc;
   public taxons;
   public rows = [];
@@ -101,13 +102,18 @@ export class ApListComponent implements OnInit, OnDestroy {
   }
 
   getSites() {
-    this.paramApp = this.paramApp.append("indexzp", this.indexZp);
+    this.paramApp = this.paramApp.append("indexzp", this.idSite);
     this._api.getSites(this.paramApp).subscribe(
       data => {
         this.site = data[1];
 
         let properties = data[1].features[0].properties;
-        this.indexZp = properties.indexzp;
+        this.idSite = properties.indexzp;
+        this.organisme = properties.organisme;
+        this.nomCommune = properties.nom_commune;
+        this.observateur = properties.nom_role;
+        this.taxons = properties.nom_complet;
+        this.dateMin = properties.date_min;
 
         this.geojson.currentGeoJson$.subscribe(currentLayer => {
           this.mapService.map.fitBounds(currentLayer.getBounds());

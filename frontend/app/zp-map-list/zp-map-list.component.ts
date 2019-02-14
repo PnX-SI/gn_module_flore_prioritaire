@@ -22,6 +22,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   public filteredData = [];
   public tabOrganism = [];
   public tabCom = [];
+  public tabTaxon = [];
   public dataLoaded = false;
   public oldFilterDate;
   public filterForm: FormGroup;
@@ -52,13 +53,12 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
         this.dataLoaded = true;
       }
       );
-    
 
     this.filterForm = this._fb.group({
       filterYear: null,
       filterOrga: null,
       filterCom: null,
-      filterHab: null
+      filterTaxon: null
     });
 
     this.filterForm.controls.filterYear.valueChanges
@@ -112,20 +112,20 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
         this.onDeleteFiltre.emit();
       });
 
-    this.filterForm.controls.filterHab.valueChanges
+    this.filterForm.controls.filterTaxon.valueChanges
       .filter(select => {
         return select !== null;
       })
-      .subscribe(hab => {
-        this.onSearchHab(hab);
+      .subscribe(tax => {
+        this.onSearchTaxon(tax);
       });
 
-    this.filterForm.controls.filterHab.valueChanges
+    this.filterForm.controls.filterTaxon.valueChanges
       .filter(input => {
         return input === null;
       })
-      .subscribe(hab => {
-        this.onDeleteParams("cd_hab", hab);
+      .subscribe(tax => {
+        this.onDeleteParams("taxon", tax);
         this.onDeleteFiltre.emit();
       });
   }
@@ -164,8 +164,8 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
           this.tabOrganism.sort((a, b) => {
             return a.localeCompare(b);
           });
+        });
       });
-    });
   
     this.api.getCommune().subscribe(info => {
       info.forEach(com => {
@@ -175,6 +175,16 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
           });
         });
       });
+
+    this.api.getTaxon().subscribe(info => {
+      info.forEach(tax => {
+        this.tabTaxon.push(tax.nom_complet);
+        this.tabTaxon.sort((a, b) => {
+            return a.localeCompare(b);
+          });
+        });
+      });
+
   }
 
   getGeojson(geojson) {
@@ -256,8 +266,8 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     this.onChargeList(this.storeService.queryString.toString());
   }
 
-  onSearchHab(event) {
-    this.onSetParams("cd_hab", event);
+  onSearchTaxon(event) {
+    this.onSetParams("taxon", event);
     this.onChargeList(this.storeService.queryString.toString());
   }
 

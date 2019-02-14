@@ -51,6 +51,12 @@ export class DataService {
     );
   }
 
+  getTaxon() {
+    return this._http.get<any>(
+      `${AppConfig.API_ENDPOINT}/pr_priority_flora/taxons`
+    );
+  }
+
   postVisit(data: any) {
     console.log(data);
 
