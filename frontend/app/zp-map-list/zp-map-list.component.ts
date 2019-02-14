@@ -45,14 +45,13 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       this.mapListService.displayColumns = this.displayColumns;
       this.mapListService.idName = 'indexzp';
       this.api.getZProspects().subscribe(data => {
-        console.log(data)
+
         this.myGeoJSON = data;
         this.mapListService.loadTableData(data);
         this.filteredData = this.mapListService.tableData;
         this.dataLoaded = true;
       }
       );
-      console.log(this.myGeoJSON)
     
 
     this.filterForm = this._fb.group({
@@ -133,7 +132,6 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   
   onChargeList() {
     this.api.getZProspects().subscribe(data => {
-      console.log(data)
       this.myGeoJSON = data;
       this.mapListService.loadTableData(data);
       this.filteredData = this.mapListService.tableData;
@@ -169,13 +167,10 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       });
     });
   
-    this.api.getCommune(ModuleConfig.ID_MODULE, {
-        id_area_type: this.storeService.shtConfig.id_type_commune
-      })
-      .subscribe(info => {
-          info.forEach(com => {
-          this.tabCom.push(com.nom_commune);
-          this.tabCom.sort((a, b) => {
+    this.api.getCommune().subscribe(info => {
+      info.forEach(com => {
+        this.tabCom.push(com.nom_commune);
+        this.tabCom.sort((a, b) => {
             return a.localeCompare(b);
           });
         });

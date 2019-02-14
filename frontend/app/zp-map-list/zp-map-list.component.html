@@ -33,11 +33,11 @@
                         </select>
                       </div>
                       <div class="searchSite col">
-                          <small> Commune </small>
-                          <select class="form-control" name="monSelect" >
-                              <option [ngValue]=null> -- Sélectionnez un filtre -- </option>
-                              <option [ngValue]=null> Tous </option>
-                          </select>
+                        <small> Commune </small>
+                        <select class="form-control form-control-sm" name="selectCom" [formControl]="filterForm.controls.filterCom">
+                                <option [ngValue]=null> -- Sélectionnez un filtre -- </option>
+                                <option *ngFor="let label of tabCom"> {{label}} </option>
+                        </select>
                       </div>
                   </div>
               </fieldset>

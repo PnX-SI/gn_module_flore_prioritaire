@@ -10,7 +10,7 @@ from geonature.utils.utilssqlalchemy import (
     GenericTable
 )
 from pypnusershub.db.models import User
-from .models import TZprospect, TApresence, corApArea, corApPerturb, corZpObs
+from .models import TZprospect, TApresence, corApArea, corZpArea, corApPerturb, corZpObs
 from geonature.core.taxonomie.models import Taxref
 from geonature.core.gn_monitoring.models import corVisitObserver, corSiteModule, TBaseVisits
 from geonature.core.ref_geo.models import LAreas
@@ -22,14 +22,17 @@ blueprint = Blueprint('pr_priority_flora', __name__)
 @json_resp
 def get_zprospect():
     '''
-    Retourne toutes les zones de prospections du module
+    Retourne toutes les zones de prospection du module
     '''
     parameters = request.args
+
+    id_type_commune = blueprint.config['id_type_commune']
+
     q = (
         DB.session.query(
         TZprospect,
         Taxref
-        ).join(
+        ).outerjoin(
             Taxref, TZprospect.cd_nom == Taxref.cd_nom
         )
     )
@@ -87,9 +90,9 @@ def get_organisme():
     '''
 
     q = DB.session.query(
-        BibOrganismes.nom_organisme, User.nom_role, User.prenom_role).outerjoin(
-        User, BibOrganismes.id_organisme == User.id_organisme).distinct().join(
-        corZpObs, User.id_role == corZpObs.c.id_role).outerjoin(
+        BibOrganismes.nom_organisme).distinct().join(
+        User, BibOrganismes.id_organisme == User.id_organisme).join(
+        corZpObs, User.id_role == corZpObs.c.id_role).join(
         TZprospect, corZpObs.c.indexzp == TZprospect.indexzp)
 
     data = q.all()
@@ -98,7 +101,29 @@ def get_organisme():
         for d in data:
             info_orga = dict()
             info_orga['nom_organisme'] = str(d[0])
-            info_orga['observer'] = str(d[1]) + ' ' + str(d[2])
             tab_orga.append(info_orga)
         return tab_orga
+    return None
+
+@blueprint.route('/communes', methods=['GET'])
+@json_resp
+def get_commune():
+    '''
+    Retourne toutes les communes présentes dans le module
+    '''
+
+    q = DB.session.query(LAreas.area_name).distinct().join(
+        corZpArea, LAreas.id_area == corZpArea.c.id_area).join(
+        TZprospect, TZprospect.indexzp == corZpArea.c.indexzp)
+
+    data = q.all()
+    if data:
+        tab_commune = []
+
+        for d in data:
+            nom_com = dict()
+            nom_com['nom_commune'] = str(d[0])
+            tab_commune.append(nom_com)
+        return tab_commune
+        print (tab_commune)
     return None

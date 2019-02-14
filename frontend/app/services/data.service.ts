@@ -45,18 +45,9 @@ export class DataService {
     );
   }
 
-  getCommune(id_module: number, params: any) {
-    let myParams = new HttpParams();
-
-    for (let key in params) {
-      myParams = myParams.set(key, params[key]);
-    }
-
+  getCommune() {
     return this._http.get<any>(
-      `${
-        AppConfig.API_ENDPOINT
-      }/pr_priority_flora/communes/${id_module}`,
-      { params: myParams }
+      `${AppConfig.API_ENDPOINT}/pr_priority_flora/communes`
     );
   }
 

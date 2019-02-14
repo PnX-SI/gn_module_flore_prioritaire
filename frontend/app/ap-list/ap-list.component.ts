@@ -101,34 +101,16 @@ export class ApListComponent implements OnInit, OnDestroy {
   }
 
   getSites() {
-    this.paramApp = this.paramApp.append("indexzp", this.idSite);
+    this.paramApp = this.paramApp.append("indexzp", this.indexZp);
     this._api.getSites(this.paramApp).subscribe(
       data => {
         this.site = data[1];
 
         let properties = data[1].features[0].properties;
-        this.observateur = properties.observateur;
-        this.nomCommune = properties.nom_commune;
-        this.nomHabitat = properties.nom_habitat;
-        this.siteName = properties.base_site_name;
-        this.siteCode = properties.base_site_code;
-        this.siteDesc = properties.base_site_description;
-        this.cdHabitat = properties.cd_hab;
-
-        // UP cd_hab nom_habitat id site
-        this.storeService.setCurrentSite(
-          properties.cd_hab,
-          properties.nom_habitat,
-          this.idSite
-        );
+        this.indexZp = properties.indexzp;
 
         this.geojson.currentGeoJson$.subscribe(currentLayer => {
           this.mapService.map.fitBounds(currentLayer.getBounds());
-        });
-
-        // TODO: refact
-        this._api.getTaxons(this.cdHabitat).subscribe(tax => {
-          this.taxons = tax;
         });
 
         this.getVisits();

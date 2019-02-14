@@ -10,11 +10,11 @@ zp_message = {"emptyMessage": "Aucune zone à afficher ", "totalMessage": "zone(
 list_visit_message = {"emptyMessage": "Aucune visite sur ce site ", "totalMessage": "visites au total"}
 detail_list_visit_message = {"emptyMessage": "Aucune autre visite sur ce site ", "totalMessage": "visites au total"}
 
-default_maplist_zp_columns = [
+default_zp_columns = [
     {"name": 'Identifiant', "prop": 'indexzp', "width": 90},
     {"name": 'Taxon', "prop": 'taxon.nom_complet', "width": 350},
     {"name": 'Date min', "prop": 'date_min', "width": 160},
-    {"name": 'Date max', "prop": 'date_max', "width": 160}
+    { "name" : "Organisme", "prop" : "organisme", "width" : 200}
 ]
 
 default_list_visit_columns = [
@@ -39,7 +39,7 @@ class GnModuleSchemaConf(Schema):
     list_visit_message = fields.Dict(missing=list_visit_message)
     detail_list_visit_message = fields.Dict(missing=detail_list_visit_message)
     export_available_format = fields.List(fields.String(), missing=available_export_format)
-    default_zp_columns = fields.List(fields.Dict(), missing=default_maplist_zp_columns)
+    default_zp_columns = fields.List(fields.Dict(), missing=default_zp_columns)
     default_ap_columns = fields.List(fields.Dict(), missing=default_ap_columns)
     default_list_visit_columns = fields.List(fields.Dict(), missing=default_list_visit_columns)
     id_type_maille = fields.Integer(missing=32)
