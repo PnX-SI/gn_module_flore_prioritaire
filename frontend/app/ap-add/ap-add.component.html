@@ -12,50 +12,55 @@
       </pnx-map>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm tab-container">
-      <div class="form-group">
-        <label> Observateur(s) : </label>
-        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 padding-sm" id="newObserver">
-            <pnx-observers [parentFormControl]="formVisit.controls.cor_visit_observer" [bindAllItem]="true"
-                [idMenu]="storeService.shtConfig.id_menu_list_user">
-            </pnx-observers>
-        </div>
-      </div>
-      <div class="form-group">
-        <label> Perturbation(s) : </label>
-        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 padding-sm" id="newPerturs">
-            <pnx-nomenclature [parentFormControl]="formVisit.controls.cor_visit_perturbation" [multiSelect]="true"
-                keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
-                codeNomenclatureType="TYPE_PERTURBATION">
-            </pnx-nomenclature>
-        </div>
-      </div>
-      <div class="form-group">
-        <label> Perturbation(s) : </label>
-        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 padding-sm" id="newPerturs">
-            <pnx-nomenclature [parentFormControl]="formVisit.controls.cor_visit_perturbation" [multiSelect]="true"
-                keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
-                codeNomenclatureType="TYPE_PERTURBATION">
-            </pnx-nomenclature>
-        </div>
-      </div>
-      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm">
-        <label> Date du début de la prospection : </label>
-        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 padding-sm">
-            <pnx-date [parentFormControl]="dynamicFormGroup.controls.date_min">
-            </pnx-date>
-        </div>
-      </div>
-      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm">
-        <label> Date de fin de la prospection : </label>
-        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 padding-sm">
-          <pnx-date [parentFormControl]="dynamicFormGroup.controls.date_max">
-          </pnx-date>
-        </div>
-      </div>
+      <form class="wrapper wrapper-filter">
+        <fieldset>
+            <legend> <h3>Ajout d'une zone de prospection</h3> </legend>
+              <div class="form-group">
+                  <label> Observateur(s) : </label>
+                  <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 padding-sm" id="newObserver">
+                    <pnx-observers [parentFormControl]="formVisit.controls.cor_visit_observer" [bindAllItem]="true"
+                      [idMenu]="storeService.shtConfig.id_menu_list_user">
+                    </pnx-observers>
+                  </div>
+              </div>
+              <div class="form-group">
+                <label> Perturbation(s) : </label>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 padding-sm" id="newPerturs">
+                    <pnx-nomenclature [parentFormControl]="formVisit.controls.cor_visit_perturbation" [multiSelect]="true"
+                        keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+                        codeNomenclatureType="TYPE_PERTURBATION">
+                    </pnx-nomenclature>
+                </div>
+              </div>
+              <div class="form-group">
+                <label> Perturbation(s) : </label>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 padding-sm" id="newPerturs">
+                    <pnx-nomenclature [parentFormControl]="formVisit.controls.cor_visit_perturbation" [multiSelect]="true"
+                        keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+                        codeNomenclatureType="TYPE_PERTURBATION">
+                    </pnx-nomenclature>
+                </div>
+              </div>
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm">
+                <label> Date du début de la prospection : </label>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 padding-sm">
+                    <pnx-date [parentFormControl]="dynamicFormGroup.controls.date_min">
+                    </pnx-date>
+                </div>
+              </div>
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm">
+                <label> Date de fin de la prospection : </label>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 padding-sm">
+                  <pnx-date [parentFormControl]="dynamicFormGroup.controls.date_max">
+                  </pnx-date>
+                </div>
+              </div>
+        </fieldset>
+      </form>
       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
           <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onPostZp()">
-            <i class="fa fa-plus-circle" aria-hidden="true"> </i> {{ 'Releve.AddReleve' | translate }}
+            <i class="fa fa-plus-circle" aria-hidden="true"> </i> Ajouter une zone de prospection
           </button>
         </div>
       </div>

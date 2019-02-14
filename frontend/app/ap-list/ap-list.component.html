@@ -62,13 +62,12 @@
         </div>
 
         <div id="end-btn">
-            <pnx-modal-download labelButton='Télécharger ces visites' [pathDownload]='storeService.urlLoad' [exportFormat]='storeService.shtConfig.export_available_format'
+            <pnx-modal-download labelButton='Télécharger ces aires de présence' [pathDownload]='storeService.urlLoad' [exportFormat]='storeService.shtConfig.export_available_format'
             [queryString]='storeService.queryString' >
             </pnx-modal-download>
-            <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost" (click)="onInfo(row.id_base_visit)"
-                        title="Ajouter une nouvelle aire de présence">
-                            <i class="fa fa-info-circle" aria-hidden="true" (visitsUp)='getVisits()'></i>
-            </button>   
+            <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onAddZp()">
+                <i class="fa fa-plus-circle" aria-hidden="true" (visitsUp)='getVisits()'> </i> Ajouter une nouvelle aire de présence
+              </button> 
 
         </div>
     </div>

@@ -7,7 +7,7 @@ from marshmallow import Schema, fields
 available_export_format = ['geojson', 'csv', 'shapefile']
 
 zp_message = {"emptyMessage": "Aucune zone à afficher ", "totalMessage": "zone(s) de prospection au total"}
-list_visit_message = {"emptyMessage": "Aucune visite sur ce site ", "totalMessage": "visites au total"}
+list_visit_message = {"emptyMessage": "Aucune aire de présence sur cette zone de prospection ", "totalMessage": "aires de présence au total"}
 detail_list_visit_message = {"emptyMessage": "Aucune autre visite sur ce site ", "totalMessage": "visites au total"}
 
 default_zp_columns = [

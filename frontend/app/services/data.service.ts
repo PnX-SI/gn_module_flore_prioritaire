@@ -53,7 +53,7 @@ export class DataService {
 
   getTaxon() {
     return this._http.get<any>(
-      `${AppConfig.API_ENDPOINT}/pr_priority_flora/taxons`
+      `${AppConfig.API_ENDPOINT}/pr_priority_flora/taxs`
     );
   }
 
