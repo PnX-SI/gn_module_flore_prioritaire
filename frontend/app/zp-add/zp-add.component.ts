@@ -54,10 +54,13 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     
   }
 
-  onPostZp() {
+  onCancelAddZp() {
+    this.router.navigate(["pr_priority_flora"]); 
+  }
 
-  const finalForm = JSON.parse(JSON.stringify(this.dynamicFormGroup.value));
+  onPostZp() {
   
+  const finalForm = JSON.parse(JSON.stringify(this.dynamicFormGroup.value));
   finalForm.date_min = this._dateParser.format(
     finalForm.date_min
   );
@@ -73,7 +76,8 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
       });
     } 
   } 
-
+  
+ 
   ngAfterViewInit() {
     // event from the list
     // this.mapListService.onTableClick(this._ms.getMap());

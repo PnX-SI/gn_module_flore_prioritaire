@@ -65,10 +65,11 @@
             <pnx-modal-download labelButton='Télécharger ces aires de présence' [pathDownload]='storeService.urlLoad' [exportFormat]='storeService.shtConfig.export_available_format'
             [queryString]='storeService.queryString' >
             </pnx-modal-download>
-            <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onAddZp()">
-                <i class="fa fa-plus-circle" aria-hidden="true" (visitsUp)='getVisits()'> </i> Ajouter une nouvelle aire de présence
-              </button> 
+            
 
+            <button id="add-btn" type="button" class="btn btn-sm box-shadow btn-color" (click)="onAddAp()">
+                <i class="fa fa-plus-circle" aria-hidden="true" (visitsUp)='getVisits()'> </i> Ajouter une nouvelle aire de présence
+            </button> 
         </div>
     </div>
     

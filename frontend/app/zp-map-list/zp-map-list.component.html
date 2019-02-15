@@ -18,8 +18,8 @@
                       </div>
                       <div class="searchSite col">
                         <small> Taxon </small>
-                        <select class="form-control form-control-sm" name="selectTax" [formControl]="filterForm.controls.filterTaxon">
-                            <option [ngValue]=null> -- Sélectionnez un filtre -- </option>
+                        <select class="form-control" name="selectTax" [formControl]="filterForm.controls.filterTaxon">
+                            <option [ngValue]=null> -- Sélectionnez un taxon -- </option>
                             <option *ngFor="let label of tabTaxon"> {{label}} </option>
                         </select>
                       </div>
@@ -27,15 +27,15 @@
                   <div class="row">
                       <div class="searchSite col">
                         <small> Organisme </small>
-                        <select class="form-control form-control-sm" name="selectOrg" [formControl]="filterForm.controls.filterOrga">
-                            <option [ngValue]=null> -- Sélectionnez un filtre -- </option>
+                        <select class="form-control" name="selectOrg" [formControl]="filterForm.controls.filterOrga">
+                            <option [ngValue]=null> -- Sélectionnez un organisme -- </option>
                             <option *ngFor="let label of tabOrganism"> {{label}} </option>
                         </select>
                       </div>
                       <div class="searchSite col">
                         <small> Commune </small>
-                        <select class="form-control form-control-sm" name="selectCom" [formControl]="filterForm.controls.filterCom">
-                                <option [ngValue]=null> -- Sélectionnez un filtre -- </option>
+                        <select class="form-control" name="selectCom" [formControl]="filterForm.controls.filterCom">
+                                <option [ngValue]=null> -- Sélectionnez une commune -- </option>
                                 <option *ngFor="let label of tabCom"> {{label}} </option>
                         </select>
                       </div>

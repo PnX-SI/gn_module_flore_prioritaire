@@ -35,12 +35,22 @@
               </pnx-date>
             </div>
           </div>
+          <div class="form-group">
+            <small> Observateur(s) : </small>
+            <div class="form-check" *ngFor=''>
+                <input class="form-check-input" type='checkbox' [formControl]=control [id]="species[i].id"
+                    [checked]="species[i].selected" />
+                <label class="form-check-label" [for]="species[i].id"> {{species[i].nom_complet}} </label>
+            </div>
+        </div>
         </fieldset>
       </form>
-
       <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onPostZp()">
-        <i class="fa fa-plus-circle" aria-hidden="true"> </i> Ajouter une zone de prospection
+        <i class="fa fa-plus-circle" aria-hidden="true"> </i> Enregistrer
       </button>
+      <button id="cancel-btn" type="button" class="btn btn-cancel box-shadow" (click)="onCancelAddZp()">
+        <i class="fa fa-times-circle" aria-hidden="true"> </i> Annuler
+    </button>
     </div>
   </div>
 </div>
