@@ -12,7 +12,6 @@ from geonature.utils.utilssqlalchemy import (
 from pypnusershub.db.models import User
 from .models import TZprospect, TApresence, corApArea, corZpArea, corApPerturb, corZpObs
 from geonature.core.taxonomie.models import Taxref
-from geonature.core.gn_monitoring.models import corVisitObserver, corSiteModule, TBaseVisits
 from geonature.core.ref_geo.models import LAreas
 from geonature.core.users.models import BibOrganismes
 
@@ -63,13 +62,45 @@ def get_apresences():
     data = q.all()
     return [d.as_dict(True) for d in data]
 
-@blueprint.route('/form', methods=['POST'])
+@blueprint.route('/post_zp', methods=['POST'])
 @json_resp
 def post_visit():
     '''
     Poste une nouvelle zone de prospection
     '''
     data = dict(request.get_json())
+
+    tab_observer = []
+
+    if 'cor_visit_observer' in data:
+        tab_observer = data.pop('cor_visit_observer')
+
+    shape = asShape(data['geom_4326'])
+    releve= TZprospect(**data)
+    releve.geom_4326 = from_shape(shape, srid=4326)
+    
+    observers = DB.session.query(User).filter(
+        User.id_role.in_(tab_observer)
+    ).all()
+
+    for o in observers:
+        visit.observers.append(o)
+
+    DB.session.add(releve)
+    DB.session.commit()
+    DB.session.flush()
+    return releve.as_geofeature('geom_4326','indexzp',True)
+
+@blueprint.route('/post_ap', methods=['POST'])
+@json_resp
+def post_ap():
+    '''
+    Poste une nouvelle zone de prospection
+    '''
+    data = dict(request.get_json())
+
+
+
     shape = asShape(data['geom_4326'])
     releve= TZprospect(**data)
     releve.geom_4326 = from_shape(shape, srid=4326)

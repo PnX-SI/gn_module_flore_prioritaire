@@ -60,7 +60,7 @@ export class DataService {
   postVisit(data: any) {
     console.log(data);
 
-    return this._http.post<any>(`${AppConfig.API_ENDPOINT}/pr_priority_flora/form`, data);
+    return this._http.post<any>(`${AppConfig.API_ENDPOINT}/pr_priority_flora/post_zp`, data);
   }
 }
 

@@ -3,7 +3,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.dialects.postgresql import UUID
 from geoalchemy2 import Geometry
-
+from pypnusershub.db.models import User
 
 from geonature.utils.env import DB
 from geonature.utils.utilssqlalchemy import (

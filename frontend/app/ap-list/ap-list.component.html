@@ -28,8 +28,7 @@
             <div class="tab-content">
                 <div class="tab-pane active modal-header  list-group-item" id="infoGen" role="tabpanel">
                     <p> <span> Identifiant Zone de prospection : </span> <span class="strong "> {{ idSite }} </span></p>
-                    <p> <span> Date : </span> <span class="strong"> {{ dateMin }}
-                        </span></p>
+                    <p> <span> Date : </span> <span class="strong"> {{ dateMin }}</span></p>
                     <p> <span> Observateur(s) : </span> <span class="strong"> {{ observateur }} </span></p>
                     <p> <span> Taxon : </span> <span class="strong"> {{ taxons }} </span></p>
                 </div>
@@ -63,7 +62,7 @@
 
         <div id="end-btn">
             <pnx-modal-download labelButton='Télécharger ces aires de présence' [pathDownload]='storeService.urlLoad' [exportFormat]='storeService.shtConfig.export_available_format'
-            [queryString]='storeService.queryString' >
+                [queryString]='storeService.queryString' >
             </pnx-modal-download>
             
 

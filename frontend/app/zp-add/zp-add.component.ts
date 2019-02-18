@@ -6,11 +6,11 @@ import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { FormService } from '@geonature_common/form/form.service';
-import { FormGroup, FormBuilder } from "@angular/forms";
+import { FormGroup, FormBuilder, Validators, FormControl } from "@angular/forms";
 import { DataService } from '../services/data.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { ModuleConfig } from "../module.config";
+import { StoreService } from '../services/store.service';
 
 @Component({
   selector: 'pnx-zp-add',
@@ -22,7 +22,8 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   public leafletDrawOptions = leafletDrawOption;
   public myGeoJSON: GeoJSON;
   public dynamicFormGroup: FormGroup;
-  
+  public taxonForm = new FormControl();
+
   constructor(
     private _ms: MapService,
     private mapListService: MapListService,
@@ -31,6 +32,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     private toastr: ToastrService,
     public ngbModal: NgbModal,
     public api: DataService,
+    public storeService: StoreService,
     private _dateParser: NgbDateParserFormatter
   ) {}
 
@@ -41,9 +43,12 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     this.leafletDrawOptions.edit.remove = true;
 
     this.dynamicFormGroup = this._fb.group({
+      cd_nom: null,
       date_min: null,
       date_max: null,
+      cor_zp_observer: [new Array(), Validators.required],
       geom_4326: null
+
     }); 
 
     // parameters for maplist
@@ -51,7 +56,6 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     //this.displayColumns = ModuleConfig.default_zp_columns;
     //this.mapListService.displayColumns = this.displayColumns;
   
-    
   }
 
   onCancelAddZp() {

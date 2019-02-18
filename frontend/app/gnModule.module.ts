@@ -17,7 +17,7 @@ import { ApListComponent } from './ap-list/ap-list.component';
 // my module routing
 const routes: Routes = [
   { path: '' component: ZpMapListComponent },
-  { path: 'form', component: ZpAddComponent },
+  { path: 'post_zp', component: ZpAddComponent },
   { path: 'APlist/:idSite', component: ApListComponent }
 ];
 
