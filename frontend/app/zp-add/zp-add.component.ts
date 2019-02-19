@@ -2,6 +2,7 @@ import { Component, OnInit, Input, AfterViewInit, ViewChild } from '@angular/cor
 import { GeoJSON } from 'leaflet';
 import { ToastrService } from 'ngx-toastr';
 import { NgbDateParserFormatter } from "@ng-bootstrap/ng-bootstrap";
+import { CommonService } from "@geonature_common/service/common.service";
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
@@ -24,11 +25,13 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   public dynamicFormGroup: FormGroup;
   public taxonForm = new FormControl();
 
+
   constructor(
     private _ms: MapService,
     private mapListService: MapListService,
     private _fb: FormBuilder,
     public router: Router,
+    private _commonService: CommonService,
     private toastr: ToastrService,
     public ngbModal: NgbModal,
     public api: DataService,
@@ -96,4 +99,3 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   deleteControlValue() {
     console.log('Suppression')
   }
-}

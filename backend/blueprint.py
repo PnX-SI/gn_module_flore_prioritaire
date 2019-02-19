@@ -181,48 +181,18 @@ def get_all_sites():
     '''
     parameters = request.args
 
-    q = (
-        DB.session.query(
-            TInfosSite,
-            func.max(TBaseVisits.visit_date_min),
-            Habref.lb_hab_fr_complet,
-            func.count(distinct(TBaseVisits.id_base_visit)),
-            func.string_agg(distinct(BibOrganismes.nom_organisme), ', '),
-            func.string_agg(LAreas.area_name, ', ')
-            ).outerjoin(
-            TBaseVisits, TBaseVisits.id_base_site == TInfosSite.id_base_site
-            # get habitat cd_hab
-            ).outerjoin(
-                Habref, TInfosSite.cd_hab == Habref.cd_hab
-            # get organisms of a site
-            ).outerjoin(
-                corVisitObserver, corVisitObserver.c.id_base_visit == TBaseVisits.id_base_visit
-            ).outerjoin(
-                User, User.id_role == corVisitObserver.c.id_role
-            ).outerjoin(
-                BibOrganismes, BibOrganismes.id_organisme == User.id_organisme
-            )
-            # get municipalities of a site
-            .outerjoin(
-                corSiteArea, corSiteArea.c.id_base_site == TInfosSite.id_base_site
-            ).outerjoin(
-                LAreas, and_(LAreas.id_area == corSiteArea.c.id_area, LAreas.id_type == id_type_commune)
-            )
-            .group_by(
-                TInfosSite, Habref.lb_hab_fr_complet
-            )
-        )
+    q = DB.session.query(TZprospect)
 
 
     
-    if 'indexzp' in parameters:
-        q = q.filter(TZprospect.indexzp == parameters['indexzp'])
+    # if 'indexzp' in parameters:
+    #     q = q.filter(TZprospect.indexzp == parameters['indexzp'])
 
-    if 'organisme' in parameters:
-        q = q.filter(BibOrganismes.nom_organisme == parameters['organisme'])
+    # if 'organisme' in parameters:
+    #     q = q.filter(BibOrganismes.nom_organisme == parameters['organisme'])
 
-    if 'commune' in parameters:
-        q = q.filter(LAreas.area_name == parameters['commune'])
+    # if 'commune' in parameters:
+    #     q = q.filter(LAreas.area_name == parameters['commune'])
 
     page = request.args.get('page', 1, type=int)
     items_per_page = blueprint.config['items_per_page']

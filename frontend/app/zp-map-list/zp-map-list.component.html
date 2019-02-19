@@ -18,10 +18,9 @@
                       </div>
                       <div class="searchSite col">
                         <small> Taxon </small>
-                        <select class="form-control" name="selectTax" [formControl]="filterForm.controls.filterTaxon">
-                            <option [ngValue]=null> -- Sélectionnez un taxon -- </option>
-                            <option *ngFor="let label of tabTaxon"> {{label}} </option>
-                        </select>
+                        <pnx-taxonomy #taxon [parentFormControl]="filterForm.controls.filterTaxon" [idList]="storeService.shtConfig.id_list_taxon"
+                            [charNumber]="3" [listLength]="20" >
+                        </pnx-taxonomy>
                       </div>
                   </div>
                   <div class="row">

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, AfterViewInit, EventEmitter, Output } from '@angular/core';
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
@@ -30,6 +30,9 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   private _map;
   public center;
   public zoom;
+
+  @Output()
+  onDeleteFiltre = new EventEmitter<any>();
   
   constructor(
     public mapService: MapService,
