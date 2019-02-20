@@ -56,11 +56,18 @@ def get_apresences():
     Retourne toutes les aires de présence d'une zone de prospection
     '''
     parameters = request.args
-    q = DB.session.query(TApresence)
+    q = DB.session.query(TApresence.indexap,TApresence.indexzp,TApresence.frequency,TApresence.altitude_min)
     if 'indexzp' in parameters:
         q = q.filter(TApresence.indexzp == parameters['indexzp'])
     data = q.all()
-    return [d.as_dict(True) for d in data]
+    print (data)
+    # features = []
+    # return [d.as_dict(True) for d in data]
+    # for d in data:
+    #     feature = d[0].as_geofeature('geom_4326','indexap',True)
+    #     features.append(feature)
+        
+    # return FeatureCollection(features)
 
 @blueprint.route('/post_zp', methods=['POST'])
 @json_resp
@@ -95,11 +102,9 @@ def post_visit():
 @json_resp
 def post_ap():
     '''
-    Poste une nouvelle zone de prospection
+    Poste une nouvelle aire de présence
     '''
     data = dict(request.get_json())
-
-
 
     shape = asShape(data['geom_4326'])
     releve= TZprospect(**data)
@@ -180,48 +185,26 @@ def get_all_sites():
     Retourne toutes les zones de prospection
     '''
     parameters = request.args
+    q = (
+        DB.session.query(
+        TZprospect,
+        Taxref
+        ).outerjoin(
+            Taxref, TZprospect.cd_nom == Taxref.cd_nom
+        )
+    )
+    if 'indexzp' in parameters:
+        q = q.filter(TZprospect.indexzp == parameters['indexzp'])
 
-    q = DB.session.query(TZprospect)
+    if 'cd_nom' in parameters:
+        q = q.filter(Taxref.cd_nom == parameters['cd_nom'])
 
-
-    
-    # if 'indexzp' in parameters:
-    #     q = q.filter(TZprospect.indexzp == parameters['indexzp'])
-
-    # if 'organisme' in parameters:
-    #     q = q.filter(BibOrganismes.nom_organisme == parameters['organisme'])
-
-    # if 'commune' in parameters:
-    #     q = q.filter(LAreas.area_name == parameters['commune'])
-
-    page = request.args.get('page', 1, type=int)
-    items_per_page = blueprint.config['items_per_page']
-    pagination_serverside = blueprint.config['pagination_serverside']
-
-    if (pagination_serverside):
-        pagination = q.paginate(page, items_per_page, False)
-        data = pagination.items
-        totalItmes = pagination.total
-    else:
-        totalItmes = 0
-        data = q.all()
-
-    pageInfo= {
-        'totalItmes' : totalItmes,
-        'items_per_page' : items_per_page,
-    }
+    data = q.all()
     features = []
-
-    if data:
-        for d in data:
-            feature = d[0].get_geofeature()
-            id_site = feature['properties']['indexzp']
-            base_site_code = feature['properties']['t_zprospect']['base_site_code']
-            base_site_description = feature['properties']['t_base_site']['base_site_description'] or 'Aucune description'
-            base_site_name = feature['properties']['t_base_site']['base_site_name']
-            if feature['properties']['t_base_site']:
-                del feature['properties']['t_base_site']
-            features.append(feature)
-
-        return [pageInfo,FeatureCollection(features)]
-    return None
+    for d in data:
+        feature = d[0].as_geofeature('geom_4326','indexzp',True)
+        id_zp = feature['properties']['indexzp']
+        feature['properties']['taxon'] = d[1].as_dict()
+        features.append(feature)
+        
+    return FeatureCollection(features)

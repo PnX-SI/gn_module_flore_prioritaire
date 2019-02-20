@@ -187,7 +187,6 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
           });
         });
       });
-
   }
 
   getGeojson(geojson) {

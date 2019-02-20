@@ -36,7 +36,7 @@ class TApresence(DB.Model):
     indexzp = DB.Column(DB.ForeignKey(
         'pr_priority_flora.t_zprospect.indexzp'), nullable=False)
     topo_valid = DB.Column(DB.Unicode)
-    initial_insert  = DB.Column(DB.Unicode)
+    frequency  = DB.Column(DB.Unicode)
     altitude_min = DB.Column(DB.Integer)
     altitude_max = DB.Column(DB.Integer)
     nb_transects_frequency = DB.Column(DB.Integer)

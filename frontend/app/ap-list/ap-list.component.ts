@@ -105,14 +105,13 @@ export class ApListComponent implements OnInit, OnDestroy {
     this.paramApp = this.paramApp.append("indexzp", this.idSite);
     this._api.getSites(this.paramApp).subscribe(
       data => {
-        this.site = data[1];
-
-        let properties = data[1].features[0].properties;
+        this.site = data;
+        let properties = data.features[0].properties;
         this.idSite = properties.indexzp;
         this.organisme = properties.organisme;
         this.nomCommune = properties.nom_commune;
         this.observateur = properties.nom_role;
-        this.taxons = properties.nom_complet;
+        this.taxons = properties.taxon.nom_complet;
         this.dateMin = properties.date_min;
 
         this.geojson.currentGeoJson$.subscribe(currentLayer => {
