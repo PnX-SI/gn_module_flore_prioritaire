@@ -66,7 +66,6 @@ def get_apresences():
     if 'indexzp' in parameters:
         q = q.filter(TApresence.indexzp == parameters['indexzp'])
     data = q.all()
-    print(data)
     features = []
 
     for d in data:

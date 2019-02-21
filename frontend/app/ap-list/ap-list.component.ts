@@ -18,6 +18,7 @@ import { ModuleConfig } from "../module.config";
 })
 export class ApListComponent implements OnInit, OnDestroy {
   public site;
+  public zp;
   public currentSite = {};
   public show = true;
   public idSite;
@@ -43,7 +44,7 @@ export class ApListComponent implements OnInit, OnDestroy {
 
   constructor(
     public mapService: MapService,
-    public mapListService: MapListService,
+    private mapListService: MapListService,
     public storeService: StoreService,
     private _location: Location,
     public _api: DataService,
@@ -62,7 +63,13 @@ export class ApListComponent implements OnInit, OnDestroy {
   }
 
   onEachFeature(feature, layer) {
-    layer.setStyle(this.storeService.getLayerStyle(this.site));
+    this.mapListService.layerDict[feature.id] = layer;
+    layer.on({
+      click: e => {
+        this.mapListService.toggleStyle(layer);
+        this.mapListService.mapSelected.next(feature.id);
+      }
+    });
   }
 
   getVisits() {
@@ -92,7 +99,7 @@ export class ApListComponent implements OnInit, OnDestroy {
     this.paramApp = this.paramApp.append("indexzp", this.idSite);
     this._api.getSites(this.paramApp).subscribe(
       data => {
-        this.site = data;
+        this.zp = data;
         let properties = data.features[0].properties;
         this.idSite = properties.indexzp;
         this.organisme = properties.organisme;
@@ -119,7 +126,7 @@ export class ApListComponent implements OnInit, OnDestroy {
       }
     );
   }
-
+  
   backToSites() {
     this._location.back();
   }
