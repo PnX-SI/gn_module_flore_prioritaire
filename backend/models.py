@@ -26,6 +26,12 @@ class TZprospect(DB.Model):
     initial_insert  = DB.Column(DB.Unicode)
     geom_4326 = DB.Column(Geometry('GEOMETRY', 4326))
 
+    def get_geofeature(self, recursif=True):
+        return self.as_geofeature(
+            'geom_4326',
+            'indexzp',
+            recursif
+        )
 
 @serializable
 @geoserializable
@@ -47,6 +53,13 @@ class TApresence(DB.Model):
     total_fertile = DB.Column(DB.Integer)
     total_sterile = DB.Column(DB.Integer)
     geom_4326 = DB.Column(Geometry('GEOMETRY', 4326))
+
+    def get_geofeature(self, recursif=True):
+        return self.as_geofeature(
+            'geom_4326',
+            'indexap',
+            recursif
+        )
 
 corApArea = DB.Table(
     'cor_ap_area',

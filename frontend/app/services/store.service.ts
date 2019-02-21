@@ -15,6 +15,7 @@ export class StoreService {
     fillOpacity: 0.2,
     weight: 3
   };
+  
 
   public presence = 0;
 

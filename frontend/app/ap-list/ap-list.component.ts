@@ -21,13 +21,18 @@ export class ApListComponent implements OnInit, OnDestroy {
   public currentSite = {};
   public show = true;
   public idSite;
+  public dataLoaded = false;
+  public idAp;
   public observateur;
   public organisme;
   public dateMin;
   public nomCommune;
   public siteDesc;
   public taxons;
-  public rows = [];
+  public nb_transects_frequency;
+  public altitude_min;
+  public altitude_max;
+  public filteredData = [];
   public paramApp = this.storeService.queryString.append(
     "id_application",
     ModuleConfig.ID_MODULE
@@ -63,30 +68,12 @@ export class ApListComponent implements OnInit, OnDestroy {
   getVisits() {
     this._api.getVisits({ indexzp: this.idSite }).subscribe(
       data => {
-        data.forEach(visit => {
-          let fullName = "";
-          let count = visit.observers.length;
-          visit.observers.forEach((obs, index) => {
-            if (count > 1) {
-              if (index + 1 == count)
-                fullName += obs.nom_role + " " + obs.prenom_role;
-              else fullName += obs.nom_role + " " + obs.prenom_role + ", ";
-            } else fullName = obs.nom_role + " " + obs.prenom_role;
-          });
-          visit.observers = fullName;
-          let pres = 0;
-          if (visit.cor_visit_taxons) {
-            visit.cor_visit_taxons.forEach(taxon => {
-              if (taxon.cd_nom) {
-                pres += 1;
-              }
-            });
-          }
-          visit.state = pres + " / " + this.taxons.length;
-        });
-
-        this.rows = data;
+        this.site = data;
+        this.mapListService.loadTableData(data);
+        this.filteredData = this.mapListService.tableData;
+        this.dataLoaded = true;
       },
+      
       error => {
         if (error.status != 404) {
           this.toastr.error(

@@ -40,7 +40,7 @@
         </div>
 
         <div class="wrapper">
-            <ngx-datatable class="material" [columnMode]="'force'" [rows]="rows" [headerHeight]="50" [footerHeight]="50"
+            <ngx-datatable class="material" [columnMode]="'force'" [rows]="filteredData" [headerHeight]="50" [footerHeight]="50"
                 [rowHeight]="'auto'" [messages]="storeService.shtConfig.list_visit_message" [offset]="mapListService.page.pageNumber"
                 [limit]="mapListService.page.size">
 

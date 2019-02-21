@@ -42,7 +42,7 @@ def get_zprospect():
     features = []
 
     for d in data:
-        feature = d[0].as_geofeature('geom_4326','indexzp',True)
+        feature = d[0].get_geofeature()
         id_zp = feature['properties']['indexzp']
         feature['properties']['taxon'] = d[1].as_dict()
         features.append(feature)
@@ -56,18 +56,25 @@ def get_apresences():
     Retourne toutes les aires de présence d'une zone de prospection
     '''
     parameters = request.args
-    q = DB.session.query(TApresence.indexap,TApresence.indexzp,TApresence.frequency,TApresence.altitude_min)
+    q = (
+        DB.session.query(
+        TApresence,
+        TZprospect
+        ).outerjoin(
+            TZprospect, TApresence.indexzp == TZprospect.indexzp
+        ))
     if 'indexzp' in parameters:
         q = q.filter(TApresence.indexzp == parameters['indexzp'])
     data = q.all()
-    print (data)
-    # features = []
-    # return [d.as_dict(True) for d in data]
-    # for d in data:
-    #     feature = d[0].as_geofeature('geom_4326','indexap',True)
-    #     features.append(feature)
+    print(data)
+    features = []
+
+    for d in data:
+        feature = d[0].get_geofeature()
+        id_ap = feature['properties']['indexap']
+        features.append(feature)
         
-    # return FeatureCollection(features)
+    return FeatureCollection(features)
 
 @blueprint.route('/post_zp', methods=['POST'])
 @json_resp
