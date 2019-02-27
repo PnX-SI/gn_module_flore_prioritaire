@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, OnDestroy } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { Router, ActivatedRoute } from "@angular/router";
 import { Location } from "@angular/common";
 import { ToastrService } from "ngx-toastr";
 
@@ -47,6 +47,7 @@ export class ApListComponent implements OnInit, OnDestroy {
     private mapListService: MapListService,
     public storeService: StoreService,
     private _location: Location,
+    public router: Router,
     public _api: DataService,
     public activatedRoute: ActivatedRoute,
     private toastr: ToastrService
@@ -70,6 +71,10 @@ export class ApListComponent implements OnInit, OnDestroy {
         this.mapListService.mapSelected.next(feature.id);
       }
     });
+  }
+
+  onAddAp() {
+      this.router.navigate(["pr_priority_flora/post_ap"]); 
   }
 
   getVisits() {

@@ -12,18 +12,20 @@ import { FormService } from './services/form.service';
 
 import { ZpMapListComponent } from './zp-map-list/zp-map-list.component';
 import { ZpAddComponent } from './zp-add/zp-add.component';
+import { ApAddComponent } from './ap-add/ap-add.component';
 import { ApListComponent } from './ap-list/ap-list.component';
 
 // my module routing
 const routes: Routes = [
   { path: '' component: ZpMapListComponent },
+  { path: 'post_ap', component: ApAddComponent },
   { path: 'post_zp', component: ZpAddComponent },
   { path: 'APlist/:idSite', component: ApListComponent }
 ];
 
 @NgModule({
   imports: [CommonModule, GN2CommonModule, RouterModule.forChild(routes)],
-  declarations: [ZpMapListComponent, ZpAddComponent, ApListComponent],
+  declarations: [ZpMapListComponent, ZpAddComponent, ApListComponent, ApAddComponent],
   
   providers: [DataService, StoreService, FormService] 
   

@@ -62,6 +62,12 @@ export class DataService {
 
     return this._http.post<any>(`${AppConfig.API_ENDPOINT}/pr_priority_flora/post_zp`, data);
   }
+
+  postAp(data: any) {
+    console.log(data);
+
+    return this._http.post<any>(`${AppConfig.API_ENDPOINT}/pr_priority_flora/post_ap`, data);
+  }
 }
 
 

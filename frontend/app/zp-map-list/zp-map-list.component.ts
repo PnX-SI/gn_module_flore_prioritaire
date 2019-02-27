@@ -133,8 +133,8 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       });
   }
   
-  onChargeList() {
-    this.api.getZProspects().subscribe(data => {
+  onChargeList(param?) {
+    this.api.getZProspects(param).subscribe(data => {
       this.myGeoJSON = data;
       this.mapListService.loadTableData(data);
       this.filteredData = this.mapListService.tableData;

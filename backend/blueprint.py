@@ -113,12 +113,12 @@ def post_ap():
     data = dict(request.get_json())
 
     shape = asShape(data['geom_4326'])
-    releve= TZprospect(**data)
+    releve= TApresence(**data)
     releve.geom_4326 = from_shape(shape, srid=4326)
     DB.session.add(releve)
     DB.session.commit()
     DB.session.flush()
-    return releve.as_geofeature('geom_4326','indexzp',True)
+    return releve.as_geofeature('geom_4326','indexap',True)
     
 
 @blueprint.route('/organismes', methods=['GET'])

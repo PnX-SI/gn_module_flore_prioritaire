@@ -8,20 +8,28 @@ import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { FormService } from '@geonature_common/form/form.service';
 import { FormGroup, FormBuilder } from "@angular/forms";
 import { DataService } from '../services/data.service';
+import { StoreService } from "../services/store.service";
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { ModuleConfig } from "../module.config";
 
 @Component({
-  selector: 'pnx-zp-add',
-  templateUrl: 'zp-add.component.html',
-  styleUrls: ['zp-add.component.scss'],
+  selector: 'pnx-ap-add',
+  templateUrl: 'ap-add.component.html',
+  styleUrls: ['ap-add.component.scss'],
   providers: [MapListService]
 })
-export class ZpAddComponent implements OnInit, AfterViewInit {
+export class ApAddComponent implements OnInit, AfterViewInit {
+  public site;
+  public zp;
   public leafletDrawOptions = leafletDrawOption;
   public myGeoJSON: GeoJSON;
   public dynamicFormGroup: FormGroup;
+  public filteredData = [];
+  public paramApp = this.storeService.queryString.append(
+    "id_application",
+    ModuleConfig.ID_MODULE
+  );
   
   constructor(
     private _ms: MapService,
@@ -31,7 +39,8 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     private toastr: ToastrService,
     public ngbModal: NgbModal,
     public api: DataService,
-    private _dateParser: NgbDateParserFormatter
+    private _dateParser: NgbDateParserFormatter,
+    public storeService: StoreService,
   ) {}
 
   ngOnInit() {
@@ -46,18 +55,23 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
       geom_4326: null
     }); 
 
-    // parameters for maplist
-    // columns to be default displayed
-    //this.displayColumns = ModuleConfig.default_zp_columns;
-    //this.mapListService.displayColumns = this.displayColumns;
   
     
   }
 
-  onPostZp() {
+  onEachFeature(feature, layer) {
+    this.mapListService.layerDict[feature.id] = layer;
+    layer.on({
+      click: e => {
+        this.mapListService.toggleStyle(layer);
+        this.mapListService.mapSelected.next(feature.id);
+      }
+    });
+  }
 
+
+  onPostAp() {
   const finalForm = JSON.parse(JSON.stringify(this.dynamicFormGroup.value));
-  
   finalForm.date_min = this._dateParser.format(
     finalForm.date_min
   );
@@ -66,9 +80,9 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     finalForm.date_max
   );
 
-  this.api.postVisit(finalForm).subscribe(
+  this.api.postAp(finalForm).subscribe(
     data => {
-      this.toastr.success('Zone de prospection enregistrée', '', {
+      this.toastr.success('Aire de présence enregistrée', '', {
         positionClass: 'toast-top-center'
       });
     } 
@@ -83,6 +97,61 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     this.dynamicFormGroup.patchValue(
       {'geom_4326': geojson.geometry}
     )
+  }
+
+  getVisits() {
+    this._api.getVisits({ indexzp: this.idSite }).subscribe(
+      data => {
+        this.site = data;
+        this.mapListService.loadTableData(data);
+        this.filteredData = this.mapListService.tableData;
+        this.dataLoaded = true;
+      },
+      
+      error => {
+        if (error.status != 404) {
+          this.toastr.error(
+            "Une erreur est survenue lors de la modification de votre relevé",
+            "",
+            {
+              positionClass: "toast-top-right"
+            }
+          );
+        }
+      }
+    );
+  }
+
+  getSites() {
+    this.paramApp = this.paramApp.append("indexzp", this.idSite);
+    this._api.getSites(this.paramApp).subscribe(
+      data => {
+        this.zp = data;
+        let properties = data.features[0].properties;
+        this.idSite = properties.indexzp;
+        this.organisme = properties.organisme;
+        this.nomCommune = properties.nom_commune;
+        this.observateur = properties.nom_role;
+        this.taxons = properties.taxon.nom_complet;
+        this.dateMin = properties.date_min;
+
+        this.geojson.currentGeoJson$.subscribe(currentLayer => {
+          this.mapService.map.fitBounds(currentLayer.getBounds());
+        });
+
+        this.getVisits();
+      },
+      error => {
+        this.toastr.error(
+          "Une erreur est survenue lors de la récupération des informations sur le serveur",
+          "",
+          {
+            positionClass: "toast-top-right"
+          }
+        );
+        console.log("error: ", error);
+      }
+    );
   }
 
   deleteControlValue() {
