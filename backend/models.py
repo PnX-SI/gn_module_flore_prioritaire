@@ -60,14 +60,13 @@ class TApresence(DB.Model):
             'indexap',
             recursif
         )
-
-corApArea = DB.Table(
+CorApArea = DB.Table(
     'cor_ap_area',
     DB.MetaData(schema='pr_priority_flora'),
     DB.Column(
         'indexap',
         DB.Integer,
-        ForeignKey('pr_priority_flora.t_apresence.indexap'),
+        ForeignKey('pr_priority_flora.t_apresence.indexzp'),
         primary_key=True
     ),
     DB.Column(
@@ -78,41 +77,8 @@ corApArea = DB.Table(
     )
 )
 
-corApPerturb = DB.Table(
-    'cor_ap_perturb',
-    DB.MetaData(schema='pr_priority_flora'),
-    DB.Column(
-        'indexap',
-        DB.Integer,
-        ForeignKey('pr_priority_flora.t_apresence.indexap'),
-        primary_key=True
-    ),
-    DB.Column(
-        'id_nomenclature',
-        DB.Integer,
-        ForeignKey('ref_nomenclatures.t_nomenclatures.id_nomenclature'),
-        primary_key=True
-    )
-)
 
-corApPhysio = DB.Table(
-    'cor_ap_physionomie',
-    DB.MetaData(schema='pr_priority_flora'),
-    DB.Column(
-        'indexap',
-        DB.Integer,
-        ForeignKey('pr_priority_flora.t_apresence.indexap'),
-        primary_key=True
-    ),
-    DB.Column(
-        'id_nomenclature',
-        DB.Integer,
-        ForeignKey('ref_nomenclatures.t_nomenclatures.id_nomenclature'),
-        primary_key=True
-    )
-)
-
-corZpArea = DB.Table(
+CorZpArea = DB.Table(
     'cor_zp_area',
     DB.MetaData(schema='pr_priority_flora'),
     DB.Column(
@@ -129,7 +95,7 @@ corZpArea = DB.Table(
     )
 )
 
-corZpObs = DB.Table(
+CorZpObs = DB.Table(
     'cor_zp_obs',
     DB.MetaData(schema='pr_priority_flora'),
     DB.Column(
@@ -145,3 +111,38 @@ corZpObs = DB.Table(
         primary_key=True
     )
 )
+
+@serializable
+class TNomenclature(DB.Model):
+    __tablename__ = 't_nomenclatures'
+    __table_args__ = {'schema': 'ref_nomenclatures', 'extend_existing': True}
+
+    id_nomenclature = DB.Column(
+        DB.Integer, primary_key=True, server_default=DB.FetchedValue())
+    mnemonique = DB.Column(DB.String(255))
+    label_default = DB.Column(DB.String(255), nullable=False)
+
+
+@serializable
+class CorApPerturb(DB.Model):
+    __tablename__ = 'cor_ap_perturb'
+    __table_args__ = {'schema': 'pr_priority_flora'}
+
+    indexap = DB.Column(DB.ForeignKey(
+        'pr_priority_flora.t_apresence.indexap', onupdate='CASCADE'), primary_key=True, nullable=False)
+    id_nomenclature_perturbation = DB.Column(DB.ForeignKey(
+        'ref_nomenclatures.t_nomenclatures.id_nomenclature', onupdate='CASCADE'), primary_key=True, nullable=False)
+    t_nomenclature = DB.relationship(
+        'TNomenclature', primaryjoin='CorApPerturb.id_nomenclature_perturbation == TNomenclature.id_nomenclature', backref='cor_ap_perturb')
+
+@serializable
+class CorApPhysio(DB.Model):
+    __tablename__ = 'cor_ap_physionomie'
+    __table_args__ = {'schema': 'pr_priority_flora'}
+
+    indexap = DB.Column(DB.ForeignKey(
+        'pr_priority_flora.t_apresence.indexap', onupdate='CASCADE'), primary_key=True, nullable=False)
+    id_nomenclature_physionomie = DB.Column(DB.ForeignKey(
+        'ref_nomenclatures.t_nomenclatures.id_nomenclature', onupdate='CASCADE'), primary_key=True, nullable=False)
+    t_nomenclature = DB.relationship(
+        'TNomenclature', primaryjoin='CorApPhysio.id_nomenclature_physionomie == TNomenclature.id_nomenclature', backref='cor_ap_physionomie')

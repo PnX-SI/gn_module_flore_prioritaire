@@ -14,18 +14,25 @@ import { ZpMapListComponent } from './zp-map-list/zp-map-list.component';
 import { ZpAddComponent } from './zp-add/zp-add.component';
 import { ApAddComponent } from './ap-add/ap-add.component';
 import { ApListComponent } from './ap-list/ap-list.component';
+import { ApListAddComponent } from './ap-list-add/ap-list-add.component';
 
 // my module routing
 const routes: Routes = [
-  { path: '' component: ZpMapListComponent },
-  { path: 'post_ap', component: ApAddComponent },
+  { path: '', component: ZpMapListComponent },
   { path: 'post_zp', component: ZpAddComponent },
-  { path: 'APlist/:idSite', component: ApListComponent }
+  { path: 'zp/:idZP', component: ApListAddComponent, 
+     children: [
+      { path: 'ap_list', component: ApListComponent },
+      { path: 'post_ap', component: ApAddComponent },
+      { path: '', redirectTo: 'ap_list', pathMatch: 'full' }	
+    ] 
+  },
+ 
 ];
 
 @NgModule({
   imports: [CommonModule, GN2CommonModule, RouterModule.forChild(routes)],
-  declarations: [ZpMapListComponent, ZpAddComponent, ApListComponent, ApAddComponent],
+  declarations: [ZpMapListComponent, ZpAddComponent, ApListComponent, ApAddComponent, ApListAddComponent],
   
   providers: [DataService, StoreService, FormService] 
   

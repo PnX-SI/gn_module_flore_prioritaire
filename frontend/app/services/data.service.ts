@@ -19,7 +19,7 @@ export class DataService {
     return test;
   }
 
-  getVisits(params: any) {
+  getApresences(params: any) {
     let myParams = new HttpParams();
   
     for (let key in params) {
@@ -30,7 +30,7 @@ export class DataService {
       });
   } 
 
-  getSites(params) {
+  getZprosps(params) {
       return this._http.get<any>(
         `${AppConfig.API_ENDPOINT}/pr_priority_flora/sites`,
         {

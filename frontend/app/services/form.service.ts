@@ -7,15 +7,29 @@ export class FormService {
 
   constructor(private _fb: FormBuilder) {}
 
-  initFormSFT(): FormGroup {
+  initFormAp(): FormGroup {
     const formSuivi = this._fb.group({
-      id_base_site: null,
-      id_base_visit: null,
-      visit_date_min: [null, Validators.required],
-      visit_date_max: null,
-      cor_visit_observer: [null, Validators.required],
-      cor_visit_perturbation: new Array(),
-      cor_visit_grid: new Array(),
+      indexap: null,
+      frequency: null,
+      altitude_min: [null, Validators.required],
+      altitude_max: null,
+      cor_ap_observer: [null, Validators.required],
+      cor_ap_perturbation: new Array(),
+      cor_ap_physionomie: new Array(),
+      id_nomenclatures_pente: null,
+      id_nomenclatures_count_method: null,
+      id_nomenclatures_freq_method: null,
+      id_nomenclatures_phenology: null,
+      nb_transects_frequency: null,
+      nb_points_frequency: null,
+      nb_contacts_frequency: null,
+      nb_plots_count: null,
+      area_plots_count: null,
+      nb_sterile_plots: null,
+      nb_fertile_plots: null,
+      total_fertile: null,
+      total_sterile: null,
+      step_length: null,
       comments: null
     });
     return formSuivi;

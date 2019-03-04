@@ -10,7 +10,7 @@ from geonature.utils.utilssqlalchemy import (
     GenericTable
 )
 from pypnusershub.db.models import User
-from .models import TZprospect, TApresence, corApArea, corZpArea, corApPerturb, corZpObs
+from .models import TZprospect, TApresence, CorApArea, CorZpArea, CorApPerturb, CorApPhysio, CorZpObs
 from geonature.core.taxonomie.models import Taxref
 from geonature.core.ref_geo.models import LAreas
 from geonature.core.users.models import BibOrganismes

@@ -148,10 +148,13 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   }
   
   onInfo(indexzp) {
-    this.router.navigate([
-      `${ModuleConfig.MODULE_URL}/APlist`,
-      indexzp
-    ]);
+    this.router.navigate(
+      [
+        'pr_priority_flora/zp',
+         indexzp, 'ap_list'
+      ]
+    );
+  
   }
 
   ngAfterViewInit() {

@@ -1,11 +1,11 @@
-import { Component, OnInit, ViewChild, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { Location } from "@angular/common";
 import { ToastrService } from "ngx-toastr";
+import * as L from "leaflet";
 
 import { MapListService } from "@geonature_common/map-list/map-list.service";
 import { MapService } from "@geonature_common/map/map.service";
-import { GeojsonComponent } from "@geonature_common/map/geojson/geojson.component";
 
 import { DataService } from "../services/data.service";
 import { StoreService } from "../services/store.service";
@@ -17,132 +17,92 @@ import { ModuleConfig } from "../module.config";
   styleUrls: ["./ap-list.component.scss"]
 })
 export class ApListComponent implements OnInit, OnDestroy {
-  public site;
-  public zp;
+  
   public currentSite = {};
   public show = true;
-  public idSite;
-  public dataLoaded = false;
   public idAp;
-  public observateur;
-  public organisme;
-  public dateMin;
-  public nomCommune;
-  public siteDesc;
-  public taxons;
-  public nb_transects_frequency;
-  public altitude_min;
-  public altitude_max;
-  public filteredData = [];
-  public paramApp = this.storeService.queryString.append(
-    "id_application",
-    ModuleConfig.ID_MODULE
+  private _map;
   );
-
-  @ViewChild("geojson")
-  geojson: GeojsonComponent;
 
   constructor(
     public mapService: MapService,
-    private mapListService: MapListService,
     public storeService: StoreService,
     private _location: Location,
     public router: Router,
     public _api: DataService,
     public activatedRoute: ActivatedRoute,
+    public mapListService: MapListService,
     private toastr: ToastrService
   ) {}
 
   ngOnInit() {
-    this.idSite = this.activatedRoute.snapshot.params['idSite'];
-    this.storeService.queryString = this.storeService.queryString.set('indexzp', this.idSite);
+  
+  this.storeService.idSite = this.activatedRoute.snapshot.params['idSite'];
+  this.storeService.queryString = this.storeService.queryString.set('indexzp', this.storeService.idSite);
   }
 
-  ngAfterViewInit() {
-    this.mapService.map.doubleClickZoom.disable();
-    this.getSites();
-  }
+//   // onEachFeature(feature, layer) {
+//   //   let site = feature.properties;
+//   //   this.mapListService.layerDict[feature.id] = layer;
 
-  onEachFeature(feature, layer) {
-    this.mapListService.layerDict[feature.id] = layer;
-    layer.on({
-      click: e => {
-        this.mapListService.toggleStyle(layer);
-        this.mapListService.mapSelected.next(feature.id);
-      }
-    });
-  }
+//   //   const customPopup = '<div class="title">' + site.date_max + "</div>";
+//   //   const customOptions = {
+//   //     className: "custom-popup"
+//   //   };
+//   //   layer.bindPopup(customPopup, customOptions);
+//   //   layer.on({
+//   //     click: e => {
+//   //       //this.toggleStyle(layer);
+//   //       //this.onMapClick(feature.id);
+//   //     }
+//   //   });
+//   // }
 
-  onAddAp() {
-      this.router.navigate(["pr_priority_flora/post_ap"]); 
-  }
+//   // ngAfterViewInit() {
+//   //   this.mapService.map.doubleClickZoom.disable();
+//   //   const idZP = this.activatedRoute.snapshot.params['idZP'];
+//   //   this.storeService.getZp(idZP);
+//   // }
 
-  getVisits() {
-    this._api.getVisits({ indexzp: this.idSite }).subscribe(
-      data => {
-        this.site = data;
-        this.mapListService.loadTableData(data);
-        this.filteredData = this.mapListService.tableData;
-        this.dataLoaded = true;
-      },
-      
-      error => {
-        if (error.status != 404) {
-          this.toastr.error(
-            "Une erreur est survenue lors de la modification de votre relevé",
-            "",
-            {
-              positionClass: "toast-top-right"
-            }
-          );
-        }
-      }
-    );
-  }
-
-  getSites() {
-    this.paramApp = this.paramApp.append("indexzp", this.idSite);
-    this._api.getSites(this.paramApp).subscribe(
-      data => {
-        this.zp = data;
-        let properties = data.features[0].properties;
-        this.idSite = properties.indexzp;
-        this.organisme = properties.organisme;
-        this.nomCommune = properties.nom_commune;
-        this.observateur = properties.nom_role;
-        this.taxons = properties.taxon.nom_complet;
-        this.dateMin = properties.date_min;
-
-        this.geojson.currentGeoJson$.subscribe(currentLayer => {
-          this.mapService.map.fitBounds(currentLayer.getBounds());
-        });
-
-        this.getVisits();
-      },
-      error => {
-        this.toastr.error(
-          "Une erreur est survenue lors de la récupération des informations sur le serveur",
-          "",
-          {
-            positionClass: "toast-top-right"
-          }
-        );
-        console.log("error: ", error);
-      }
-    );
+onAddAp(idZP) {
+    this.storeService.getZp();
+    this.router.navigate(
+      [
+        'pr_priority_flora/zp',
+        idZP, 'post_ap'
+      ]
+    );  
   }
   
-  backToSites() {
-    this._location.back();
-  }
+//   // onRowSelect(row) {
+//   //   let id = row.selected[0]['idSite'];
+//   //   let site = row.selected[0];
+//   //   const selectedLayer = this.mapListService.layerDict[id];
+//   //   //this.storeService.toggleStyle(selectedLayer);
+//   //   this.zoomOnSelectedLayer(this._map, selectedLayer, 16);
+//   // }
 
-  ngOnDestroy() {
-    this.storeService.queryString = this.storeService.queryString.delete(
-      "id_base_site"
-    );
-    console.log(
-      "queryString list-visit: ",
-      this.storeService.queryString.toString()
-    );
-  }
+//   // zoomOnSelectedLayer(map, layer, zoom) {
+//   //   let latlng;
+
+//   //   if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+//   //     latlng = (layer as any).getCenter();
+//   //     map.setView(latlng, zoom);
+//   //   } else {
+//   //     latlng = layer._latlng;
+//   //   }
+//   // }
+backToSites() {
+  this._location.back();
+}
+
+//   // ngOnDestroy() {
+//   //   this.storeService.queryString = this.storeService.queryString.delete(
+//   //     "id_base_site"
+//   //   );
+//   //   console.log(
+//   //     "queryString list-visit: ",
+//   //     this.storeService.queryString.toString()
+//   //   );
+//   // } 
 }

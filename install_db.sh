@@ -38,6 +38,7 @@ then
     # A adapter : export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f /tmp/data_station_bases.sql &>>  var/log/install_bs.log
 fi
 
+
 # Remove temporary files
 rm /tmp/station_bases.sql
 rm /tmp/data_station_bases.sql
