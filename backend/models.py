@@ -13,6 +13,10 @@ from geonature.utils.utilssqlalchemy import (
 )
 from geonature.utils.utilsgeometry import shapeserializable
 
+from geonature.core.taxonomie.models import Taxref
+from geonature.core.ref_geo.models import LAreas
+from geonature.core.users.models import BibOrganismes
+
 @serializable
 @geoserializable
 class TZprospect(DB.Model):
@@ -60,57 +64,54 @@ class TApresence(DB.Model):
             'indexap',
             recursif
         )
-CorApArea = DB.Table(
-    'cor_ap_area',
-    DB.MetaData(schema='pr_priority_flora'),
-    DB.Column(
-        'indexap',
+
+@serializable
+class CorApArea(DB.Model):
+    __tablename__ = 'cor_ap_area'
+    __table_args__ = {'schema': 'pr_priority_flora'}
+
+    id_area = DB.Column(
         DB.Integer,
-        ForeignKey('pr_priority_flora.t_apresence.indexzp'),
-        primary_key=True
-    ),
-    DB.Column(
-        'id_area',
-        DB.Integer,
-        ForeignKey('ref_geo.l_areas.id_area'),
+        ForeignKey(LAreas.id_area),
         primary_key=True
     )
-)
-
-
-CorZpArea = DB.Table(
-    'cor_zp_area',
-    DB.MetaData(schema='pr_priority_flora'),
-    DB.Column(
-        'indexzp',
+    indexap = DB.Column(
         DB.Integer,
-        ForeignKey('pr_priority_flora.t_zprospect.indexzp'),
-        primary_key=True
-    ),
-    DB.Column(
-        'id_area',
-        DB.Integer,
-        ForeignKey('ref_geo.l_areas.id_area'),
+        ForeignKey(TApresence.indexap),
         primary_key=True
     )
-)
 
-CorZpObs = DB.Table(
-    'cor_zp_obs',
-    DB.MetaData(schema='pr_priority_flora'),
-    DB.Column(
-        'indexzp',
+@serializable
+class CorZpObs(DB.Model):
+    __tablename__ = 'cor_zp_obs'
+    __table_args__ = {'schema': 'pr_priority_flora'}
+
+    id_role = DB.Column(
         DB.Integer,
-        ForeignKey('pr_priority_flora.t_zprospect.indexzp'),
-        primary_key=True
-    ),
-    DB.Column(
-        'id_role',
-        DB.Integer,
-        ForeignKey('utilisateurs.t_roles.id_role'),
+        ForeignKey(User.id_role),
         primary_key=True
     )
-)
+    indexzp = DB.Column(
+        DB.Integer,
+        ForeignKey(TZprospect.indexzp),
+        primary_key=True
+    )
+
+@serializable
+class CorZpArea(DB.Model):
+    __tablename__ = 'cor_zp_area'
+    __table_args__ = {'schema': 'pr_priority_flora'}
+
+    id_area = DB.Column(
+        DB.Integer,
+        ForeignKey(LAreas.id_area),
+        primary_key=True
+    )
+    indexzp = DB.Column(
+        DB.Integer,
+        ForeignKey(TZprospect.indexzp),
+        primary_key=True
+    )
 
 @serializable
 class TNomenclature(DB.Model):

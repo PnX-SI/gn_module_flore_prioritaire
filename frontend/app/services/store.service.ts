@@ -5,6 +5,7 @@ import { Layer } from 'leaflet';
 import { ModuleConfig } from '../module.config';
 import { DataService } from "../services/data.service";
 import { MapListService } from '@geonature_common/map-list/map-list.service';
+import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 
 @Injectable()
 export class StoreService {
@@ -23,6 +24,8 @@ export class StoreService {
   public altitude_min;
   public altitude_max;
   public shtConfig = ModuleConfig;
+  public leafletDrawOptions = leafletDrawOption;
+  public showDraw = false;
   public paramApp = new HttpParams().append(
     "id_application",
     ModuleConfig.ID_MODULE
@@ -44,11 +47,16 @@ export class StoreService {
   public presence = 0;
 
   public queryString = new HttpParams();
-
-  initInsertAP() {
-    
-
-  }
+  
+  showLeafletDraw() {
+    this.showDraw = true;
+    this.leafletDrawOptions.draw.rectangle = true;
+    this.leafletDrawOptions.draw.circle = true;
+    this.leafletDrawOptions.draw.polyline = false;
+    this.leafletDrawOptions.draw.polygone = true;
+    this.leafletDrawOptions.edit.remove = true;
+    this.leafletDrawOptions.edit.edit = true;
+    }
 
   getAps() {
     this._api.getApresences({ indexzp: this.idSite }).subscribe(
@@ -71,7 +79,6 @@ export class StoreService {
       }
     );
   }
-
   getZp(idZP) { 
     this.paramApp = this.paramApp.append("indexzp", idZP);
     this._api.getZprosps(this.paramApp).subscribe(
@@ -107,6 +114,7 @@ export class StoreService {
       );
     }   
   }
+  
 
 
 

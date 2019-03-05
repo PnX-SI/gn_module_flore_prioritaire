@@ -65,14 +65,15 @@ export class ApListComponent implements OnInit, OnDestroy {
 //   // }
 
 onAddAp(idZP) {
-  
-    this.storeService.getZp();
+    
+    this.storeService.getZp(idZP);
     this.router.navigate(
       [
         'pr_priority_flora/zp',
         idZP, 'post_ap'
       ]
-    );  
+    ); 
+    this.storeService.showLeafletDraw(); 
   }
   
 //   // onRowSelect(row) {

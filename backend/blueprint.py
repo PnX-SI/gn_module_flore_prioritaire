@@ -131,8 +131,8 @@ def get_organisme():
     q = DB.session.query(
         BibOrganismes.nom_organisme).distinct().join(
         User, BibOrganismes.id_organisme == User.id_organisme).join(
-        corZpObs, User.id_role == corZpObs.c.id_role).join(
-        TZprospect, corZpObs.c.indexzp == TZprospect.indexzp)
+        corZpObs, User.id_role == CorZpObs.c.id_role).join(
+        TZprospect, CorZpObs.c.indexzp == TZprospect.indexzp)
 
     data = q.all()
     if data:
