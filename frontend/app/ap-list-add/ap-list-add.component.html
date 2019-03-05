@@ -5,6 +5,9 @@
             </pnx-geojson>
             <pnx-geojson #geojson [onEachFeature]="onEachFeature.bind(this)" [geojson]="storeService.sites">
             </pnx-geojson>
+            <pnx-leaflet-draw [options]="leafletDrawOptions" [zoomLevel]="1" (layerDrawed)="getGeojson($event)"
+                (layerDeleted)="deleteControlValue()">
+            </pnx-leaflet-draw>
         </pnx-map>
     </div>
     <div class="card col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm tab-container list-sht">

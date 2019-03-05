@@ -1,12 +1,10 @@
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ToastrService } from "ngx-toastr";
-import { GeojsonComponent } from "@geonature_common/map/geojson/geojson.component";
 import { Layer } from 'leaflet';
 import { ModuleConfig } from '../module.config';
 import { DataService } from "../services/data.service";
 import { MapListService } from '@geonature_common/map-list/map-list.service';
-
 
 @Injectable()
 export class StoreService {
@@ -40,12 +38,17 @@ export class StoreService {
     public _api: DataService,
     private toastr: ToastrService,
     public mapListService: MapListService
+    
     ) {}
 
   public presence = 0;
 
   public queryString = new HttpParams();
 
+  initInsertAP() {
+    
+
+  }
 
   getAps() {
     this._api.getApresences({ indexzp: this.idSite }).subscribe(
@@ -69,9 +72,7 @@ export class StoreService {
     );
   }
 
-  getZp(idZP) {
-    console.log('id_szp', idZP);
-    
+  getZp(idZP) { 
     this.paramApp = this.paramApp.append("indexzp", idZP);
     this._api.getZprosps(this.paramApp).subscribe(
       data => {
@@ -102,11 +103,12 @@ export class StoreService {
           }
         );
         console.log("error: ", error);
-      }
-    );
+        }
+      );
+    }   
   }
-    
-}
+
+
 
 
 

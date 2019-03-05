@@ -65,6 +65,7 @@ export class ApListComponent implements OnInit, OnDestroy {
 //   // }
 
 onAddAp(idZP) {
+  
     this.storeService.getZp();
     this.router.navigate(
       [

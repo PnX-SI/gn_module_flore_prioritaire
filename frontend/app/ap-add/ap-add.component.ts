@@ -32,9 +32,6 @@ export class ApAddComponent implements OnInit, AfterViewInit {
     ModuleConfig.ID_MODULE
   );
 
-  // @ViewChild("geojson")
-  // geojson: GeojsonComponent;
-
   constructor(
     public mapService: MapService,
     private _fb: FormBuilder,
@@ -48,11 +45,6 @@ export class ApAddComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-  
-     this.leafletDrawOptions.draw.rectangle = true;
-     this.leafletDrawOptions.draw.circle = true;
-     this.leafletDrawOptions.draw.polyline = false;
-     this.leafletDrawOptions.edit.remove = true;
 
      this.dynamicFormGroup = this._fb.group({
        date_min: null,
