@@ -41,29 +41,6 @@ export class ApListComponent implements OnInit, OnDestroy {
   this.storeService.queryString = this.storeService.queryString.set('indexzp', this.storeService.idSite);
   }
 
-//   // onEachFeature(feature, layer) {
-//   //   let site = feature.properties;
-//   //   this.mapListService.layerDict[feature.id] = layer;
-
-//   //   const customPopup = '<div class="title">' + site.date_max + "</div>";
-//   //   const customOptions = {
-//   //     className: "custom-popup"
-//   //   };
-//   //   layer.bindPopup(customPopup, customOptions);
-//   //   layer.on({
-//   //     click: e => {
-//   //       //this.toggleStyle(layer);
-//   //       //this.onMapClick(feature.id);
-//   //     }
-//   //   });
-//   // }
-
-//   // ngAfterViewInit() {
-//   //   this.mapService.map.doubleClickZoom.disable();
-//   //   const idZP = this.activatedRoute.snapshot.params['idZP'];
-//   //   this.storeService.getZp(idZP);
-//   // }
-
 onAddAp(idZP) {
     
     this.storeService.getZp(idZP);
@@ -76,35 +53,9 @@ onAddAp(idZP) {
     this.storeService.showLeafletDraw(); 
   }
   
-//   // onRowSelect(row) {
-//   //   let id = row.selected[0]['idSite'];
-//   //   let site = row.selected[0];
-//   //   const selectedLayer = this.mapListService.layerDict[id];
-//   //   //this.storeService.toggleStyle(selectedLayer);
-//   //   this.zoomOnSelectedLayer(this._map, selectedLayer, 16);
-//   // }
-
-//   // zoomOnSelectedLayer(map, layer, zoom) {
-//   //   let latlng;
-
-//   //   if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
-//   //     latlng = (layer as any).getCenter();
-//   //     map.setView(latlng, zoom);
-//   //   } else {
-//   //     latlng = layer._latlng;
-//   //   }
-//   // }
-backToSites() {
-  this._location.back();
+backToZp() {
+  this.router.navigate(["pr_priority_flora"]);
 }
 
-//   // ngOnDestroy() {
-//   //   this.storeService.queryString = this.storeService.queryString.delete(
-//   //     "id_base_site"
-//   //   );
-//   //   console.log(
-//   //     "queryString list-visit: ",
-//   //     this.storeService.queryString.toString()
-//   //   );
-//   // } 
+ 
 }

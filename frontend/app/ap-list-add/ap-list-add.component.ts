@@ -12,7 +12,6 @@ import { StoreService } from "../services/store.service";
 import { ModuleConfig } from "../module.config";
 
 
-
 @Component({
   selector: "pnx-ap-list-add",
   templateUrl: "ap-list-add.component.html",
@@ -38,14 +37,6 @@ export class ApListAddComponent implements OnInit, OnDestroy, OnChanges {
   ) {}
 
   ngOnInit() { 
-
-    this.dynamicFormGroup = this._fb.group({
-      cd_nom: null,
-      date_min: null,
-      date_max: null,
-      cor_zp_observer: [new Array(), Validators.required],
-      geom_4326: null
-    });
   }
   onEachFeature(feature, layer) {
     let site = feature.properties;

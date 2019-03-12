@@ -7,16 +7,16 @@ export class DataService {
   constructor(private _http: HttpClient) {}
 
   getZProspects(params?: any) {
-    let myParams = new HttpParams();
+   /*  let myParams = new HttpParams();
 
     for (let key in params) {
       myParams = myParams.set(key, params[key]);
     }
 
-    const test = this._http.get<any>(`${AppConfig.API_ENDPOINT}/pr_priority_flora/z_prospects`, {
-      params: myParams
+    const test = */ 
+    return this._http.get<any>(`${AppConfig.API_ENDPOINT}/pr_priority_flora/z_prospects`, {
+      params: params
     });
-    return test;
   }
 
   getApresences(params: any) {

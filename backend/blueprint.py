@@ -3,17 +3,21 @@ from flask import Blueprint,request
 from shapely.geometry import asShape
 from geoalchemy2.shape import from_shape
 from geojson import FeatureCollection
+from sqlalchemy.sql.expression import func
+from sqlalchemy import and_ , distinct, desc
 
 from geonature.utils.env import DB
 from geonature.utils.utilssqlalchemy import (
     json_resp,
     GenericTable
 )
+from pypnnomenclature.models import TNomenclatures
 from pypnusershub.db.models import User
 from .models import TZprospect, TApresence, CorApArea, CorZpArea, CorApPerturb, CorApPhysio, CorZpObs
 from geonature.core.taxonomie.models import Taxref
 from geonature.core.ref_geo.models import LAreas
 from geonature.core.users.models import BibOrganismes
+
 
 blueprint = Blueprint('pr_priority_flora', __name__)
 
@@ -23,20 +27,33 @@ def get_zprospect():
     '''
     Retourne toutes les zones de prospection du module
     '''
+    id_type_commune = blueprint.config['id_type_commune']
     parameters = request.args
     q = (
         DB.session.query(
         TZprospect,
-        Taxref
+        Taxref,
+        func.string_agg(LAreas.area_name, ', ')
         ).outerjoin(
-            Taxref, TZprospect.cd_nom == Taxref.cd_nom
+            Taxref, TZprospect.cd_nom == Taxref.cd_nom)
+        .outerjoin(
+                CorZpArea, CorZpArea.indexzp == TZprospect.indexzp)
+        .outerjoin(
+                LAreas, and_(LAreas.id_area == CorZpArea.id_area, LAreas.id_type == id_type_commune)
         )
+        .group_by(
+                TZprospect, Taxref
+            )
     )
     if 'indexzp' in parameters:
         q = q.filter(TZprospect.indexzp == parameters['indexzp'])
 
     if 'cd_nom' in parameters:
         q = q.filter(Taxref.cd_nom == parameters['cd_nom'])
+
+    if 'commune' in parameters:
+        q = q.filter(LAreas.area_name == parameters['commune'])
+
 
     data = q.all()
     features = []
@@ -131,8 +148,8 @@ def get_organisme():
     q = DB.session.query(
         BibOrganismes.nom_organisme).distinct().join(
         User, BibOrganismes.id_organisme == User.id_organisme).join(
-        corZpObs, User.id_role == CorZpObs.c.id_role).join(
-        TZprospect, CorZpObs.c.indexzp == TZprospect.indexzp)
+        CorZpObs, User.id_role == CorZpObs.id_role).join(
+        TZprospect, CorZpObs.indexzp == TZprospect.indexzp)
 
     data = q.all()
     if data:
@@ -152,8 +169,8 @@ def get_commune():
     '''
 
     q = DB.session.query(LAreas.area_name).distinct().join(
-        corZpArea, LAreas.id_area == corZpArea.c.id_area).join(
-        TZprospect, TZprospect.indexzp == corZpArea.c.indexzp)
+        CorZpArea, LAreas.id_area == CorZpArea.id_area).join(
+        TZprospect, TZprospect.indexzp == CorZpArea.indexzp)
 
     data = q.all()
     if data:

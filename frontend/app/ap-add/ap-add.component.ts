@@ -13,6 +13,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { ModuleConfig } from "../module.config";
 
+
 @Component({
   selector: 'pnx-ap-add',
   templateUrl: 'ap-add.component.html',
@@ -25,7 +26,7 @@ export class ApAddComponent implements OnInit, AfterViewInit {
   public tabPertur = [];
   public leafletDrawOptions = leafletDrawOption;
   public myGeoJSON: GeoJSON;
-  private dynamicFormGroup: FormGroup;
+  private ApFormGroup: FormGroup;
   public filteredData = [];
   public paramApp = this.storeService.queryString.append(
     "id_application",
@@ -46,10 +47,16 @@ export class ApAddComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
 
-     this.dynamicFormGroup = this._fb.group({
-       date_min: null,
-       date_max: null,
-       geom_4326: null
+     this.ApFormGroup = this._fb.group({
+       indexap: null,
+       cor_ap_perturbation: null,
+       cor_ap_physionomy: null,
+       phenology: null,
+       countmethod: null,
+       pente: null,
+       total_sterile: null,
+       total_fertile: null,
+       comments: null
      });  
   }
 
@@ -59,7 +66,7 @@ export class ApAddComponent implements OnInit, AfterViewInit {
    }
 
    onPostAp() {
-   const finalForm = JSON.parse(JSON.stringify(this.dynamicFormGroup.value));
+   const finalForm = JSON.parse(JSON.stringify(this.ApFormGroup.value));
    finalForm.date_min = this._dateParser.format(
      finalForm.date_min
    );
@@ -77,7 +84,7 @@ export class ApAddComponent implements OnInit, AfterViewInit {
    } 
 
    getGeojson(geojson) {
-     this.dynamicFormGroup.patchValue(
+     this.ApFormGroup.patchValue(
        {'geom_4326': geojson.geometry}
      )
    } 

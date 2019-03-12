@@ -2,6 +2,7 @@ import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ToastrService } from "ngx-toastr";
 import { Layer } from 'leaflet';
+import * as L from "leaflet";
 import { ModuleConfig } from '../module.config';
 import { DataService } from "../services/data.service";
 import { MapListService } from '@geonature_common/map-list/map-list.service';
@@ -20,6 +21,7 @@ export class StoreService {
   public nomCommune;
   public siteDesc;
   public taxons;
+  public _map;
   public nb_transects_frequency;
   public altitude_min;
   public altitude_max;
@@ -79,6 +81,24 @@ export class StoreService {
       }
     );
   }
+
+  onRowSelect(row) {
+    let id = row.selected[0]["indexzp"];
+    let site = row.selected[0];
+    const selectedLayer = this.mapListService.layerDict[id];
+    this.zoomOnSelectedLayer(this._map, selectedLayer, 16);
+  }
+
+  zoomOnSelectedLayer(map, layer, zoom) {
+    let latlng;
+    if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+      latlng = (layer as any).getCenter();
+      map.setView(latlng, zoom);
+    } else {
+      latlng = layer._latlng;
+    }
+  }
+  
   getZp(idZP) { 
     this.paramApp = this.paramApp.append("indexzp", idZP);
     this._api.getZprosps(this.paramApp).subscribe(
@@ -115,7 +135,7 @@ export class StoreService {
     }   
   }
   
-
+  
 
 
 

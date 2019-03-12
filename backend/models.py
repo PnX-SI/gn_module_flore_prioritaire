@@ -16,6 +16,7 @@ from geonature.utils.utilsgeometry import shapeserializable
 from geonature.core.taxonomie.models import Taxref
 from geonature.core.ref_geo.models import LAreas
 from geonature.core.users.models import BibOrganismes
+from pypnnomenclature.models import TNomenclatures
 
 @serializable
 @geoserializable

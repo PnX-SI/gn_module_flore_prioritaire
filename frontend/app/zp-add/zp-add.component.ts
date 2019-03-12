@@ -22,7 +22,7 @@ import { StoreService } from '../services/store.service';
 export class ZpAddComponent implements OnInit, AfterViewInit {
   public leafletDrawOptions = leafletDrawOption;
   public myGeoJSON: GeoJSON;
-  public dynamicFormGroup: FormGroup;
+  public ZpFormGroup: FormGroup;
   public taxonForm = new FormControl();
 
 
@@ -45,10 +45,9 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     this.leafletDrawOptions.draw.polyline = false;
     this.leafletDrawOptions.edit.remove = true;
 
-    this.dynamicFormGroup = this._fb.group({
+    this.ZpFormGroup = this._fb.group({
       cd_nom: null,
       date_min: null,
-      date_max: null,
       cor_zp_observer: [new Array(), Validators.required],
       geom_4326: null
 
@@ -67,13 +66,9 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
 
   onPostZp() {
   
-  const finalForm = JSON.parse(JSON.stringify(this.dynamicFormGroup.value));
+  const finalForm = JSON.parse(JSON.stringify(this.ZpFormGroup.value));
   finalForm.date_min = this._dateParser.format(
     finalForm.date_min
-  );
-  
-  finalForm.date_max = this._dateParser.format(
-    finalForm.date_max
   );
 
   this.api.postVisit(finalForm).subscribe(

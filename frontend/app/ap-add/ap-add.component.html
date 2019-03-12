@@ -7,9 +7,8 @@
           <div class="form-group">
               <small> Perturbation </small>
               <div class="" id="newPerturs">
-                <pnx-nomenclature [parentFormControl]="dynamicFormGroup.controls.cor_zp_observer" [multiSelect]="true"
+                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.cor_ap_perturbation" [multiSelect]="true"
                     keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
-                    [disabled]="disabledForm"
                     codeNomenclatureType="TYPE_PERTURBATION">
                 </pnx-nomenclature>
               </div>
@@ -17,7 +16,7 @@
           <div class="form-group">
               <small> Physionomie </small>
               <div class="" id="newPhysio">
-                <pnx-nomenclature [parentFormControl]="dynamicFormGroup.controls.cor_zp_observer" [multiSelect]="true"
+                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.cor_ap_physionomy" [multiSelect]="true"
                     keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
                     [disabled]="disabledForm"
                     codeNomenclatureType="TYPE_PHYSIONOMIE">
@@ -27,7 +26,7 @@
           <div class="form-group">
               <small> Phénologie </small>
               <div class="" id="newPheno">
-                <pnx-nomenclature [parentFormControl]="dynamicFormGroup.controls.cor_zp_observer" [multiSelect]="false"
+                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.phenology" [multiSelect]="false"
                     keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
                     [disabled]="disabledForm"
                     codeNomenclatureType="TYPE_PHENOLOGIE">
@@ -37,17 +36,17 @@
           <div class="form-group">
               <small> Méthode de comptage </small>
               <div class="" id="newCountMethod">
-                <pnx-nomenclature [parentFormControl]="dynamicFormGroup.controls.cor_zp_observer" [multiSelect]="false"
+                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.countmethod" [multiSelect]="false"
                     keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
                     [disabled]="disabledForm"
-                    codeNomenclatureType="METHODE_COMPTAGE">
+                    codeNomenclatureType="TYP_DENBR">
                 </pnx-nomenclature>
               </div>
           </div>
           <div class="form-group">
               <small> Pente </small>
               <div class="" id="newPente">
-                <pnx-nomenclature [parentFormControl]="dynamicFormGroup.controls.cor_zp_observer" [multiSelect]="false"
+                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.pente" [multiSelect]="false"
                     keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
                     [disabled]="disabledForm"
                     codeNomenclatureType="PENTE">
@@ -57,30 +56,20 @@
           <div class="form-group">
             <small> Total stériles </small>
             <div class="">
-              <input type="text" class="form-control" id="commentaire"
-                [formControl]="dynamicFormGroup.controls.comments">
+              <input type="text" class="form-control" id="total_sterile"
+                [formControl]="ApFormGroup.controls.total_sterile">
             </div>
             <small> Total fertiles </small>
             <div class="">
-              <input type="text" class="form-control" id="commentaire"
-                [formControl]="dynamicFormGroup.controls.comments">
-            </div>
-            <small> Total stériles </small>
-            <div class="">
-              <input type="text" class="form-control" id="commentaire"
-                [formControl]="dynamicFormGroup.controls.comments">
-            </div>
-            <small> Total fertiles </small>
-            <div class="">
-              <input type="text" class="form-control" id="commentaire"
-                [formControl]="dynamicFormGroup.controls.comments">
+              <input type="text" class="form-control" id="total_fertile"
+                [formControl]="ApFormGroup.controls.total_fertile">
             </div>
           </div>
           <div class="form-group">
             <small> Commentaires </small>
             <div class="">
               <textarea class="form-control" rows="2" id="commentaire"
-                [formControl]="dynamicFormGroup.controls.comments"></textarea>
+                [formControl]="ApFormGroup.controls.comments"></textarea>
             </div>
           </div>
         </fieldset>

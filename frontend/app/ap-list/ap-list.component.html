@@ -1,5 +1,5 @@
         <div>
-            <button type="button" class="btn btn-link btn-sm back-button" (click)="backToSites()">
+            <button type="button" class="btn btn-link btn-sm back-button" (click)="backToZp()">
                 <i class="fa fa-arrow-left" aria-hidden="true"> </i>
                 Retour à la liste des zones de prospection
             </button>
@@ -41,7 +41,7 @@
              [messages]="storeService.shtConfig.list_visit_message" 
              [selected]="mapListService.selectedRow" 
              [selectionType]="'single'" 
-             (select)="mapListService.onRowSelect($event)"
+             (select)="storeService.onRowSelect($event)"
              [rowClass]="mapListService.getRowClass">
 
                 <ngx-datatable-column *ngFor="let col of storeService.shtConfig.default_ap_columns" [name]="col.name"
@@ -56,6 +56,15 @@
                         </button>
                     </ng-template>
                 </ngx-datatable-column>
+
+                <ngx-datatable-column maxWidth="120">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost" (click)="onEdit(row.id_base_visit)" 
+                        title="Editer">
+                            <i class="fa fa-edit" aria-hidden="true"></i>
+                        </button>
+                    </ng-template>
+                 </ngx-datatable-column>
 
             </ngx-datatable>
         </div>

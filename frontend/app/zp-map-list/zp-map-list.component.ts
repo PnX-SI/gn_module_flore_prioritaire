@@ -138,7 +138,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       this.myGeoJSON = data;
       this.mapListService.loadTableData(data);
       this.filteredData = this.mapListService.tableData;
-
+      console.log(this.filteredData);
       this.dataLoaded = true;
       }
     );
