@@ -32,7 +32,7 @@ default_ap_columns = [
 ]
 
 coor_zoom_center = [44.982667966765845, 6.062455200884894]
-
+zoom= 10
 
 class GnModuleSchemaConf(Schema):
     zp_message = fields.Dict(missing=zp_message)
@@ -48,3 +48,4 @@ class GnModuleSchemaConf(Schema):
     id_list_taxon = fields.Integer(missing=100)
     export_srid = fields.Integer(missing=2154)
     zoom_center = fields.List(fields.Float(), missing=coor_zoom_center)
+    zoom=fields.Integer(missing=10)

@@ -2,6 +2,7 @@ import { Component, OnInit, Input, AfterViewInit, EventEmitter, Output } from '@
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
+import * as L from "leaflet";
 import { FormService } from '@geonature_common/form/form.service';
 import { DataService } from '../services/data.service';
 import { FormGroup, FormBuilder, FormControl } from "@angular/forms";
@@ -54,6 +55,8 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
         this.dataLoaded = true;
       }
       );
+      this.center = this.storeService.shtConfig.zoom_center;
+      this.zoom = this.storeService.shtConfig.zoom;
 
     this.filterForm = this._fb.group({
       filterYear: null,
