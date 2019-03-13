@@ -2,6 +2,7 @@ import { Component, OnInit, Input, AfterViewInit, ViewChild } from '@angular/cor
 import { GeoJSON } from 'leaflet';
 import { ToastrService } from 'ngx-toastr';
 import { NgbDateParserFormatter } from "@ng-bootstrap/ng-bootstrap";
+import { CommonService } from "@geonature_common/service/common.service";
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
@@ -24,6 +25,7 @@ export class ApAddComponent implements OnInit, AfterViewInit {
   public site;
   public zp;
   public tabPertur = [];
+  public disabledForm = true;
   public leafletDrawOptions = leafletDrawOption;
   public myGeoJSON: GeoJSON;
   private ApFormGroup: FormGroup;
@@ -40,6 +42,7 @@ export class ApAddComponent implements OnInit, AfterViewInit {
     private toastr: ToastrService,
     public ngbModal: NgbModal,
     public api: DataService,
+    private _commonService: CommonService,
     private _dateParser: NgbDateParserFormatter,
     public storeService: StoreService,
     public activatedRoute: ActivatedRoute
@@ -63,6 +66,13 @@ export class ApAddComponent implements OnInit, AfterViewInit {
    ngAfterViewInit() {
      this.mapService.map.doubleClickZoom.disable();
      this.storeService.getZp(this.storeService.idSite);
+
+     if (this.disabledForm) {
+      this._commonService.translateToaster(
+        "warning",
+        "Releve.FillGeometryFirst"
+      );
+    }
    }
 
    onPostAp() {

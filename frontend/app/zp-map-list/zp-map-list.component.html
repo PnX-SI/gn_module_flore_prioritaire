@@ -43,21 +43,40 @@
             </form>
             
             <div class="wrapper wrapper-datatable">
-              <ngx-datatable #table class="material" [rows]="filteredData" maxWidth="90" [headerHeight]="50" [footerHeight]="50" [rowHeight]="'auto'"
+              <ngx-datatable #table class="material striped margin-top-xs table-size expandable" [rows]="filteredData" maxWidth="90" [headerHeight]="35" [footerHeight]="40" [rowHeight]="40"
               [columnMode]="'force'" [selected]="mapListService.selectedRow" [selectionType]="'single'" (select)="mapListService.onRowSelect($event)"
               [rowClass]="mapListService.getRowClass" [offset]="mapListService.page.pageNumber" [limit]="mapListService.page.size" [messages]="storeService.shtConfig.zp_message">
 
-                <ngx-datatable-column *ngFor="let col of mapListService.displayColumns" [name]="col.name" [prop]="col.prop" [maxWidth]="col.width"> 
+                <ngx-datatable-column maxWidth="10">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost" (click)="onEdit(row.indexzp)"
+                            title="Editer">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        </button>
+                    </ng-template>
                 </ngx-datatable-column>
-          
-                <ngx-datatable-column maxWidth="90">
+              
+                <ngx-datatable-column maxWidth="10">
                     <ng-template let-row="row" ngx-datatable-cell-template>
                         <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost" (click)="onInfo(row.indexzp)"
-                            title="Visualiser/Editer">
+                            title="Visualiser">
                             <i class="fa fa-info-circle" aria-hidden="true"></i>
                         </button>
                     </ng-template>
                 </ngx-datatable-column>
+
+                <ngx-datatable-column maxWidth="10">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost" (click)="onInfo(row.indexzp)"
+                            title="Supprimer">
+                            <i class="fa fa-trash-o" aria-hidden="true"></i>
+                        </button>
+                    </ng-template>
+                </ngx-datatable-column>
+
+                <ngx-datatable-column *ngFor="let col of mapListService.displayColumns" [name]="col.name" [prop]="col.prop" [maxWidth]="col.width"> 
+                </ngx-datatable-column>
+                
               </ngx-datatable>
             </div>
             <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onAddZp()">

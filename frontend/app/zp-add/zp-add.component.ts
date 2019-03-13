@@ -24,7 +24,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   public myGeoJSON: GeoJSON;
   public ZpFormGroup: FormGroup;
   public taxonForm = new FormControl();
-
+  public disabledForm = true;
 
   constructor(
     private _ms: MapService,
@@ -83,10 +83,17 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     // event from the list
     // this.mapListService.onTableClick(this._ms.getMap());
+
+    if (this.disabledForm) {
+      this._commonService.translateToaster(
+        "warning",
+        "Releve.FillGeometryFirst"
+      );
+    }
   }
 
   getGeojson(geojson) {
-    this.dynamicFormGroup.patchValue(
+    this.ZpFormGroup.patchValue(
       {'geom_4326': geojson.geometry}
     )
   }

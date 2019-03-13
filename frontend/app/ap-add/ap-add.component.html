@@ -1,13 +1,13 @@
   <div class="card-body">
       <form class="wrapper wrapper-filter">
-        <fieldset>
+        <fieldset [disabled]="disabledForm">
           <legend>
             <h3>Ajout d'une nouvelle aire de présence {{ storeService.idSite }}</h3>
           </legend> 
           <div class="form-group">
               <small> Perturbation </small>
               <div class="" id="newPerturs">
-                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.cor_ap_perturbation" [multiSelect]="true"
+                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.cor_ap_perturbation" [multiSelect]="true" [disabled]="disabledForm"
                     keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
                     codeNomenclatureType="TYPE_PERTURBATION">
                 </pnx-nomenclature>
@@ -16,7 +16,7 @@
           <div class="form-group">
               <small> Physionomie </small>
               <div class="" id="newPhysio">
-                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.cor_ap_physionomy" [multiSelect]="true"
+                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.cor_ap_physionomy" [multiSelect]="true" [disabled]="disabledForm"
                     keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
                     [disabled]="disabledForm"
                     codeNomenclatureType="TYPE_PHYSIONOMIE">
@@ -26,7 +26,7 @@
           <div class="form-group">
               <small> Phénologie </small>
               <div class="" id="newPheno">
-                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.phenology" [multiSelect]="false"
+                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.phenology" [multiSelect]="false" [disabled]="disabledForm"
                     keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
                     [disabled]="disabledForm"
                     codeNomenclatureType="TYPE_PHENOLOGIE">
@@ -36,7 +36,7 @@
           <div class="form-group">
               <small> Méthode de comptage </small>
               <div class="" id="newCountMethod">
-                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.countmethod" [multiSelect]="false"
+                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.countmethod" [multiSelect]="false" [disabled]="disabledForm"
                     keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
                     [disabled]="disabledForm"
                     codeNomenclatureType="TYP_DENBR">
@@ -46,7 +46,7 @@
           <div class="form-group">
               <small> Pente </small>
               <div class="" id="newPente">
-                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.pente" [multiSelect]="false"
+                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.pente" [multiSelect]="false" [disabled]="disabledForm"
                     keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
                     [disabled]="disabledForm"
                     codeNomenclatureType="PENTE">
@@ -74,7 +74,7 @@
           </div>
         </fieldset>
       </form>
-      <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onPostAp()">
+      <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onPostAp()" [disabled]="disabledForm">
         <i class="fa fa-plus-circle" aria-hidden="true"> </i> Ajouter
       </button>
       <button id="cancel-btn" type="button" class="btn btn-cancel box-shadow" (click)="onCancelAddAp()">

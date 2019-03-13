@@ -12,11 +12,11 @@ import { StoreService } from "../services/store.service";
 import { ModuleConfig } from "../module.config";
 
 @Component({
-  selector: "pnx-ap-list",
-  templateUrl: "ap-list.component.html",
-  styleUrls: ["./ap-list.component.scss"],
+  selector: "pnx-ap-detail",
+  templateUrl: "ap-detail.component.html",
+  styleUrls: ["./ap-detail.component.scss"],
 })
-export class ApListComponent implements OnInit, OnDestroy {
+export class ApDetailComponent implements OnInit, OnDestroy {
   
   public currentSite = {};
   public show = true;
@@ -55,12 +55,4 @@ onAddAp(idZP) {
 backToZp() {
   this.router.navigate(["pr_priority_flora"]);
 }
-
-onInfo(indexap) {
-  this.router.navigate(
-    [
-      'pr_priority_flora/zp',
-       indexap, 'ap_list'
-    ]
-  );
 }

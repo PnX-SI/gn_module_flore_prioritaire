@@ -1,7 +1,7 @@
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ToastrService } from "ngx-toastr";
-import { Layer } from 'leaflet';
+import { Layer, Map } from 'leaflet';
 import * as L from "leaflet";
 import { ModuleConfig } from '../module.config';
 import { DataService } from "../services/data.service";
@@ -12,6 +12,7 @@ import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 export class StoreService {
   public currentLayer: Layer;
   public sites;
+  public map_zp: Map;
   public zp;
   public idSite;
   public dataLoaded = false;
@@ -82,22 +83,6 @@ export class StoreService {
     );
   }
 
-  onRowSelect(row) {
-    let id = row.selected[0]["indexzp"];
-    let site = row.selected[0];
-    const selectedLayer = this.mapListService.layerDict[id];
-    this.zoomOnSelectedLayer(this._map, selectedLayer, 16);
-  }
-
-  zoomOnSelectedLayer(map, layer, zoom) {
-    let latlng;
-    if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
-      latlng = (layer as any).getCenter();
-      map.setView(latlng, zoom);
-    } else {
-      latlng = layer._latlng;
-    }
-  }
   
   getZp(idZP) { 
     this.paramApp = this.paramApp.append("indexzp", idZP);

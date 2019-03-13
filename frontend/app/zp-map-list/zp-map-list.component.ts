@@ -44,12 +44,10 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    
       this.displayColumns = ModuleConfig.default_zp_columns;
       this.mapListService.displayColumns = this.displayColumns;
       this.mapListService.idName = 'indexzp';
       this.api.getZProspects().subscribe(data => {
-
         this.myGeoJSON = data;
         this.mapListService.loadTableData(data);
         this.filteredData = this.mapListService.tableData;
