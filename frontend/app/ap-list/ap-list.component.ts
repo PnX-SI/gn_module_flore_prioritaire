@@ -17,7 +17,7 @@ import { ModuleConfig } from "../module.config";
   styleUrls: ["./ap-list.component.scss"],
 })
 export class ApListComponent implements OnInit, OnDestroy {
-  
+
   public currentSite = {};
   public show = true;
   public idAp;
@@ -33,34 +33,32 @@ export class ApListComponent implements OnInit, OnDestroy {
     public activatedRoute: ActivatedRoute,
     public mapListService: MapListService,
     private toastr: ToastrService
-  ) {}
+  ) { }
 
   ngOnInit() {
-  this.storeService.idSite = this.activatedRoute.snapshot.params['idSite'];
-  this.storeService.queryString = this.storeService.queryString.set('indexzp', this.storeService.idSite);
+    this.storeService.idSite = this.activatedRoute.snapshot.params['idSite'];
   }
 
-onAddAp(idZP) {
-    
-    this.storeService.getZp(idZP);
+  onAddAp(idZP) {
     this.router.navigate(
       [
         'pr_priority_flora/zp',
         idZP, 'post_ap'
       ]
-    ); 
-    this.storeService.showLeafletDraw(); 
+    );
+    this.storeService.showLeafletDraw();
   }
-  
-backToZp() {
-  this.router.navigate(["pr_priority_flora"]);
-}
 
-onInfo(indexap) {
-  this.router.navigate(
-    [
-      'pr_priority_flora/zp',
-       indexap, 'ap_list'
-    ]
-  );
+  backToZp() {
+    this.router.navigate(["pr_priority_flora"]);
+  }
+
+  onInfo(indexap) {
+    this.router.navigate(
+      [
+        'pr_priority_flora/zp',
+        indexap, 'ap_list'
+      ]
+    );
+  }
 }

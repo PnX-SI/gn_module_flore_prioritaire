@@ -13,14 +13,16 @@ import { ModuleConfig } from "../module.config";
 @Component({
   selector: "pnx-ap-list-add",
   templateUrl: "ap-list-add.component.html",
-  styleUrls: ["./ap-list-add.component.scss"]
+  styleUrls: ["./ap-list-add.component.scss"],
+  providers: [MapListService]
 })
-export class ApListAddComponent implements OnInit, OnDestroy, OnChanges {
-  
+export class ApListAddComponent implements OnInit, OnChanges {
+
   public currentSite = {};
   public idAp;
   public dynamicFormGroup: FormGroup;
-  );
+  public filteredData = [];
+  public dataLoaded = false;
 
   constructor(
     public mapService: MapService,
@@ -31,42 +33,70 @@ export class ApListAddComponent implements OnInit, OnDestroy, OnChanges {
     public activatedRoute: ActivatedRoute,
     public mapListService: MapListService,
     private toastr: ToastrService
-  ) {}
+  ) { }
 
-  ngOnInit() { 
-  }
+  ngOnInit() { }
+
 
   ngAfterViewInit() {
     this.mapService.map.doubleClickZoom.disable();
-    this.storeService.queryString = this.storeService.queryString.set('indexzp', this.storeService.idSite);
     this.storeService.idSite = this.activatedRoute.snapshot.params['idZP'];
-    this.storeService.getZp(this.storeService.idSite); 
     this.mapListService.idName = 'indexap';
     this.mapListService.enableMapListConnexion(this.mapService.getMap());
-  } 
+    console.log(this.storeService.idSite);
+    //this.paramApp = this.paramApp.append("indexzp", idZP);
+    this._api.getOneZP(this.storeService.idSite).subscribe(
+      data => {
+        this.storeService.zp = data['zp'];
+        this.storeService.sites = data['aps'];
+        this.mapListService.loadTableData(data['aps']);
+        this.filteredData = this.mapListService.tableData;
+        this.dataLoaded = true;
+        let properties = data['zp'].features.properties;
 
-  onEachFeature(feature, layer) {
-      // event from the map
-      this.mapListService.layerDict[feature.id] = layer;
-      layer.on({
-        click : (e) => {
-          // toggle style
-          //this.mapListService.toggleStyle(layer);
-          // observable
-          this.mapListService.mapSelected.next(feature.id);
-          // open popup
-          layer.bindPopup(feature.properties.leaflet_popup).openPopup();
+        this.storeService.organisme = properties.organisme;
+        this.storeService.nomCommune = properties.nom_commune;
+        this.storeService.observateur = properties.nom_role;
+        this.storeService.taxons = data['zp'].features.properties.taxonomy.nom_complet;
+        this.storeService.dateMin = properties.date_min;
+
+        //this.geojson.currentGeoJson$.subscribe(currentLayer => {
+        //  this.mapService.map.fitBounds(currentLayer.getBounds());
+        //});
+      },
+      error => {
+        if (error.status != 404) {
+          this.toastr.error(
+            "Une erreur est survenue lors de la récupération des informations sur le serveur",
+            "",
+            {
+              positionClass: "toast-top-right"
+            }
+          );
+          console.log("error: ", error);
         }
-    });
+      });
   }
 
-  ngOnDestroy() {
-    this.storeService.queryString = this.storeService.queryString.delete(
-      "id_base_site"
-    );
-    console.log(
-      "queryString list-visit: ",
-      this.storeService.queryString.toString()
-    );
-  } 
+
+
+  onEachFeature(feature, layer) {
+    // event from the map
+    let site = feature.properties;
+    this.mapListService.layerDict[feature.id] = layer;
+    layer.on({
+      click: (e) => {
+        // toggle style
+        //this.mapListService.toggleStyle(layer);
+        // observable
+        this.mapListService.mapSelected.next(feature.id);
+        // open popup
+        const customPopup = '<div class="title">' + site.altitude_max + "</div>";
+        const customOptions = {
+          className: "custom-popup"
+        };
+        layer.bindPopup(customPopup, customOptions);
+      }
+    });
+  }
 }

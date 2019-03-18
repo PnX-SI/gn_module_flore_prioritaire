@@ -34,7 +34,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
   @Output()
   onDeleteFiltre = new EventEmitter<any>();
-  
+
   constructor(
     public mapService: MapService,
     private mapListService: MapListService,
@@ -42,21 +42,20 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     public storeService: StoreService,
     public api: DataService,
     private _fb: FormBuilder
-  ) {}
+  ) { }
 
   ngOnInit() {
-      this.displayColumns = ModuleConfig.default_zp_columns;
-      this.mapListService.displayColumns = this.displayColumns;
-      this.mapListService.idName = 'indexzp';
-      this.api.getZProspects().subscribe(data => {
-        this.myGeoJSON = data;
-        this.mapListService.loadTableData(data);
-        this.filteredData = this.mapListService.tableData;
-        this.dataLoaded = true;
-      }
-      );
-      this.center = this.storeService.shtConfig.zoom_center;
-      this.zoom = this.storeService.shtConfig.zoom;
+    this.displayColumns = ModuleConfig.default_zp_columns;
+    this.mapListService.idName = 'indexzp';
+    this.api.getZProspects().subscribe(data => {
+      this.myGeoJSON = data;
+      this.mapListService.loadTableData(data);
+      this.filteredData = this.mapListService.tableData;
+      this.dataLoaded = true;
+    }
+    );
+    this.center = this.storeService.shtConfig.zoom_center;
+    this.zoom = this.storeService.shtConfig.zoom;
 
     this.filterForm = this._fb.group({
       filterYear: null,
@@ -133,7 +132,11 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
         this.onDeleteFiltre.emit();
       });
   }
-  
+
+  test($event) {
+    console.log($event.item);
+  }
+
   onChargeList(param?) {
     this.api.getZProspects(param).subscribe(data => {
       this.myGeoJSON = data;
@@ -141,21 +144,21 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       this.filteredData = this.mapListService.tableData;
       console.log(this.filteredData);
       this.dataLoaded = true;
-      }
+    }
     );
   }
   onAddZp() {
-    this.router.navigate(["pr_priority_flora/post_zp"]); 
+    this.router.navigate(["pr_priority_flora/post_zp"]);
   }
-  
+
   onInfo(indexzp) {
     this.router.navigate(
       [
         'pr_priority_flora/zp',
-         indexzp, 'ap_list'
+        indexzp, 'ap_list'
       ]
     );
-  
+
   }
 
   ngAfterViewInit() {
@@ -164,37 +167,37 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
     this._map = this.mapService.getMap();
     this.addCustomControl();
-  
+
     this.api.getOrganisme().subscribe(elem => {
       elem.forEach(orga => {
-          this.tabOrganism.push(orga.nom_organisme);
-          this.tabOrganism.sort((a, b) => {
-            return a.localeCompare(b);
-          });
+        this.tabOrganism.push(orga.nom_organisme);
+        this.tabOrganism.sort((a, b) => {
+          return a.localeCompare(b);
         });
       });
-  
+    });
+
     this.api.getCommune().subscribe(info => {
       info.forEach(com => {
         this.tabCom.push(com.nom_commune);
         this.tabCom.sort((a, b) => {
-            return a.localeCompare(b);
-          });
+          return a.localeCompare(b);
         });
       });
+    });
 
     this.api.getTaxon().subscribe(info => {
       info.forEach(tax => {
         this.tabTaxon.push(tax.nom_complet);
         this.tabTaxon.sort((a, b) => {
-            return a.localeCompare(b);
-          });
+          return a.localeCompare(b);
         });
       });
+    });
   }
 
   getGeojson(geojson) {
-    alert(JSON.stringify(geojson)) 
+    alert(JSON.stringify(geojson))
   }
 
   deleteControlValue() {
@@ -224,7 +227,6 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       container.style.padding = "1px 4px";
       container.title = "Réinitialiser l'emprise de la carte";
       container.onclick = () => {
-        console.log("buttonClicked");
         this._map.setView(this.center, this.zoom);
       };
       return container;
@@ -280,7 +282,9 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   ngOnDestroy() {
     let filterkey = this.storeService.queryString.keys();
     filterkey.forEach(key => {
-      this.storeService.queryString= this.storeService.queryString.delete(key);
+      this.storeService.queryString = this.storeService.queryString.delete(key);
     });
+
+    //this.mysubscribe.unsubribe();
   }
 }

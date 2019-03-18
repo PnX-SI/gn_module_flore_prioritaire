@@ -66,13 +66,6 @@ export class ApAddComponent implements OnInit, AfterViewInit {
    ngAfterViewInit() {
      this.mapService.map.doubleClickZoom.disable();
      this.storeService.getZp(this.storeService.idSite);
-
-     if (this.disabledForm) {
-      this._commonService.translateToaster(
-        "warning",
-        "Releve.FillGeometryFirst"
-      );
-    }
    }
 
    onPostAp() {
@@ -102,4 +95,13 @@ export class ApAddComponent implements OnInit, AfterViewInit {
    deleteControlValue() {
      console.log('Suppression')
    }
+   
+   formDisabled() {
+    if (this.disabledForm) {
+      this._commonService.translateToaster(
+        "warning",
+        "Releve.FillGeometryFirst"
+      );
+    }
+  }
 }

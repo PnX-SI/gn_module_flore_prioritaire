@@ -1,117 +1,116 @@
-from flask import Blueprint,request
+from flask import Blueprint, request
 
 from shapely.geometry import asShape
 from geoalchemy2.shape import from_shape
 from geojson import FeatureCollection
 from sqlalchemy.sql.expression import func
-from sqlalchemy import and_ , distinct, desc
+from sqlalchemy import and_, distinct, desc
 
 from geonature.utils.env import DB
-from geonature.utils.utilssqlalchemy import (
-    json_resp,
-    GenericTable
-)
+from geonature.utils.utilssqlalchemy import json_resp, GenericTable
 from pypnnomenclature.models import TNomenclatures
 from pypnusershub.db.models import User
-from .models import TZprospect, TApresence, CorApArea, CorZpArea, CorApPerturb, CorApPhysio, CorZpObs
+from .models import (
+    TZprospect,
+    TApresence,
+    CorApArea,
+    CorZpArea,
+    CorApPerturb,
+    CorApPhysio,
+    CorZpObs,
+)
 from geonature.core.taxonomie.models import Taxref
 from geonature.core.ref_geo.models import LAreas
 from geonature.core.users.models import BibOrganismes
 
 
-blueprint = Blueprint('pr_priority_flora', __name__)
+blueprint = Blueprint("pr_priority_flora", __name__)
 
-@blueprint.route('/z_prospects', methods=['GET'])
+
+@blueprint.route("/z_prospects", methods=["GET"])
 @json_resp
 def get_zprospect():
-    '''
+    """
     Retourne toutes les zones de prospection du module
-    '''
-    id_type_commune = blueprint.config['id_type_commune']
+    """
+
+    id_type_commune = blueprint.config["id_type_commune"]
     parameters = request.args
     q = (
-        DB.session.query(
-        TZprospect,
-        Taxref,
-        func.string_agg(LAreas.area_name, ', ')
-        ).outerjoin(
-            Taxref, TZprospect.cd_nom == Taxref.cd_nom)
+        DB.session.query(TZprospect, Taxref, func.string_agg(LAreas.area_name, ", "))
+        .outerjoin(Taxref, TZprospect.cd_nom == Taxref.cd_nom)
+        .outerjoin(CorZpArea, CorZpArea.indexzp == TZprospect.indexzp)
         .outerjoin(
-                CorZpArea, CorZpArea.indexzp == TZprospect.indexzp)
-        .outerjoin(
-                LAreas, and_(LAreas.id_area == CorZpArea.id_area, LAreas.id_type == id_type_commune)
+            LAreas,
+            and_(
+                LAreas.id_area == CorZpArea.id_area, LAreas.id_type == id_type_commune
+            ),
         )
-        .group_by(
-                TZprospect, Taxref
-            )
+        .group_by(TZprospect, Taxref)
     )
-    if 'indexzp' in parameters:
-        q = q.filter(TZprospect.indexzp == parameters['indexzp'])
+    if "indexzp" in parameters:
+        q = q.filter(TZprospect.indexzp == parameters["indexzp"])
 
-    if 'cd_nom' in parameters:
-        q = q.filter(Taxref.cd_nom == parameters['cd_nom'])
+    if "cd_nom" in parameters:
+        q = q.filter(Taxref.cd_nom == parameters["cd_nom"])
 
-    if 'commune' in parameters:
-        q = q.filter(LAreas.area_name == parameters['commune'])
-
+    if "commune" in parameters:
+        q = q.filter(LAreas.area_name == parameters["commune"])
 
     data = q.all()
     features = []
 
     for d in data:
-        feature = d[0].get_geofeature()
-        id_zp = feature['properties']['indexzp']
-        feature['properties']['taxon'] = d[1].as_dict()
+        feature = d[0].get_geofeature(
+            recursif=False, columns=["indexzp", "date_min", "date_max", "cd_nom"]
+        )
+        id_zp = feature["properties"]["indexzp"]
+        feature["properties"]["taxon"] = d[1].as_dict(["nom_valide"])
         features.append(feature)
-        
     return FeatureCollection(features)
 
-@blueprint.route('/apresences', methods=['GET'])
+
+@blueprint.route("/apresences", methods=["GET"])
 @json_resp
 def get_apresences():
-    '''
+    """
     Retourne toutes les aires de présence d'une zone de prospection
-    '''
+    """
     parameters = request.args
-    q = (
-        DB.session.query(
-        TApresence,
-        TZprospect
-        ).outerjoin(
-            TZprospect, TApresence.indexzp == TZprospect.indexzp
-        ))
-    if 'indexzp' in parameters:
-        q = q.filter(TApresence.indexzp == parameters['indexzp'])
+    q = DB.session.query(TApresence, TZprospect).outerjoin(
+        TZprospect, TApresence.indexzp == TZprospect.indexzp
+    )
+    if "indexzp" in parameters:
+        q = q.filter(TApresence.indexzp == parameters["indexzp"])
     data = q.all()
     features = []
 
     for d in data:
         feature = d[0].get_geofeature()
-        id_ap = feature['properties']['indexap']
+        id_ap = feature["properties"]["indexap"]
         features.append(feature)
-        
+
     return FeatureCollection(features)
 
-@blueprint.route('/post_zp', methods=['POST'])
+
+@blueprint.route("/post_zp", methods=["POST"])
 @json_resp
 def post_visit():
-    '''
+    """
     Poste une nouvelle zone de prospection
-    '''
+    """
     data = dict(request.get_json())
 
     tab_observer = []
 
-    if 'cor_visit_observer' in data:
-        tab_observer = data.pop('cor_visit_observer')
+    if "cor_visit_observer" in data:
+        tab_observer = data.pop("cor_visit_observer")
 
-    shape = asShape(data['geom_4326'])
-    releve= TZprospect(**data)
+    shape = asShape(data["geom_4326"])
+    releve = TZprospect(**data)
     releve.geom_4326 = from_shape(shape, srid=4326)
-    
-    observers = DB.session.query(User).filter(
-        User.id_role.in_(tab_observer)
-    ).all()
+
+    observers = DB.session.query(User).filter(User.id_role.in_(tab_observer)).all()
 
     for o in observers:
         visit.observers.append(o)
@@ -119,115 +118,143 @@ def post_visit():
     DB.session.add(releve)
     DB.session.commit()
     DB.session.flush()
-    return releve.as_geofeature('geom_4326','indexzp',True)
+    return releve.as_geofeature("geom_4326", "indexzp", True)
 
-@blueprint.route('/post_ap', methods=['POST'])
+
+@blueprint.route("/post_ap", methods=["POST"])
 @json_resp
 def post_ap():
-    '''
+    """
     Poste une nouvelle aire de présence
-    '''
+    """
     data = dict(request.get_json())
 
-    shape = asShape(data['geom_4326'])
-    releve= TApresence(**data)
+    shape = asShape(data["geom_4326"])
+    releve = TApresence(**data)
     releve.geom_4326 = from_shape(shape, srid=4326)
     DB.session.add(releve)
     DB.session.commit()
     DB.session.flush()
-    return releve.as_geofeature('geom_4326','indexap',True)
-    
+    return releve.as_geofeature("geom_4326", "indexap", True)
 
-@blueprint.route('/organismes', methods=['GET'])
+
+@blueprint.route("/organismes", methods=["GET"])
 @json_resp
 def get_organisme():
-    '''
+    """
     Retourne la liste de tous les organismes présents
-    '''
+    """
 
-    q = DB.session.query(
-        BibOrganismes.nom_organisme).distinct().join(
-        User, BibOrganismes.id_organisme == User.id_organisme).join(
-        CorZpObs, User.id_role == CorZpObs.id_role).join(
-        TZprospect, CorZpObs.indexzp == TZprospect.indexzp)
+    q = (
+        DB.session.query(BibOrganismes.nom_organisme)
+        .distinct()
+        .join(User, BibOrganismes.id_organisme == User.id_organisme)
+        .join(CorZpObs, User.id_role == CorZpObs.id_role)
+        .join(TZprospect, CorZpObs.indexzp == TZprospect.indexzp)
+    )
 
     data = q.all()
     if data:
         tab_orga = []
         for d in data:
             info_orga = dict()
-            info_orga['nom_organisme'] = str(d[0])
+            info_orga["nom_organisme"] = str(d[0])
             tab_orga.append(info_orga)
         return tab_orga
     return None
 
-@blueprint.route('/communes', methods=['GET'])
+
+@blueprint.route("/communes", methods=["GET"])
 @json_resp
 def get_commune():
-    '''
+    """
     Retourne toutes les communes présentes dans le module
-    '''
+    """
 
-    q = DB.session.query(LAreas.area_name).distinct().join(
-        CorZpArea, LAreas.id_area == CorZpArea.id_area).join(
-        TZprospect, TZprospect.indexzp == CorZpArea.indexzp)
+    q = (
+        DB.session.query(LAreas.area_name)
+        .distinct()
+        .join(CorZpArea, LAreas.id_area == CorZpArea.id_area)
+        .join(TZprospect, TZprospect.indexzp == CorZpArea.indexzp)
+    )
 
     data = q.all()
     if data:
         tab_commune = []
         for d in data:
             nom_com = dict()
-            nom_com['nom_commune'] = str(d[0])
+            nom_com["nom_commune"] = str(d[0])
             tab_commune.append(nom_com)
         return tab_commune
     return None
 
-@blueprint.route('/taxs', methods=['GET'])
-@json_resp
-def get_taxons():
-    '''
-    Retourne tous les taxons présents dans le module
-    '''
 
-    q = DB.session.query(Taxref.nom_complet).distinct().join(TZprospect, TZprospect.cd_nom == Taxref.cd_nom)
+#  @blueprint.route("/taxs", methods=["GET"])
+# @json_resp
+# def get_taxons():
+#     """
+#     """Retourne tous les taxons présents dans le module"""
+#     """
 
-    data = q.all()
-    if data:
-        taxons = []
-        for d in data:
-            taxon = dict()
-            taxon['nom_complet'] = str(d[0])
-            taxons.append(taxon)
-        return taxons
-    return None
+#     q = (
+#         DB.session.query(Taxref.nom_complet)
+#         .distinct()
+#         .join(TZprospect, TZprospect.cd_nom == Taxref.cd_nom)
+#     )
 
-@blueprint.route('/sites', methods=['GET'])
+#     data = q.all()
+#     if data:
+#         # taxons = []
+#         # for d in data:
+#         #     taxon = dict()
+#         #     taxon['nom_complet'] = str(d[0])
+#         #     taxons.append(taxon)
+#         # return taxons
+
+#         return [{"nom_complet": d[0]} for d in data]
+
+#         # return [d.as_dict() for d in data]
+#     return None
+
+
+@blueprint.route("/sites", methods=["GET"])
 @json_resp
 def get_all_sites():
-    '''
+    """
     Retourne toutes les zones de prospection
-    '''
+    """
     parameters = request.args
-    q = (
-        DB.session.query(
-        TZprospect,
-        Taxref
-        ).outerjoin(
-            Taxref, TZprospect.cd_nom == Taxref.cd_nom
-        )
+    q = DB.session.query(TZprospect, Taxref).outerjoin(
+        Taxref, TZprospect.cd_nom == Taxref.cd_nom
     )
-    if 'indexzp' in parameters:
-        q = q.filter(TZprospect.indexzp == parameters['indexzp'])
+    if "indexzp" in parameters:
+        q = q.filter(TZprospect.indexzp == parameters["indexzp"])
 
-    if 'cd_nom' in parameters:
-        q = q.filter(Taxref.cd_nom == parameters['cd_nom'])
+    if "cd_nom" in parameters:
+        q = q.filter(Taxref.cd_nom == parameters["cd_nom"])
 
     data = q.all()
     features = []
     for d in data:
-        feature = d[0].as_geofeature('geom_4326','indexzp',True)
-        id_zp = feature['properties']['indexzp']
-        feature['properties']['taxon'] = d[1].as_dict()
+        feature = d[0].as_geofeature("geom_4326", "indexzp", True)
+        id_zp = feature["properties"]["indexzp"]
+        feature["properties"]["taxon"] = d[1].as_dict()
         features.append(feature)
-        
+
     return FeatureCollection(features)
+
+
+#  route get One
+@blueprint.route("/zp/<int:id_zp>", methods=["GET"])
+@json_resp
+def get_one_zp(id_zp):
+
+    zp = DB.session.query(TZprospect).get(id_zp)
+
+    if zp:
+        return {
+            "aps": FeatureCollection([ap.get_geofeature() for ap in zp.cor_ap]),
+            "zp": FeatureCollection(zp.get_geofeature()),
+        }
+    return None
+

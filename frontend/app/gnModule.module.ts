@@ -20,21 +20,23 @@ import { ApListAddComponent } from './ap-list-add/ap-list-add.component';
 const routes: Routes = [
   { path: '', component: ZpMapListComponent },
   { path: 'post_zp', component: ZpAddComponent },
-  { path: 'zp/:idZP', component: ApListAddComponent, 
-     children: [
+  {
+    path: 'zp/:idZP', component: ApListAddComponent,
+    children: [
       { path: 'ap_list', component: ApListComponent },
+      //{ path: 'ap_detail', component: ApDetailComponent },
       { path: 'post_ap', component: ApAddComponent },
-      { path: '', redirectTo: 'ap_list', pathMatch: 'full' }	
-    ] 
+      { path: '', redirectTo: 'ap_list', pathMatch: 'full' }
+    ]
   },
- 
+
 ];
 
 @NgModule({
   imports: [CommonModule, GN2CommonModule, RouterModule.forChild(routes)],
   declarations: [ZpMapListComponent, ZpAddComponent, ApListComponent, ApAddComponent, ApListAddComponent],
-  
-  providers: [DataService, StoreService, FormService] 
-  
+
+  providers: [DataService, StoreService, FormService]
+
 })
-export class GeonatureModule {}
+export class GeonatureModule { }

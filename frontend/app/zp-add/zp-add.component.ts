@@ -83,13 +83,6 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     // event from the list
     // this.mapListService.onTableClick(this._ms.getMap());
-
-    if (this.disabledForm) {
-      this._commonService.translateToaster(
-        "warning",
-        "Releve.FillGeometryFirst"
-      );
-    }
   }
 
   getGeojson(geojson) {
@@ -100,4 +93,13 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
 
   deleteControlValue() {
     console.log('Suppression')
+  }
+
+  formDisabled() {
+    if (this.disabledForm) {
+      this._commonService.translateToaster(
+        "warning",
+        "Releve.FillGeometryFirst"
+      );
+    }
   }
