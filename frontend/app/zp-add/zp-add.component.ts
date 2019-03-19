@@ -37,7 +37,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     public api: DataService,
     public storeService: StoreService,
     private _dateParser: NgbDateParserFormatter
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.leafletDrawOptions.draw.rectangle = true;
@@ -51,44 +51,43 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
       cor_zp_observer: [new Array(), Validators.required],
       geom_4326: null
 
-    }); 
+    });
 
     // parameters for maplist
     // columns to be default displayed
     //this.displayColumns = ModuleConfig.default_zp_columns;
     //this.mapListService.displayColumns = this.displayColumns;
-  
+
   }
 
   onCancelAddZp() {
-    this.router.navigate(["pr_priority_flora"]); 
+    this.router.navigate(["pr_priority_flora"]);
   }
 
   onPostZp() {
-  
-  const finalForm = JSON.parse(JSON.stringify(this.ZpFormGroup.value));
-  finalForm.date_min = this._dateParser.format(
-    finalForm.date_min
-  );
 
-  this.api.postVisit(finalForm).subscribe(
-    data => {
-      this.toastr.success('Zone de prospection enregistrée', '', {
-        positionClass: 'toast-top-center'
+    const finalForm = JSON.parse(JSON.stringify(this.ZpFormGroup.value));
+    finalForm.date_min = this._dateParser.format(
+      finalForm.date_min
+    );
+
+    this.api.postVisit(finalForm).subscribe(
+      data => {
+        this.toastr.success('Zone de prospection enregistrée', '', {
+          positionClass: 'toast-top-center'
+        });
       });
-    } 
-  } 
-  
- 
+  }
+
+
   ngAfterViewInit() {
     // event from the list
     // this.mapListService.onTableClick(this._ms.getMap());
   }
 
-  getGeojson(geojson) {
-    this.ZpFormGroup.patchValue(
-      {'geom_4326': geojson.geometry}
-    )
+  sendGeoInfo(geojson) {
+    this._ms.setGeojsonCoord(geojson);
+    this.disabledForm = false;
   }
 
   deleteControlValue() {

@@ -1,82 +1,75 @@
-        <div>
-            <button type="button" class="btn btn-link btn-sm back-button" (click)="backToZp()">
-                <i class="fa fa-arrow-left" aria-hidden="true"> </i>
-                Retour à la liste des zones de prospection
-            </button>
+<div>
+    <button type="button" class="btn btn-link btn-sm back-button" (click)="backToZp()">
+        <i class="fa fa-arrow-left" aria-hidden="true"> </i>
+        Retour à la liste des zones de prospection
+    </button>
+</div>
+<h3> Consultation des aires de présence de la ZP {{ storeService.idSite }} </h3>
+<div class="wrapper">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#infoGen" role="tab">
+                <i class="fa fa-info-circle"> </i> Informations Générales </a>
+        </li>
+        <li class="nav-item" *ngIf="show">
+            <a class="nav-link" data-toggle="tab" href="#details" role="tab">
+                <i class="fa fa-search police"> </i> Détails </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane active modal-header  list-group-item" id="infoGen" role="tabpanel">
+            <p> <span> Identifiant Zone de prospection : </span> <span class="strong "> {{ storeService.idSite }}
+                </span></p>
+            <p> <span> Date : </span> <span class="strong"> {{ storeService.dateMin }}</span></p>
+            <p> <span> Observateur(s) : </span> <span class="strong"> {{ storeService.observateur }} </span></p>
+            <p> <span> Taxon : </span> <span class="strong"> {{ storeService.taxons }} </span></p>
         </div>
-        <h3> Consultation des aires de présence de la ZP {{ storeService.idSite }} </h3>
-        <div class="wrapper">
-            <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" data-toggle="tab" href="#infoGen" role="tab">
-                        <i class="fa fa-info-circle"> </i> Informations Générales </a>
-                </li>
-                <li class="nav-item" *ngIf="show">
-                    <a class="nav-link" data-toggle="tab" href="#details" role="tab">
-                        <i class="fa fa-search police"> </i> Détails </a>
-                </li>
-            </ul>
-
-            <div class="tab-content">
-                <div class="tab-pane active modal-header  list-group-item" id="infoGen" role="tabpanel">
-                    <p> <span> Identifiant Zone de prospection : </span> <span class="strong "> {{ storeService.idSite }} </span></p>
-                    <p> <span> Date : </span> <span class="strong"> {{ storeService.dateMin }}</span></p>
-                    <p> <span> Observateur(s) : </span> <span class="strong"> {{ storeService.observateur }} </span></p>
-                    <p> <span> Taxon : </span> <span class="strong"> {{ storeService.taxons }} </span></p>
-                </div>
-                <div class="tab-pane modal-header list-group-item " id="details" role="tabpanel">
-                    <p> <span> Nom du site : </span> <span class="strong"> {{ storeService.idSite }} </span></p>
-                    <p> <span> Description du site : </span> <span class="strong"> {{ storeService.siteDesc }} </span></p>
-                </div>
-            </div>
+        <div class="tab-pane modal-header list-group-item " id="details" role="tabpanel">
+            <p> <span> Nom du site : </span> <span class="strong"> {{ storeService.idSite }} </span></p>
+            <p> <span> Description du site : </span> <span class="strong"> {{ storeService.siteDesc }} </span></p>
         </div>
+    </div>
+</div>
 
-        <div class="wrapper">
-            <ngx-datatable #table class="material"
-             [columnMode]="'force'" 
-             [rows]="mapListService.tableData" 
-             [headerHeight]="50" 
-             [footerHeight]="50"
-             [rowHeight]="'auto'" 
-             [messages]="storeService.shtConfig.list_visit_message" 
-             [selected]="mapListService.selectedRow" 
-             [selectionType]="'single'" 
-             (select)="mapListService.onRowSelect($event)"
-             [rowClass]="mapListService.getRowClass">
+<div class="wrapper">
+    <ngx-datatable #table class="material" [columnMode]="'force'" [rows]="mapListService.tableData" [headerHeight]="50"
+        [footerHeight]="50" [rowHeight]="'auto'" [messages]="storeService.shtConfig.list_ap_message"
+        [selected]="mapListService.selectedRow" [selectionType]="'single'" (select)="mapListService.onRowSelect($event)"
+        [rowClass]="mapListService.getRowClass">
 
-                <ngx-datatable-column *ngFor="let col of storeService.shtConfig.default_ap_columns" [name]="col.name"
-                    [prop]="col.prop" maxWidth="col.maxWidth">
-                </ngx-datatable-column>
+        <ngx-datatable-column *ngFor="let col of storeService.shtConfig.default_ap_columns" [name]="col.name"
+            [prop]="col.prop" maxWidth="col.maxWidth">
+        </ngx-datatable-column>
 
-                <ngx-datatable-column maxWidth="120">
-                    <ng-template let-row="row" ngx-datatable-cell-template>
-                        <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost" (click)="onInfo(row.indexap)"
-                        title="Visualiser">
-                            <i class="fa fa-info-circle" aria-hidden="true"></i>
-                        </button>
-                    </ng-template>
-                </ngx-datatable-column>
+        <ngx-datatable-column maxWidth="120">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+                <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost"
+                    (click)="onInfo(row.indexap)" title="Visualiser">
+                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                </button>
+            </ng-template>
+        </ngx-datatable-column>
 
-                <ngx-datatable-column maxWidth="120">
-                    <ng-template let-row="row" ngx-datatable-cell-template>
-                        <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost" (click)="onEdit(row.indexap)" 
-                        title="Editer">
-                            <i class="fa fa-edit" aria-hidden="true"></i>
-                        </button>
-                    </ng-template>
-                 </ngx-datatable-column>
+        <ngx-datatable-column maxWidth="120">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+                <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost"
+                    (click)="onEdit(row.indexap)" title="Editer">
+                    <i class="fa fa-edit" aria-hidden="true"></i>
+                </button>
+            </ng-template>
+        </ngx-datatable-column>
 
-            </ngx-datatable>
-        </div>
+    </ngx-datatable>
+</div>
 
-        <div id="end-btn">
-            <pnx-modal-download labelButton='Télécharger ces aires de présence' [pathDownload]='storeService.urlLoad' [exportFormat]='storeService.shtConfig.export_available_format'
-                [queryString]='storeService.queryString' >
-            </pnx-modal-download>
-            
+<div id="end-btn">
+    <pnx-modal-download labelButton='Télécharger ces aires de présence' [pathDownload]='storeService.urlLoad'
+        [exportFormat]='storeService.shtConfig.export_available_format' [queryString]='storeService.queryString'>
+    </pnx-modal-download>
 
-            <button id="add-btn" type="button" class="btn btn-sm box-shadow btn-color" (click)="onAddAp(storeService.idSite)" >
-                <i class="fa fa-plus-circle" aria-hidden="true"> </i> Ajouter une nouvelle aire de présence
-            </button> 
-        </div>
 
+    <button id="add-btn" type="button" class="btn btn-sm box-shadow btn-color" (click)="onAddAp(storeService.idSite)">
+        <i class="fa fa-plus-circle" aria-hidden="true"> </i> Ajouter une nouvelle aire de présence
+    </button>
+</div>

@@ -1,108 +1,190 @@
-  <div class="card-body" >
-      <form class="wrapper wrapper-filter" (click)="formDisabled()">
-        <fieldset [disabled]="disabledForm">
-          <legend>
-            <h3>Ajout d'une nouvelle aire de présence {{ storeService.idSite }}</h3>
-          </legend> 
-          <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm">
-            <div class="row row-0">
-              <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
-                <small> {{ 'Releve.MinAltitude' | translate }} </small>
-                <input class="form-control" type="number" [formControl]="ApFormGroup.controls.altitude_min"
-                [disabled]="disabledForm">
-              </div>
-              <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
-                <small> {{ 'Releve.MaxAltitude' | translate }} </small>
-                <input class="form-control" type="number" [formControl]="ApFormGroup.controls.altitude_max"
-                [disabled]="disabledForm">
-              </div>
-              <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
-                <small> Surface </small>
-                <input class="form-control" type="number" [formControl]="ApFormGroup.controls.area"
-                [disabled]="disabledForm">
-              </div>
-            <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
-              <small> Pente </small>
-              <div class="" id="newPente">
-                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.pente" [multiSelect]="false" [disabled]="disabledForm"
-                    keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
-                    [disabled]="disabledForm"
-                    codeNomenclatureType="PENTE">
-                </pnx-nomenclature>
-              </div>
-            </div>
-            </div>
+<div class="card-body">
+  <form class="wrapper wrapper-filter" (click)="formDisabled()">
+    <fieldset [disabled]="disabledForm">
+      <legend>
+        <h5>Nouvelle aire de présence pour la prospection de {{ storeService.idSite }} du {{ storeService.idSite }}</h5>
+      </legend>
+      <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm">
+        <div class="row row-0">
+          <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
+            <small> {{ 'Releve.MinAltitude' | translate }} </small>
+            <input class="form-control" type="number" [formControl]="ApFormGroup.controls.altitude_min"
+              [disabled]="disabledForm">
           </div>
-          <div class="form-group">
-              <small> Perturbation </small>
-              <div class="" id="newPerturs">
-                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.cor_ap_perturbation" [multiSelect]="true" [disabled]="disabledForm"
-                    keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
-                    codeNomenclatureType="TYPE_PERTURBATION">
-                </pnx-nomenclature>
-              </div>
+          <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
+            <small> {{ 'Releve.MaxAltitude' | translate }} </small>
+            <input class="form-control" type="number" [formControl]="ApFormGroup.controls.altitude_max"
+              [disabled]="disabledForm">
+          </div>
+          <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
+            <small> Surface </small>
+            <input class="form-control" type="number" [formControl]="ApFormGroup.controls.area"
+              [disabled]="disabledForm">
           </div>
           <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
-              <small> Physionomie </small>
-              <div class="" id="newPhysio">
-                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.cor_ap_physionomy" [multiSelect]="true" [disabled]="disabledForm"
-                    keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
-                    [disabled]="disabledForm"
-                    codeNomenclatureType="TYPE_PHYSIONOMIE">
-                </pnx-nomenclature>
-              </div>
-          </div>
-          <div class="form-group">
-              <small> Phénologie </small>
-              <div class="" id="newPheno">
-                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.phenology" [multiSelect]="false"
-                    keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
-                    [disabled]="disabledForm"
-                    codeNomenclatureType="TYPE_PHENOLOGIE">
-                </pnx-nomenclature>
-              </div>
-          </div>
-          
-        <div class="form-group row row-0">
-          <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
-              <small> Méthode de comptage </small>
-              <div class="" id="newCountMethod">
-                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.countmethod" [multiSelect]="false" [disabled]="disabledForm"
-                    keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
-                    [disabled]="disabledForm"
-                    codeNomenclatureType="TYP_DENBR">
-                </pnx-nomenclature>
-              </div>
+            <small> Pente </small>
+            <div class="" id="newPente">
+              <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.pente" [multiSelect]="false"
+                [disabled]="disabledForm" keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+                [disabled]="disabledForm" codeNomenclatureType="PENTE">
+              </pnx-nomenclature>
+            </div>
           </div>
         </div>
-          <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
-            <small> Total stériles </small>
-            <div class="">
-              <input type="text" class="form-control" id="total_sterile"
-                [formControl]="ApFormGroup.controls.total_sterile">
-            </div>
-          </div>
-          <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">  
-            <small> Total fertiles </small>
-            <div class="">
-              <input type="text" class="form-control" id="total_fertile"
-                [formControl]="ApFormGroup.controls.total_fertile">
-            </div>
-          </div>
-          <div class="form-group">
-            <small> Commentaires </small>
-            <div class="">
-              <textarea class="form-control" rows="2" id="commentaire"
-                [formControl]="ApFormGroup.controls.comments"></textarea>
-            </div>
-          </div>
-        </fieldset>
-      </form>
-      <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onPostAp()" [disabled]="disabledForm">
-        <i class="fa fa-plus-circle" aria-hidden="true"> </i> Ajouter
-      </button>
-      <button id="cancel-btn" type="button" class="btn btn-cancel box-shadow" (click)="onCancelAddAp()">
-        <i class="fa fa-times-circle" aria-hidden="true"> </i> Annuler
-      </button>
-  </div>
+      </div>
+      <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4 padding-sm">
+        <small> Phénologie </small>
+        <div class="" id="newPheno">
+          <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.phenology" [multiSelect]="false"
+            keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default" [disabled]="disabledForm"
+            codeNomenclatureType="TYPE_PHENOLOGIE">
+          </pnx-nomenclature>
+        </div>
+      </div>
+      <div class="form-group col-xs-8 col-sm-8 col-md-8 col-lg-8 padding-sm">
+        <small> Perturbation </small>
+        <div class="" id="newPerturs">
+          <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.cor_ap_perturbation" [multiSelect]="true"
+            [disabled]="disabledForm" keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+            codeNomenclatureType="TYPE_PERTURBATION">
+          </pnx-nomenclature>
+        </div>
+      </div>
+      <div class="form-group col-xs-8 col-sm-8 col-md-8 col-lg-8 padding-sm">
+        <small> Physionomie </small>
+        <div class="" id="newPhysio">
+          <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.cor_ap_physionomy" [multiSelect]="true"
+            [disabled]="disabledForm" keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+            [disabled]="disabledForm" codeNomenclatureType="TYPE_PHYSIONOMIE">
+          </pnx-nomenclature>
+        </div>
+      </div>
+      <div class="wrapper">
+        <ul class="nav nav-tabs" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#infoGen" role="tab">
+              <i class="fa fa-info-circle"> </i> Fréquence </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#details" role="tab">
+              <i class="fa fa-book"> </i> Dénombrement </a>
+          </li>
+        </ul>
 
+        <div class="tab-content">
+          <div class="tab-pane active modal-header  list-group-item" id="infoGen" role="tabpanel">
+            <div class="form-group row row-0">
+              <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
+                <small> Méthode de fréquence </small>
+                <div class="" id="newFreqMethod">
+                  <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.frequencymethod" [multiSelect]="false"
+                    [disabled]="disabledForm" keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+                    codeNomenclatureType="TYP_DENBR">
+                  </pnx-nomenclature>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="isEstim; then estimation else newtransect"></div>
+            <div *ngIf="isVisibleCountForm">
+              <ng-template #newtransect>
+                <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
+                  <small> Nombre de transects </small>
+                  <div class="">
+                    <input type="text" class="form-control" id="nb_transects"
+                      [formControl]="ApFormGroup.controls.nb_transects">
+                  </div>
+                </div>
+                <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
+                  <small> Nombre de points </small>
+                  <div class="">
+                    <input type="text" class="form-control" id="nb_points"
+                      [formControl]="ApFormGroup.controls.nb_points">
+                  </div>
+                </div>
+                <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
+                  <small> Nombre de contacts </small>
+                  <div class="">
+                    <input type="text" class="form-control" id="nb_contacts"
+                      [formControl]="ApFormGroup.controls.nb_contacts">
+                  </div>
+                </div>
+              </ng-template>
+
+              <ng-template #estimation>
+                <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
+                  <small> Fréquence en % </small>
+                  <div class="">
+                    <input type="text" class="form-control" id="nb_contacts"
+                      [formControl]="ApFormGroup.controls.nb_contacts">
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+          <div class="tab-pane modal-header list-group-item " id="details" role="tabpanel">
+            <div class="form-group row row-0">
+              <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
+                <small> Méthode de comptage </small>
+                <div class="" id="newCountMethod">
+                  <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.countmethod" [multiSelect]="false"
+                    [disabled]="disabledForm" keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+                    codeNomenclatureType="TYP_DENBR">
+                  </pnx-nomenclature>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="isSampling; then sampling else exhaustive"></div>
+            <div *ngIf="isVisibleMethodForm">
+              <ng-template #exhaustive>
+                <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
+                  <small> Total stériles </small>
+                  <div class="">
+                    <input type="text" class="form-control" id="total_sterile"
+                      [formControl]="ApFormGroup.controls.total_sterile">
+                  </div>
+                </div>
+                <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
+                  <small> Total fertiles </small>
+                  <div class="">
+                    <input type="text" class="form-control" id="total_fertile"
+                      [formControl]="ApFormGroup.controls.total_fertile">
+                  </div>
+                </div>
+              </ng-template>
+
+              <ng-template #sampling>
+                <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
+                  <small> Nombre de placettes </small>
+                  <div class="">
+                    <input type="text" class="form-control" id="nb_plots" [formControl]="ApFormGroup.controls.nb_plots">
+                  </div>
+                </div>
+                <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
+                  <small> Surface de la placette </small>
+                  <div class="">
+                    <input type="text" class="form-control" id="area_plots"
+                      [formControl]="ApFormGroup.controls.area_plots">
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <small> Commentaires </small>
+        <div class="">
+          <textarea class="form-control" rows="2" id="commentaire"
+            [formControl]="ApFormGroup.controls.comments"></textarea>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+  <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onPostAp()" [disabled]="disabledForm">
+    <i class="fa fa-plus-circle" aria-hidden="true"> </i> Ajouter
+  </button>
+  <button id="cancel-btn" type="button" class="btn btn-cancel box-shadow" (click)="onCancelAddAp()">
+    <i class="fa fa-times-circle" aria-hidden="true"> </i> Annuler
+  </button>
+</div>

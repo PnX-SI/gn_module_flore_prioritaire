@@ -23,6 +23,10 @@ import { ModuleConfig } from "../module.config";
 })
 export class ApAddComponent implements OnInit, AfterViewInit {
   public site;
+  public isEstim = true;
+  public isSampling = true;
+  public isVisibleCountForm = false;
+  public isVisibleMethodForm = false;
   public zp;
   public tabPertur = [];
   public disabledForm = true;
@@ -50,53 +54,59 @@ export class ApAddComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
 
-     this.ApFormGroup = this._fb.group({
-       indexap: null,
-       cor_ap_perturbation: null,
-       cor_ap_physionomy: null,
-       phenology: null,
-       countmethod: null,
-       pente: null,
-       total_sterile: null,
-       total_fertile: null,
-       comments: null
-     });  
+    this.ApFormGroup = this._fb.group({
+      indexap: null,
+      cor_ap_perturbation: null,
+      cor_ap_physionomy: null,
+      phenology: null,
+      countmethod: null,
+      frequencymethod: null,
+      nb_contacts: null,
+      nb_points: null,
+      nb_transects: null,
+      area_plots: null,
+      nb_plots: null,
+      pente: null,
+      total_sterile: null,
+      total_fertile: null,
+      comments: null
+    });
   }
 
-   ngAfterViewInit() {
-     this.mapService.map.doubleClickZoom.disable();
-     this.storeService.getZp(this.storeService.idSite);
+  ngAfterViewInit() {
+    this.mapService.map.doubleClickZoom.disable();
+    this.storeService.getZp(this.storeService.idSite);
+  }
+
+  onPostAp() {
+    const finalForm = JSON.parse(JSON.stringify(this.ApFormGroup.value));
+    finalForm.date_min = this._dateParser.format(
+      finalForm.date_min
+    );
+
+    finalForm.date_max = this._dateParser.format(
+      finalForm.date_max
+    );
+
+    this.api.postAp(finalForm).subscribe(
+      data => {
+        this.toastr.success('Aire de présence enregistrée', '', {
+          positionClass: 'toast-top-center'
+        });
+      } 
    }
 
-   onPostAp() {
-   const finalForm = JSON.parse(JSON.stringify(this.ApFormGroup.value));
-   finalForm.date_min = this._dateParser.format(
-     finalForm.date_min
-   );
+  getGeojson(geojson) {
+    this.ApFormGroup.patchValue(
+      { 'geom_4326': geojson.geometry }
+    )
+  }
 
-   finalForm.date_max = this._dateParser.format(
-     finalForm.date_max
-   );
+  deleteControlValue() {
+    console.log('Suppression')
+  }
 
-   this.api.postAp(finalForm).subscribe(
-     data => {
-       this.toastr.success('Aire de présence enregistrée', '', {
-         positionClass: 'toast-top-center'
-       });
-     } 
-   } 
-
-   getGeojson(geojson) {
-     this.ApFormGroup.patchValue(
-       {'geom_4326': geojson.geometry}
-     )
-   } 
-
-   deleteControlValue() {
-     console.log('Suppression')
-   }
-   
-   formDisabled() {
+  formDisabled() {
     if (this.disabledForm) {
       this._commonService.translateToaster(
         "warning",
