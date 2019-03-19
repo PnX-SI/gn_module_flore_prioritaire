@@ -26,7 +26,7 @@
             <div class="" id="newPente">
               <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.pente" [multiSelect]="false"
                 [disabled]="disabledForm" keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
-                [disabled]="disabledForm" codeNomenclatureType="PENTE">
+                codeNomenclatureType="PENTE">
               </pnx-nomenclature>
             </div>
           </div>
@@ -164,6 +164,20 @@
                   <div class="">
                     <input type="text" class="form-control" id="area_plots"
                       [formControl]="ApFormGroup.controls.area_plots">
+                  </div>
+                </div>
+                <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
+                  <small> Somme des placettes fertiles </small>
+                  <div class="">
+                    <input type="text" class="form-control" id="nb_fertile_plots"
+                      [formControl]="ApFormGroup.controls.nb_fertile_plots">
+                  </div>
+                </div>
+                <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
+                  <small> Somme des placettes stériles </small>
+                  <div class="">
+                    <input type="text" class="form-control" id="nb_sterile_plots"
+                      [formControl]="ApFormGroup.controls.nb_sterile_plots">
                   </div>
                 </div>
               </ng-template>

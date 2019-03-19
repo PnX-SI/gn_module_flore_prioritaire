@@ -30,7 +30,6 @@ export class ApAddComponent implements OnInit, AfterViewInit {
   public zp;
   public tabPertur = [];
   public disabledForm = true;
-  public leafletDrawOptions = leafletDrawOption;
   public myGeoJSON: GeoJSON;
   private ApFormGroup: FormGroup;
   public filteredData = [];
@@ -69,6 +68,8 @@ export class ApAddComponent implements OnInit, AfterViewInit {
       pente: null,
       total_sterile: null,
       total_fertile: null,
+      nb_sterile_plots: null,
+      nb_fertile_plots: null,
       comments: null
     });
   }
