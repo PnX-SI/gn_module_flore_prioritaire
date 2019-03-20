@@ -5,6 +5,9 @@
         <h5>Nouvelle aire de présence pour la prospection de {{ storeService.idSite }} du {{ storeService.idSite }}</h5>
       </legend>
       <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm">
+          Observateur(s) : {{ storeService.idSite }}
+        </div>
         <div class="row row-0">
           <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
             <small> {{ 'Releve.MinAltitude' | translate }} </small>
@@ -198,7 +201,7 @@
   <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onPostAp()" [disabled]="disabledForm">
     <i class="fa fa-plus-circle" aria-hidden="true"> </i> Ajouter
   </button>
-  <button id="cancel-btn" type="button" class="btn btn-cancel box-shadow" (click)="onCancelAddAp()">
+  <button id="cancel-btn" type="button" class="btn btn-cancel box-shadow" (click)="onCancelAp(storeService.idSite)">
     <i class="fa fa-times-circle" aria-hidden="true"> </i> Annuler
   </button>
 </div>

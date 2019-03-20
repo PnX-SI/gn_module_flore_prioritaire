@@ -63,6 +63,7 @@ class TZprospect(DB.Model):
         "Taxref", primaryjoin="TZprospect.cd_nom == Taxref.cd_nom", backref="taxrefs"
     )
     cor_ap = relationship("TApresence", lazy="select", uselist=True)
+    cor_zp_observer = relationship("CorZpObs", lazy="select", uselist=True)
 
     def get_geofeature(self, columns=[], recursif=True):
         return self.as_geofeature("geom_4326", "indexzp", recursif, columns=columns)

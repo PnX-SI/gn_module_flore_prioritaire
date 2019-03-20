@@ -17,7 +17,7 @@ import { StoreService } from '../services/store.service';
   selector: 'pnx-zp-add',
   templateUrl: 'zp-add.component.html',
   styleUrls: ['zp-add.component.scss'],
-  providers: [MapListService]
+  providers: [MapListService, MapService]
 })
 export class ZpAddComponent implements OnInit, AfterViewInit {
   public leafletDrawOptions = leafletDrawOption;
@@ -71,7 +71,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
       finalForm.date_min
     );
 
-    this.api.postVisit(finalForm).subscribe(
+    this.api.postZp(finalForm).subscribe(
       data => {
         this.toastr.success('Zone de prospection enregistrée', '', {
           positionClass: 'toast-top-center'
@@ -86,8 +86,11 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   }
 
   sendGeoInfo(geojson) {
-    this._ms.setGeojsonCoord(geojson);
+    // renvoie le
+    // this._ms.setGeojsonCoord(geojson);
+    console.log(geojson.geometry);
     this.disabledForm = false;
+    this.ZpFormGroup.patchValue({ geom_4326: geojson.geometry })
   }
 
   deleteControlValue() {

@@ -78,7 +78,14 @@ export class ApAddComponent implements OnInit, AfterViewInit {
     this.mapService.map.doubleClickZoom.disable();
     this.storeService.getZp(this.storeService.idSite);
   }
-
+  onCancelAp(indexzp) {
+    this.router.navigate(
+      [
+        'pr_priority_flora/zp',
+        indexzp, 'ap_list'
+      ]
+    );
+  }
   onPostAp() {
     const finalForm = JSON.parse(JSON.stringify(this.ApFormGroup.value));
     finalForm.date_min = this._dateParser.format(

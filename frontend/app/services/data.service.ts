@@ -55,7 +55,7 @@ export class DataService {
     );
   }
 
-  postVisit(data: any) {
+  postZp(data: any) {
     console.log(data);
 
     return this._http.post<any>(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/post_zp`, data);

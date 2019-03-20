@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { Location } from "@angular/common";
 import { ToastrService } from "ngx-toastr";
@@ -22,6 +22,9 @@ export class ApListComponent implements OnInit, OnDestroy {
   public show = true;
   public idAp;
   private _map;
+  public currentAp;
+  public expanded: any = {};
+  @ViewChild('table') table: any;
   );
 
   constructor(
@@ -49,16 +52,38 @@ export class ApListComponent implements OnInit, OnDestroy {
     this.storeService.showLeafletDraw();
   }
 
+  onEditAp(idZP) {
+    this.router.navigate(
+      [
+        'pr_priority_flora/zp',
+        idZP, 'post_ap'
+      ]
+    );
+    this.storeService.showLeafletDraw();
+  }
+
   backToZp() {
     this.router.navigate(["pr_priority_flora"]);
   }
 
-  onInfo(indexap) {
-    this.router.navigate(
-      [
-        'pr_priority_flora/zp',
-        indexap, 'ap_list'
-      ]
-    );
+  toggleExpandRow(row) {
+    console.log(this.storeService.sites.features);
+    let i = 0;
+    while (i < this.storeService.sites.features.length) {
+      if (row.indexap == this.storeService.sites.features[i].properties.indexap) {
+        this.currentAp = this.storeService.sites.features[i]
+        console.log('AAAA')
+      }
+      i++
+    }
+    console.log(this.currentAp);
+
+    //this.mapListService.rowDetail.toggleExpandRow(indexap);
+    this.table.rowDetail.toggleExpandRow(row);
   }
+
+  onDetailToggle(event) {
+    console.log('Detail Toggled', event);
+  }
+
 }

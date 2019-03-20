@@ -151,6 +151,10 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     this.router.navigate(["pr_priority_flora/post_zp"]);
   }
 
+  onEditZp() {
+    this.router.navigate(['pr_priority_flora/post_zp']);
+  }
+
   onInfo(indexzp) {
     this.router.navigate(
       [
