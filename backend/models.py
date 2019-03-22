@@ -43,6 +43,15 @@ class TApresence(DB.Model):
 
 
 @serializable
+class CorZpObs(DB.Model):
+    __tablename__ = "cor_zp_obs"
+    __table_args__ = {"schema": "pr_priority_flora"}
+
+    id_role = DB.Column(DB.Integer, ForeignKey(User.id_role), primary_key=True)
+    indexzp = DB.Column(DB.Integer, ForeignKey("TZprospect.indexzp"), primary_key=True)
+
+
+@serializable
 @geoserializable
 class TZprospect(DB.Model):
     __tablename__ = "t_zprospect"
@@ -63,7 +72,13 @@ class TZprospect(DB.Model):
         "Taxref", primaryjoin="TZprospect.cd_nom == Taxref.cd_nom", backref="taxrefs"
     )
     cor_ap = relationship("TApresence", lazy="select", uselist=True)
-    cor_zp_observer = relationship("CorZpObs", lazy="select", uselist=True)
+    cor_zp_observer = DB.relationship(
+        User,
+        secondary=CorZpObs.__table__,
+        primaryjoin=(CorZpObs.indexzp == indexzp),
+        secondaryjoin=(CorZpObs.id_role == User.id_role),
+        foreign_keys=[CorZpObs.indexzp, CorZpObs.id_role],
+    )
 
     def get_geofeature(self, columns=[], recursif=True):
         return self.as_geofeature("geom_4326", "indexzp", recursif, columns=columns)
@@ -76,15 +91,6 @@ class CorApArea(DB.Model):
 
     id_area = DB.Column(DB.Integer, ForeignKey(LAreas.id_area), primary_key=True)
     indexap = DB.Column(DB.Integer, ForeignKey(TApresence.indexap), primary_key=True)
-
-
-@serializable
-class CorZpObs(DB.Model):
-    __tablename__ = "cor_zp_obs"
-    __table_args__ = {"schema": "pr_priority_flora"}
-
-    id_role = DB.Column(DB.Integer, ForeignKey(User.id_role), primary_key=True)
-    indexzp = DB.Column(DB.Integer, ForeignKey(TZprospect.indexzp), primary_key=True)
 
 
 @serializable

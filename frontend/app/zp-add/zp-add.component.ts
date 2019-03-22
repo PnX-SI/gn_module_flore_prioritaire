@@ -48,7 +48,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     this.ZpFormGroup = this._fb.group({
       cd_nom: null,
       date_min: null,
-      cor_zp_observer: [new Array(), Validators.required],
+      cor_zp_observer: [],
       geom_4326: null
 
     });
@@ -67,9 +67,23 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   onPostZp() {
 
     const finalForm = JSON.parse(JSON.stringify(this.ZpFormGroup.value));
+    console.log(finalForm.cd_nom)
+    console.log(finalForm["cor_zp_observer"])
+    console.log(finalForm)
     finalForm.date_min = this._dateParser.format(
       finalForm.date_min
     );
+
+    //observers
+    finalForm["cor_zp_observer"] = finalForm["cor_zp_observer"].map(
+      obs => {
+        return obs.id_role;
+      }
+    );
+
+    //taxon
+    finalForm.cd_nom = finalForm.cd_nom.cd_nom;
+
 
     this.api.postZp(finalForm).subscribe(
       data => {

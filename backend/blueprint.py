@@ -40,6 +40,9 @@ def get_zprospect():
         DB.session.query(TZprospect, Taxref, func.string_agg(LAreas.area_name, ", "))
         .outerjoin(Taxref, TZprospect.cd_nom == Taxref.cd_nom)
         .outerjoin(CorZpArea, CorZpArea.indexzp == TZprospect.indexzp)
+        .outerjoin(CorZpObs, CorZpObs.indexzp == TZprospect.indexzp)
+        .outerjoin(User, User.id_role == CorZpObs.id_role)
+        .outerjoin(BibOrganismes, BibOrganismes.id_organisme == User.id_organisme)
         .outerjoin(
             LAreas,
             and_(
@@ -56,6 +59,9 @@ def get_zprospect():
 
     if "commune" in parameters:
         q = q.filter(LAreas.area_name == parameters["commune"])
+
+    if "organisme" in parameters:
+        q = q.filter(BibOrganismes.nom_organisme == parameters["organisme"])
 
     data = q.all()
     features = []
@@ -95,7 +101,7 @@ def get_apresences():
 
 @blueprint.route("/post_zp", methods=["POST"])
 @json_resp
-def post_visit():
+def post_zp():
     """
     Poste une nouvelle zone de prospection
     """
@@ -103,17 +109,20 @@ def post_visit():
 
     tab_observer = []
 
-    if "cor_visit_observer" in data:
-        tab_observer = data.pop("cor_visit_observer")
+    if "cor_zp_observer" in data:
+        tab_observer = data.pop("cor_zp_observer")
+        print(tab_observer)
 
     shape = asShape(data["geom_4326"])
     releve = TZprospect(**data)
     releve.geom_4326 = from_shape(shape, srid=4326)
 
-    observers = DB.session.query(User).filter(User.id_role.in_(tab_observer)).all()
+    cor_zp_observer = (
+        DB.session.query(User).filter(User.id_role.in_(tab_observer)).all()
+    )
 
-    for o in observers:
-        visit.observers.append(o)
+    for o in cor_zp_observer:
+        releve.cor_zp_observer.append(o)
 
     DB.session.add(releve)
     DB.session.commit()

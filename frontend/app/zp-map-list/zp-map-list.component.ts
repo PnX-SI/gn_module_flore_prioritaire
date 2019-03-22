@@ -162,7 +162,6 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
         indexzp, 'ap_list'
       ]
     );
-
   }
 
   ngAfterViewInit() {

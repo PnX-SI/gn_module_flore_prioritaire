@@ -33,9 +33,10 @@
 </div>
 
 <div class="wrapper">
-    <ngx-datatable #table class="material" [columnMode]="'force'" [rows]="mapListService.tableData" [headerHeight]="50"
-        [footerHeight]="50" [rowHeight]="'auto'" [messages]="storeService.shtConfig.list_ap_message"
-        [selected]="mapListService.selectedRow" [selectionType]="'single'" (select)="mapListService.onRowSelect($event)"
+    <ngx-datatable #table class="material" [columnMode]="'force'" [rows]="mapListService.tableData" maxWidth="90"
+        [headerHeight]="35" [footerHeight]="40" [rowHeight]="40" [rowHeight]="'auto'"
+        [messages]="storeService.shtConfig.list_ap_message" [selected]="mapListService.selectedRow"
+        [selectionType]="'single'" (select)="mapListService.onRowSelect($event)"
         [rowClass]="mapListService.getRowClass">
         <ngx-datatable-row-detail [rowHeight]="100" #myDetailRow (toggle)="onDetailToggle($event)">
             <ng-template let-row="row" let-expanded="expanded" ngx-datatable-row-detail-template>
