@@ -1,15 +1,15 @@
 import { Component, OnInit, Input, AfterViewInit, ViewChild } from '@angular/core';
 import { GeoJSON } from 'leaflet';
 import { ToastrService } from 'ngx-toastr';
-import { NgbDateParserFormatter } from "@ng-bootstrap/ng-bootstrap";
 import { CommonService } from "@geonature_common/service/common.service";
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { GeojsonComponent } from "@geonature_common/map/geojson/geojson.component";
-import { FormGroup, FormBuilder } from "@angular/forms";
+import { FormGroup } from "@angular/forms";
 import { DataService } from '../services/data.service';
 import { StoreService } from "../services/store.service";
+import { FormService } from "../services/form.service";
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { ModuleConfig } from "../module.config";
@@ -39,39 +39,21 @@ export class ApAddComponent implements OnInit, AfterViewInit {
   );
 
   constructor(
+    public formService: FormService,
     public mapService: MapService,
-    private _fb: FormBuilder,
     public router: Router,
     private toastr: ToastrService,
     public ngbModal: NgbModal,
     public api: DataService,
     private _commonService: CommonService,
-    private _dateParser: NgbDateParserFormatter,
     public storeService: StoreService,
     public activatedRoute: ActivatedRoute
   ) { }
 
   ngOnInit() {
 
-    this.ApFormGroup = this._fb.group({
-      indexap: null,
-      cor_ap_perturbation: null,
-      cor_ap_physionomy: null,
-      phenology: null,
-      countmethod: null,
-      frequencymethod: null,
-      nb_contacts: null,
-      nb_points: null,
-      nb_transects: null,
-      area_plots: null,
-      nb_plots: null,
-      pente: null,
-      total_sterile: null,
-      total_fertile: null,
-      nb_sterile_plots: null,
-      nb_fertile_plots: null,
-      comments: null
-    });
+    this.ApFormGroup = this.formService.initFormAp();
+
   }
 
   ngAfterViewInit() {
@@ -88,26 +70,24 @@ export class ApAddComponent implements OnInit, AfterViewInit {
   }
   onPostAp() {
     const finalForm = JSON.parse(JSON.stringify(this.ApFormGroup.value));
-    finalForm.date_min = this._dateParser.format(
-      finalForm.date_min
-    );
 
-    finalForm.date_max = this._dateParser.format(
-      finalForm.date_max
-    );
-
+    //comments
+    finalForm["comments"] = finalForm.controls.comments.value;
+    console.log(finalForm.controls.comments.value);
     this.api.postAp(finalForm).subscribe(
       data => {
         this.toastr.success('Aire de présence enregistrée', '', {
           positionClass: 'toast-top-center'
         });
-      } 
-   }
+      });
+  }
 
-  getGeojson(geojson) {
-    this.ApFormGroup.patchValue(
-      { 'geom_4326': geojson.geometry }
-    )
+  sendGeoInfo(geojson) {
+    // renvoie le
+    // this._ms.setGeojsonCoord(geojson);
+    console.log(geojson.geometry);
+    this.disabledForm = false;
+    this.ApFormGroup.patchValue({ geom_4326: geojson.geometry })
   }
 
   deleteControlValue() {

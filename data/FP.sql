@@ -25,7 +25,7 @@ CREATE TABLE pr_priority_flora.t_zprospect(
 	topo_valid          BOOLEAN,
 	initial_insert      VARCHAR (20),
 	srid_design         INT,
-	cd_nom		        INT,
+	cd_nom		          INT,
 	id_history_action   INT,
 	id_validation       INT,
 	id_dataset          INT,
@@ -34,7 +34,7 @@ CREATE TABLE pr_priority_flora.t_zprospect(
 	geom_4326           geometry(Geometry,4326),
 	geom_point_4326     geometry(Point,4326),
 	
-    CONSTRAINT pk_t_zprospect PRIMARY KEY (indexzp),
+  CONSTRAINT pk_t_zprospect PRIMARY KEY (indexzp),
 	CONSTRAINT fk_t_zprospect_taxref FOREIGN KEY (cd_nom) REFERENCES taxonomie.taxref(cd_nom),
 	CONSTRAINT fk_t_apresence_t_history_actions FOREIGN KEY (id_history_action) REFERENCES gn_commons.t_history_actions(id_history_action),
 	CONSTRAINT fk_t_apresence_t_validations FOREIGN KEY (id_validation) REFERENCES gn_commons.t_validations(id_validation),
@@ -66,37 +66,29 @@ WITH (
 CREATE TABLE pr_priority_flora.t_apresence(
 	indexap                                           serial NOT NULL,
 	area                                              INT  NOT NULL,
-	frequency                                         FLOAT  NOT NULL,
 	topo_valid                                        BOOLEAN,
 	altitude_min                                      INT  NOT NULL DEFAULT 0,
 	altitude_max                                      INT  NOT NULL DEFAULT 0,
-	nb_transects_frequency                            INT  NOT NULL DEFAULT 0,
-	nb_points_frequency                               INT  NOT NULL DEFAULT 0,
-	nb_contacts_frequency                             INT  NOT NULL DEFAULT 0,
-	nb_plots_count                                    INT  NOT NULL DEFAULT 0,
-	area_plots_count                                  FLOAT  NOT NULL,
-	comment                                           VARCHAR (200),
-	step_length                                       NUMERIC (10,2),
-	indexzp						  					  INT,
+  frequency                                         FLOAT  NOT NULL,
+	comment                                           VARCHAR (2000),
+	indexzp						  					  BIGINT,
 	id_nomenclatures_pente				  			  INT,
-	id_nomenclatures_count_method			  		  INT,
-	id_nomenclatures_freq_method			  		  INT,
+	id_nomenclatures_counting			  		      INT,
+	id_nomenclatures_habitat			  		      INT,
 	id_nomenclatures_phenology			  			  INT,
 	id_history_action				  				  INT,
-	nb_sterile_plots                                  INT ,
-	nb_fertile_plots                                  INT ,
-	total_sterile                                     INT ,
-	total_fertile                                     INT ,
+	total_min                                         INT,
+	total_max                                         INT,
 	unique_id_sinp_zp                                 UUID DEFAULT public.uuid_generate_v4(),
 	geom_local                                        geometry(Geometry,2154),
 	geom_4326                                         geometry(Geometry,4326),
 	geom_point_4326                                   geometry(Point,4326),
 	
-    CONSTRAINT pk_t_apresence PRIMARY KEY (indexap),
+  CONSTRAINT pk_t_apresence PRIMARY KEY (indexap),
 	CONSTRAINT fk_t_apresence_t_zprospect FOREIGN KEY (indexzp) REFERENCES pr_priority_flora.t_zprospect(indexzp),
 	CONSTRAINT fk_t_apresence_t_nomenclatures_id_pente FOREIGN KEY (id_nomenclatures_pente) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature),
-	CONSTRAINT fk_t_apresence_t_nomenclatures_id_count_method FOREIGN KEY (id_nomenclatures_count_method) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature),
-	CONSTRAINT fk_t_apresence_t_nomenclatures_id_freq_method FOREIGN KEY (id_nomenclatures_freq_method) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature),
+	CONSTRAINT fk_t_apresence_t_nomenclatures_id_counting FOREIGN KEY (id_nomenclatures_counting) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature),
+	CONSTRAINT fk_t_apresence_t_nomenclatures_id_habitat FOREIGN KEY (id_nomenclatures_habitat) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature),
 	CONSTRAINT fk_t_apresence_t_nomenclatures_id_phenology FOREIGN KEY (id_nomenclatures_phenology) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature),
 	CONSTRAINT fk_t_apresence_t_history_actions FOREIGN KEY (id_history_action) REFERENCES gn_commons.t_history_actions(id_history_action)
 )
@@ -147,22 +139,6 @@ CREATE TABLE pr_priority_flora.cor_ap_perturb(
 	CONSTRAINT pk_cor_ap_perturb PRIMARY KEY (indexap,id_nomenclature),
 	CONSTRAINT fk_cor_ap_perturb_t_apresence FOREIGN KEY (indexap) REFERENCES pr_priority_flora.t_apresence(indexap),
 	CONSTRAINT fk_cor_ap_perturb_t_nomenclatures FOREIGN KEY (id_nomenclature) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature)
-)
-WITH (
-  OIDS=FALSE
-);
-
-------------------------------------------------------------
--- Table: cor_ap_physionomie
-------------------------------------------------------------
-
-CREATE TABLE pr_priority_flora.cor_ap_physionomie(
-	indexap           INT  NOT NULL,
-	id_nomenclature   INT  NOT NULL,
-
-	CONSTRAINT pk_cor_ap_physionomie PRIMARY KEY (indexap,id_nomenclature),
-	CONSTRAINT fk_cor_ap_physionomie_t_apresence FOREIGN KEY (indexap) REFERENCES pr_priority_flora.t_apresence(indexap),
-	CONSTRAINT fk_cor_ap_physionomie_t_nomenclatures FOREIGN KEY (id_nomenclature) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature)
 )
 WITH (
   OIDS=FALSE

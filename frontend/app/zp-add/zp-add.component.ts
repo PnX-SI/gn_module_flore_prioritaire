@@ -67,9 +67,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   onPostZp() {
 
     const finalForm = JSON.parse(JSON.stringify(this.ZpFormGroup.value));
-    console.log(finalForm.cd_nom)
-    console.log(finalForm["cor_zp_observer"])
-    console.log(finalForm)
+
     finalForm.date_min = this._dateParser.format(
       finalForm.date_min
     );

@@ -25,20 +25,44 @@ class TApresence(DB.Model):
     indexzp = DB.Column(
         DB.ForeignKey("pr_priority_flora.t_zprospect.indexzp"), nullable=False
     )
-    topo_valid = DB.Column(DB.Unicode)
-    frequency = DB.Column(DB.Unicode)
     altitude_min = DB.Column(DB.Integer)
     altitude_max = DB.Column(DB.Integer)
-    nb_transects_frequency = DB.Column(DB.Integer)
-    nb_points_frequency = DB.Column(DB.Integer)
-    nb_contacts_frequency = DB.Column(DB.Integer)
-    nb_plots_count = DB.Column(DB.Integer)
-    nb_sterile_plots = DB.Column(DB.Integer)
-    total_fertile = DB.Column(DB.Integer)
-    total_sterile = DB.Column(DB.Integer)
+    area = DB.Column(DB.Integer)
+    id_nomenclatures_pente = DB.Column(DB.Integer)
+    id_nomenclatures_phenology = DB.Column(DB.Integer)
+    id_nomenclatures_habitat = DB.Column(DB.Integer)
+    frequency = DB.Column(DB.Integer)
+    id_nomenclatures_counting = DB.Column(DB.Integer)
+    total_min = DB.Column(DB.Integer)
+    total_max = DB.Column(DB.Integer)
+    comment = DB.Column(DB.String(4000))
     geom_4326 = DB.Column(Geometry("GEOMETRY", 4326))
 
-    def get_geofeature(self, recursif=True):
+    pente = DB.relationship(
+        TNomenclatures,
+        primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclatures_pente),
+        foreign_keys=[id_nomenclatures_pente],
+    )
+
+    pheno = DB.relationship(
+        TNomenclatures,
+        primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclatures_phenology),
+        foreign_keys=[id_nomenclatures_phenology],
+    )
+
+    habitat = DB.relationship(
+        TNomenclatures,
+        primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclatures_habitat),
+        foreign_keys=[id_nomenclatures_habitat],
+    )
+
+    counting = DB.relationship(
+        TNomenclatures,
+        primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclatures_counting),
+        foreign_keys=[id_nomenclatures_counting],
+    )
+
+    def get_geofeature(self, columns=[], recursif=True):
         return self.as_geofeature("geom_4326", "indexap", recursif)
 
 
