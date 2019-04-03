@@ -263,7 +263,7 @@ def get_one_zp(id_zp):
     if zp:
         return {
             "aps": FeatureCollection([ap.get_geofeature() for ap in zp.cor_ap]),
-            "zp": FeatureCollection(zp.get_geofeature()),
+            "zp": FeatureCollection([zp.get_geofeature()]),
         }
     return None
 

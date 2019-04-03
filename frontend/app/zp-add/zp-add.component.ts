@@ -82,7 +82,6 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     //taxon
     finalForm.cd_nom = finalForm.cd_nom.cd_nom;
 
-
     this.api.postZp(finalForm).subscribe(
       data => {
         this.toastr.success('Zone de prospection enregistrée', '', {
@@ -90,7 +89,6 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
         });
       });
   }
-
 
   ngAfterViewInit() {
     // event from the list

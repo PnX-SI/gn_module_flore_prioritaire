@@ -2,10 +2,12 @@ import { NgModule, Component, OnInit, OnDestroy, OnChanges } from "@angular/core
 import { RouterModule, Router, Routes, ActivatedRoute } from "@angular/router";
 import { ToastrService } from "ngx-toastr";
 import * as L from "leaflet";
+import { CommonService } from "@geonature_common/service/common.service";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MapListService } from "@geonature_common/map-list/map-list.service";
 import { MapService } from "@geonature_common/map/map.service";
 import { DataService } from "../services/data.service";
+import { FormService } from "../services/form.service";
 import { StoreService } from "../services/store.service";
 import { ModuleConfig } from "../module.config";
 
@@ -20,22 +22,28 @@ export class ApListAddComponent implements OnInit, OnChanges {
 
   public currentSite = {};
   public idAp;
-  public dynamicFormGroup: FormGroup;
+  public ApFormGroup: FormGroup;
   public filteredData = [];
   public dataLoaded = false;
+  public disabledForm = true;
 
   constructor(
     public mapService: MapService,
+    public formService: FormService,
     public storeService: StoreService,
     public router: Router,
     public _api: DataService,
     private _fb: FormBuilder,
+    private _commonService: CommonService,
     public activatedRoute: ActivatedRoute,
     public mapListService: MapListService,
     private toastr: ToastrService
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+
+    this.ApFormGroup = this.formService.initFormAp();
+  }
 
 
   ngAfterViewInit() {
@@ -43,7 +51,6 @@ export class ApListAddComponent implements OnInit, OnChanges {
     this.storeService.idSite = this.activatedRoute.snapshot.params['idZP'];
     this.mapListService.idName = 'indexap';
     this.mapListService.enableMapListConnexion(this.mapService.getMap());
-    console.log(this.storeService.idSite);
     //this.paramApp = this.paramApp.append("indexzp", idZP);
     this._api.getOneZP(this.storeService.idSite).subscribe(
       data => {
@@ -52,12 +59,11 @@ export class ApListAddComponent implements OnInit, OnChanges {
         this.mapListService.loadTableData(data['aps']);
         this.filteredData = this.mapListService.tableData;
         this.dataLoaded = true;
-        let properties = data['zp'].features.properties;
-
+        let properties = data['zp'].features[0].properties;
         this.storeService.organisme = properties.organisme;
         this.storeService.nomCommune = properties.nom_commune;
         this.storeService.observateur = properties.nom_role;
-        this.storeService.taxons = data['zp'].features.properties.taxonomy.nom_complet;
+        this.storeService.taxons = data['zp'].features[0].properties.taxonomy.nom_complet;
         this.storeService.dateMin = properties.date_min;
 
         //this.geojson.currentGeoJson$.subscribe(currentLayer => {
@@ -76,10 +82,15 @@ export class ApListAddComponent implements OnInit, OnChanges {
           console.log("error: ", error);
         }
       });
+
   }
-
-
-
+  sendGeoInfo(geojson) {
+    // renvoie le
+    // this._ms.setGeojsonCoord(geojson);
+    console.log(geojson.geometry);
+    this.disabledForm = false;
+    this.ApFormGroup.patchValue({ geom_4326: geojson.geometry })
+  }
   onEachFeature(feature, layer) {
     // event from the map
     let site = feature.properties;
@@ -98,5 +109,13 @@ export class ApListAddComponent implements OnInit, OnChanges {
         layer.bindPopup(customPopup, customOptions);
       }
     });
+  }
+  formDisabled() {
+    if (this.disabledForm) {
+      this._commonService.translateToaster(
+        "warning",
+        "Releve.FillGeometryFirst"
+      );
+    }
   }
 }

@@ -29,7 +29,22 @@ export class ApAddComponent implements OnInit, AfterViewInit {
   public isVisibleMethodForm = false;
   public zp;
   public tabPertur = [];
-  public disabledForm = true;
+  private ap = {
+    indexap: "",
+    indexzp: "",
+    altitude_min: "",
+    altitude_max: "",
+    area: "",
+    total_min: "",
+    total_max: "",
+    frequency: "",
+    id_nomenclatures_counting: "",
+    id_nomenclatures_habitat: "",
+    id_nomenclatures_phenology: "",
+    id_nomenclatures_pente: "",
+    cor_ap_perturbation: [],
+    comment: ""
+  };
   public myGeoJSON: GeoJSON;
   private ApFormGroup: FormGroup;
   public filteredData = [];
@@ -53,12 +68,10 @@ export class ApAddComponent implements OnInit, AfterViewInit {
   ngOnInit() {
 
     this.ApFormGroup = this.formService.initFormAp();
-
   }
 
   ngAfterViewInit() {
     this.mapService.map.doubleClickZoom.disable();
-    this.storeService.getZp(this.storeService.idSite);
   }
   onCancelAp(indexzp) {
     this.router.navigate(
@@ -69,12 +82,16 @@ export class ApAddComponent implements OnInit, AfterViewInit {
     );
   }
   onPostAp() {
-    const finalForm = JSON.parse(JSON.stringify(this.ApFormGroup.value));
+    const apForm = JSON.parse(JSON.stringify(this.ApFormGroup.value));
 
-    //comments
-    finalForm["comments"] = finalForm.controls.comments.value;
-    console.log(finalForm.controls.comments.value);
-    this.api.postAp(finalForm).subscribe(
+    //perturbation
+    /* apForm["cor_ap_perturbation"] = apForm["cor_ap_perturbation"].map(
+      pertu => {
+        return pertu.id_nomenclatures;
+      }
+    ); */
+
+    this.api.postAp(apForm).subscribe(
       data => {
         this.toastr.success('Aire de présence enregistrée', '', {
           positionClass: 'toast-top-center'
@@ -82,24 +99,26 @@ export class ApAddComponent implements OnInit, AfterViewInit {
       });
   }
 
-  sendGeoInfo(geojson) {
-    // renvoie le
-    // this._ms.setGeojsonCoord(geojson);
-    console.log(geojson.geometry);
-    this.disabledForm = false;
-    this.ApFormGroup.patchValue({ geom_4326: geojson.geometry })
-  }
-
   deleteControlValue() {
     console.log('Suppression')
   }
 
-  formDisabled() {
-    if (this.disabledForm) {
-      this._commonService.translateToaster(
-        "warning",
-        "Releve.FillGeometryFirst"
-      );
-    }
+  pachForm() {
+    this.ApFormGroup.patchValue({
+      indexap: this.ap.indexap,
+      indexzp: this.ap.indexzp,
+      altitude_min: this.ap.altitude_min,
+      altitude_max: this.ap.altitude_max,
+      area: this.ap.area,
+      frequency: this.ap.frequency,
+      total_min: this.ap.total_min,
+      total_max: this.ap.total_max,
+      id_nomenclatures_counting: this.ap.id_nomenclatures_counting,
+      id_nomenclatures_habitat: this.ap.id_nomenclatures_habitat,
+      id_nomenclatures_phenology: this.ap.id_nomenclatures_phenology,
+      id_nomenclatures_pente: this.ap.id_nomenclatures_pente,
+      cor_ap_perturbation: this.ap.cor_ap_perturbation,
+      comment: this.ap.comment
+    });
   }
 }
