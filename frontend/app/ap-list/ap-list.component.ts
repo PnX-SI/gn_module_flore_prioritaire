@@ -67,12 +67,10 @@ export class ApListComponent implements OnInit, OnDestroy {
   }
 
   toggleExpandRow(row) {
-    console.log(this.storeService.sites.features);
     let i = 0;
     while (i < this.storeService.sites.features.length) {
       if (row.indexap == this.storeService.sites.features[i].properties.indexap) {
         this.currentAp = this.storeService.sites.features[i]
-        console.log('AAAA')
       }
       i++
     }

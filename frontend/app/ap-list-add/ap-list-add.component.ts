@@ -98,7 +98,7 @@ export class ApListAddComponent implements OnInit, OnChanges {
     layer.on({
       click: (e) => {
         // toggle style
-        //this.mapListService.toggleStyle(layer);
+        this.mapListService.toggleStyle(layer);
         // observable
         this.mapListService.mapSelected.next(feature.id);
         // open popup
@@ -109,6 +109,10 @@ export class ApListAddComponent implements OnInit, OnChanges {
         layer.bindPopup(customPopup, customOptions);
       }
     });
+  }
+
+  onEachZp(feature, layer) {
+    layer.setStyle({ 'color': '#F4D03F', 'fillOpacity': 0, 'weight': 4 })
   }
   formDisabled() {
     if (this.disabledForm) {

@@ -19,15 +19,19 @@
 
     <div class="tab-content">
         <div class="tab-pane active modal-header  list-group-item" id="infoGen" role="tabpanel">
-            <p> <span> Identifiant Zone de prospection : </span> <span class="strong "> {{ storeService.idSite }}
+            <p> <span> <strong>Identifiant Zone de prospection : </strong></span> <span class="strong ">
+                    {{ storeService.idSite }}
                 </span></p>
-            <p> <span> Date : </span> <span class="strong"> {{ storeService.dateMin }}</span></p>
-            <p> <span> Observateur(s) : </span> <span class="strong"> {{ storeService.observateur }} </span></p>
-            <p> <span> Taxon : </span> <span class="strong"> {{ storeService.taxons }} </span></p>
+            <p> <span><strong> Date : </strong></span> <span class="strong"> {{ storeService.dateMin }}</span></p>
+            <p> <span><strong> Observateur(s) : </strong></span> <span class="strong"> {{ storeService.observateur }}
+                </span></p>
+            <p> <span><strong> Taxon : </strong></span> <span class="strong"> {{ storeService.taxons }} </span></p>
         </div>
         <div class="tab-pane modal-header list-group-item " id="details" role="tabpanel">
-            <p> <span> Nom du site : </span> <span class="strong"> {{ storeService.idSite }} </span></p>
-            <p> <span> Description du site : </span> <span class="strong"> {{ storeService.siteDesc }} </span></p>
+            <p> <span><strong> Nom du site : </strong></span> <span class="strong"> {{ storeService.idSite }} </span>
+            </p>
+            <p> <span><strong> Description du site : </strong></span> <span class="strong"> {{ storeService.siteDesc }}
+                </span></p>
         </div>
     </div>
 </div>
@@ -41,8 +45,13 @@
         <ngx-datatable-row-detail [rowHeight]="100" #myDetailRow (toggle)="onDetailToggle($event)">
             <ng-template let-row="row" let-expanded="expanded" ngx-datatable-row-detail-template>
                 <div style="padding-left:35px;">
-                    <div><strong>Détails</strong></div>
-                    <div>{{row.nb_transects_frequency}}</div>
+                    <div style="font-size: 15px"><strong>Détails</strong></div>
+                    <div style="font-size: 12px"><strong>Phénologie :</strong> {{row.pheno.definition_default}}</div>
+                    <div style="font-size: 12px"><strong>Pente :</strong> {{row.pente.definition_default}}</div>
+                    <div style="font-size: 12px"><strong>Type d'habitat :</strong> {{row.habitat.definition_default}}
+                    </div>
+                    <div style="font-size: 12px"><strong>Total :</strong> {{row.total_min}}</div>
+                    <div style="font-size: 12px"><strong>Remarques :</strong> {{row.comment}}</div>
                 </div>
             </ng-template>
         </ngx-datatable-row-detail>

@@ -60,6 +60,7 @@ export class StoreService {
     this.leafletDrawOptions.edit.remove = true;
     this.leafletDrawOptions.edit.edit = true;
   }
+
 }
 
 
