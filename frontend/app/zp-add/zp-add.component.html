@@ -2,8 +2,8 @@
   <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm">
     <!-- MAP -->
     <pnx-map height="94vh" [center]="center" [zoom]="zoom">
-      <pnx-leaflet-draw [options]="leafletDrawOptions" [zoomLevel]="1" (layerDrawed)="sendGeoInfo($event)"
-        (layerDeleted)="deleteControlValue()">
+      <pnx-leaflet-draw [geojson]="ZpFormGroup.value.geom_4326" [options]="leafletDrawOptions" [zoomLevel]="1"
+        (layerDrawed)="sendGeoInfo($event)" (layerDeleted)="deleteControlValue()">
       </pnx-leaflet-draw>
     </pnx-map>
   </div>

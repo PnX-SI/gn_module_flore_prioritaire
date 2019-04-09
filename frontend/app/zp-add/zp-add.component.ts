@@ -8,10 +8,13 @@ import { MapService } from '@geonature_common/map/map.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { FormService } from '@geonature_common/form/form.service';
 import { FormGroup, FormBuilder, Validators, FormControl } from "@angular/forms";
+import { DataFormService } from '@geonature_common/form/data-form.service';
 import { DataService } from '../services/data.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { StoreService } from '../services/store.service';
+import { ModuleConfig } from "../module.config";
+import { GeojsonComponent } from '@geonature_common/map/geojson/geojson.component';
 
 @Component({
   selector: 'pnx-zp-add',
@@ -25,12 +28,20 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   public ZpFormGroup: FormGroup;
   public taxonForm = new FormControl();
   public disabledForm = true;
+  public idZp;
+  public nomTaxon;
+  public date;
+  public tabObserver = [];
+
+  @ViewChild('geojson')
+  geojson: GeojsonComponent;
 
   constructor(
     private _ms: MapService,
-    private mapListService: MapListService,
+    public activatedRoute: ActivatedRoute,
     private _fb: FormBuilder,
     public router: Router,
+    public dataFormService: DataFormService,
     private _commonService: CommonService,
     private toastr: ToastrService,
     public ngbModal: NgbModal,
@@ -45,7 +56,10 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     this.leafletDrawOptions.draw.polyline = false;
     this.leafletDrawOptions.edit.remove = true;
 
+    this.idZp = this.activatedRoute.snapshot.params['indexzp'];
+
     this.ZpFormGroup = this._fb.group({
+      indexzp: null,
       cd_nom: null,
       date_min: null,
       cor_zp_observer: [],
@@ -53,15 +67,40 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
 
     });
 
-    // parameters for maplist
-    // columns to be default displayed
-    //this.displayColumns = ModuleConfig.default_zp_columns;
-    //this.mapListService.displayColumns = this.displayColumns;
+  }
 
+  ngAfterViewInit() {
+
+    // vérifie s'il existe idZp --> c' une modif
+
+    if (this.idZp !== undefined) {
+      this.api.getOneZP(this.idZp).subscribe(element => {
+
+        let fullNameObserver;
+
+        element.zp.features[0].properties.cor_zp_observer.forEach(name => {
+          if (name === element.zp.features[0].properties.cor_zp_observer[element.zp.features[0].properties.cor_zp_observer.length - 1]) {
+            fullNameObserver = name.nom_complet + '. ';
+          } else {
+            fullNameObserver = name.nom_complet + ', ';
+          }
+          this.tabObserver.push(fullNameObserver);
+        });
+        console.log(element.zp.features[0]);
+
+        this.ZpFormGroup.patchValue({
+          indexzp: this.idZp,
+          cd_nom: element.zp.features[0].properties.taxonomy,
+          date_min: this._dateParser.parse(element.zp.features[0].properties.date_min),
+          cor_zp_observer: element.zp.features[0].properties.cor_zp_observer,
+          geom_4326: element.zp.features[0].geometry
+        });
+      });
+    });
   }
 
   onCancelAddZp() {
-    this.router.navigate(["pr_priority_flora"]);
+    this.router.navigate([`${ModuleConfig.MODULE_URL}`]);
   }
 
   onPostZp() {
@@ -88,11 +127,6 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
           positionClass: 'toast-top-center'
         });
       });
-  }
-
-  ngAfterViewInit() {
-    // event from the list
-    // this.mapListService.onTableClick(this._ms.getMap());
   }
 
   sendGeoInfo(geojson) {
