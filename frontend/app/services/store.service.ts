@@ -1,8 +1,8 @@
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ToastrService } from "ngx-toastr";
 import { Layer, Map } from 'leaflet';
 import * as L from "leaflet";
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModuleConfig } from '../module.config';
 import { DataService } from "../services/data.service";
 import { MapListService } from '@geonature_common/map-list/map-list.service';
@@ -42,9 +42,8 @@ export class StoreService {
 
   constructor(
     public _api: DataService,
-    private toastr: ToastrService,
-    public mapListService: MapListService
-
+    public mapListService: MapListService,
+    private _modalService: NgbModal
   ) { }
 
   public presence = 0;
@@ -61,6 +60,9 @@ export class StoreService {
     this.leafletDrawOptions.edit.edit = true;
   }
 
+  openModal(content) {
+    this._modalService.open(content);
+  }
 }
 
 

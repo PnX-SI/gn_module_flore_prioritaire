@@ -20,7 +20,6 @@ export class ApListComponent implements OnInit, OnDestroy {
 
   public currentSite = {};
   public show = true;
-  public idAp;
   private _map;
   public currentAp;
   public expanded: any = {};
@@ -45,25 +44,25 @@ export class ApListComponent implements OnInit, OnDestroy {
   onAddAp(idZP) {
     this.router.navigate(
       [
-        'pr_priority_flora/zp',
+        `${ModuleConfig.MODULE_URL}/zp`,
         idZP, 'post_ap'
       ]
     );
     this.storeService.showLeafletDraw();
   }
 
-  onEditAp(idZP) {
+  onEditAp(idZP, idAP) {
     this.router.navigate(
       [
-        'pr_priority_flora/zp',
-        idZP, 'post_ap'
+        `${ModuleConfig.MODULE_URL}/zp`,
+        idZP, 'post_ap', idAP
       ]
     );
     this.storeService.showLeafletDraw();
   }
 
   backToZp() {
-    this.router.navigate(["pr_priority_flora"]);
+    this.router.navigate([`${ModuleConfig.MODULE_URL}`]);
   }
 
   toggleExpandRow(row) {

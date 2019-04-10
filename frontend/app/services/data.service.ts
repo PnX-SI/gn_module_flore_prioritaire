@@ -37,6 +37,12 @@ export class DataService {
     );
   }
 
+  getOneAP(idAP) {
+    return this._http.get<any>(
+      `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/ap/${idAP}`
+    );
+  }
+
   getOrganisme() {
     return this._http.get<any>(
       `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/organismes`

@@ -17,6 +17,30 @@ from pypnnomenclature.models import TNomenclatures
 
 
 @serializable
+class CorApPerturb(DB.Model):
+    __tablename__ = "cor_ap_perturb"
+    __table_args__ = {"schema": "pr_priority_flora"}
+
+    indexap = DB.Column(
+        DB.ForeignKey("pr_priority_flora.t_apresence.indexap", onupdate="CASCADE"),
+        primary_key=True,
+        nullable=False,
+    )
+    id_nomenclature = DB.Column(
+        DB.ForeignKey(
+            "ref_nomenclatures.t_nomenclatures.id_nomenclature", onupdate="CASCADE"
+        ),
+        primary_key=True,
+        nullable=False,
+    )
+    t_nomenclature = DB.relationship(
+        TNomenclatures,
+        primaryjoin=id_nomenclature == TNomenclatures.id_nomenclature,
+        foreign_keys=[id_nomenclature],
+    )
+
+
+@serializable
 @geoserializable
 class TApresence(DB.Model):
     __tablename__ = "t_apresence"
@@ -38,6 +62,13 @@ class TApresence(DB.Model):
     comment = DB.Column(DB.String(4000))
     geom_4326 = DB.Column(Geometry("GEOMETRY", 4326))
 
+    cor_ap_perturbation = DB.relationship(
+        TNomenclatures,
+        secondary=CorApPerturb.__table__,
+        primaryjoin=(CorApPerturb.indexap == indexap),
+        secondaryjoin=(CorApPerturb.id_nomenclature == TNomenclatures.id_nomenclature),
+        foreign_keys=[CorApPerturb.indexap, CorApPerturb.id_nomenclature],
+    )
     pente = DB.relationship(
         TNomenclatures,
         primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclatures_pente),
@@ -124,52 +155,4 @@ class CorZpArea(DB.Model):
 
     id_area = DB.Column(DB.Integer, ForeignKey(LAreas.id_area), primary_key=True)
     indexzp = DB.Column(DB.Integer, ForeignKey(TZprospect.indexzp), primary_key=True)
-
-
-@serializable
-class CorApPerturb(DB.Model):
-    __tablename__ = "cor_ap_perturb"
-    __table_args__ = {"schema": "pr_priority_flora"}
-
-    indexap = DB.Column(
-        DB.ForeignKey("pr_priority_flora.t_apresence.indexap", onupdate="CASCADE"),
-        primary_key=True,
-        nullable=False,
-    )
-    id_nomenclature_perturbation = DB.Column(
-        DB.ForeignKey(
-            "ref_nomenclatures.t_nomenclatures.id_nomenclature", onupdate="CASCADE"
-        ),
-        primary_key=True,
-        nullable=False,
-    )
-    t_nomenclature = DB.relationship(
-        TNomenclatures,
-        primaryjoin=id_nomenclature_perturbation == TNomenclatures.id_nomenclature,
-        foreign_keys=[id_nomenclature_perturbation],
-    )
-
-
-@serializable
-class CorApPhysio(DB.Model):
-    __tablename__ = "cor_ap_physionomie"
-    __table_args__ = {"schema": "pr_priority_flora"}
-
-    indexap = DB.Column(
-        DB.ForeignKey("pr_priority_flora.t_apresence.indexap", onupdate="CASCADE"),
-        primary_key=True,
-        nullable=False,
-    )
-    id_nomenclature_physionomie = DB.Column(
-        DB.ForeignKey(
-            "ref_nomenclatures.t_nomenclatures.id_nomenclature", onupdate="CASCADE"
-        ),
-        primary_key=True,
-        nullable=False,
-    )
-    t_nomenclature = DB.relationship(
-        TNomenclatures,
-        primaryjoin=id_nomenclature_physionomie == TNomenclatures.id_nomenclature,
-        foreign_keys=[id_nomenclature_physionomie],
-    )
 

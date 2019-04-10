@@ -33,24 +33,9 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   public isVisibleCountForm = false;
   public isVisibleMethodForm = false;
   public zp;
+  public idAp;
   public areasIntersected = new Array();
   public tabPertur = [];
-  private ap = {
-    indexap: "",
-    indexzp: "",
-    altitude_min: "",
-    altitude_max: "",
-    area: "",
-    total_min: "",
-    total_max: "",
-    frequency: "",
-    id_nomenclatures_counting: "",
-    id_nomenclatures_habitat: "",
-    id_nomenclatures_phenology: "",
-    id_nomenclatures_pente: "",
-    cor_ap_perturbation: [],
-    comment: ""
-  };
   private geojsonSubscription$: Subscription;
   public myGeoJSON: GeoJSON;
 
@@ -74,12 +59,15 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
 
+    this.idAp = this.activatedRoute.snapshot.params['indexap'];
+
     this.ApFormGroup = this.formService.initFormAp();
 
     // subscription to the geojson observable
     this.geojsonSubscription$ = this.mapService.gettingGeojson$.subscribe(geojson => {
       this.ApFormGroup.patchValue({ geom_4326: geojson.geometry });
       this.geojson = geojson;
+
       // get to geo info from API
       this._dfs.getGeoInfo(geojson).subscribe(res => {
         this.ApFormGroup.controls.properties.patchValue({
@@ -96,11 +84,54 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     this.mapService.map.doubleClickZoom.disable();
+
+    // vérifie s'il existe idAp --> c' une modif
+
+    if (this.idAp !== undefined) {
+      this.api.getOneAP(this.idAp).subscribe(element => {
+
+        let typePer;
+        let tabApPerturb = element.properties.cor_ap_perturbation;
+
+        if (tabApPerturb !== undefined) {
+          tabApPerturb.forEach(per => {
+            if (per === tabApPerturb[tabApPerturb.length - 1]) {
+              typePer = per.label_fr + '. ';
+            } else {
+              typePer = per.label_fr + ', ';
+            }
+            this.tabPertur.push(typePer);
+          });
+        }
+        console.log(element);
+
+        this.ApFormGroup.patchValue({
+          indexap: this.idAp,
+          indexzp: element.properties.indexzp,
+          area: element.properties.area,
+          altitude_min: element.properties.altitude_min,
+          altitude_max: element.properties.altitude_max,
+          comment: element.properties.comment,
+          frequency: element.properties.frequency,
+          total_min: element.properties.total_min,
+          total_max: element.properties.total_max,
+          id_nomenclatures_phenology: element.properties.pheno.id_nomenclature,
+          //id_nomenclatures_habitat: element.properties.habitat.id_nomenclature,
+          //id_nomenclatures_pente: element.properties.pente.id_nomenclature,
+          //id_nomenclatures_counting: element.properties.counting.id_nomenclature,
+          geom_4326: element.geometry,
+          cor_ap_perturbation: element.properties.cor_ap_perturbation === null ? [] : element.properties.cor_ap_perturbation
+
+        });
+      });
+    });
   }
+
+
   onCancelAp(indexzp) {
     this.router.navigate(
       [
-        'pr_priority_flora/zp',
+        `${ModuleConfig.MODULE_URL}/zp`,
         indexzp, 'ap_list'
       ]
     );
@@ -127,24 +158,6 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log('Suppression')
   }
 
-  pachForm() {
-    this.ApFormGroup.patchValue({
-      indexap: this.ap.indexap,
-      indexzp: this.ap.indexzp,
-      altitude_min: this.ap.altitude_min,
-      altitude_max: this.ap.altitude_max,
-      area: this.ap.area,
-      frequency: this.ap.frequency,
-      total_min: this.ap.total_min,
-      total_max: this.ap.total_max,
-      id_nomenclatures_counting: this.ap.id_nomenclatures_counting,
-      id_nomenclatures_habitat: this.ap.id_nomenclatures_habitat,
-      id_nomenclatures_phenology: this.ap.id_nomenclatures_phenology,
-      id_nomenclatures_pente: this.ap.id_nomenclatures_pente,
-      cor_ap_perturbation: this.ap.cor_ap_perturbation,
-      comment: this.ap.comment
-    });
-  }
   ngOnDestroy() {
     this.geojsonSubscription$.unsubscribe();
   }

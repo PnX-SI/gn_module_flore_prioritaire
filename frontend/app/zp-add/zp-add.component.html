@@ -13,7 +13,7 @@
       <form class="wrapper wrapper-filter">
         <fieldset [disabled]="disabledForm">
           <legend>
-            <h3>Ajout d'une nouvelle zone de prospection</h3>
+            <h3>Edition / Ajout d'une zone de prospection</h3>
           </legend>
           <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
@@ -44,6 +44,22 @@
         [disabled]="disabledForm">
         <i class="fa fa-plus-circle" aria-hidden="true"> </i> Enregistrer
       </button>
+      <!-- <ng-template #content let-c="close" let-d="dismiss">
+        <div class="modal-header">
+          <h4 class="modal-title"> Pour saisir les mailles: </h4>
+          <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <p class="col-list">Y a t-il une ou plusieurs aire(s) de présence dans cette zone de prospection ? </p>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-dark" (click)="c('Close click')">Fermer</button>
+        </div>
+      </ng-template> -->
       <button id="cancel-btn" type="button" class="btn btn-cancel box-shadow" (click)="onCancelAddZp()">
         <i class="fa fa-times-circle" aria-hidden="true"> </i> Annuler
       </button>

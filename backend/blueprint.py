@@ -10,15 +10,7 @@ from geonature.utils.env import DB
 from geonature.utils.utilssqlalchemy import json_resp, GenericTable
 from pypnnomenclature.models import TNomenclatures
 from pypnusershub.db.models import User
-from .models import (
-    TZprospect,
-    TApresence,
-    CorApArea,
-    CorZpArea,
-    CorApPerturb,
-    CorApPhysio,
-    CorZpObs,
-)
+from .models import TZprospect, TApresence, CorApArea, CorZpArea, CorApPerturb, CorZpObs
 from geonature.core.taxonomie.models import Taxref
 from geonature.core.ref_geo.models import LAreas
 from geonature.core.users.models import BibOrganismes
@@ -137,10 +129,26 @@ def post_ap():
     Poste une nouvelle aire de présence
     """
     data = dict(request.get_json())
+    print(data)
+    tab_pertu = []
+
+    if "cor_ap_pertub" in data:
+        tab_pertu = data.pop("cor_ap_pertub")
+        print(tab_pertu)
 
     shape = asShape(data["geom_4326"])
     releve = TApresence(**data)
     releve.geom_4326 = from_shape(shape, srid=4326)
+
+    cor_ap_pertubation = (
+        DB.session.query(TNomenclatures)
+        .filter(TNomenclatures.id_nomenclature.in_(tab_pertu))
+        .all()
+    )
+
+    for o in cor_ap_pertubation:
+        releve.cor_ap_pertubation.append(o)
+
     DB.session.add(releve)
     DB.session.commit()
     DB.session.flush()
@@ -253,7 +261,7 @@ def get_all_sites():
     return FeatureCollection(features)
 
 
-#  route get One
+#  route get One Zp
 @blueprint.route("/zp/<int:id_zp>", methods=["GET"])
 @json_resp
 def get_one_zp(id_zp):
@@ -266,4 +274,14 @@ def get_one_zp(id_zp):
             "zp": FeatureCollection([zp.get_geofeature()]),
         }
     return None
+
+
+#  route get One Ap
+@blueprint.route("/ap/<int:id_ap>", methods=["GET"])
+@json_resp
+def get_one_ap(id_ap):
+
+    ap = DB.session.query(TApresence).get(id_ap)
+
+    return ap.get_geofeature()
 

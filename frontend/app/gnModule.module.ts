@@ -26,6 +26,7 @@ const routes: Routes = [
     children: [
       { path: 'ap_list', component: ApListComponent },
       { path: 'post_ap', component: ApAddComponent },
+      { path: 'post_ap/:indexap', component: ApAddComponent },
       { path: '', redirectTo: 'ap_list', pathMatch: 'full' }
     ]
   },

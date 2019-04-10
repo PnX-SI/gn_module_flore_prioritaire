@@ -127,6 +127,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
           positionClass: 'toast-top-center'
         });
       });
+    //this.storeService.openModal(content)
   }
 
   sendGeoInfo(geojson) {
