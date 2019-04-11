@@ -111,14 +111,11 @@ class CorZpObs(DB.Model):
 class TZprospect(DB.Model):
     __tablename__ = "t_zprospect"
     __table_args__ = {"schema": "pr_priority_flora"}
-    indexzp = DB.Column(DB.Integer, primary_key=True)
+    indexzp = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
     date_min = DB.Column(DB.DateTime)
     date_max = DB.Column(DB.DateTime)
     cd_nom = DB.Column(
-        DB.ForeignKey(
-            "taxonomie.taxref.cd_nom", ondelete="CASCADE", onupdate="CASCADE"
-        ),
-        nullable=False,
+        DB.ForeignKey("taxonomie.taxref.cd_nom", onupdate="CASCADE"), nullable=False
     )
     topo_valid = DB.Column(DB.Unicode)
     initial_insert = DB.Column(DB.Unicode)
@@ -126,7 +123,9 @@ class TZprospect(DB.Model):
     taxonomy = DB.relationship(
         "Taxref", primaryjoin="TZprospect.cd_nom == Taxref.cd_nom", backref="taxrefs"
     )
-    cor_ap = relationship("TApresence", lazy="select", uselist=True)
+    cor_ap = relationship(
+        "TApresence", lazy="select", uselist=True, cascade="all, delete-orphan"
+    )
     cor_zp_observer = DB.relationship(
         User,
         secondary=CorZpObs.__table__,

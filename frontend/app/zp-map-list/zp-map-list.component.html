@@ -16,13 +16,14 @@
                     <div class="row">
                         <div class="searchSite col">
                             <small> Année de visite </small>
-                            <input type="number" class="form-control">
+                            <input type="number" class="form-control" [formControl]="filterForm.controls.filterYear"
+                                class="inputSearch" (onDeleteFiltre)="onDelete()">
                         </div>
                         <div class="searchSite col">
                             <small> Taxon </small>
                             <pnx-taxonomy #taxon [parentFormControl]="filterForm.controls.filterTaxon"
-                                [idList]="storeService.shtConfig.id_list_taxon" [charNumber]="3" [listLength]="20"
-                                (onChange)="test($event)">
+                                [idList]="storeService.fpConfig.id_list_taxon" [charNumber]="3" [listLength]="20"
+                                (onChange)="onSearchTaxon($event)" (onDelete)="onDeleteParams('cd_nom')">
                             </pnx-taxonomy>
                         </div>
                     </div>
@@ -52,7 +53,7 @@
                     [selected]="mapListService.selectedRow" [selectionType]="'single'"
                     (select)="mapListService.onRowSelect($event)" [rowClass]="mapListService.getRowClass"
                     [offset]="mapListService.page.pageNumber" [limit]="mapListService.page.size"
-                    [messages]="storeService.shtConfig.zp_message">
+                    [messages]="storeService.fpConfig.zp_message">
 
                     <ngx-datatable-column maxWidth="10">
                         <ng-template let-row="row" ngx-datatable-cell-template>
@@ -75,7 +76,7 @@
                     <ngx-datatable-column maxWidth="10">
                         <ng-template let-row="row" ngx-datatable-cell-template>
                             <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost"
-                                (click)="onInfo(row.indexzp)" title="Supprimer">
+                                (click)="onDeleteZp(row.indexzp)" title="Supprimer">
                                 <i class="fa fa-trash-o" aria-hidden="true"></i>
                             </button>
                         </ng-template>

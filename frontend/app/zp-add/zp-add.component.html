@@ -19,7 +19,7 @@
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
               <small> Taxon : </small>
               <pnx-taxonomy #taxon [parentFormControl]="ZpFormGroup.controls.cd_nom"
-                [idList]="storeService.shtConfig.id_list_taxon" [charNumber]="3" [listLength]="20">
+                [idList]="storeService.fpConfig.id_list_taxon" [charNumber]="3" [listLength]="20">
               </pnx-taxonomy>
             </div>
           </div>
@@ -34,13 +34,13 @@
             <small> Observateur(s) : </small>
             <div class="" id="newObserver">
               <pnx-observers [parentFormControl]="ZpFormGroup.controls.cor_zp_observer" [bindAllItem]="true"
-                [disabled]="disabledForm" [idMenu]="storeService.shtConfig.id_menu_list_user">
+                [disabled]="disabledForm" [idMenu]="storeService.fpConfig.id_menu_list_user">
               </pnx-observers>
             </div>
           </div>
         </fieldset>
       </form>
-      <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onPostZp()"
+      <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onSave()"
         [disabled]="disabledForm">
         <i class="fa fa-plus-circle" aria-hidden="true"> </i> Enregistrer
       </button>

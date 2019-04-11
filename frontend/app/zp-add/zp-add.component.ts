@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, AfterViewInit, ViewChild, EventEmitter } from '@angular/core';
 import { GeoJSON } from 'leaflet';
 import { ToastrService } from 'ngx-toastr';
 import { NgbDateParserFormatter } from "@ng-bootstrap/ng-bootstrap";
@@ -103,8 +103,26 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     this.router.navigate([`${ModuleConfig.MODULE_URL}`]);
   }
 
-  onPostZp() {
+  onSave() {
+    let finalForm = this.formateDataFormZp();
+    console.log(finalForm);
 
+    this.api.postZp(finalForm).subscribe(
+      (data) => {
+        this.toastr.success('Zone de prospection enregistrée', '', {
+          positionClass: 'toast-top-center'
+        });
+        console.log(data);
+
+        this.router.navigate(
+          [`${ModuleConfig.MODULE_URL}/zp`, data.id, 'ap_list'
+          ]
+        );
+      });
+
+  }
+
+  formateDataFormZp() {
     const finalForm = JSON.parse(JSON.stringify(this.ZpFormGroup.value));
 
     finalForm.date_min = this._dateParser.format(
@@ -121,14 +139,30 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     //taxon
     finalForm.cd_nom = finalForm.cd_nom.cd_nom;
 
+    return finalForm;
+  }
+
+  postZp(finalForm) {
+
     this.api.postZp(finalForm).subscribe(
-      data => {
+      () => {
         this.toastr.success('Zone de prospection enregistrée', '', {
           positionClass: 'toast-top-center'
         });
       });
-    //this.storeService.openModal(content)
   }
+
+  patchZp(finalForm) {
+
+    this.api.patchZp(finalForm, this.idZp).subscribe(
+      () => {
+        this.toastr.success('Zone de prospection modifiée', '', {
+          positionClass: 'toast-top-center'
+        });
+      });
+  }
+
+
 
   sendGeoInfo(geojson) {
     // renvoie le

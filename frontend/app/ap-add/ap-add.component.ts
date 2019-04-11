@@ -58,19 +58,22 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-
+    this.storeService.showLeafletDraw();
     this.idAp = this.activatedRoute.snapshot.params['indexap'];
 
     this.ApFormGroup = this.formService.initFormAp();
 
     // subscription to the geojson observable
     this.geojsonSubscription$ = this.mapService.gettingGeojson$.subscribe(geojson => {
+      console.log("new geojson")
       this.ApFormGroup.patchValue({ geom_4326: geojson.geometry });
       this.geojson = geojson;
 
       // get to geo info from API
       this._dfs.getGeoInfo(geojson).subscribe(res => {
-        this.ApFormGroup.controls.properties.patchValue({
+        console.log(res);
+
+        this.ApFormGroup.patchValue({
           altitude_min: res.altitude.altitude_min,
           altitude_max: res.altitude.altitude_max
         });

@@ -4,7 +4,7 @@
         Retour à la liste des zones de prospection
     </button>
 </div>
-<h3> Consultation des aires de présence de la ZP {{ storeService.idSite }} </h3>
+<h3> Consultation des aires de présence de la ZP {{ storeService.indexZp }} </h3>
 <div class="wrapper">
     <ul class="nav nav-tabs" role="tablist">
         <li class="nav-item">
@@ -20,7 +20,7 @@
     <div class="tab-content">
         <div class="tab-pane active modal-header  list-group-item" id="infoGen" role="tabpanel">
             <p> <span> <strong>Identifiant Zone de prospection : </strong></span> <span class="strong ">
-                    {{ storeService.idSite }}
+                    {{ storeService.indexZp }}
                 </span></p>
             <p> <span><strong> Date : </strong></span> <span class="strong"> {{ storeService.dateMin }}</span></p>
             <p> <span><strong> Observateur(s) : </strong></span> <span class="strong"> {{ storeService.observateur }}
@@ -28,27 +28,28 @@
             <p> <span><strong> Taxon : </strong></span> <span class="strong"> {{ storeService.taxons }} </span></p>
         </div>
         <div class="tab-pane modal-header list-group-item " id="details" role="tabpanel">
-            <p> <span><strong> Nom du site : </strong></span> <span class="strong"> {{ storeService.idSite }} </span>
+            <p> <span><strong> Nom du site : </strong></span> <span class="strong"> {{ storeService.indexZp }} </span>
             </p>
-            <p> <span><strong> Description du site : </strong></span> <span class="strong"> {{ storeService.siteDesc }}
+            <p> <span><strong> Commune : </strong></span> <span class="strong"> {{ storeService.nomCommune }}
                 </span></p>
         </div>
     </div>
 </div>
 
 <div class="wrapper">
-    <ngx-datatable #table class="material" [columnMode]="'force'" [rows]="mapListService.tableData" maxWidth="90"
-        [headerHeight]="35" [footerHeight]="40" [rowHeight]="40" [rowHeight]="'auto'"
-        [messages]="storeService.shtConfig.list_ap_message" [selected]="mapListService.selectedRow"
+    <ngx-datatable #table class="material striped margin-top-xs table-size expandable" [columnMode]="'force'"
+        [rows]="mapListService.tableData" maxWidth="90" [headerHeight]="35" [footerHeight]="40" [rowHeight]="40"
+        [rowHeight]="'auto'" [messages]="storeService.fpConfig.list_ap_message" [selected]="mapListService.selectedRow"
         [selectionType]="'single'" (select)="mapListService.onRowSelect($event)"
         [rowClass]="mapListService.getRowClass">
         <ngx-datatable-row-detail [rowHeight]="100" #myDetailRow (toggle)="onDetailToggle($event)">
             <ng-template let-row="row" let-expanded="expanded" ngx-datatable-row-detail-template>
                 <div style="padding-left:35px;">
                     <div style="font-size: 15px"><strong>Détails</strong></div>
-                    <div style="font-size: 12px"><strong>Phénologie :</strong> {{row.pheno.definition_default}}</div>
-                    <div style="font-size: 12px"><strong>Pente :</strong> {{row.pente.definition_default}}</div>
-                    <div style="font-size: 12px"><strong>Type d'habitat :</strong> {{row.habitat.definition_default}}
+                    <div style="font-size: 12px"><strong>Phénologie :</strong> {{row.pheno?.definition_default}}</div>
+                    <div style="font-size: 12px"><strong>Pente :</strong>
+                        {{row.pente?.definition_default}}</div>
+                    <div style="font-size: 12px"><strong>Type d'habitat :</strong> {{row.habitat?.definition_default}}
                     </div>
                     <div style="font-size: 12px"><strong>Total :</strong> {{row.total_min}}</div>
                     <div style="font-size: 12px"><strong>Remarques :</strong> {{row.comment}}</div>
@@ -73,13 +74,13 @@
         <ngx-datatable-column maxWidth="10">
             <ng-template let-row="row" ngx-datatable-cell-template>
                 <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost"
-                    (click)="onDel(row.indexap)" title="Supprimer">
+                    (click)="onDeleteAp(row.indexap)" title="Supprimer">
                     <i class="fa fa-trash-o" aria-hidden="true"></i>
                 </button>
             </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column *ngFor="let col of storeService.shtConfig.default_ap_columns" [name]="col.name"
+        <ngx-datatable-column *ngFor="let col of storeService.fpConfig.default_ap_columns" [name]="col.name"
             [prop]="col.prop" maxWidth="col.maxWidth">
         </ngx-datatable-column>
 
@@ -88,7 +89,7 @@
 
 <div id="end-btn">
     <pnx-modal-download labelButton='Télécharger ces aires de présence' [pathDownload]='storeService.urlLoad'
-        [exportFormat]='storeService.shtConfig.export_available_format' [queryString]='storeService.queryString'>
+        [exportFormat]='storeService.fpConfig.export_available_format' [queryString]='storeService.queryString'>
     </pnx-modal-download>
 
 

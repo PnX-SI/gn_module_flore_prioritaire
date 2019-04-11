@@ -92,18 +92,21 @@ def get_apresences():
 
 
 @blueprint.route("/post_zp", methods=["POST"])
+@blueprint.route("/post_zp/<int:id_zp>", methods=["POST"])
 @json_resp
-def post_zp():
+def post_zp(id_zp=None):
     """
     Poste une nouvelle zone de prospection
     """
     data = dict(request.get_json())
 
+    if data["indexzp"] is None:
+        data.pop("indexzp")
+
     tab_observer = []
 
     if "cor_zp_observer" in data:
         tab_observer = data.pop("cor_zp_observer")
-        print(tab_observer)
 
     shape = asShape(data["geom_4326"])
     releve = TZprospect(**data)
@@ -115,10 +118,14 @@ def post_zp():
 
     for o in cor_zp_observer:
         releve.cor_zp_observer.append(o)
-
-    DB.session.add(releve)
-    DB.session.commit()
+    if "indexzp" in data:
+        DB.session.merge(releve)
+    else:
+        DB.session.add(releve)
     DB.session.flush()
+
+    DB.session.commit()
+
     return releve.as_geofeature("geom_4326", "indexzp", True)
 
 
@@ -285,3 +292,28 @@ def get_one_ap(id_ap):
 
     return ap.get_geofeature()
 
+
+#  route get One Zp
+@blueprint.route("/zp/<int:id_zp>", methods=["DELETE"])
+@json_resp
+def delete_one_zp(id_zp):
+
+    zp = DB.session.query(TZprospect).get(id_zp)
+
+    if zp:
+        DB.session.delete(zp)
+        DB.session.commit()
+        return {"message": "delete with success"}, 200
+    return None
+
+
+@blueprint.route("/ap/<int:id_ap>", methods=["DELETE"])
+@json_resp
+def delete_one_ap(id_ap):
+
+    ap = DB.session.query(TApresence).get(id_ap)
+    if ap:
+        DB.session.delete(ap)
+        DB.session.commit()
+        return {"message": "delete with success"}, 200
+    return None

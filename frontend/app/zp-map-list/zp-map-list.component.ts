@@ -2,6 +2,7 @@ import { Component, OnInit, Input, AfterViewInit, EventEmitter, Output } from '@
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
+import { CommonService } from "@geonature_common/service/common.service";
 import * as L from "leaflet";
 import { FormService } from '@geonature_common/form/form.service';
 import { DataService } from '../services/data.service';
@@ -40,6 +41,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     private mapListService: MapListService,
     public router: Router,
     public storeService: StoreService,
+    private _commonService: CommonService,
     public api: DataService,
     private _fb: FormBuilder
   ) { }
@@ -54,8 +56,8 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       this.dataLoaded = true;
     }
     );
-    this.center = this.storeService.shtConfig.zoom_center;
-    this.zoom = this.storeService.shtConfig.zoom;
+    this.center = this.storeService.fpConfig.zoom_center;
+    this.zoom = this.storeService.fpConfig.zoom;
 
     this.filterForm = this._fb.group({
       filterYear: null,
@@ -77,7 +79,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
         return input === null;
       })
       .subscribe(year => {
-        this.onDeleteParams("year", year);
+        this.onDeleteParams("year");
         this.onDeleteFiltre.emit();
       });
 
@@ -94,7 +96,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
         return input === null;
       })
       .subscribe(org => {
-        this.onDeleteParams("organisme", org);
+        this.onDeleteParams("organisme");
         this.onDeleteFiltre.emit();
       });
 
@@ -111,31 +113,16 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
         return input === null;
       })
       .subscribe(com => {
-        this.onDeleteParams("commune", com);
+        this.onDeleteParams("commune");
         this.onDeleteFiltre.emit();
       });
 
-    this.filterForm.controls.filterTaxon.valueChanges
-      .filter(select => {
-        return select !== null;
-      })
-      .subscribe(tax => {
-        this.onSearchTaxon(tax);
-      });
-
-    this.filterForm.controls.filterTaxon.valueChanges
-      .filter(input => {
-        return input === null;
-      })
-      .subscribe(tax => {
-        this.onDeleteParams("taxon", tax);
-        this.onDeleteFiltre.emit();
-      });
   }
 
   test($event) {
     console.log($event.item);
   }
+
 
   onChargeList(param?) {
     this.api.getZProspects(param).subscribe(data => {
@@ -164,6 +151,32 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     );
   }
 
+  onDeleteZp(indexzp) {
+    this.api.deleteZp(indexzp).subscribe(
+      data => {
+        this.filteredData = this.filteredData.filter(item => {
+          return indexzp !== item.indexzp
+        })
+        const filterFeature = this.myGeoJSON.features.filter(feature => {
+          return indexzp !== feature.properties.indexzp
+        })
+        this.myGeoJSON['features'] = filterFeature;
+        this.myGeoJSON = Object.assign({}, this.myGeoJSON);
+        this._commonService.translateToaster(
+          "success",
+          "Releve.DeleteSuccessfully"
+        );
+      },
+      error => {
+        if (error.status === 403) {
+          this._commonService.translateToaster("error", "NotAllowed");
+        } else {
+          this._commonService.translateToaster("error", "ErrorMessage");
+        }
+      }
+    );
+  }
+
   ngAfterViewInit() {
     // event from the list
     this.mapListService.enableMapListConnexion(this.mapService.getMap());
@@ -184,15 +197,6 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       info.forEach(com => {
         this.tabCom.push(com.nom_commune);
         this.tabCom.sort((a, b) => {
-          return a.localeCompare(b);
-        });
-      });
-    });
-
-    this.api.getTaxon().subscribe(info => {
-      info.forEach(tax => {
-        this.tabTaxon.push(tax.nom_complet);
-        this.tabTaxon.sort((a, b) => {
           return a.localeCompare(b);
         });
       });
@@ -251,9 +255,8 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     );
   }
 
-  onDeleteParams(param: string, value) {
+  onDeleteParams(param: string) {
     // effacer le queryString
-    console.log("ondelete params", param + " value: " + value);
     this.storeService.queryString = this.storeService.queryString.delete(param);
     this.onChargeList(this.storeService.queryString.toString());
   }
@@ -278,7 +281,9 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   }
 
   onSearchTaxon(event) {
-    this.onSetParams("taxon", event);
+    console.log(event.item);
+
+    this.onSetParams("cd_nom", event.item.cd_nom);
     this.onChargeList(this.storeService.queryString.toString());
   }
 

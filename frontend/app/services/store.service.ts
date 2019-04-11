@@ -18,6 +18,7 @@ export class StoreService {
   public dataLoaded = false;
   public observateur;
   public organisme;
+  public indexZp;
   public dateMin;
   public nomCommune;
   public siteDesc;
@@ -26,7 +27,7 @@ export class StoreService {
   public nb_transects_frequency;
   public altitude_min;
   public altitude_max;
-  public shtConfig = ModuleConfig;
+  public fpConfig = ModuleConfig;
   public leafletDrawOptions = leafletDrawOption;
   public showDraw = false;
   public paramApp = new HttpParams().append(

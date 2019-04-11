@@ -61,7 +61,8 @@ export class ApListAddComponent implements OnInit, OnChanges {
         this.dataLoaded = true;
         let properties = data['zp'].features[0].properties;
         this.storeService.organisme = properties.organisme;
-        this.storeService.nomCommune = properties.nom_commune;
+        this.storeService.indexZp = properties.indexzp;
+        console.log(data['zp'].features[0].properties);
         this.storeService.observateur = properties.nom_role;
         this.storeService.taxons = data['zp'].features[0].properties.taxonomy.nom_complet;
         this.storeService.dateMin = properties.date_min;
@@ -85,9 +86,8 @@ export class ApListAddComponent implements OnInit, OnChanges {
 
   }
   sendGeoInfo(geojson) {
-    // renvoie le
-    // this._ms.setGeojsonCoord(geojson);
-    console.log(geojson.geometry);
+    // declenche next sur l'observable _geojsonCoord
+    this.mapService.setGeojsonCoord(geojson);
     this.disabledForm = false;
     this.ApFormGroup.patchValue({ geom_4326: geojson.geometry })
   }
@@ -102,7 +102,7 @@ export class ApListAddComponent implements OnInit, OnChanges {
         // observable
         this.mapListService.mapSelected.next(feature.id);
         // open popup
-        const customPopup = '<div class="title">' + site.altitude_max + "</div>";
+        const customPopup = '<div class="title">Altitude : ' + site.altitude_max + 'm<br />Surface : ' + site.area + ' m\u00b2</div>';
         const customOptions = {
           className: "custom-popup"
         };

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { Location } from "@angular/common";
+import { CommonService } from "@geonature_common/service/common.service";
 import { ToastrService } from "ngx-toastr";
 import * as L from "leaflet";
 
@@ -32,6 +33,7 @@ export class ApListComponent implements OnInit, OnDestroy {
     private _location: Location,
     public router: Router,
     public _api: DataService,
+    private _commonService: CommonService,
     public activatedRoute: ActivatedRoute,
     public mapListService: MapListService,
     private toastr: ToastrService
@@ -39,6 +41,7 @@ export class ApListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.storeService.idSite = this.activatedRoute.snapshot.params['idSite'];
+
   }
 
   onAddAp(idZP) {
@@ -59,6 +62,32 @@ export class ApListComponent implements OnInit, OnDestroy {
       ]
     );
     this.storeService.showLeafletDraw();
+  }
+
+  onDeleteAp(indexap) {
+    this._api.deleteZp(indexap).subscribe(
+      data => {
+        this.filteredData = this.filteredData.filter(item => {
+          return indexap !== item.indexap
+        })
+        const filterFeature = this.myGeoJSON.features.filter(feature => {
+          return indexap !== feature.properties.indexzp
+        })
+        this.myGeoJSON['features'] = filterFeature;
+        this.myGeoJSON = Object.assign({}, this.myGeoJSON);
+        this._commonService.translateToaster(
+          "success",
+          "Releve.DeleteSuccessfully"
+        );
+      },
+      error => {
+        if (error.status === 403) {
+          this._commonService.translateToaster("error", "NotAllowed");
+        } else {
+          this._commonService.translateToaster("error", "ErrorMessage");
+        }
+      }
+    );
   }
 
   backToZp() {

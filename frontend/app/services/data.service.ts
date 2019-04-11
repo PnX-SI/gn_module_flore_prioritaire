@@ -31,15 +31,15 @@ export class DataService {
     });
   }
 
-  getOneZP(idZP) {
+  getOneZP(idZp) {
     return this._http.get<any>(
-      `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/zp/${idZP}`
+      `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/zp/${idZp}`
     );
   }
 
-  getOneAP(idAP) {
+  getOneAP(idAp) {
     return this._http.get<any>(
-      `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/ap/${idAP}`
+      `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/ap/${idAp}`
     );
   }
 
@@ -55,22 +55,28 @@ export class DataService {
     );
   }
 
-  getTaxon() {
-    return this._http.get<any>(
-      `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/taxs`
-    );
-  }
-
   postZp(data: any) {
-    console.log(data);
-
     return this._http.post<any>(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/post_zp`, data);
   }
 
-  postAp(data: any) {
-    console.log(data);
+  patchZp(data: any, idZp) {
+    return this._http.post<any>(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/post_zp/${idZp}`, data);
+  }
 
+  postAp(data: any) {
     return this._http.post<any>(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/post_ap`, data);
+  }
+
+  patchAp(data: any, idAp) {
+    return this._http.post<any>(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/post_ap/${idAp}`, data);
+  }
+
+  deleteZp(idZp) {
+    return this._http.delete(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/zp/${idZp}`);
+  }
+
+  deleteAp(idAp) {
+    return this._http.delete(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/ap/${idAp}`);
   }
 }
 
