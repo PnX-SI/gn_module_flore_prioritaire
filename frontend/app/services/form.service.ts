@@ -9,7 +9,7 @@ export class FormService {
 
   initFormAp(): FormGroup {
     const ApFormGroup = this._fb.group({
-      index_ap: null,
+      indexap: null,
       indexzp: null,
       cor_ap_perturbation: new Array(),
       area: null,

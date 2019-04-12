@@ -58,6 +58,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
 
     this.idZp = this.activatedRoute.snapshot.params['indexzp'];
 
+
     this.ZpFormGroup = this._fb.group({
       indexzp: null,
       cd_nom: null,

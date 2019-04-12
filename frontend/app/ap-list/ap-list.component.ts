@@ -65,16 +65,18 @@ export class ApListComponent implements OnInit, OnDestroy {
   }
 
   onDeleteAp(indexap) {
-    this._api.deleteZp(indexap).subscribe(
+    this._api.deleteAp(indexap).subscribe(
       data => {
-        this.filteredData = this.filteredData.filter(item => {
+        this.mapListService.tableData = this.mapListService.tableData.filter(item => {
           return indexap !== item.indexap
         })
-        const filterFeature = this.myGeoJSON.features.filter(feature => {
-          return indexap !== feature.properties.indexzp
+        const filterFeature = this.storeService.sites.features.filter(feature => {
+          return indexap !== feature.properties.indexap
         })
-        this.myGeoJSON['features'] = filterFeature;
-        this.myGeoJSON = Object.assign({}, this.myGeoJSON);
+        this.storeService.sites['features'] = filterFeature;
+
+        console.log(filterFeature)
+        this.storeService.sites = Object.assign({}, this.storeService.sites);
         this._commonService.translateToaster(
           "success",
           "Releve.DeleteSuccessfully"

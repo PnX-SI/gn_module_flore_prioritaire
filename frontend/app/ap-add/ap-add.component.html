@@ -1,6 +1,6 @@
 <div class="card-body">
-  <form class="wrapper wrapper-filter" (click)="formDisabled()">
-    <fieldset [disabled]="disabledForm">
+  <form class="wrapper wrapper-filter">
+    <fieldset>
       <legend>
         <h5>Nouvelle aire de présence pour la prospection de <b>{{ storeService.taxons }}</b> du
           <b>{{ storeService.dateMin }}</b>
@@ -17,27 +17,24 @@
           <div class="row row-0">
             <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
               <small> {{ 'Releve.MinAltitude' | translate }} </small>
-              <input class="form-control" type="number" [formControl]="ApFormGroup.controls.altitude_min"
-                [disabled]="disabledForm">
+              <input class="form-control" type="number" [formControl]="ApFormGroup.controls.altitude_min">
             </div>
             <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
               <small> {{ 'Releve.MaxAltitude' | translate }} </small>
-              <input class="form-control" type="number" [formControl]="ApFormGroup.controls.altitude_max"
-                [disabled]="disabledForm">
+              <input class="form-control" type="number" [formControl]="ApFormGroup.controls.altitude_max">
             </div>
           </div>
           <div class="row row-0">
             <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
               <small> Surface </small>
-              <input class="form-control" type="number" [formControl]="ApFormGroup.controls.area"
-                [disabled]="disabledForm">
+              <input class="form-control" type="number" [formControl]="ApFormGroup.controls.area">
             </div>
             <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
               <small> Pente estimée</small>
               <div class="" id="newPente">
                 <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclatures_pente"
-                  [multiSelect]="false" [disabled]="disabledForm" keyValue="id_nomenclature" [bindAllItem]="true"
-                  keyLabel="label_default" codeNomenclatureType="TYPE_PENTE">
+                  [multiSelect]="false" keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+                  codeNomenclatureType="TYPE_PENTE">
                 </pnx-nomenclature>
               </div>
             </div>
@@ -48,7 +45,7 @@
         <small> Phénologie </small>
         <div class="" id="newPheno">
           <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclatures_phenology" [multiSelect]="false"
-            keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default" [disabled]="disabledForm"
+            keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
             codeNomenclatureType="TYPE_PHENOLOGIE">
           </pnx-nomenclature>
         </div>
@@ -57,7 +54,7 @@
         <small> Perturbation(s) </small>
         <div class="" id="newPerturs">
           <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.cor_ap_perturbation" [multiSelect]="true"
-            [disabled]="disabledForm" keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+            keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
             codeNomenclatureType="TYPE_PERTURBATION">
           </pnx-nomenclature>
         </div>
@@ -66,7 +63,7 @@
         <small> Habitat </small>
         <div class="" id="newHabitat">
           <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclatures_habitat" [multiSelect]="false"
-            [disabled]="disabledForm" keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+            keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
             codeNomenclatureType="ETAT_HABITAT">
           </pnx-nomenclature>
         </div>
@@ -86,20 +83,18 @@
             <small> Objet dénombrement </small>
             <div class="" id="newCounting">
               <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclatures_counting"
-                [multiSelect]="false" [disabled]="disabledForm" keyValue="id_nomenclature" [bindAllItem]="true"
-                keyLabel="label_default" codeNomenclatureType="OBJ_DENBR">
+                [multiSelect]="false" keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+                codeNomenclatureType="OBJ_DENBR">
               </pnx-nomenclature>
             </div>
           </div>
           <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
             <small> Min </small>
-            <input class="form-control" type="number" [formControl]="ApFormGroup.controls.total_min"
-              [disabled]="disabledForm">
+            <input class="form-control" type="number" [formControl]="ApFormGroup.controls.total_min">
           </div>
           <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
             <small> Max </small>
-            <input class="form-control" type="number" [formControl]="ApFormGroup.controls.total_max"
-              [disabled]="disabledForm">
+            <input class="form-control" type="number" [formControl]="ApFormGroup.controls.total_max">
           </div>
         </div>
       </fieldset>
@@ -112,7 +107,7 @@
       </div>
     </fieldset>
   </form>
-  <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onPostAp()" [disabled]="disabledForm">
+  <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onPostAp()">
     <i class="fa fa-plus-circle" aria-hidden="true"> </i> Enregistrer
   </button>
   <button id="cancel-btn" type="button" class="btn btn-cancel box-shadow" (click)="onCancelAp(storeService.idSite)">

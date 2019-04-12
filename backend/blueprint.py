@@ -55,6 +55,9 @@ def get_zprospect():
     if "organisme" in parameters:
         q = q.filter(BibOrganismes.nom_organisme == parameters["organisme"])
 
+    if "year" in parameters:
+        q = q.filter(func.date_part("year", TZprospect.date_min) == parameters["year"])
+
     data = q.all()
     features = []
 
@@ -136,30 +139,38 @@ def post_ap():
     Poste une nouvelle aire de présence
     """
     data = dict(request.get_json())
-    print(data)
     tab_pertu = []
+    if data["indexap"] is None:
+        data.pop("indexap")
 
-    if "cor_ap_pertub" in data:
-        tab_pertu = data.pop("cor_ap_pertub")
-        print(tab_pertu)
+    if "cor_ap_perturbation" in data:
+        tab_pertu = data.pop("cor_ap_perturbation")
 
-    shape = asShape(data["geom_4326"])
-    releve = TApresence(**data)
-    releve.geom_4326 = from_shape(shape, srid=4326)
-
+    shape = asShape(data.pop("geom_4326"))
+    ap = TApresence(**data)
+    ap.geom_4326 = from_shape(shape, srid=4326)
+    print(data)
     cor_ap_pertubation = (
         DB.session.query(TNomenclatures)
-        .filter(TNomenclatures.id_nomenclature.in_(tab_pertu))
+        .filter(
+            TNomenclatures.id_nomenclature.in_(
+                [pert["id_nomenclature"] for pert in tab_pertu]
+            )
+        )
         .all()
     )
 
     for o in cor_ap_pertubation:
-        releve.cor_ap_pertubation.append(o)
+        ap.cor_ap_perturbation.append(o)
 
-    DB.session.add(releve)
+    # TODO: manque indexzp
+    if "indexap" in data:
+        DB.session.merge(ap)
+    else:
+        DB.session.add(ap)
     DB.session.commit()
-    DB.session.flush()
-    return releve.as_geofeature("geom_4326", "indexap", True)
+
+    return ap.as_geofeature("geom_4326", "indexap", True)
 
 
 @blueprint.route("/organismes", methods=["GET"])
@@ -211,34 +222,6 @@ def get_commune():
             tab_commune.append(nom_com)
         return tab_commune
     return None
-
-
-#  @blueprint.route("/taxs", methods=["GET"])
-# @json_resp
-# def get_taxons():
-#     """
-#     """Retourne tous les taxons présents dans le module"""
-#     """
-
-#     q = (
-#         DB.session.query(Taxref.nom_complet)
-#         .distinct()
-#         .join(TZprospect, TZprospect.cd_nom == Taxref.cd_nom)
-#     )
-
-#     data = q.all()
-#     if data:
-#         # taxons = []
-#         # for d in data:
-#         #     taxon = dict()
-#         #     taxon['nom_complet'] = str(d[0])
-#         #     taxons.append(taxon)
-#         # return taxons
-
-#         return [{"nom_complet": d[0]} for d in data]
-
-#         # return [d.as_dict() for d in data]
-#     return None
 
 
 @blueprint.route("/sites", methods=["GET"])

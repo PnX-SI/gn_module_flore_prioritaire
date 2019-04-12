@@ -60,19 +60,18 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     this.storeService.showLeafletDraw();
     this.idAp = this.activatedRoute.snapshot.params['indexap'];
-
     this.ApFormGroup = this.formService.initFormAp();
 
+    const url = this.activatedRoute.snapshot._routerState.url;
+
+    this.ApFormGroup.patchValue({ indexzp: url.split('/')[3] });
     // subscription to the geojson observable
     this.geojsonSubscription$ = this.mapService.gettingGeojson$.subscribe(geojson => {
-      console.log("new geojson")
       this.ApFormGroup.patchValue({ geom_4326: geojson.geometry });
       this.geojson = geojson;
 
       // get to geo info from API
       this._dfs.getGeoInfo(geojson).subscribe(res => {
-        console.log(res);
-
         this.ApFormGroup.patchValue({
           altitude_min: res.altitude.altitude_min,
           altitude_max: res.altitude.altitude_max
@@ -106,7 +105,6 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
             this.tabPertur.push(typePer);
           });
         }
-        console.log(element);
 
         this.ApFormGroup.patchValue({
           indexap: this.idAp,
@@ -119,9 +117,9 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
           total_min: element.properties.total_min,
           total_max: element.properties.total_max,
           id_nomenclatures_phenology: element.properties.pheno.id_nomenclature,
-          //id_nomenclatures_habitat: element.properties.habitat.id_nomenclature,
-          //id_nomenclatures_pente: element.properties.pente.id_nomenclature,
-          //id_nomenclatures_counting: element.properties.counting.id_nomenclature,
+          id_nomenclatures_habitat: element.properties.habitat.id_nomenclature,
+          id_nomenclatures_pente: element.properties.pente.id_nomenclature,
+          id_nomenclatures_counting: element.properties.counting.id_nomenclature,
           geom_4326: element.geometry,
           cor_ap_perturbation: element.properties.cor_ap_perturbation === null ? [] : element.properties.cor_ap_perturbation
 

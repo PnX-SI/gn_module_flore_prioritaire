@@ -45,7 +45,7 @@ class CorApPerturb(DB.Model):
 class TApresence(DB.Model):
     __tablename__ = "t_apresence"
     __table_args__ = {"schema": "pr_priority_flora"}
-    indexap = DB.Column(DB.Integer, primary_key=True)
+    indexap = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
     indexzp = DB.Column(
         DB.ForeignKey("pr_priority_flora.t_zprospect.indexzp"), nullable=False
     )

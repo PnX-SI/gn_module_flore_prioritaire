@@ -51,7 +51,6 @@ export class ApListAddComponent implements OnInit, OnChanges {
     this.storeService.idSite = this.activatedRoute.snapshot.params['idZP'];
     this.mapListService.idName = 'indexap';
     this.mapListService.enableMapListConnexion(this.mapService.getMap());
-    //this.paramApp = this.paramApp.append("indexzp", idZP);
     this._api.getOneZP(this.storeService.idSite).subscribe(
       data => {
         this.storeService.zp = data['zp'];
@@ -62,14 +61,15 @@ export class ApListAddComponent implements OnInit, OnChanges {
         let properties = data['zp'].features[0].properties;
         this.storeService.organisme = properties.organisme;
         this.storeService.indexZp = properties.indexzp;
-        console.log(data['zp'].features[0].properties);
         this.storeService.observateur = properties.nom_role;
         this.storeService.taxons = data['zp'].features[0].properties.taxonomy.nom_complet;
         this.storeService.dateMin = properties.date_min;
 
-        //this.geojson.currentGeoJson$.subscribe(currentLayer => {
-        //  this.mapService.map.fitBounds(currentLayer.getBounds());
-        //});
+        // zoom on zp
+        // HACK devrait être fait par pnx-geojson
+        this.mapService.map.fitBounds(
+          new L.FeatureGroup().addLayer(L.geoJSON(data['zp'])).getBounds()
+        )
       },
       error => {
         if (error.status != 404) {
