@@ -1,8 +1,8 @@
-=================
-Flore prioritaire
-=================
+=========================
+BILAN CONSERVATOIRE FLORE
+=========================
 
-Refonte du module GeoNature du protocole Flore Prioritaire (Base stationnel ?) du réseau Flore Sentinelle, piloté par le PNE et le CBNA. 
+Refonte du module GeoNature du protocole Flore Prioritaire renommé "Bilan Conservatoire Flore" du réseau Flore Sentinelle, piloté par le PNE et le CBNA. 
 
 Une liste d'espèces prioritaires est définie. Ces espèces sont prospectées sur le territoire. 
 
