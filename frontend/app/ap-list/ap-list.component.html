@@ -23,7 +23,8 @@
                     {{ storeService.indexZp }}
                 </span></p>
             <p> <span><strong> Date : </strong></span> <span class="strong"> {{ storeService.dateMin }}</span></p>
-            <p> <span><strong> Observateur(s) : </strong></span> <span class="strong"> {{ storeService.observateur }}
+            <p> <span><strong> Observateur(s) : </strong></span> <span class="strong"
+                    *ngFor="let obs of storeService.observateur"> {{obs}}
                 </span></p>
             <p> <span><strong> Taxon : </strong></span> <span class="strong"> {{ storeService.taxons }} </span></p>
         </div>

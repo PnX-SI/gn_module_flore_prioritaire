@@ -16,7 +16,7 @@ export class StoreService {
   public zp;
   public idSite;
   public dataLoaded = false;
-  public observateur;
+  public observateur = [];
   public organisme;
   public indexZp;
   public dateMin;

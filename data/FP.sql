@@ -259,6 +259,7 @@ WITH (
 CREATE TABLE pr_priority_flora.cor_ap_perturb(
 	indexap           INT  NOT NULL,
 	id_nomenclature   INT  NOT NULL,
+	pres_effective		BOOLEAN,	
 
 	CONSTRAINT pk_cor_ap_perturb PRIMARY KEY (indexap,id_nomenclature),
 	CONSTRAINT fk_cor_ap_perturb_t_apresence FOREIGN KEY (indexap) REFERENCES pr_priority_flora.t_apresence(indexap) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -364,6 +365,7 @@ IF new.indexap in (SELECT indexap FROM pr_priority_flora.t_apresence) THEN
 ELSE
 
 		new.geom_local = st_transform(new.geom_4326,2154);
+		new.area = st_area(new.geom_local);
 	RETURN NEW;
 END IF;	
 END;

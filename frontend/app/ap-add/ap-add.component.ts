@@ -61,7 +61,6 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     this.storeService.showLeafletDraw();
     this.idAp = this.activatedRoute.snapshot.params['indexap'];
     this.ApFormGroup = this.formService.initFormAp();
-
     const url = this.activatedRoute.snapshot._routerState.url;
 
     this.ApFormGroup.patchValue({ indexzp: url.split('/')[3] });
@@ -109,7 +108,6 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
         this.ApFormGroup.patchValue({
           indexap: this.idAp,
           indexzp: element.properties.indexzp,
-          area: element.properties.area,
           altitude_min: element.properties.altitude_min,
           altitude_max: element.properties.altitude_max,
           comment: element.properties.comment,

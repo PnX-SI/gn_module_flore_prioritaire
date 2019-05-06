@@ -45,7 +45,6 @@ export class ApListAddComponent implements OnInit, OnChanges {
     this.ApFormGroup = this.formService.initFormAp();
   }
 
-
   ngAfterViewInit() {
     this.mapService.map.doubleClickZoom.disable();
     this.storeService.idSite = this.activatedRoute.snapshot.params['idZP'];
@@ -59,9 +58,18 @@ export class ApListAddComponent implements OnInit, OnChanges {
         this.filteredData = this.mapListService.tableData;
         this.dataLoaded = true;
         let properties = data['zp'].features[0].properties;
-        this.storeService.organisme = properties.organisme;
         this.storeService.indexZp = properties.indexzp;
-        this.storeService.observateur = properties.nom_role;
+
+        let fullNameObs;
+        this.storeService.observateur = [];
+        data['zp'].features[0].properties.cor_zp_observer.forEach(obs => {
+          if (obs == data['zp'].features[0].properties.cor_zp_observer[data['zp'].features[0].properties.cor_zp_observer.length - 1]) {
+            fullNameObs = obs.nom_complet + '. ';
+          } else {
+            fullNameObs = obs.nom_complet + ', ';
+          }
+          this.storeService.observateur.push(fullNameObs);
+        });
         this.storeService.taxons = data['zp'].features[0].properties.taxonomy.nom_complet;
         this.storeService.dateMin = properties.date_min;
 
