@@ -80,7 +80,20 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
         this.areasIntersected = res;
       });
     });
-
+    // autocomplete total_max
+    (this.ApFormGroup.controls.total_min.valueChanges
+      //.debounceTime(500)
+      .distinctUntilChanged()
+      .subscribe(value => {
+        if (
+          this.ApFormGroup.controls.total_max ===
+          null ||
+          this.ApFormGroup.controls.total_max.pristine) {
+          this.ApFormGroup.patchValue({
+            total_max: value
+          });
+        }
+      });
   }
 
   ngAfterViewInit() {

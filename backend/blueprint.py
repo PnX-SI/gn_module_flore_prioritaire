@@ -1,16 +1,33 @@
-from flask import Blueprint, request
+import datetime
+import time
+
+from flask import Blueprint, request, send_from_directory
 
 from shapely.geometry import asShape
-from geoalchemy2.shape import from_shape
+from geoalchemy2.shape import from_shape, to_shape
 from geojson import FeatureCollection
 from sqlalchemy.sql.expression import func
 from sqlalchemy import and_, distinct, desc
-
+from geonature.utils.env import DB, ROOT_DIR
+from geonature.utils.utilsgeometry import FionaShapeService
 from geonature.utils.env import DB
-from geonature.utils.utilssqlalchemy import json_resp, GenericTable
+from geonature.utils.utilssqlalchemy import (
+    json_resp,
+    GenericTable,
+    to_json_resp,
+    to_csv_resp,
+)
 from pypnnomenclature.models import TNomenclatures
 from pypnusershub.db.models import User
-from .models import TZprospect, TApresence, CorApArea, CorZpArea, CorApPerturb, CorZpObs
+from .models import (
+    TZprospect,
+    TApresence,
+    CorApArea,
+    CorZpArea,
+    CorApPerturb,
+    CorZpObs,
+    ExportAp,
+)
 from geonature.core.taxonomie.models import Taxref
 from geonature.core.ref_geo.models import LAreas
 from geonature.core.users.models import BibOrganismes
@@ -300,3 +317,83 @@ def delete_one_ap(id_ap):
         DB.session.commit()
         return {"message": "delete with success"}, 200
     return None
+
+
+@blueprint.route("/export_ap", methods=["GET"])
+def export_ap():
+    """
+    Télécharge les données d'une aire de présence
+    """
+
+    parameters = request.args
+
+    export_format = (
+        parameters["export_format"] if "export_format" in request.args else "shapefile"
+    )
+
+    file_name = datetime.datetime.now().strftime("%Y_%m_%d_%Hh%Mm%S")
+    q = DB.session.query(ExportAp)
+
+    if "indexap" in parameters:
+        q = DB.session.query(ExportAp).filter(ExportAp.indexap == parameters["indexap"])
+    elif "indexzp" in parameters:
+        q = DB.session.query(ExportAp).filter(
+            ExportAp.id_base_site == parameters["indexzp"]
+        )
+    elif "organisme" in parameters:
+        q = DB.session.query(ExportAp).filter(
+            ExportAp.organisme == parameters["organisme"]
+        )
+    elif "commune" in parameters:
+        q = DB.session.query(ExportAp).filter(
+            ExportAp.area_name == parameters["commune"]
+        )
+    elif "year" in parameters:
+        q = DB.session.query(ExportAp).filter(
+            func.date_part("year", ExportAp.visit_date) == parameters["year"]
+        )
+    elif "cd_nom" in parameters:
+        q = DB.session.query(ExportAp).filter(ExportAp.cd_nom == parameters["cd_nom"])
+
+    data = q.all()
+    features = []
+
+    if export_format == "geojson":
+
+        for d in data:
+            feature = d.as_geofeature("geom_local","indexap", False)
+            features.append(feature)
+        result = FeatureCollection(features)
+
+        return to_json_resp(result, as_file=True, filename=file_name, indent=4)
+
+    elif export_format == "csv":
+        tab_ap = []
+
+        for d in data:
+            ap = d.as_dict()
+            geom_wkt = to_shape(d.geom_local)
+            ap["geom_local"] = geom_wkt
+
+            tab_ap.append(ap)
+
+        return to_csv_resp(file_name, tab_ap, tab_ap[0].keys(), ";")
+
+    else:
+
+        dir_path = str(ROOT_DIR / "backend/static/shapefiles")
+
+        FionaShapeService.create_shapes_struct(
+            db_cols=ExportAp.__mapper__.c,
+            srid=2154,
+            dir_path=dir_path,
+            file_name=file_name,
+        )
+
+        for row in data:
+            FionaShapeService.create_feature(row.as_dict(), row.geom_local)
+
+        FionaShapeService.save_and_zip_shapefiles()
+
+        return send_from_directory(dir_path, file_name + ".zip", as_attachment=True)
+

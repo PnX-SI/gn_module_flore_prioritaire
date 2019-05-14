@@ -41,6 +41,15 @@ class CorApPerturb(DB.Model):
 
 
 @serializable
+class CorApArea(DB.Model):
+    __tablename__ = "cor_ap_area"
+    __table_args__ = {"schema": "pr_priority_flora"}
+
+    id_area = DB.Column(DB.Integer, ForeignKey(LAreas.id_area), primary_key=True)
+    indexap = DB.Column(DB.Integer, ForeignKey("TApresence.indexap"), primary_key=True)
+
+
+@serializable
 @geoserializable
 class TApresence(DB.Model):
     __tablename__ = "t_apresence"
@@ -107,6 +116,15 @@ class CorZpObs(DB.Model):
 
 
 @serializable
+class CorZpArea(DB.Model):
+    __tablename__ = "cor_zp_area"
+    __table_args__ = {"schema": "pr_priority_flora"}
+
+    id_area = DB.Column(DB.Integer, ForeignKey(LAreas.id_area), primary_key=True)
+    indexzp = DB.Column(DB.Integer, ForeignKey("TZprospect.indexzp"), primary_key=True)
+
+
+@serializable
 @geoserializable
 class TZprospect(DB.Model):
     __tablename__ = "t_zprospect"
@@ -133,25 +151,38 @@ class TZprospect(DB.Model):
         secondaryjoin=(CorZpObs.id_role == User.id_role),
         foreign_keys=[CorZpObs.indexzp, CorZpObs.id_role],
     )
+    cor_zp_area = DB.relationship(
+        LAreas,
+        secondary=CorZpArea.__table__,
+        primaryjoin=(CorZpArea.indexzp == indexzp),
+        secondaryjoin=(CorZpArea.id_area == LAreas.id_area),
+        foreign_keys=[CorZpArea.indexzp, CorZpArea.id_area],
+    )
 
     def get_geofeature(self, columns=[], recursif=True):
         return self.as_geofeature("geom_4326", "indexzp", recursif, columns=columns)
 
 
 @serializable
-class CorApArea(DB.Model):
-    __tablename__ = "cor_ap_area"
+@geoserializable
+@shapeserializable
+class ExportAp(DB.Model):
+    __tablename__ = "export_ap"
     __table_args__ = {"schema": "pr_priority_flora"}
-
-    id_area = DB.Column(DB.Integer, ForeignKey(LAreas.id_area), primary_key=True)
-    indexap = DB.Column(DB.Integer, ForeignKey(TApresence.indexap), primary_key=True)
-
-
-@serializable
-class CorZpArea(DB.Model):
-    __tablename__ = "cor_zp_area"
-    __table_args__ = {"schema": "pr_priority_flora"}
-
-    id_area = DB.Column(DB.Integer, ForeignKey(LAreas.id_area), primary_key=True)
-    indexzp = DB.Column(DB.Integer, ForeignKey(TZprospect.indexzp), primary_key=True)
+    indexap = DB.Column(DB.Integer, primary_key=True)
+    observateurs = DB.Column(DB.Unicode)
+    altitude_min = DB.Column(DB.Integer)
+    altitude_max = DB.Column(DB.Integer)
+    comment = DB.Column(DB.Unicode)
+    area_name = DB.Column(DB.Unicode)
+    # nom_valide = DB.Column(DB.Unicode)
+    habitat = DB.Column(DB.Unicode)
+    pente = DB.Column(DB.Unicode)
+    pheno = DB.Column(DB.Unicode)
+    label_perturbation = DB.Column(DB.Unicode)
+    frequency = DB.Column(DB.Integer)
+    counting = DB.Column(DB.Unicode)
+    total_min = DB.Column(DB.Integer)
+    total_max = DB.Column(DB.Integer)
+    geom_local = DB.Column(Geometry("GEOMETRY", 4326))
 

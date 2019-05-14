@@ -95,6 +95,9 @@
               type="number" min="0" [formControl]="ApFormGroup.controls.total_max">
           </div>
         </div>
+        <small *ngIf="ApFormGroup.controls.errors?.invalidCount" class="error" style="color:red">
+          {{ 'Counting.CountError' | translate }}
+        </small>
       </fieldset>
       <div class="form-group">
         <small> Commentaires </small>
@@ -111,7 +114,5 @@
   <button id="cancel-btn" type="button" class="btn btn-cancel box-shadow" (click)="onCancelAp(storeService.idSite)">
     <i class="fa fa-times-circle" aria-hidden="true"> </i> Annuler
   </button>
-  <small *ngIf="ApFormGroup.controls.errors?.invalidCount" class="error" style="color:red">
-    {{ 'Counting.CountError' | translate }}
-  </small>
+
 </div>

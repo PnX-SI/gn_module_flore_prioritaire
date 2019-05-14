@@ -59,6 +59,7 @@ export class ApListAddComponent implements OnInit, OnChanges {
         this.dataLoaded = true;
         let properties = data['zp'].features[0].properties;
         this.storeService.indexZp = properties.indexzp;
+        console.log(data['zp']);
 
         let fullNameObs;
         this.storeService.observateur = [];
@@ -70,6 +71,18 @@ export class ApListAddComponent implements OnInit, OnChanges {
           }
           this.storeService.observateur.push(fullNameObs);
         });
+
+        let fullNameCom;
+        this.storeService.nomCommune = [];
+        data['zp'].features[0].properties.cor_zp_area.forEach(com => {
+          if (com == data['zp'].features[0].properties.cor_zp_area[data['zp'].features[0].properties.cor_zp_area.length - 1]) {
+            fullNameCom = com.area_name + '. ';
+          } else {
+            fullNameCom = com.area_name + ', ';
+          }
+          this.storeService.nomCommune.push(fullNameCom);
+        });
+
         this.storeService.taxons = data['zp'].features[0].properties.taxonomy.nom_complet;
         this.storeService.dateMin = properties.date_min;
 

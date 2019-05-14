@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 
 @Injectable()
 export class FormService {
@@ -19,12 +19,35 @@ export class FormService {
       id_nomenclatures_phenology: null,
       id_nomenclatures_habitat: null,
       frequency: null,
-      total_min: null,
-      total_max: null,
+      total_min: [
+        1,
+        Validators.compose([
+          Validators.required,
+          Validators.pattern("[0-9]+[0-9]*")
+        ])
+      ],
+      total_max: [
+        1,
+        Validators.compose([
+          Validators.required,
+          Validators.pattern("[0-9]+[0-9]*")
+        ])
+      ],
       id_nomenclatures_counting: null,
       comment: null,
       geom_4326: null
     });
+    ApFormGroup.setValidators([this.countingValidator]);
+
     return ApFormGroup;
+  }
+
+  countingValidator(ApFormGroup: AbstractControl): { [key: string]: boolean } {
+    const countMin = ApFormGroup.get("total_min").value;
+    const countMax = ApFormGroup.get("total_max").value;
+    if (countMin && countMax) {
+      return countMin > countMax ? { invalidCount: true } : null;
+    }
+    return null;
   }
 }

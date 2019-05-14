@@ -148,10 +148,7 @@ CREATE TABLE pr_priority_flora.t_zprospect(
 	date_max            DATE,
 	topo_valid          BOOLEAN,
 	initial_insert      VARCHAR (20),
-	srid_design         INT,
 	cd_nom		          INT,
-	id_history_action   INT,
-	id_validation       INT,
 	id_dataset          INT,
 	unique_id_sinp_zp   UUID DEFAULT public.uuid_generate_v4(),
 	geom_local          geometry(Geometry,2154),
@@ -160,8 +157,6 @@ CREATE TABLE pr_priority_flora.t_zprospect(
 	
   CONSTRAINT pk_t_zprospect PRIMARY KEY (indexzp),
 	CONSTRAINT fk_t_zprospect_taxref FOREIGN KEY (cd_nom) REFERENCES taxonomie.taxref(cd_nom) ON UPDATE CASCADE ON DELETE NO ACTION,
-	CONSTRAINT fk_t_apresence_t_history_actions FOREIGN KEY (id_history_action) REFERENCES gn_commons.t_history_actions(id_history_action) ON UPDATE CASCADE ON DELETE NO ACTION,
-	CONSTRAINT fk_t_apresence_t_validations FOREIGN KEY (id_validation) REFERENCES gn_commons.t_validations(id_validation) ON UPDATE CASCADE ON DELETE NO ACTION,
 	CONSTRAINT fk_t_apresence_t_datasets FOREIGN KEY (id_dataset) REFERENCES gn_meta.t_datasets(id_dataset) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 WITH (
@@ -189,7 +184,7 @@ WITH (
 
 CREATE TABLE pr_priority_flora.t_apresence(
 	indexap                                           bigserial NOT NULL,
-	area                                              INT,
+	area                                              FLOAT,
 	topo_valid                                        BOOLEAN,
 	altitude_min                                      INT DEFAULT 0,
 	altitude_max                                      INT DEFAULT 0,
@@ -203,7 +198,7 @@ CREATE TABLE pr_priority_flora.t_apresence(
 	id_history_action				  				  INT,
 	total_min                                         INT,
 	total_max                                         INT,
-	unique_id_sinp_zp                                 UUID DEFAULT public.uuid_generate_v4(),
+	unique_id_sinp_ap                                 UUID DEFAULT public.uuid_generate_v4(),
 	geom_local                                        geometry(Geometry,2154),
 	geom_4326                                         geometry(Geometry,4326),
 	geom_point_4326                                   geometry(Point,4326),
@@ -328,7 +323,7 @@ CREATE TRIGGER trg_cor_ap_area
   EXECUTE PROCEDURE pr_priority_flora.fct_trg_cor_ap_area();
 
 -----------------------------------------------------------------------
--- Fonction Trigger: actualisation des champs geom_local et srid_design
+-- Fonction Trigger: actualisation des champs geom_local
 -----------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pr_priority_flora.insert_zp()
@@ -341,7 +336,6 @@ IF new.indexzp in (SELECT indexzp FROM pr_priority_flora.t_zprospect) THEN
 	RETURN NULL;
 ELSE
 
-		new.srid_design = 4326;
 		new.geom_local = st_transform(new.geom_4326,2154);
 	RETURN NEW;
 END IF;	
@@ -350,9 +344,9 @@ $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
 
-------------------------------------------------------
--- Fonction Trigger: actualisation du champ geom_local 
-------------------------------------------------------
+-----------------------------------------------------------------------
+-- Fonction Trigger: actualisation du champ geom_local et de la surface 
+-----------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pr_priority_flora.insert_ap()
   RETURNS trigger AS
@@ -374,7 +368,7 @@ $BODY$
   COST 100;
 
 -----------------------------------------------------------------------------------------
--- Trigger: Lancement actualisation des champs geom_local et srid_design sur t_zprospect
+-- Trigger: Lancement actualisation des champs geom_local sur t_zprospect
 -----------------------------------------------------------------------------------------
 
 
@@ -394,4 +388,42 @@ CREATE TRIGGER tri_insert_ap
   ON pr_priority_flora.t_apresence
   FOR EACH ROW
   EXECUTE PROCEDURE pr_priority_flora.insert_ap();
+
+------------------------------------
+-- Vue: Création de la vue d'export
+------------------------------------
+
+DROP VIEW pr_priority_flora.export_ap;
+
+CREATE OR REPLACE VIEW pr_priority_flora.export_ap AS 
+  SELECT ap.indexap AS indexap,
+				ap.altitude_min AS altitude_min,
+ 				ap.altitude_max AS altitude_max,
+ 				ap.frequency AS frequency,
+ 				ap.comment AS comment,
+ 				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_pente) as pente,
+				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_counting) as counting,
+				ap.total_min AS total_min,
+				ap.total_max AS total_max,
+				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_habitat) as habitat,
+				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_phenology) as pheno, 
+    		string_agg((roles.nom_role::text || ' '::text) || roles.prenom_role::text, ','::text) AS observateurs,
+    		string_agg(n.label_default::text, ','::text) AS label_perturbation,
+    		string_agg(a.area_name::text, ','::text) AS area_name,
+				ap.geom_4326 AS geom_local
+  FROM pr_priority_flora.t_apresence ap
+     LEFT JOIN pr_priority_flora.t_zprospect z ON z.indexzp = ap.indexzp
+     LEFT JOIN pr_priority_flora.cor_zp_obs observer ON observer.indexzp = z.indexzp
+     LEFT JOIN utilisateurs.t_roles roles ON roles.id_role = observer.id_role
+     LEFT JOIN pr_priority_flora.cor_ap_area cap ON cap.indexap = ap.indexap
+     LEFT JOIN ref_geo.l_areas a ON a.id_area = cap.id_area
+     LEFT JOIN pr_priority_flora.cor_ap_perturb p ON ap.indexap = p.indexap
+     LEFT JOIN ref_nomenclatures.t_nomenclatures n ON p.id_nomenclature = n.id_nomenclature
+  WHERE a.id_type = ref_geo.get_id_area_type('COM'::character varying)
+  GROUP BY ap.indexap,ap.altitude_min,ap.altitude_max,ap.frequency,ap.comment,ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_pente),
+				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_counting), ap.total_min, ap.total_max, 
+				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_habitat), ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_phenology),ap.geom_4326;
+				
+
+
 

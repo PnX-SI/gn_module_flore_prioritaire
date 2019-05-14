@@ -7,6 +7,7 @@ import { ModuleConfig } from '../module.config';
 import { DataService } from "../services/data.service";
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
+import { AppConfig } from '@geonature_config/app.config';
 
 @Injectable()
 export class StoreService {
@@ -20,7 +21,7 @@ export class StoreService {
   public organisme;
   public indexZp;
   public dateMin;
-  public nomCommune;
+  public nomCommune = [];
   public siteDesc;
   public taxons;
   public _map;
@@ -51,10 +52,12 @@ export class StoreService {
 
   public queryString = new HttpParams();
 
+  public urlLoad = `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/export_ap`;
+
   showLeafletDraw() {
     this.showDraw = true;
     this.leafletDrawOptions.draw.rectangle = true;
-    this.leafletDrawOptions.draw.circle = true;
+    this.leafletDrawOptions.draw.marker = true;
     this.leafletDrawOptions.draw.polyline = false;
     this.leafletDrawOptions.draw.polygone = true;
     this.leafletDrawOptions.edit.remove = true;

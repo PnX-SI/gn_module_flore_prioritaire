@@ -52,7 +52,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.leafletDrawOptions.draw.rectangle = true;
-    this.leafletDrawOptions.draw.circle = true;
+    this.leafletDrawOptions.draw.marker = true;
     this.leafletDrawOptions.draw.polyline = false;
     this.leafletDrawOptions.edit.remove = true;
 
@@ -77,17 +77,17 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     if (this.idZp !== undefined) {
       this.api.getOneZP(this.idZp).subscribe(element => {
 
-        let fullNameObserver;
-
-        element.zp.features[0].properties.cor_zp_observer.forEach(name => {
-          if (name === element.zp.features[0].properties.cor_zp_observer[element.zp.features[0].properties.cor_zp_observer.length - 1]) {
-            fullNameObserver = name.nom_complet + '. ';
-          } else {
-            fullNameObserver = name.nom_complet + ', ';
-          }
-          this.tabObserver.push(fullNameObserver);
-        });
-        console.log(element.zp.features[0]);
+        if (element.zp.features[0].properties.cor_zp_observer !== undefined) {
+          let fullNameObserver;
+          element.zp.features[0].properties.cor_zp_observer.forEach(name => {
+            if (name === element.zp.features[0].properties.cor_zp_observer[element.zp.features[0].properties.cor_zp_observer.length - 1]) {
+              fullNameObserver = name.nom_complet + '. ';
+            } else {
+              fullNameObserver = name.nom_complet + ', ';
+            }
+            this.tabObserver.push(fullNameObserver);
+          });
+        }
 
         this.ZpFormGroup.patchValue({
           indexzp: this.idZp,
