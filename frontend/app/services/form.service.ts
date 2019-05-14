@@ -1,23 +1,53 @@
 import { Injectable } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 
 @Injectable()
 export class FormService {
   public disabled = true;
 
-  constructor(private _fb: FormBuilder) {}
+  constructor(private _fb: FormBuilder) { }
 
-  initFormSFT(): FormGroup {
-    const formSuivi = this._fb.group({
-      id_base_site: null,
-      id_base_visit: null,
-      visit_date_min: [null, Validators.required],
-      visit_date_max: null,
-      cor_visit_observer: [null, Validators.required],
-      cor_visit_perturbation: new Array(),
-      cor_visit_grid: new Array(),
-      comments: null
+  initFormAp(): FormGroup {
+    const ApFormGroup = this._fb.group({
+      indexap: null,
+      indexzp: null,
+      cor_ap_perturbation: new Array(),
+      area: null,
+      id_nomenclatures_pente: null,
+      altitude_min: null,
+      altitude_max: null,
+      id_nomenclatures_phenology: null,
+      id_nomenclatures_habitat: null,
+      frequency: null,
+      total_min: [
+        1,
+        Validators.compose([
+          Validators.required,
+          Validators.pattern("[0-9]+[0-9]*")
+        ])
+      ],
+      total_max: [
+        1,
+        Validators.compose([
+          Validators.required,
+          Validators.pattern("[0-9]+[0-9]*")
+        ])
+      ],
+      id_nomenclatures_counting: null,
+      comment: null,
+      geom_4326: null
     });
-    return formSuivi;
+    ApFormGroup.setValidators([this.countingValidator]);
+
+    return ApFormGroup;
+  }
+
+  countingValidator(ApFormGroup: AbstractControl): { [key: string]: boolean } {
+    const countMin = ApFormGroup.get("total_min").value;
+    const countMax = ApFormGroup.get("total_max").value;
+    if (countMin && countMax) {
+      return countMin > countMax ? { invalidCount: true } : null;
+    }
+    return null;
   }
 }

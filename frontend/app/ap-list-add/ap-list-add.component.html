@@ -1,0 +1,18 @@
+<div class="row row-0">
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm">
+        <pnx-map height="94vh">
+            <pnx-geojson #geojson [onEachFeature]="onEachZp.bind(this)" [geojson]="storeService.zp">
+            </pnx-geojson>
+            <pnx-geojson #geojson [onEachFeature]="onEachFeature.bind(this)" [geojson]="storeService.sites">
+            </pnx-geojson>
+            <div *ngIf="storeService.showDraw">
+                <pnx-leaflet-draw [options]="storeService.leafletDrawOptions" [zoomLevel]="1"
+                    (layerDrawed)="sendGeoInfo($event)" (layerDeleted)="deleteControlValue()">
+                </pnx-leaflet-draw>
+            </div>
+        </pnx-map>
+    </div>
+    <div class="card col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm tab-container list-sht">
+        <router-outlet></router-outlet>
+    </div>
+</div>

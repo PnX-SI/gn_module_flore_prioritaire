@@ -1,3 +1,9 @@
+.list-zp {
+  max-height: 94vh;
+  overflow-y: auto;
+  padding-bottom: 5px;
+}
+
 .map-card {
   min-height: 85vh;
   margin: -25px -15px -15px -15px;
@@ -81,10 +87,6 @@
   text-align: left !important;
 }
 
-.tab-container {
-  max-height: 81vh;
-  height: 80vh;
-}
 ngx-datatable {
   max-height: 79vh !important;
   box-shadow: none !important;
@@ -160,12 +162,6 @@ ngx-datatable {
 
 :host /deep/ .filter-control {
   width: 40%;
-}
-
-.list-sht {
-  max-height: 94vh;
-  overflow-y: auto;
-  padding-bottom: 5px;
 }
 
 .searchSite {
