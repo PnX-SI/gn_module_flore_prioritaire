@@ -26,6 +26,8 @@ export class ApListAddComponent implements OnInit, OnChanges {
   public filteredData = [];
   public dataLoaded = false;
   public disabledForm = true;
+  public geojsonZp;
+  public geojsonAp;
 
   constructor(
     public mapService: MapService,
@@ -110,7 +112,21 @@ export class ApListAddComponent implements OnInit, OnChanges {
     // declenche next sur l'observable _geojsonCoord
     this.mapService.setGeojsonCoord(geojson);
     this.disabledForm = false;
-    this.ApFormGroup.patchValue({ geom_4326: geojson.geometry })
+    this.geojsonZp = this.storeService.zp.features[0];
+    this.geojsonAp = geojson;
+    if (this.storeService.booleanContains(this.geojsonZp, this.geojsonAp)) {
+      this.ApFormGroup.patchValue({ geom_4326: geojson.geometry })
+      console.log('OK')
+    } else {
+      console.log('NOT OK')
+      this.toastr.error(
+        "L'aire de présence n'est pas située dans la zone de prospection",
+        "",
+        {
+          positionClass: "toast-top-center"
+        }
+      );
+    }
   }
   onEachFeature(feature, layer) {
     // event from the map

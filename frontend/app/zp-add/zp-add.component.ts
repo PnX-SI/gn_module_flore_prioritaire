@@ -59,12 +59,15 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     this.idZp = this.activatedRoute.snapshot.params['indexzp'];
 
 
+
     this.ZpFormGroup = this._fb.group({
       indexzp: null,
       cd_nom: null,
       date_min: null,
+      date_max: null,
       cor_zp_observer: [],
-      geom_4326: null
+      geom_4326: null,
+      initial_insert: 'web'
 
     });
 
@@ -91,8 +94,10 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
 
         this.ZpFormGroup.patchValue({
           indexzp: this.idZp,
+          initial_insert: 'web',
           cd_nom: element.zp.features[0].properties.taxonomy,
           date_min: this._dateParser.parse(element.zp.features[0].properties.date_min),
+          date_max: this._dateParser.parse(element.zp.features[0].properties.date_min),
           cor_zp_observer: element.zp.features[0].properties.cor_zp_observer,
           geom_4326: element.zp.features[0].geometry
         });

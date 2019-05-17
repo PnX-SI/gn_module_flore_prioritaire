@@ -195,7 +195,6 @@ CREATE TABLE pr_priority_flora.t_apresence(
 	id_nomenclatures_counting			  		      INT,
 	id_nomenclatures_habitat			  		      INT,
 	id_nomenclatures_phenology			  			  INT,
-	id_history_action				  				  INT,
 	total_min                                         INT,
 	total_max                                         INT,
 	unique_id_sinp_ap                                 UUID DEFAULT public.uuid_generate_v4(),
@@ -208,8 +207,7 @@ CREATE TABLE pr_priority_flora.t_apresence(
 	CONSTRAINT fk_t_apresence_t_nomenclatures_id_pente FOREIGN KEY (id_nomenclatures_pente) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature) ON UPDATE CASCADE ON DELETE NO ACTION,
 	CONSTRAINT fk_t_apresence_t_nomenclatures_id_counting FOREIGN KEY (id_nomenclatures_counting) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature) ON UPDATE CASCADE ON DELETE NO ACTION,
 	CONSTRAINT fk_t_apresence_t_nomenclatures_id_habitat FOREIGN KEY (id_nomenclatures_habitat) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature) ON UPDATE CASCADE ON DELETE NO ACTION,
-	CONSTRAINT fk_t_apresence_t_nomenclatures_id_phenology FOREIGN KEY (id_nomenclatures_phenology) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature) ON UPDATE CASCADE ON DELETE NO ACTION,
-	CONSTRAINT fk_t_apresence_t_history_actions FOREIGN KEY (id_history_action) REFERENCES gn_commons.t_history_actions(id_history_action) ON UPDATE CASCADE ON DELETE NO ACTION,
+	CONSTRAINT fk_t_apresence_t_nomenclatures_id_phenology FOREIGN KEY (id_nomenclatures_phenology) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 WITH (
   OIDS=FALSE

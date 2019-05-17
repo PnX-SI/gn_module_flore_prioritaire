@@ -41,6 +41,7 @@ default_ap_columns = [
 
 coor_zoom_center = [44.982667966765845, 6.062455200884894]
 zoom = 10
+id_type_commune = 25
 
 
 class GnModuleSchemaConf(Schema):

@@ -222,6 +222,8 @@ def get_commune():
     """
     Retourne toutes les communes présentes dans le module
     """
+    parameters = request.args
+    id_type_commune = blueprint.config["id_type_commune"]
 
     q = (
         DB.session.query(LAreas.area_name)
@@ -229,6 +231,9 @@ def get_commune():
         .join(CorZpArea, LAreas.id_area == CorZpArea.id_area)
         .join(TZprospect, TZprospect.indexzp == CorZpArea.indexzp)
     )
+
+    if "id_area_type" in parameters:
+        q = q.filter(LAreas.id_type == id_type_commune)
 
     data = q.all()
     if data:
@@ -361,7 +366,7 @@ def export_ap():
     if export_format == "geojson":
 
         for d in data:
-            feature = d.as_geofeature("geom_local","indexap", False)
+            feature = d.as_geofeature("geom_local", "indexap", False)
             features.append(feature)
         result = FeatureCollection(features)
 

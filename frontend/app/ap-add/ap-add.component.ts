@@ -143,8 +143,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   onCancelAp(indexzp) {
     this.router.navigate(
       [
-        `${ModuleConfig.MODULE_URL}/zp`,
-        indexzp, 'ap_list'
+        `${ModuleConfig.MODULE_URL}/zp`, indexzp, 'ap_list'
       ]
     );
   }
