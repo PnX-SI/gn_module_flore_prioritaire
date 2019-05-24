@@ -1,7 +1,6 @@
 #!/bin/bash
 
-. v1_compat.ini
-. ../../../config/settings.ini
+. config/settings.ini
 
 #Sur le serveur de GeoNature V2 : création du lien FDW avec la base GeoNature1 
 sudo -n -u postgres -s psql -d $db_name -c "CREATE EXTENSION IF NOT EXISTS postgres_fdw;" > v1_compat.log
@@ -15,4 +14,5 @@ sudo -n -u postgres -s psql -d geonature2db -c "CREATE SCHEMA florepatri;" >> v1
 sudo -n -u postgres -s psql -d geonature2db -c "IMPORT FOREIGN SCHEMA florepatri FROM SERVER geonature1server INTO florepatri;" >> v1_compat.log
 
 export PGPASSWORD='$user_pg_pass';psql -h $db_host -U $user_pg -d $db_name -f 'v1tov2.sql' >> v1_compat.log
+export PGPASSWORD='$user_pg_pass';psql -h $db_host -U $user_pg -d $db_name -f 'v1tov2_data_taxonomy.sql' >> v1_compat.log
 
