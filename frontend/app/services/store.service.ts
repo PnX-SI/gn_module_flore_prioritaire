@@ -8,6 +8,7 @@ import { DataService } from "../services/data.service";
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { AppConfig } from '@geonature_config/app.config';
+import { CommonService } from "@geonature_common/service/common.service";
 
 @Injectable()
 export class StoreService {
@@ -45,6 +46,7 @@ export class StoreService {
   constructor(
     public _api: DataService,
     public mapListService: MapListService,
+    private _commonService: CommonService,
     private _modalService: NgbModal
   ) { }
 
@@ -53,16 +55,6 @@ export class StoreService {
   public queryString = new HttpParams();
 
   public urlLoad = `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/export_ap`;
-
-  showLeafletDraw() {
-    this.showDraw = true;
-    this.leafletDrawOptions.draw.rectangle = true;
-    this.leafletDrawOptions.draw.marker = true;
-    this.leafletDrawOptions.draw.polyline = false;
-    this.leafletDrawOptions.draw.polygone = true;
-    this.leafletDrawOptions.edit.remove = true;
-    this.leafletDrawOptions.edit.edit = true;
-  }
 
   openModal(content) {
     this._modalService.open(content);

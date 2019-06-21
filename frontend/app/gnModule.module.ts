@@ -19,15 +19,15 @@ import { ApListAddComponent } from './ap-list-add/ap-list-add.component';
 // my module routing
 const routes: Routes = [
   { path: '', component: ZpMapListComponent },
-  { path: 'post_zp', component: ZpAddComponent },
-  { path: 'post_zp/:indexzp', component: ZpAddComponent },
+  { path: 'form_zp', component: ZpAddComponent },
+  { path: 'form_zp/:indexzp', component: ZpAddComponent },
   {
     path: 'zp/:idZP', component: ApListAddComponent,
     children: [
-      { path: 'ap_list', component: ApListComponent },
-      { path: 'post_ap', component: ApAddComponent },
-      { path: 'post_ap/:indexap', component: ApAddComponent },
-      { path: '', redirectTo: 'ap_list', pathMatch: 'full' }
+      { path: 'info_zp', component: ApListComponent },
+      { path: 'form_ap', component: ApAddComponent },
+      { path: 'form_ap/:indexap', component: ApAddComponent },
+      { path: '', redirectTo: 'info_zp', pathMatch: 'full' }
     ]
   },
 

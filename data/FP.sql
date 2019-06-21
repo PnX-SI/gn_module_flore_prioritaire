@@ -269,34 +269,56 @@ CREATE TRIGGER tri_insert_ap
 DROP VIEW pr_priority_flora.export_ap;
 
 CREATE OR REPLACE VIEW pr_priority_flora.export_ap AS 
-  SELECT ap.indexap AS indexap,
+WITH
+    observers AS(
+SELECT 
+    tzp.indexzp,
+    string_agg(roles.nom_role::text || ' ' ||  roles.prenom_role::text, ', ') AS observateurs,
+    string_agg(orga.nom_organisme, ', ') AS organisme
+FROM pr_priority_flora.t_zprospect tzp
+JOIN pr_priority_flora.cor_zp_obs observer ON observer.indexzp = tzp.indexzp
+JOIN utilisateurs.t_roles roles ON roles.id_role = observer.id_role
+join utilisateurs.bib_organismes orga on orga.id_organisme = roles.id_organisme
+GROUP BY tzp.indexzp, roles.id_organisme
+),
+perturbations AS(
+SELECT 
+    tap.indexap,
+    string_agg(n.label_default, ',') AS label_perturbation
+FROM pr_priority_flora.t_apresence tap
+JOIN pr_priority_flora.cor_ap_perturb p ON tap.indexap = p.indexap
+JOIN ref_nomenclatures.t_nomenclatures n ON p.id_nomenclature = n.id_nomenclature
+GROUP BY tap.indexap
+),
+area AS(
+SELECT tzp.indexzp,
+       string_agg(a.area_name::text, ','::text) AS area_name
+FROM pr_priority_flora.t_zprospect tzp
+JOIN pr_priority_flora.cor_zp_area zpa ON tzp.indexzp = zpa.indexzp
+JOIN ref_geo.l_areas a ON zpa.id_area = a.id_area
+GROUP BY tzp.indexzp
+)
+
+SELECT ap.indexap AS indexap,
+				taxon.nom_valide AS nom_valide,
+    		taxon.cd_nom AS cd_nom,
 				ap.altitude_min AS altitude_min,
  				ap.altitude_max AS altitude_max,
  				ap.frequency AS frequency,
  				ap.comment AS comment,
- 				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_pente) as pente,
 				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_counting) as counting,
 				ap.total_min AS total_min,
 				ap.total_max AS total_max,
 				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_habitat) as habitat,
 				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_phenology) as pheno, 
-    		string_agg((roles.nom_role::text || ' '::text) || roles.prenom_role::text, ','::text) AS observateurs,
-    		string_agg(n.label_default::text, ','::text) AS label_perturbation,
-    		string_agg(a.area_name::text, ','::text) AS area_name,
+    		per.label_perturbation AS label_perturbation,
+    		obs.observateurs AS observateurs,
+    		obs.organisme AS organisme,
+    		area.area_name AS area_name,
 				ap.geom_4326 AS geom_local
   FROM pr_priority_flora.t_apresence ap
      LEFT JOIN pr_priority_flora.t_zprospect z ON z.indexzp = ap.indexzp
-     LEFT JOIN pr_priority_flora.cor_zp_obs observer ON observer.indexzp = z.indexzp
-     LEFT JOIN utilisateurs.t_roles roles ON roles.id_role = observer.id_role
-     LEFT JOIN pr_priority_flora.cor_ap_area cap ON cap.indexap = ap.indexap
-     LEFT JOIN ref_geo.l_areas a ON a.id_area = cap.id_area
-     LEFT JOIN pr_priority_flora.cor_ap_perturb p ON ap.indexap = p.indexap
-     LEFT JOIN ref_nomenclatures.t_nomenclatures n ON p.id_nomenclature = n.id_nomenclature
-  WHERE a.id_type = ref_geo.get_id_area_type('COM'::character varying)
-  GROUP BY ap.indexap,ap.altitude_min,ap.altitude_max,ap.frequency,ap.comment,ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_pente),
-				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_counting), ap.total_min, ap.total_max, 
-				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_habitat), ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_phenology),ap.geom_4326;
-				
-
-
-
+     LEFT JOIN observers obs ON obs.indexzp = z.indexzp
+     LEFT JOIN area ON area.indexzp = z.indexzp
+     LEFT JOIN perturbations per ON per.indexap = ap.indexap
+     LEFT JOIN taxonomie.taxref taxon ON taxon.cd_nom = z.cd_nom;

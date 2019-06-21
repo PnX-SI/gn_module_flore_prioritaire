@@ -22,14 +22,10 @@ class CorApPerturb(DB.Model):
     __table_args__ = {"schema": "pr_priority_flora"}
 
     indexap = DB.Column(
-        DB.ForeignKey("pr_priority_flora.t_apresence.indexap", onupdate="CASCADE"),
-        primary_key=True,
-        nullable=False,
+        DB.ForeignKey("pr_priority_flora.t_apresence"), primary_key=True
     )
     id_nomenclature = DB.Column(
-        DB.ForeignKey(
-            "ref_nomenclatures.t_nomenclatures.id_nomenclature", onupdate="CASCADE"
-        ),
+        DB.ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"),
         primary_key=True,
         nullable=False,
     )
@@ -54,14 +50,13 @@ class CorApArea(DB.Model):
 class TApresence(DB.Model):
     __tablename__ = "t_apresence"
     __table_args__ = {"schema": "pr_priority_flora"}
-    indexap = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
+    indexap = DB.Column(DB.Integer, primary_key=True)
     indexzp = DB.Column(
         DB.ForeignKey("pr_priority_flora.t_zprospect.indexzp"), nullable=False
     )
     altitude_min = DB.Column(DB.Integer)
     altitude_max = DB.Column(DB.Integer)
     area = DB.Column(DB.Integer)
-    id_nomenclatures_pente = DB.Column(DB.Integer)
     id_nomenclatures_phenology = DB.Column(DB.Integer)
     id_nomenclatures_habitat = DB.Column(DB.Integer)
     frequency = DB.Column(DB.Integer)
@@ -77,11 +72,6 @@ class TApresence(DB.Model):
         primaryjoin=(CorApPerturb.indexap == indexap),
         secondaryjoin=(CorApPerturb.id_nomenclature == TNomenclatures.id_nomenclature),
         foreign_keys=[CorApPerturb.indexap, CorApPerturb.id_nomenclature],
-    )
-    pente = DB.relationship(
-        TNomenclatures,
-        primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclatures_pente),
-        foreign_keys=[id_nomenclatures_pente],
     )
 
     pheno = DB.relationship(
@@ -171,13 +161,13 @@ class ExportAp(DB.Model):
     __table_args__ = {"schema": "pr_priority_flora"}
     indexap = DB.Column(DB.Integer, primary_key=True)
     observateurs = DB.Column(DB.Unicode)
+    organisme = DB.Column(DB.Unicode)
     altitude_min = DB.Column(DB.Integer)
     altitude_max = DB.Column(DB.Integer)
     comment = DB.Column(DB.Unicode)
     area_name = DB.Column(DB.Unicode)
-    # nom_valide = DB.Column(DB.Unicode)
+    nom_valide = DB.Column(DB.Unicode)
     habitat = DB.Column(DB.Unicode)
-    pente = DB.Column(DB.Unicode)
     pheno = DB.Column(DB.Unicode)
     label_perturbation = DB.Column(DB.Unicode)
     frequency = DB.Column(DB.Integer)

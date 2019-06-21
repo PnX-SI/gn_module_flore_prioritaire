@@ -51,14 +51,23 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-    this.leafletDrawOptions.draw.rectangle = true;
-    this.leafletDrawOptions.draw.marker = true;
-    this.leafletDrawOptions.draw.polyline = false;
-    this.leafletDrawOptions.edit.remove = true;
 
     this.idZp = this.activatedRoute.snapshot.params['indexzp'];
 
-
+    if (this.idZp == undefined) {
+      this.leafletDrawOptions.draw.polygon = true;
+      this.leafletDrawOptions.draw.rectangle = true;
+      //this.leafletDrawOptions.draw.marker = true;
+      this.leafletDrawOptions.draw.polyline = false;
+      this.leafletDrawOptions.edit.remove = true;
+    } else {
+      this.disabledForm = false;
+      this.leafletDrawOptions.draw.polygon = false;
+      this.leafletDrawOptions.draw.rectangle = false;
+      this.leafletDrawOptions.draw.marker = false;
+      this.leafletDrawOptions.draw.polyline = false;
+      this.leafletDrawOptions.edit.remove = false;
+    }
 
     this.ZpFormGroup = this._fb.group({
       indexzp: null,
@@ -97,7 +106,6 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
           initial_insert: 'web',
           cd_nom: element.zp.features[0].properties.taxonomy,
           date_min: this._dateParser.parse(element.zp.features[0].properties.date_min),
-          date_max: this._dateParser.parse(element.zp.features[0].properties.date_min),
           cor_zp_observer: element.zp.features[0].properties.cor_zp_observer,
           geom_4326: element.zp.features[0].geometry
         });
@@ -121,7 +129,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
         console.log(data);
 
         this.router.navigate(
-          [`${ModuleConfig.MODULE_URL}/zp`, data.id, 'ap_list'
+          [`${ModuleConfig.MODULE_URL}/zp`, data.id, 'info_zp'
           ]
         );
       });
@@ -149,7 +157,6 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   }
 
   postZp(finalForm) {
-
     this.api.postZp(finalForm).subscribe(
       () => {
         this.toastr.success('Zone de prospection enregistrée', '', {
@@ -159,7 +166,6 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   }
 
   patchZp(finalForm) {
-
     this.api.patchZp(finalForm, this.idZp).subscribe(
       () => {
         this.toastr.success('Zone de prospection modifiée', '', {
@@ -167,8 +173,6 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
         });
       });
   }
-
-
 
   sendGeoInfo(geojson) {
     // renvoie le

@@ -46,7 +46,9 @@ def get_zprospect():
     id_type_commune = blueprint.config["id_type_commune"]
     parameters = request.args
     q = (
-        DB.session.query(TZprospect, Taxref, func.string_agg(LAreas.area_name, ", "))
+        DB.session.query(
+            TZprospect, Taxref, BibOrganismes, func.string_agg(LAreas.area_name, ", ")
+        )
         .outerjoin(Taxref, TZprospect.cd_nom == Taxref.cd_nom)
         .outerjoin(CorZpArea, CorZpArea.indexzp == TZprospect.indexzp)
         .outerjoin(CorZpObs, CorZpObs.indexzp == TZprospect.indexzp)
@@ -58,7 +60,7 @@ def get_zprospect():
                 LAreas.id_area == CorZpArea.id_area, LAreas.id_type == id_type_commune
             ),
         )
-        .group_by(TZprospect, Taxref)
+        .group_by(TZprospect, Taxref, BibOrganismes)
     )
     if "indexzp" in parameters:
         q = q.filter(TZprospect.indexzp == parameters["indexzp"])
@@ -84,7 +86,9 @@ def get_zprospect():
         )
         id_zp = feature["properties"]["indexzp"]
         feature["properties"]["taxon"] = d[1].as_dict(["nom_valide"])
+
         features.append(feature)
+
     return FeatureCollection(features)
 
 
@@ -111,8 +115,8 @@ def get_apresences():
     return FeatureCollection(features)
 
 
-@blueprint.route("/post_zp", methods=["POST"])
-@blueprint.route("/post_zp/<int:id_zp>", methods=["POST"])
+@blueprint.route("/form_zp", methods=["POST"])
+@blueprint.route("/form_zp/<int:id_zp>", methods=["POST"])
 @json_resp
 def post_zp(id_zp=None):
     """
@@ -149,9 +153,10 @@ def post_zp(id_zp=None):
     return releve.as_geofeature("geom_4326", "indexzp", True)
 
 
-@blueprint.route("/post_ap", methods=["POST"])
+@blueprint.route("/form_ap", methods=["POST"])
+@blueprint.route("/form_ap/<int:id_ap>", methods=["POST"])
 @json_resp
-def post_ap():
+def post_ap(id_ap=None):
     """
     Poste une nouvelle aire de présence
     """
@@ -167,25 +172,29 @@ def post_ap():
     ap = TApresence(**data)
     ap.geom_4326 = from_shape(shape, srid=4326)
     print(data)
-    cor_ap_pertubation = (
-        DB.session.query(TNomenclatures)
-        .filter(
-            TNomenclatures.id_nomenclature.in_(
-                [pert["id_nomenclature"] for pert in tab_pertu]
+    nomenclature_list = []
+    if tab_pertu:
+        nomenclature_list = (
+            DB.session.query(TNomenclatures)
+            .filter(
+                TNomenclatures.id_nomenclature.in_(
+                    [pert["id_nomenclature"] for pert in tab_pertu]
+                )
             )
+            .all()
         )
-        .all()
-    )
 
-    for o in cor_ap_pertubation:
-        ap.cor_ap_perturbation.append(o)
+    for n in nomenclature_list:
+        ap.cor_ap_perturbation.append(n)
 
     # TODO: manque indexzp
     if "indexap" in data:
         DB.session.merge(ap)
     else:
         DB.session.add(ap)
+    DB.session.flush()
     DB.session.commit()
+    #
 
     return ap.as_geofeature("geom_4326", "indexap", True)
 

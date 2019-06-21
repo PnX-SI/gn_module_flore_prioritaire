@@ -18,9 +18,5 @@ SELECT cd_nom, cd_nom, francais FROM check_bib_noms WHERE check_bn='false';
 
 --Insertion des taxons du module FP dans la table de correspondance cor_nom_liste
 
-WITH select_bib_noms AS (
-    SELECT bib_noms.id_nom FROM taxonomie.bib_noms JOIN florepatri.bib_taxons_fp ON bib_noms.cd_nom=bib_taxons_fp.cd_nom
-)
-
 INSERT INTO taxonomie.cor_nom_liste (id_nom, id_liste) 
-SELECT id_nom,40 FROM select_bib_noms;
+SELECT bib_noms.id_nom,40 FROM taxonomie.bib_noms JOIN florepatri.bib_taxons_fp ON bib_noms.cd_nom=bib_taxons_fp.cd_nom;

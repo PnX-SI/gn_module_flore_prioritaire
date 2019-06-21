@@ -14,7 +14,7 @@ then
 fi
 
 # Copy SQL files into /tmp system folder in order to edit it with variables
-cp data/FP.sql /tmp/FP_nomenclatures.sql
+cp data/FP_nomenclatures.sql /tmp/FP_nomenclatures.sql
 cp data/FP.sql /tmp/FP.sql
 
 sudo sed -i "s/MY_SRID_WORLD/$srid_world/g" /tmp/FP.sql

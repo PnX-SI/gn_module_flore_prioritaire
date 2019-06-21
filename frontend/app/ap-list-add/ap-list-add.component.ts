@@ -25,7 +25,6 @@ export class ApListAddComponent implements OnInit, OnChanges {
   public ApFormGroup: FormGroup;
   public filteredData = [];
   public dataLoaded = false;
-  public disabledForm = true;
   public geojsonZp;
   public geojsonAp;
 
@@ -45,6 +44,11 @@ export class ApListAddComponent implements OnInit, OnChanges {
   ngOnInit() {
 
     this.ApFormGroup = this.formService.initFormAp();
+
+    this.router.events.subscribe(e => {
+      console.log('route change');
+
+    })
   }
 
   ngAfterViewInit() {
@@ -106,19 +110,19 @@ export class ApListAddComponent implements OnInit, OnChanges {
           console.log("error: ", error);
         }
       });
-
   }
+
   sendGeoInfo(geojson) {
     // declenche next sur l'observable _geojsonCoord
-    this.mapService.setGeojsonCoord(geojson);
-    this.disabledForm = false;
+    this.mapService._geojsonCoord.next(geojson);
+    //this.mapService.setGeojsonCoord(geojson);
     this.geojsonZp = this.storeService.zp.features[0];
     this.geojsonAp = geojson;
     if (this.storeService.booleanContains(this.geojsonZp, this.geojsonAp)) {
       this.ApFormGroup.patchValue({ geom_4326: geojson.geometry })
-      console.log('OK')
     } else {
-      console.log('NOT OK')
+      this.mapService.removeAllLayers(this.mapService.map, this.mapService.leafletDrawFeatureGroup);
+
       this.toastr.error(
         "L'aire de présence n'est pas située dans la zone de prospection",
         "",
@@ -128,6 +132,7 @@ export class ApListAddComponent implements OnInit, OnChanges {
       );
     }
   }
+
   onEachFeature(feature, layer) {
     // event from the map
     let site = feature.properties;
@@ -150,13 +155,5 @@ export class ApListAddComponent implements OnInit, OnChanges {
 
   onEachZp(feature, layer) {
     layer.setStyle({ 'color': '#F4D03F', 'fillOpacity': 0, 'weight': 4 })
-  }
-  formDisabled() {
-    if (this.disabledForm) {
-      this._commonService.translateToaster(
-        "warning",
-        "Releve.FillGeometryFirst"
-      );
-    }
   }
 }

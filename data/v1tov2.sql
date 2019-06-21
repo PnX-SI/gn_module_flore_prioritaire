@@ -12,7 +12,7 @@ WHERE supprime='false';
 ---------------------------------------------------------------------
 
 INSERT INTO pr_priority_flora.t_apresence (indexap, area, topo_valid, altitude_min, altitude_max, frequency, comment, indexzp, id_nomenclatures_phenology, total_min, total_max, geom_local, geom_4326, geom_point_4326)
-SELECT indexap, surfaceap, topo_valid, altitude_sig, altitude_sig, frequenceap, 'Remarques : ' || COALESCE(remarques,'none'), indexzp, ref_nomenclatures.get_id_nomenclature('TYPE_PHENOLOGIE'::text,t_apresence.codepheno::text),(total_steriles+total_fertiles) as total_min,(total_steriles+total_fertiles) as total_max,the_geom_2154, st_transform(the_geom_2154,4326), st_transform(the_geom_3857,4326)
+SELECT indexap, surfaceap, topo_valid, altitude_sig, altitude_sig, frequenceap, 'Remarques : ' || COALESCE(remarques,'none') || , indexzp, ref_nomenclatures.get_id_nomenclature('TYPE_PHENOLOGIE'::text,t_apresence.codepheno::text),(total_steriles+total_fertiles) as total_min,(total_steriles+total_fertiles) as total_max,the_geom_2154, st_transform(the_geom_2154,4326), st_transform(the_geom_3857,4326)
 FROM florepatri.t_apresence
 WHERE supprime='false';
 

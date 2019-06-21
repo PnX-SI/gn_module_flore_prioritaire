@@ -13,7 +13,6 @@ export class FormService {
       indexzp: null,
       cor_ap_perturbation: new Array(),
       area: null,
-      id_nomenclatures_pente: null,
       altitude_min: null,
       altitude_max: null,
       id_nomenclatures_phenology: null,

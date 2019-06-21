@@ -39,29 +39,33 @@ export class ApListComponent implements OnInit, OnDestroy {
     private toastr: ToastrService
   ) { }
 
-  ngOnInit() {
-    this.storeService.idSite = this.activatedRoute.snapshot.params['idSite'];
-
-  }
+  ngOnInit() { }
 
   onAddAp(idZP) {
     this.router.navigate(
       [
         `${ModuleConfig.MODULE_URL}/zp`,
-        idZP, 'post_ap'
+        idZP, 'form_ap'
       ]
     );
-    this.storeService.showLeafletDraw();
+    this.router.events.subscribe(e => {
+      this.storeService.leafletDrawOptions.draw.polygon = true;
+      this.storeService.leafletDrawOptions.draw.rectangle = true;
+      this.storeService.leafletDrawOptions.draw.marker = true;
+      this.storeService.leafletDrawOptions.draw.polyline = true;
+      this.storeService.leafletDrawOptions.edit.remove = true;
+    })
+
+
   }
 
   onEditAp(idZP, idAP) {
     this.router.navigate(
       [
         `${ModuleConfig.MODULE_URL}/zp`,
-        idZP, 'post_ap', idAP
+        idZP, 'form_ap', idAP
       ]
     );
-    this.storeService.showLeafletDraw();
   }
 
   onDeleteAp(indexap) {

@@ -51,6 +51,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     this.mapListService.idName = 'indexzp';
     this.api.getZProspects().subscribe(data => {
       this.myGeoJSON = data;
+      console.log(data);
       this.mapListService.loadTableData(data);
       this.filteredData = this.mapListService.tableData;
       this.dataLoaded = true;
@@ -123,10 +124,10 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     console.log($event.item);
   }
 
-
   onChargeList(param?) {
     this.api.getZProspects(param).subscribe(data => {
       this.myGeoJSON = data;
+      console.log(data);
       this.mapListService.loadTableData(data);
       this.filteredData = this.mapListService.tableData;
       this.dataLoaded = true;
@@ -134,18 +135,18 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     );
   }
   onAddZp() {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/post_zp`]);
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/form_zp`]);
   }
 
   onEditZp(indexzp) {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/post_zp`, indexzp]);
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/form_zp`, indexzp]);
   }
 
   onInfo(indexzp) {
     this.router.navigate(
       [
         `${ModuleConfig.MODULE_URL}/zp`,
-        indexzp, 'ap_list'
+        indexzp, 'info_zp'
       ]
     );
   }

@@ -44,17 +44,17 @@
         [rowHeight]="'auto'" [messages]="storeService.fpConfig.list_ap_message" [selected]="mapListService.selectedRow"
         [selectionType]="'single'" (select)="mapListService.onRowSelect($event)"
         [rowClass]="mapListService.getRowClass">
-        <ngx-datatable-row-detail [rowHeight]="100" #myDetailRow (toggle)="onDetailToggle($event)">
+        <ngx-datatable-row-detail [rowHeight]="150" #myDetailRow (toggle)="onDetailToggle($event)">
             <ng-template let-row="row" let-expanded="expanded" ngx-datatable-row-detail-template>
                 <div style="padding-left:35px;">
-                    <div style="font-size: 15px"><strong>Détails</strong></div>
-                    <div style="font-size: 12px"><strong>Phénologie :</strong> {{row.pheno?.definition_default}}</div>
-                    <div style="font-size: 12px"><strong>Pente :</strong>
-                        {{row.pente?.definition_default}}</div>
-                    <div style="font-size: 12px"><strong>Type d'habitat :</strong> {{row.habitat?.definition_default}}
+                    <div style="font-size: 15px"><strong>Détails</strong></div><br />
+                    <div style="font-size: 12px"><strong>&#8226; Phénologie :</strong> {{row.pheno?.definition_default}}
                     </div>
-                    <div style="font-size: 12px"><strong>Total :</strong> {{row.total_min}}</div>
-                    <div style="font-size: 12px"><strong>Remarques :</strong> {{row.comment}}</div>
+                    <div style="font-size: 12px"><strong>&#8226; Type d'habitat :</strong>
+                        {{row.habitat?.definition_default}}
+                    </div>
+                    <div style="font-size: 12px"><strong>&#8226; Total :</strong> {{row.total_min}}</div>
+                    <div style="font-size: 12px"><strong>&#8226; Remarques :</strong> {{row.comment}}</div>
                 </div>
             </ng-template>
         </ngx-datatable-row-detail>

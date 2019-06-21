@@ -26,6 +26,7 @@ import { ModuleConfig } from "../module.config";
 export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private ApFormGroup: FormGroup;
+  public leafletDrawOptions = leafletDrawOption;
   public site;
   public geojson: any;
   public isEstim = true;
@@ -58,14 +59,15 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.storeService.showLeafletDraw();
     this.idAp = this.activatedRoute.snapshot.params['indexap'];
+
     this.ApFormGroup = this.formService.initFormAp();
     const url = this.activatedRoute.snapshot._routerState.url;
 
     this.ApFormGroup.patchValue({ indexzp: url.split('/')[3] });
     // subscription to the geojson observable
     this.geojsonSubscription$ = this.mapService.gettingGeojson$.subscribe(geojson => {
+      console.log('EVENT')
       this.ApFormGroup.patchValue({ geom_4326: geojson.geometry });
       this.geojson = geojson;
 
@@ -76,9 +78,11 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
           altitude_max: res.altitude.altitude_max
         });
       });
+
       this._dfs.getFormatedGeoIntersection(geojson).subscribe(res => {
         this.areasIntersected = res;
       });
+
     });
     // autocomplete total_max
     (this.ApFormGroup.controls.total_min.valueChanges
@@ -97,6 +101,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
+
     this.mapService.map.doubleClickZoom.disable();
 
     // vérifie s'il existe idAp --> c' une modif
@@ -129,40 +134,34 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
           total_max: element.properties.total_max,
           id_nomenclatures_phenology: element.properties.pheno.id_nomenclature,
           id_nomenclatures_habitat: element.properties.habitat.id_nomenclature,
-          id_nomenclatures_pente: element.properties.pente.id_nomenclature,
           id_nomenclatures_counting: element.properties.counting.id_nomenclature,
           geom_4326: element.geometry,
           cor_ap_perturbation: element.properties.cor_ap_perturbation === null ? [] : element.properties.cor_ap_perturbation
 
         });
       });
-    });
+    };
   }
 
-
-  onCancelAp(indexzp) {
-    this.router.navigate(
-      [
-        `${ModuleConfig.MODULE_URL}/zp`, indexzp, 'ap_list'
-      ]
-    );
-  }
   onPostAp() {
     const apForm = JSON.parse(JSON.stringify(this.ApFormGroup.value));
-
-    //perturbation
-    /* apForm["cor_ap_perturbation"] = apForm["cor_ap_perturbation"].map(
-      pertu => {
-        return pertu.id_nomenclatures;
-      }
-    ); */
 
     this.api.postAp(apForm).subscribe(
       data => {
         this.toastr.success('Aire de présence enregistrée', '', {
           positionClass: 'toast-top-center'
         });
+        this.router.navigate([`${ModuleConfig.MODULE_URL}/zp`, data.properties.indexzp, `info_zp`]);
+
       });
+
+  }
+
+  onCancelAp(indexzp) {
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/zp`, indexzp, `info_zp`]);
+    this.router.events.subscribe(e => {
+      this.storeService.showDraw = false;
+    })
   }
 
   deleteControlValue() {
