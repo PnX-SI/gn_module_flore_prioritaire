@@ -134,6 +134,7 @@ def post_zp(id_zp=None):
 
     shape = asShape(data["geom_4326"])
     releve = TZprospect(**data)
+    releve.initial_insert = "web"
     releve.geom_4326 = from_shape(shape, srid=4326)
 
     cor_zp_observer = (
@@ -171,7 +172,6 @@ def post_ap(id_ap=None):
     shape = asShape(data.pop("geom_4326"))
     ap = TApresence(**data)
     ap.geom_4326 = from_shape(shape, srid=4326)
-    print(data)
     nomenclature_list = []
     if tab_pertu:
         nomenclature_list = (
@@ -307,7 +307,7 @@ def get_one_ap(id_ap):
     return ap.get_geofeature()
 
 
-#  route get One Zp
+#  route delete One Zp
 @blueprint.route("/zp/<int:id_zp>", methods=["DELETE"])
 @json_resp
 def delete_one_zp(id_zp):
@@ -321,6 +321,7 @@ def delete_one_zp(id_zp):
     return None
 
 
+#  route delete One Ap
 @blueprint.route("/ap/<int:id_ap>", methods=["DELETE"])
 @json_resp
 def delete_one_ap(id_ap):

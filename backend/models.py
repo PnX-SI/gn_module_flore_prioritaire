@@ -122,6 +122,7 @@ class TZprospect(DB.Model):
     indexzp = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
     date_min = DB.Column(DB.DateTime)
     date_max = DB.Column(DB.DateTime)
+    id_dataset = DB.Column(DB.Integer)
     cd_nom = DB.Column(
         DB.ForeignKey("taxonomie.taxref.cd_nom", onupdate="CASCADE"), nullable=False
     )

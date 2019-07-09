@@ -11,9 +11,13 @@ SET search_path = pr_priority_flora, pg_catalog, public;
 
 SET default_with_oids = false;
 
-------------------------
---TABLES AND SEQUENCES--
-------------------------
+----------------------------------------------------------------------------------------------------
+-- Insertion du jeu de données BCF dans t_datasets
+----------------------------------------------------------------------------------------------------
+
+INSERT INTO gn_meta.t_datasets
+(unique_dataset_id, id_acquisition_framework, dataset_name, dataset_shortname, dataset_desc, id_nomenclature_data_type, keywords, marine_domain, terrestrial_domain, id_nomenclature_dataset_objectif, bbox_west, bbox_east, bbox_south, bbox_north, id_nomenclature_collecting_method, id_nomenclature_data_origin, id_nomenclature_source_status, id_nomenclature_resource_type, default_validity, active, meta_create_date, meta_update_date)
+VALUES(uuid_generate_v4(), 0, 'Bilan Conservatoire Flore', 'BCF', 'Bilan Conservatoire Flore', ref_nomenclatures.get_default_nomenclature_value('DATA_TYP'::character varying), '', false, false, ref_nomenclatures.get_default_nomenclature_value('JDD_OBJECTIFS'::character varying), 0, 0, 0, 0, ref_nomenclatures.get_default_nomenclature_value('METHO_RECUEIL'::character varying), ref_nomenclatures.get_default_nomenclature_value('DS_PUBLIQUE'::character varying), ref_nomenclatures.get_default_nomenclature_value('STATUT_SOURCE'::character varying), ref_nomenclatures.get_default_nomenclature_value('RESOURCE_TYP'::character varying), false, true, '', '');
 
 ------------------------------------------------------------
 -- Table: t_zprospect
@@ -137,6 +141,81 @@ WITH (
   OIDS=FALSE
 );
 
+----------------------------------------------------------------------------------------------------
+-- Insertion de la table t_zprospect dans bib_tables_location
+----------------------------------------------------------------------------------------------------
+
+INSERT INTO gn_commons.bib_tables_location
+(table_desc, schema_name, table_name, pk_field, uuid_field_name)
+VALUES('Table centralisant les zones de prospection', 'pr_priority_flora', 't_zprospect', 'indexzp', 'unique_id_sinp_zp');
+
+----------------------------------------------------------------------------------------------------
+-- Fonction Trigger: actualisation de la table t_validations après l'ajout d'une zone de prospection
+----------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION pr_priority_flora.fct_trg_add_default_validation_status()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	theschema text := quote_ident(TG_TABLE_SCHEMA);
+	thetable text := quote_ident(TG_TABLE_NAME);
+	theidtablelocation int;
+	theuuidfieldname character varying(50);
+	theuuid uuid;
+  thecomment text := 'auto = default value';
+BEGIN
+  --Retrouver l'id de la table source stockant l'enregistrement en cours de validation
+	SELECT INTO theidtablelocation gn_commons.get_table_location_id(theschema,thetable);
+  --Retouver le nom du champ stockant l'uuid de l'enregistrement en cours de validation
+	SELECT INTO theuuidfieldname gn_commons.get_uuid_field_name(theschema,thetable);
+  --Récupérer l'uuid de l'enregistrement en cours de validation
+	EXECUTE format('SELECT $1.%I', theuuidfieldname) INTO theuuid USING NEW;
+  --Insertion du statut de validation et des informations associées dans t_validations
+  INSERT INTO gn_commons.t_validations (id_table_location,uuid_attached_row,id_nomenclature_valid_status,id_validator,validation_comment,validation_date)
+  VALUES(
+    theidtablelocation,
+    theuuid,
+    ref_nomenclatures.get_default_nomenclature_value('STATUT_VALID'), --comme la fonction est générique, cette valeur par défaut doit exister et est la même pour tous les modules
+    null,
+    thecomment,
+    NOW()
+  );
+  RETURN NEW;
+END;
+$function$
+;
+
+------------------------------------------------------------------------------------
+-- Trigger: Lancement actualisation de la table t_validations suite à l'ajout de ZP
+------------------------------------------------------------------------------------
+
+CREATE TRIGGER tri_insert_default_validation_status
+  AFTER INSERT
+  ON t_zprospect
+  FOR EACH ROW
+  EXECUTE PROCEDURE pr_priority_flora.fct_trg_add_default_validation_status();
+
+----------------------------------------------------------------------------------------------------
+-- Fonction Trigger: actualisation de la synthèse après l'ajout d'une zone de prospection
+----------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION pr_priority_flora.fct_trg_update_synthese_validation_status()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+-- This trigger function update validation informations in corresponding row in synthese table
+BEGIN
+  UPDATE gn_synthese.synthese 
+  SET id_nomenclature_valid_status = NEW.id_nomenclature_valid_status,
+  validation_comment = NEW.validation_comment,
+  validator = (SELECT nom_role || ' ' || prenom_role FROM utilisateurs.t_roles WHERE id_role = NEW.id_validator)::text
+  WHERE unique_id_sinp = NEW.uuid_attached_row;
+RETURN NEW;
+END;
+$function$
+;
+
 ------------------------------------------------------------
 -- Fonction Trigger: actualisation de cor_ap_area
 ------------------------------------------------------------
@@ -201,19 +280,25 @@ CREATE TRIGGER trg_cor_ap_area
 
 CREATE OR REPLACE FUNCTION pr_priority_flora.insert_zp()
   RETURNS trigger AS
-$BODY$
+$FUNCTION$
+DECLARE
+id_dataset integer;
 
 BEGIN
+
+-- Récupération du id_dataset
+SELECT INTO id_dataset d.id_dataset FROM gn_meta.t_datasets d WHERE dataset_name ILIKE 'Bilan Conservatoire Flore';
 
 IF new.indexzp in (SELECT indexzp FROM pr_priority_flora.t_zprospect) THEN
 	RETURN NULL;
 ELSE
 
-		new.geom_local = st_transform(new.geom_4326,2154);
+new.geom_local = st_transform(new.geom_4326,2154);
+		
 	RETURN NEW;
 END IF;	
 END;
-$BODY$
+$FUNCTION$
   LANGUAGE plpgsql VOLATILE
   COST 100;
 
@@ -244,7 +329,6 @@ $BODY$
 -- Trigger: Lancement actualisation des champs geom_local sur t_zprospect
 -----------------------------------------------------------------------------------------
 
-
 CREATE TRIGGER tri_insert_zp
   BEFORE INSERT
   ON pr_priority_flora.t_zprospect
@@ -255,12 +339,50 @@ CREATE TRIGGER tri_insert_zp
 -- Trigger: Lancement actualisation du champ geom_local sur t_apresence
 ------------------------------------------------------------------------
 
-
 CREATE TRIGGER tri_insert_ap
   BEFORE INSERT
   ON pr_priority_flora.t_apresence
   FOR EACH ROW
   EXECUTE PROCEDURE pr_priority_flora.insert_ap();
+
+------------------------------------------------------------------------
+-- Trigger: Lancement de l'historisation de la table t_apresence
+------------------------------------------------------------------------
+CREATE TRIGGER tri_log_changes_t_apresence
+  AFTER INSERT OR UPDATE OR DELETE
+  ON t_apresence
+  FOR EACH ROW
+  EXECUTE PROCEDURE gn_commons.fct_trg_log_changes();
+
+------------------------------------------------------------------------
+-- Trigger: Lancement de l'historisation de la table t_zprospect
+------------------------------------------------------------------------
+
+CREATE TRIGGER tri_log_changes_t_zprospect
+  AFTER INSERT OR UPDATE OR DELETE
+  ON t_zprospect
+  FOR EACH ROW
+  EXECUTE PROCEDURE gn_commons.fct_trg_log_changes();
+
+------------------------------------------------------------------------
+-- Trigger: Lancement de l'historisation de la table cor_zp_obs
+------------------------------------------------------------------------
+
+CREATE TRIGGER tri_log_changes_cor_zp_obs
+  AFTER INSERT OR UPDATE OR DELETE
+  ON cor_zp_obs
+  FOR EACH ROW
+  EXECUTE PROCEDURE gn_commons.fct_trg_log_changes();
+
+------------------------------------------------------------------------
+-- Trigger: Lancement de l'historisation de la table cor_ap_perturb
+------------------------------------------------------------------------
+
+CREATE TRIGGER tri_log_changes_cor_ap_perturb
+  AFTER INSERT OR UPDATE OR DELETE
+  ON cor_ap_perturb
+  FOR EACH ROW
+  EXECUTE PROCEDURE gn_commons.fct_trg_log_changes();
 
 ------------------------------------
 -- Vue: Création de la vue d'export
