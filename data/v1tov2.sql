@@ -59,9 +59,9 @@ return theidattribute;
 $function$
 ;
 
------------------------------------------------------------------------
+------------------------------------------------------------------------
 --Insertion des physionomies par taxon dans la table cor_taxon_attribut
------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 insert into taxonomie.cor_taxon_attribut (cd_ref, valeur_attribut, id_attribut)
 select distinct tx.cd_ref, string_agg(bp.nom_physionomie, '&') as valeur_atrribut, taxonomie.get_id_attribut('physionomie') 
@@ -72,4 +72,8 @@ join taxonomie.taxref tx on tx.cd_nom = tz.cd_nom
 join florepatri.bib_physionomies bp on bp.id_physionomie = cap.id_physionomie
 group by tx.cd_ref;
 
+-----------------------------------------------------------------------
+--Mise à jour du champ id_dataset dans la table_t_zprospect
+-----------------------------------------------------------------------
 
+UPDATE t_zprospect SET id_dataset=(SELECT MAX(id_dataset) FROM t_datasets);
