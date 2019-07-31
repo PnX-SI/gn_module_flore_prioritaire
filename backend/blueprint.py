@@ -77,7 +77,7 @@ def get_zprospect():
     if "year" in parameters:
         q = q.filter(func.date_part("year", TZprospect.date_min) == parameters["year"])
 
-    data = q.all()
+    data = q.limit(100)
     features = []
 
     for d in data:
@@ -185,6 +185,7 @@ def post_ap(id_ap=None):
         )
 
     for n in nomenclature_list:
+        print(n)
         ap.cor_ap_perturbation.append(n)
 
     # TODO: manque indexzp

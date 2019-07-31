@@ -29,6 +29,7 @@ class CorApPerturb(DB.Model):
         primary_key=True,
         nullable=False,
     )
+    effective = DB.Column(DB.Boolean)
     t_nomenclature = DB.relationship(
         TNomenclatures,
         primaryjoin=id_nomenclature == TNomenclatures.id_nomenclature,

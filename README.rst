@@ -1,12 +1,16 @@
 =================
-Flore prioritaire
+Bilan Conservatoire Flore
 =================
+
+/! En cours de développement !/
 
 Refonte du module GeoNature du protocole Flore Prioritaire (Base stationnel ?) du réseau Flore Sentinelle, piloté par le PNE et le CBNA. 
 
 Une liste d'espèces prioritaires est définie. Ces espèces sont prospectées sur le territoire. 
 
 Pour chaque prospection d'une espèce, on note la zone de prospection (ZP) et les éventuelles Aires de présence (AP).
+
+Pour chaque aire de présence, la quantité d’individus présents est mesurée par la fréquence d’occurrence de l’espèce. 
 
 Installation
 ============

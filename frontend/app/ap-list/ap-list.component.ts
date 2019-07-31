@@ -39,7 +39,8 @@ export class ApListComponent implements OnInit, OnDestroy {
     private toastr: ToastrService
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+  }
 
   onAddAp(idZP) {
     this.router.navigate(
@@ -48,15 +49,6 @@ export class ApListComponent implements OnInit, OnDestroy {
         idZP, 'form_ap'
       ]
     );
-    this.router.events.subscribe(e => {
-      this.storeService.leafletDrawOptions.draw.polygon = true;
-      this.storeService.leafletDrawOptions.draw.rectangle = true;
-      this.storeService.leafletDrawOptions.draw.marker = true;
-      this.storeService.leafletDrawOptions.draw.polyline = true;
-      this.storeService.leafletDrawOptions.edit.remove = true;
-    })
-
-
   }
 
   onEditAp(idZP, idAP) {

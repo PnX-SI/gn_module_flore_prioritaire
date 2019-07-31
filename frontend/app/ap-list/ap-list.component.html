@@ -22,17 +22,19 @@
             <p> <span> <strong>Identifiant Zone de prospection : </strong></span> <span class="strong ">
                     {{ storeService.indexZp }}
                 </span></p>
-            <p> <span><strong> Date : </strong></span> <span class="strong"> {{ storeService.dateMin }}</span></p>
-            <p> <span><strong> Observateur(s) : </strong></span> <span class="strong"
-                    *ngFor="let obs of storeService.observateur"> {{obs}}
+            <p> <span><i class="fa fa-calendar" aria-hidden="true"></i><strong> Date : </strong></span> <span
+                    class="strong"> {{ storeService.dateMin }}</span></p>
+            <p> <span><i class="fa fa-search" aria-hidden="true"></i><strong> Observateur(s) : </strong></span> <span
+                    class="strong" *ngFor="let obs of storeService.observateur"> {{obs}}
                 </span></p>
-            <p> <span><strong> Taxon : </strong></span> <span class="strong"> {{ storeService.taxons }} </span></p>
+            <p> <span><i class="fa fa-pagelines" aria-hidden="true"></i><strong> Taxon : </strong></span> <span
+                    class="strong"> {{ storeService.taxons }} </span></p>
         </div>
         <div class="tab-pane modal-header list-group-item " id="details" role="tabpanel">
             <p> <span><strong> Nom du site : </strong></span> <span class="strong"> {{ storeService.indexZp }} </span>
             </p>
-            <p> <span><strong> Commune(s) : </strong></span> <span class="strong"
-                    *ngFor="let com of storeService.nomCommune"> {{com}}
+            <p> <span><i class="fa fa-map-marker" aria-hidden="true"></i><strong> Commune(s) : </strong></span> <span
+                    class="strong" *ngFor="let com of storeService.nomCommune"> {{com}}
                 </span></p>
         </div>
     </div>

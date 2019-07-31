@@ -17,7 +17,7 @@ SET default_with_oids = false;
 
 INSERT INTO gn_meta.t_acquisition_frameworks
 (acquisition_framework_name, acquisition_framework_desc, id_nomenclature_territorial_level, territory_desc, keywords, id_nomenclature_financing_type, target_description, ecologic_or_geologic_target, acquisition_framework_parent_id, is_parent, acquisition_framework_start_date, acquisition_framework_end_date, meta_create_date, meta_update_date)
-VALUES('', '', ref_nomenclatures.get_default_nomenclature_value('NIVEAU_TERRITORIAL'::character varying), '', '', ref_nomenclatures.get_default_nomenclature_value('TYPE_FINANCEMENT'::character varying), '', '', 0, false, '', '', '', '');
+VALUES('Flore prioritaire', '', ref_nomenclatures.get_default_nomenclature_value('NIVEAU_TERRITORIAL'::character varying), '', '', ref_nomenclatures.get_default_nomenclature_value('TYPE_FINANCEMENT'::character varying), '', '', 0, false, '', '', '', '');
 
 ----------------------------------------------------------------------------------------------------
 -- Insertion du jeu de données BCF dans t_datasets

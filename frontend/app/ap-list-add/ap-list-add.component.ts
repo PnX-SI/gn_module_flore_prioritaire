@@ -44,11 +44,6 @@ export class ApListAddComponent implements OnInit, OnChanges {
   ngOnInit() {
 
     this.ApFormGroup = this.formService.initFormAp();
-
-    this.router.events.subscribe(e => {
-      console.log('route change');
-
-    })
   }
 
   ngAfterViewInit() {
@@ -60,6 +55,7 @@ export class ApListAddComponent implements OnInit, OnChanges {
       data => {
         this.storeService.zp = data['zp'];
         this.storeService.sites = data['aps'];
+
         this.mapListService.loadTableData(data['aps']);
         this.filteredData = this.mapListService.tableData;
         this.dataLoaded = true;
@@ -119,7 +115,8 @@ export class ApListAddComponent implements OnInit, OnChanges {
     this.geojsonZp = this.storeService.zp.features[0];
     this.geojsonAp = geojson;
     if (this.storeService.booleanContains(this.geojsonZp, this.geojsonAp)) {
-      this.ApFormGroup.patchValue({ geom_4326: geojson.geometry })
+      this.storeService.disableForm = false;
+      this.ApFormGroup.patchValue({ geom_4326: geojson.geometry });
     } else {
       this.mapService.removeAllLayers(this.mapService.map, this.mapService.leafletDrawFeatureGroup);
 
@@ -156,4 +153,14 @@ export class ApListAddComponent implements OnInit, OnChanges {
   onEachZp(feature, layer) {
     layer.setStyle({ 'color': '#F4D03F', 'fillOpacity': 0, 'weight': 4 })
   }
+
+  formDisabled() {
+    if (this.storeService.disableForm) {
+      this._commonService.translateToaster(
+        "warning",
+        "Releve.FillGeometryFirst"
+      );
+    }
+  }
+
 }

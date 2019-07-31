@@ -24,7 +24,7 @@ import { ModuleConfig } from "../module.config";
   providers: []
 })
 export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
-
+  public perts: any;
   private ApFormGroup: FormGroup;
   public leafletDrawOptions = leafletDrawOption;
   public site;
@@ -55,9 +55,12 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     public ngbModal: NgbModal,
     public api: DataService,
     public storeService: StoreService,
-    public activatedRoute: ActivatedRoute
+    public activatedRoute: ActivatedRoute,
+    public mapListService: MapListService
   ) { }
-
+  perturbChange(event) {
+    this.perts = event;
+  }
   ngOnInit() {
     this.idAp = this.activatedRoute.snapshot.params['indexap'];
 
@@ -67,7 +70,6 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ApFormGroup.patchValue({ indexzp: url.split('/')[3] });
     // subscription to the geojson observable
     this.geojsonSubscription$ = this.mapService.gettingGeojson$.subscribe(geojson => {
-      console.log('EVENT')
       this.ApFormGroup.patchValue({ geom_4326: geojson.geometry });
       this.geojson = geojson;
 
@@ -151,6 +153,8 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
         this.toastr.success('Aire de présence enregistrée', '', {
           positionClass: 'toast-top-center'
         });
+        // ajout (logique) à la liste pour ne pas refaire d'appel serveur
+        this.mapListService.tableData.push(apForm);
         this.router.navigate([`${ModuleConfig.MODULE_URL}/zp`, data.properties.indexzp, `info_zp`]);
 
       });

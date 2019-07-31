@@ -9,6 +9,7 @@ import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { AppConfig } from '@geonature_config/app.config';
 import { CommonService } from "@geonature_common/service/common.service";
+import { Router } from "@angular/router";
 
 @Injectable()
 export class StoreService {
@@ -31,7 +32,8 @@ export class StoreService {
   public altitude_max;
   public fpConfig = ModuleConfig;
   public leafletDrawOptions = leafletDrawOption;
-  public showDraw = false;
+  public showLeafletDraw = false;
+  public disableForm = true;
   public paramApp = new HttpParams().append(
     "id_application",
     ModuleConfig.ID_MODULE
@@ -47,8 +49,18 @@ export class StoreService {
     public _api: DataService,
     public mapListService: MapListService,
     private _commonService: CommonService,
-    private _modalService: NgbModal
-  ) { }
+    private _modalService: NgbModal,
+    private _router: Router
+  ) {
+    this._router.events.subscribe(data => {
+      const url = (data as any).url.split('/');
+      if (url[url.length - 1] == 'form_ap') {
+        this.showLeafletDraw = true;
+      } else if (url[url.length - 1] == 'info_zp') {
+        this.showLeafletDraw = false;
+      }
+    })
+  }
 
   public presence = 0;
 
@@ -60,15 +72,22 @@ export class StoreService {
     this._modalService.open(content);
   }
 
+  formDisabled() {
+    if (this.disableForm) {
+      this._commonService.translateToaster(
+        "warning",
+        "Releve.FillGeometryFirst");
+    }
+  }
   booleanContains(feature1, feature2) {
     const type2 = feature2.geometry.type;
     switch (type2) {
       case "Point":
-        return this.booleanPointInPolygon(feature2, feature1, { ignoreBoundary: true });
+        return this.booleanPointInPolygon({ type: "Point", coordinates: midPoint }, feature1, { ignoreBoundary: true });
       case "Polygon":
         return this.isPolyInPoly(feature1, feature2);
       case "LineString":
-        return isLineInPoly(feature1, feature1);
+        return this.isLineInPoly(feature1, feature2);
       default:
         throw new Error("feature2 " + type2 + " geometry not supported");
     }

@@ -16,6 +16,7 @@ fi
 # Copy SQL files into /tmp system folder in order to edit it with variables
 cp data/FP_nomenclatures.sql /tmp/FP_nomenclatures.sql
 cp data/FP.sql /tmp/FP.sql
+cp data/sample_data.sql /tmp/sample_data.sql
 
 sudo sed -i "s/MY_SRID_WORLD/$srid_world/g" /tmp/FP.sql
 
@@ -26,6 +27,11 @@ export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f /tmp
 # Create  schema priority flora into GeoNature database
 export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f /tmp/FP.sql &>> var/log/install_bs.log
 
+# Insert sample data in schema priority flora 
+export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f /tmp/sample_data.sql &>> var/log/install_bs.log
+
+
 # Remove temporary files
 rm /tmp/FP.sql
 rm /tmp/FP_nomenclatures.sql
+rm /tmp/sample_data.sql
