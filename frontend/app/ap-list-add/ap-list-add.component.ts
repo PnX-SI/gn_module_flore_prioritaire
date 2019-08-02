@@ -1,15 +1,15 @@
-import { NgModule, Component, OnInit, OnDestroy, OnChanges } from "@angular/core";
-import { RouterModule, Router, Routes, ActivatedRoute } from "@angular/router";
+import { Component, OnInit, OnChanges, ViewChild, AfterViewInit } from "@angular/core";
+import { Router, ActivatedRoute } from "@angular/router";
 import { ToastrService } from "ngx-toastr";
 import * as L from "leaflet";
-import { CommonService } from "@geonature_common/service/common.service";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { FormGroup } from "@angular/forms";
 import { MapListService } from "@geonature_common/map-list/map-list.service";
 import { MapService } from "@geonature_common/map/map.service";
 import { DataService } from "../services/data.service";
 import { FormService } from "../services/form.service";
 import { StoreService } from "../services/store.service";
-import { ModuleConfig } from "../module.config";
+import { LeafletDrawComponent } from '@geonature_common/map/leaflet-draw/leaflet-draw.component';
+
 
 
 @Component({
@@ -18,7 +18,7 @@ import { ModuleConfig } from "../module.config";
   styleUrls: ["./ap-list-add.component.scss"],
   providers: [MapListService]
 })
-export class ApListAddComponent implements OnInit, OnChanges {
+export class ApListAddComponent implements OnInit, OnChanges, AfterViewInit {
 
   public currentSite = {};
   public idAp;
@@ -27,6 +27,11 @@ export class ApListAddComponent implements OnInit, OnChanges {
   public dataLoaded = false;
   public geojsonZp;
   public geojsonAp;
+  public leafletAlreadyEnable;
+  public currentAp;
+  public currentApProvisoire;
+  @ViewChild("drawComponent") public drawComponent: LeafletDrawComponent;
+
 
   constructor(
     public mapService: MapService,
@@ -34,19 +39,58 @@ export class ApListAddComponent implements OnInit, OnChanges {
     public storeService: StoreService,
     public router: Router,
     public _api: DataService,
-    private _fb: FormBuilder,
-    private _commonService: CommonService,
     public activatedRoute: ActivatedRoute,
     public mapListService: MapListService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+
   ) { }
 
   ngOnInit() {
 
     this.ApFormGroup = this.formService.initFormAp();
+
+    this.mapListService.onMapClik$.subscribe(currentId => {
+      this.currentApProvisoire = this.storeService.sites.features.filter(ap => {
+        return ap.id == currentId
+      });
+      if (this.currentApProvisoire.length > 0) {
+        this.currentApProvisoire = this.currentApProvisoire[0].geometry
+      }
+    });
+
+    this.mapListService.onTableClick$.subscribe(currentId => {
+      this.currentApProvisoire = this.storeService.sites.features.filter(ap => {
+        return ap.id == currentId
+      });
+      if (this.currentApProvisoire.length > 0) {
+        this.currentApProvisoire = this.currentApProvisoire[0].geometry
+      }
+    })
   }
 
   ngAfterViewInit() {
+    const url = this.router.url.split('/');
+
+    if (url[url.length - 1] == 'info_zp') {
+      this.leafletAlreadyEnable = false;
+      this.drawComponent.disableLeafletDraw();
+    }
+
+
+    this.router.events.subscribe(data => {
+      const url = (data as any).url.split('/');
+      if (url[url.length - 1] == 'form_ap' || url[url.length - 2] == 'form_ap') {
+        if (!this.leafletAlreadyEnable) {
+          this.currentAp = this.currentApProvisoire;
+          this.drawComponent.enableLeafletDraw();
+          this.leafletAlreadyEnable = true;
+        }
+      } else if (url[url.length - 1] == 'info_zp') {
+        this.leafletAlreadyEnable = false;
+        this.drawComponent.disableLeafletDraw();
+      }
+    })
+
     this.mapService.map.doubleClickZoom.disable();
     this.storeService.idSite = this.activatedRoute.snapshot.params['idZP'];
     this.mapListService.idName = 'indexap';
@@ -154,13 +198,5 @@ export class ApListAddComponent implements OnInit, OnChanges {
     layer.setStyle({ 'color': '#F4D03F', 'fillOpacity': 0, 'weight': 4 })
   }
 
-  formDisabled() {
-    if (this.storeService.disableForm) {
-      this._commonService.translateToaster(
-        "warning",
-        "Releve.FillGeometryFirst"
-      );
-    }
-  }
 
 }

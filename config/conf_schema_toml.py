@@ -34,7 +34,7 @@ default_list_ap_columns = [
 ]
 
 default_ap_columns = [
-    {"name": "Fréquence", "prop": "nb_transects_frequency"},
+    {"name": "Fréquence", "prop": "frequency"},
     {"name": "Altitude", "prop": "altitude_min"},
     {"name": "Altitude max", "prop": "altitude_max"},
 ]

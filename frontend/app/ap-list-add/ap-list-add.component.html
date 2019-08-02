@@ -6,7 +6,7 @@
             <pnx-geojson #geojson [onEachFeature]="onEachFeature.bind(this)" [geojson]="storeService.sites">
             </pnx-geojson>
             <div>
-                <pnx-leaflet-draw *ngIf="storeService.showLeafletDraw" [zoomLevel]="1"
+                <pnx-leaflet-draw #drawComponent [zoomLevel]="1" [geojson]="currentAp"
                     (layerDrawed)="sendGeoInfo($event)" (layerDeleted)="deleteControlValue()">
                 </pnx-leaflet-draw>
             </div>

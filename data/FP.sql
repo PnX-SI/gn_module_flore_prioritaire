@@ -17,7 +17,7 @@ SET default_with_oids = false;
 
 INSERT INTO gn_meta.t_acquisition_frameworks
 (acquisition_framework_name, acquisition_framework_desc, id_nomenclature_territorial_level, territory_desc, keywords, id_nomenclature_financing_type, target_description, ecologic_or_geologic_target, acquisition_framework_parent_id, is_parent, acquisition_framework_start_date, acquisition_framework_end_date, meta_create_date, meta_update_date)
-VALUES('Flore prioritaire', '', ref_nomenclatures.get_default_nomenclature_value('NIVEAU_TERRITORIAL'::character varying), '', '', ref_nomenclatures.get_default_nomenclature_value('TYPE_FINANCEMENT'::character varying), '', '', 0, false, '', '', '', '');
+VALUES('Flore prioritaire', 'Flore prioritaire', ref_nomenclatures.get_id_nomenclature('NIVEAU_TERRITORIAL', '4'), 'Réseau Alpes Ain conservation de la flore', 'Flore prioritaire, flore, bilan stationnel', ref_nomenclatures.get_id_nomenclature('TYPE_FINANCEMENT', '1'), 'Flore', null, null, false, '2008-01-01', null, '2019-08-01 10:57:44.45879', null);
 
 ----------------------------------------------------------------------------------------------------
 -- Insertion du jeu de données BCF dans t_datasets
@@ -27,8 +27,8 @@ WITH max_acquisition_framework AS (
 ) 
 
 INSERT INTO gn_meta.t_datasets
-( id_acquisition_framework, dataset_name, dataset_shortname, dataset_desc, id_nomenclature_data_type, keywords, marine_domain, terrestrial_domain, id_nomenclature_dataset_objectif, bbox_west, bbox_east, bbox_south, bbox_north, id_nomenclature_collecting_method, id_nomenclature_data_origin, id_nomenclature_source_status, id_nomenclature_resource_type, default_validity, active, meta_create_date, meta_update_date)
-VALUES(max_acquisition_framework.id_acquisition_framework, 'Bilan Conservatoire Flore', 'BCF', 'Bilan Conservatoire Flore', ref_nomenclatures.get_default_nomenclature_value('DATA_TYP'::character varying), '', false, false, ref_nomenclatures.get_default_nomenclature_value('JDD_OBJECTIFS'::character varying), 0, 0, 0, 0, ref_nomenclatures.get_default_nomenclature_value('METHO_RECUEIL'::character varying), ref_nomenclatures.get_default_nomenclature_value('DS_PUBLIQUE'::character varying), ref_nomenclatures.get_default_nomenclature_value('STATUT_SOURCE'::character varying), ref_nomenclatures.get_default_nomenclature_value('RESOURCE_TYP'::character varying), false, true, '', '');
+( id_acquisition_framework, dataset_name, dataset_shortname, dataset_desc, id_nomenclature_data_type, keywords, marine_domain, terrestrial_domain, id_nomenclature_dataset_objectif, bbox_west, bbox_east, bbox_south, bbox_north, id_nomenclature_collecting_method, id_nomenclature_data_origin, id_nomenclature_source_status, id_nomenclature_resource_type, default_validity, meta_create_date, meta_update_date)
+VALUES((SELECT id_acquisition_framework FROM max_acquisition_framework), 'Bilan Conservatoire Flore', 'BCF', 'Bilan Conservatoire Flore', ref_nomenclatures.get_id_nomenclature('DATA_TYP', '1'), 'Flore prioritaire, flore, bilan stationnel', false, true, ref_nomenclatures.get_id_nomenclature('JDD_OBJECTIFS', '1.1'), 4.85695, 6.85654, 44.5020, 45.25, ref_nomenclatures.get_id_nomenclature('METHO_RECUEIL', '1'), ref_nomenclatures.get_id_nomenclature('DS_PUBLIQUE', 'Pu'), ref_nomenclatures.get_id_nomenclature('STATUT_SOURCE', 'Te'), ref_nomenclatures.get_id_nomenclature('RESOURCE_TYP', '1'), true, '2019-08-01 10:57:44.45879', null);
 
 ----------------------------------------------------------------------------------------------------
 -- Insertion de la source dans t_sources
@@ -36,12 +36,12 @@ VALUES(max_acquisition_framework.id_acquisition_framework, 'Bilan Conservatoire 
 
 INSERT INTO gn_synthese.t_sources
 (name_source, desc_source, entity_source_pk_field, url_source, validable, meta_create_date, meta_update_date)
-VALUES('', '', '', '', true, now(), now());
+VALUES('Bilan Conservatoire Flore', 'Bilan Conservatoire Flore', null, null, true, now(), now());
 
 ------------------------------------------------------------
 -- Table: t_zprospect
 ------------------------------------------------------------
-
+CREATE SEQUENCE t_zprospect_indexzp_seq START 1;
 CREATE TABLE pr_priority_flora.t_zprospect(
 	indexzp             bigserial NOT NULL,
 	date_min            DATE,
@@ -167,6 +167,10 @@ WITH (
 INSERT INTO gn_commons.bib_tables_location
 (table_desc, schema_name, table_name, pk_field, uuid_field_name)
 VALUES('Table centralisant les zones de prospection', 'pr_priority_flora', 't_zprospect', 'indexzp', 'unique_id_sinp_zp');
+
+INSERT INTO gn_commons.bib_tables_location
+(table_desc, schema_name, table_name, pk_field, uuid_field_name)
+VALUES('Table centralisant les aires de présence', 'pr_priority_flora', 't_apresence', 'indexap', 'unique_id_sinp_ap');
 
 ------------------------------------------------------------------------------------
 -- Trigger: Lancement actualisation de la table t_validations suite à l'ajout de ZP
@@ -324,31 +328,11 @@ CREATE TRIGGER tri_log_changes_t_zprospect
   FOR EACH ROW
   EXECUTE PROCEDURE gn_commons.fct_trg_log_changes();
 
-------------------------------------------------------------------------
--- Trigger: Lancement de l'historisation de la table cor_zp_obs
-------------------------------------------------------------------------
-
-CREATE TRIGGER tri_log_changes_cor_zp_obs
-  AFTER INSERT OR UPDATE OR DELETE
-  ON cor_zp_obs
-  FOR EACH ROW
-  EXECUTE PROCEDURE gn_commons.fct_trg_log_changes();
-
-------------------------------------------------------------------------
--- Trigger: Lancement de l'historisation de la table cor_ap_perturb
-------------------------------------------------------------------------
-
-CREATE TRIGGER tri_log_changes_cor_ap_perturb
-  AFTER INSERT OR UPDATE OR DELETE
-  ON cor_ap_perturb
-  FOR EACH ROW
-  EXECUTE PROCEDURE gn_commons.fct_trg_log_changes();
-
 ------------------------------------
 -- Vue: Création de la vue d'export
 ------------------------------------
 
-DROP VIEW pr_priority_flora.export_ap;
+DROP VIEW IF EXISTS pr_priority_flora.export_ap;
 
 CREATE OR REPLACE VIEW pr_priority_flora.export_ap AS 
 WITH
@@ -452,7 +436,7 @@ BEGIN
     -- on récupére l'id_synthese
     SELECT INTO theidsynthese id_synthese 
     FROM gn_synthese.synthese
-    WHERE id_source = (SELECT id_source FROM gn_synthese.t_sources WHERE name_source ILIKE 'Bilan Conservatoire Flore') 
+    WHERE id_source = (SELECT id_source FROM gn_synthese.t_sources WHERE name_source ILIKE 'Bilan Conservatoire Flore' LIMIT 1) 
     AND entity_source_pk_value = CAST(mesap.indexap AS VARCHAR);
     --on fait le update du champ observateurs dans synthese
     UPDATE gn_synthese.synthese
@@ -482,6 +466,8 @@ DECLARE
 	thecomptagemethodo INTEGER;
   thetaxrefversion VARCHAR;
 	thestadevie INTEGER;
+  thecodephenology VARCHAR;
+
   --theidprecision INTEGER;
 BEGIN
   SELECT INTO thezp * FROM pr_priority_flora.t_zprospect WHERE indexzp = new.indexzp;
@@ -493,34 +479,29 @@ BEGIN
   JOIN pr_priority_flora.t_zprospect zp ON zp.indexzp = c.indexzp
   WHERE c.indexzp = new.indexzp;
 
+
 	--Récupération du stade de vie
-    IF (new.id_nomenclatures_phenology) THEN 
-	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','132') INTO thestadevie;
-    ELSIF (new.id_nomenclatures_phenology) THEN
-	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','128') INTO thestadevie;
-    ELSIF (new.id_nomenclatures_phenology) THEN
-	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','129') INTO thestadevie;
-    ELSIF (new.id_nomenclatures_phenology) THEN
-	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','127') INTO thestadevie;
-    ELSIF (new.id_nomenclatures_phenology) THEN
-	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','130') INTO thestadevie;
-    ELSIF (new.id_nomenclatures_phenology) THEN
-	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','132') INTO thestadevie;
-    ELSIF (new.id_nomenclatures_phenology) THEN
+
+SELECT INTO thecodephenology FROM ref_nomenclatures.get_cd_nomenclature(new.id_nomenclatures_phenology);
+
+    IF (thecodephenology='1') THEN 
+	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','18') INTO thestadevie;
+    ELSIF (thecodephenology='2') THEN
+	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','25') INTO thestadevie;
+    ELSIF (thecodephenology='3') THEN
+	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','5') INTO thestadevie;
+    ELSIF (thecodephenology='4') THEN
+	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','2') INTO thestadevie;
+    ELSIF (thecodephenology='5') THEN
 	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','19') INTO thestadevie;
-    ELSIF (new.id_nomenclatures_phenology) THEN
-	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','131') INTO thestadevie;
+    ELSIF (thecodephenology='6') THEN
+	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','20') INTO thestadevie;
+    ELSIF (thecodephenology='7') THEN
+	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','0') INTO thestadevie;
+    ELSIF (thecodephenology='8') THEN
+	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','1') INTO thestadevie;
     ELSE
       SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','0') INTO thestadevie;
-    END IF;
-
-	--Récupération de la méthode de comptage
-    IF (new.id_nomenclatures_counting) THEN 
-	    SELECT ref_nomenclatures.get_id_nomenclature('TYP_DENBR','Co') INTO thecomptagemethodo;
-    ELSIF (new.id_nomenclatures_counting) THEN
-	    SELECT ref_nomenclatures.get_id_nomenclature('TYP_DENBR','Ca') INTO thecomptagemethodo;
-    ELSE
-      SELECT ref_nomenclatures.get_id_nomenclature('TYP_DENBR','NSP') INTO thecomptagemethodo;
     END IF;
 
   --Récupération de la version taxref
@@ -571,7 +552,7 @@ BEGIN
     ( 
       new.unique_id_sinp_ap,
       thezp.unique_id_sinp_zp,
-      104, --TODO 104 = PNE
+      (SELECT id_source FROM gn_synthese.t_sources WHERE name_source ILIKE 'Bilan Conservatoire Flore' LIMIT 1),
       new.indexap,
       thezp.id_dataset,
       ref_nomenclatures.get_id_nomenclature('NAT_OBJ_GEO','In'),
@@ -584,8 +565,8 @@ BEGIN
       ref_nomenclatures.get_id_nomenclature('NIV_PRECIS','5'),
       thestadevie,
       ref_nomenclatures.get_id_nomenclature('SEXE','6'),
-      ref_nomenclatures.get_id_nomenclature('OBJ_DENBR','NSP'),
-      thecomptagemethodo,
+      new.id_nomenclatures_counting,
+      ref_nomenclatures.get_id_nomenclature('TYP_DENBR','NSP'),
       NULL,--todo sensitivity
       ref_nomenclatures.get_id_nomenclature('STATUT_OBS','Pr'),
       ref_nomenclatures.get_id_nomenclature('DEE_FLOU','NON'),
@@ -600,7 +581,7 @@ BEGIN
       new.altitude_max,--altitude_max
       new.geom_4326,
       new.geom_point_4326,
-      new.the_geom_local,
+      new.geom_local,
       thezp.date_min,--date_min
       thezp.date_max,--date_max
       theobservers,--observers
@@ -617,13 +598,13 @@ COST 100;
 -----------------------------------------------------------------------
 -- Fonction Trigger: mise à jour de l'ap dans la synthèse 
 -----------------------------------------------------------------------
-
+DROP FUNCTION pr_priority_flora.update_synthese_ap();
 CREATE OR REPLACE FUNCTION pr_priority_flora.update_synthese_ap()
   RETURNS trigger AS
 $BODY$
 DECLARE
-	thecomptagemethodo INTEGER;
   thestadevie INTEGER;
+  thecodephenology VARCHAR;
   --theidprecision integer;
 BEGIN
   --On ne fait qq chose que si l'un des champs de la table t_apresence concerné dans gn_synthese.synthese a changé
@@ -640,42 +621,37 @@ BEGIN
     OR new.total_max <> old.total_max 
     OR (NOT public.st_equals(new.geom_local,old.geom_local) OR NOT public.st_equals(new.geom_4326,old.geom_4326) OR NOT public.st_equals(new.geom_point_4326,old.geom_point_4326))
   ) THEN
+
 	--Récupération du stade de vie
-    IF (new.id_nomenclatures_phenology) THEN 
-	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','132') INTO thestadevie;
-    ELSIF (new.id_nomenclatures_phenology) THEN
-	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','128') INTO thestadevie;
-    ELSIF (new.id_nomenclatures_phenology) THEN
-	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','129') INTO thestadevie;
-    ELSIF (new.id_nomenclatures_phenology) THEN
-	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','127') INTO thestadevie;
-    ELSIF (new.id_nomenclatures_phenology) THEN
-	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','130') INTO thestadevie;
-    ELSIF (new.id_nomenclatures_phenology) THEN
-	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','132') INTO thestadevie;
-    ELSIF (new.id_nomenclatures_phenology) THEN
+  SELECT INTO thecodephenology FROM ref_nomenclatures.get_cd_nomenclature(new.id_nomenclatures_phenology);
+
+    IF (thecodephenology='1') THEN 
+	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','18') INTO thestadevie;
+    ELSIF (thecodephenology='2') THEN
+	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','25') INTO thestadevie;
+    ELSIF (thecodephenology='3') THEN
+	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','5') INTO thestadevie;
+    ELSIF (thecodephenology='4') THEN
+	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','2') INTO thestadevie;
+    ELSIF (thecodephenology='5') THEN
 	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','19') INTO thestadevie;
-    ELSIF (new.id_nomenclatures_phenology) THEN
-	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','131') INTO thestadevie;
+    ELSIF (thecodephenology='6') THEN
+	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','20') INTO thestadevie;
+    ELSIF (thecodephenology='7') THEN
+	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','0') INTO thestadevie;
+    ELSIF (thecodephenology='8') THEN
+	    SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','1') INTO thestadevie;
     ELSE
       SELECT ref_nomenclatures.get_id_nomenclature('STADE_VIE','0') INTO thestadevie;
     END IF;
 
-	--Récupération de la méthode de comptage
-    IF (new.id_nomenclatures_counting) THEN 
-	    SELECT ref_nomenclatures.get_id_nomenclature('TYP_DENBR','Co') INTO thecomptagemethodo;
-    ELSIF (new.id_nomenclatures_counting) THEN
-	    SELECT ref_nomenclatures.get_id_nomenclature('TYP_DENBR','Ca') INTO thecomptagemethodo;
-    ELSE
-      SELECT ref_nomenclatures.get_id_nomenclature('TYP_DENBR','NSP') INTO thecomptagemethodo;
-    END IF;
-
+	
     UPDATE gn_synthese.synthese
     SET 
       --id_precision = monidprecision,
       entity_source_pk_value = new.indexap,
       unique_id_sinp = new.unique_id_sinp_ap,
-      id_nomenclature_type_count = thecomptagemethodo,
+      id_nomenclature_obj_count = new.id_nomenclatures_counting,
       id_nomenclature_life_stage = thestadevie,
       altitude_min = new.altitude_min,
       altitude_max = new.altitude_max,
@@ -686,7 +662,7 @@ BEGIN
       the_geom_4326 = new.geom_4326,
       the_geom_local = new.geom_local,
       the_geom_point = new.geom_point_4326
-    WHERE id_source = (SELECT id_source FROM gn_synthese.t_sources WHERE name_source ILIKE 'Bilan Conservatoire Flore') 
+    WHERE id_source = (SELECT id_source FROM gn_synthese.t_sources WHERE name_source ILIKE 'Bilan Conservatoire Flore' LIMIT 1) 
     AND entity_source_pk_value = CAST(old.indexap AS VARCHAR);
   END IF;
   RETURN NEW;       
@@ -730,7 +706,7 @@ BEGIN
           date_min = new.date_min,
           date_max = new.date_max,
           last_action = 'u'
-        WHERE id_source = (SELECT id_source FROM gn_synthese.t_sources WHERE name_source ILIKE 'Bilan Conservatoire Flore') 
+        WHERE id_source = (SELECT id_source FROM gn_synthese.t_sources WHERE name_source ILIKE 'Bilan Conservatoire Flore' LIMIT 1) 
         AND entity_source_pk_value = CAST(mesap.indexap AS VARCHAR);
     END IF;
   END LOOP;

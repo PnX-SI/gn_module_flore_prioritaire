@@ -6,6 +6,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModuleConfig } from '../module.config';
 import { DataService } from "../services/data.service";
 import { MapListService } from '@geonature_common/map-list/map-list.service';
+import { MapService } from "@geonature_common/map/map.service";
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { AppConfig } from '@geonature_config/app.config';
 import { CommonService } from "@geonature_common/service/common.service";
@@ -15,7 +16,6 @@ import { Router } from "@angular/router";
 export class StoreService {
   public currentLayer: Layer;
   public sites;
-  public map_zp: Map;
   public zp;
   public idSite;
   public dataLoaded = false;
@@ -44,22 +44,15 @@ export class StoreService {
     fillOpacity: 0.2,
     weight: 3
   };
-
   constructor(
     public _api: DataService,
     public mapListService: MapListService,
     private _commonService: CommonService,
     private _modalService: NgbModal,
-    private _router: Router
+    private _router: Router,
+    private _mapService: MapService
   ) {
-    this._router.events.subscribe(data => {
-      const url = (data as any).url.split('/');
-      if (url[url.length - 1] == 'form_ap') {
-        this.showLeafletDraw = true;
-      } else if (url[url.length - 1] == 'info_zp') {
-        this.showLeafletDraw = false;
-      }
-    })
+
   }
 
   public presence = 0;
@@ -83,7 +76,7 @@ export class StoreService {
     const type2 = feature2.geometry.type;
     switch (type2) {
       case "Point":
-        return this.booleanPointInPolygon({ type: "Point", coordinates: midPoint }, feature1, { ignoreBoundary: true });
+        return this.booleanPointInPolygon(feature2, feature1, { ignoreBoundary: true });
       case "Polygon":
         return this.isPolyInPoly(feature1, feature2);
       case "LineString":
@@ -125,12 +118,12 @@ export class StoreService {
   }
 
   booleanPointInPolygon(point, polygon, options: { ignoreBoundary?: boolean, } = {}, ) {
-    const pt = point;
+    const pt = point.geometry.coordinates;
     const geom = polygon.geometry;
     const type = geom.type;
     const bbox = polygon.bbox;
-    let polys: any[] = geom.coordinates;
 
+    let polys: any[] = geom.coordinates;
     // Quick elimination if point is not inside bbox
     if (bbox && this.inBBox(pt, bbox) === false) {
       return false;
@@ -169,9 +162,11 @@ export class StoreService {
     if (!this.doBBoxOverlap(polyBbox, lineBbox)) {
       return false;
     }
-    for (i; i < linestring.coordinates.length - 1; i++) {
-      const midPoint = this.getMidpoint(linestring.coordinates[i], linestring.coordinates[i + 1]);
-      if (this.booleanPointInPolygon({ type: "Point", coordinates: midPoint }, polygon, { ignoreBoundary: true })) {
+    for (i; i < linestring.geometry.coordinates.length - 1; i++) {
+
+      const midPoint = this.getMidpoint(linestring.geometry.coordinates[i], linestring.geometry.coordinates[i + 1]);
+      const ptGeojson = { type: "Point", geometry: { coordinates: midPoint } };
+      if (this.booleanPointInPolygon(ptGeojson, polygon, { ignoreBoundary: true })) {
         output = true;
         break;
       }
@@ -184,7 +179,7 @@ export class StoreService {
   }
 
 
-  inRing(pt, ring, ignoreBoundary?) {
+  inRing(pt: number[], ring: number[][], ignoreBoundary?: boolean) {
     let isInside = false;
     if (ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1]) {
       ring = ring.slice(0, ring.length - 1);
