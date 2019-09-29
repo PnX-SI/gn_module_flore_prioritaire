@@ -2,7 +2,7 @@
 BILAN CONSERVATOIRE FLORE
 =========================
 
-Refonte du module GeoNature du protocole Flore Prioritaire renommé "Bilan Conservatoire Flore" du réseau Flore Sentinelle, piloté par le PNE et le CBNA. 
+Refonte du module GeoNature du protocole Flore Prioritaire renommé "Bilan Conservatoire Flore" du réseau Flore Sentinelle, piloté par le PNE et le CBNA. Développé par @richardvergely (https://geonature.fr/documents/2019-09-Richard-Vergely-veille-technologique-GeoNature.pdf).
 
 Une liste d'espèces prioritaires est définie. Ces espèces sont prospectées sur le territoire. 
 
@@ -24,7 +24,7 @@ Licence
 =======
 
 * OpenSource - GPL-3.0
-* Copyleft 2018 - Parc National des Écrins
+* Copyleft 2018-2019 - Parc National des Écrins
 
 .. image:: http://geonature.fr/img/logo-pne.jpg
     :target: http://www.ecrins-parcnational.fr
