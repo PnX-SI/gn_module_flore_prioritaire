@@ -1,18 +1,14 @@
-from flask import current_app
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.dialects.postgresql import UUID
 from geoalchemy2 import Geometry
 from pypnusershub.db.models import User
 
 from geonature.utils.env import DB
-from geonature.utils.utilssqlalchemy import serializable, geoserializable, GenericQuery
+from geonature.utils.utilssqlalchemy import serializable, geoserializable
 from geonature.utils.utilsgeometry import shapeserializable
 
-from geonature.core.taxonomie.models import Taxref
 from geonature.core.ref_geo.models import LAreas
-from geonature.core.users.models import BibOrganismes
 from pypnnomenclature.models import TNomenclatures
 
 
@@ -185,4 +181,3 @@ class ExportAp(DB.Model):
     total_min = DB.Column(DB.Integer)
     total_max = DB.Column(DB.Integer)
     geom_local = DB.Column(Geometry("GEOMETRY", 4326))
-

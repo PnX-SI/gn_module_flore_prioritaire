@@ -44,21 +44,21 @@ zoom = 10
 
 
 class GnModuleSchemaConf(Schema):
-    zp_message = fields.Dict(missing=zp_message)
-    list_ap_message = fields.Dict(missing=list_ap_message)
-    detail_list_ap_message = fields.Dict(missing=detail_list_ap_message)
+    zp_message = fields.Dict(load_default=zp_message)
+    list_ap_message = fields.Dict(load_default=list_ap_message)
+    detail_list_ap_message = fields.Dict(load_default=detail_list_ap_message)
     export_available_format = fields.List(
-        fields.String(), missing=available_export_format
+        fields.String(), load_default=available_export_format
     )
-    default_zp_columns = fields.List(fields.Dict(), missing=default_zp_columns)
-    default_ap_columns = fields.List(fields.Dict(), missing=default_ap_columns)
+    default_zp_columns = fields.List(fields.Dict(), load_default=default_zp_columns)
+    default_ap_columns = fields.List(fields.Dict(), load_default=default_ap_columns)
     default_list_ap_columns = fields.List(
-        fields.Dict(), missing=default_list_ap_columns
+        fields.Dict(), load_default=default_list_ap_columns
     )
-    id_type_maille = fields.Integer(missing=32)
-    id_type_commune = fields.Integer(missing=25)
-    id_menu_list_user = fields.Integer(missing=1)
-    id_list_taxon = fields.Integer(missing=100)
-    export_srid = fields.Integer(missing=2154)
-    zoom_center = fields.List(fields.Float(), missing=coor_zoom_center)
-    zoom = fields.Integer(missing=10)
+    id_type_maille = fields.Integer(load_default=32)
+    id_type_commune = fields.Integer(load_default=25)
+    id_menu_list_user = fields.Integer(load_default=1)
+    id_list_taxon = fields.Integer(load_default=100)
+    export_srid = fields.Integer(load_default=2154)
+    zoom_center = fields.List(fields.Float(), load_default=coor_zoom_center)
+    zoom = fields.Integer(load_default=10)

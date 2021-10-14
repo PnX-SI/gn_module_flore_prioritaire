@@ -1,0 +1,46 @@
+Metadata-Version: 2.1
+Name: gn-module-flore-prioritaire
+Version: 0.0.1
+Summary: Flore Prioritaire
+Home-page: https://github.com/PnX-SI/gn_module_flore_prioritaire
+Maintainer: Parcs nationaux des Écrins et des Cévennes, Conservatoire Botanique National Alpin
+Maintainer-email: geonature@ecrins-parcnational.fr
+License: UNKNOWN
+Description: =========================
+        BILAN CONSERVATOIRE FLORE
+        =========================
+        
+        Refonte du module GeoNature du protocole Flore Prioritaire renommé "Bilan Conservatoire Flore" du réseau Flore Sentinelle, piloté par le PNE et le CBNA. Développé par @richardvergely (https://geonature.fr/documents/2019-09-Richard-Vergely-veille-technologique-GeoNature.pdf).
+        
+        Une liste d'espèces prioritaires est définie. Ces espèces sont prospectées sur le territoire. 
+        
+        Pour chaque prospection d'une espèce, on note la zone de prospection (ZP) et les éventuelles Aires de présence (AP).
+        
+        Installation
+        ============
+        
+        * Installez GeoNature (https://github.com/PnX-SI/GeoNature)
+        * Téléchargez la dernière version stable du module (``wget https://github.com/PnX-SI/gn_module_flore_prioritaire/archive/X.Y.Z.zip``) dans ``/home/myuser/``
+        * Dézippez la dans ``/home/myuser/`` (``unzip X.Y.Z.zip``)
+        * Créez et adaptez le fichier ``config/settings.ini`` à partir de ``config/settings.ini.sample`` (``cp config/settings.ini.sample config/settings.ini``)
+        * Data ?
+        * Placez-vous dans le répertoire ``backend`` de GeoNature et lancez les commandes ``source venv/bin/activate`` puis ``geonature install_gn_module <mon_chemin_absolu_vers_le_module> <url_relative_du_module>`` (exemple ``geonature install_gn_module /home/`whoami`/gn_module_flore_prioritaire-X.Y.Z /flore_prioritaire``)
+        * Complétez la configuration du module (``config/conf_gn_module.toml`` à partir des paramètres présents dans ``config/conf_gn_module.toml.example`` dont vous pouvez surcoucher les valeurs par défaut. Puis relancez la mise à jour de la configuration (depuis le répertoire ``geonature/backend`` et une fois dans le venv (``source venv/bin/activate``) : ``geonature update_module_configuration suivi_flore_territoire``)
+        * Vous pouvez sortir du venv en lançant la commande ``deactivate``
+        
+        Licence
+        =======
+        
+        * OpenSource - GPL-3.0
+        * Copyleft 2018-2019 - Parc National des Écrins
+        
+        .. image:: http://geonature.fr/img/logo-pne.jpg
+            :target: http://www.ecrins-parcnational.fr
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 1 - Planning
+Classifier: Intended Audience :: Developers
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: GNU Affero General Public License v3Operating System :: OS Independent
+Description-Content-Type: text/x-rst

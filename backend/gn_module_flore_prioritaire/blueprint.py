@@ -1,5 +1,4 @@
 import datetime
-import time
 
 from flask import Blueprint, request, send_from_directory
 
@@ -7,13 +6,12 @@ from shapely.geometry import asShape
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import FeatureCollection
 from sqlalchemy.sql.expression import func
-from sqlalchemy import and_, distinct, desc
+from sqlalchemy import and_
 from geonature.utils.env import DB, ROOT_DIR
 from geonature.utils.utilsgeometry import FionaShapeService
 from geonature.utils.env import DB
 from geonature.utils.utilssqlalchemy import (
     json_resp,
-    GenericTable,
     to_json_resp,
     to_csv_resp,
 )
@@ -22,15 +20,13 @@ from pypnusershub.db.models import User
 from .models import (
     TZprospect,
     TApresence,
-    CorApArea,
     CorZpArea,
-    CorApPerturb,
     CorZpObs,
     ExportAp,
 )
 from geonature.core.taxonomie.models import Taxref
 from geonature.core.ref_geo.models import LAreas
-from geonature.core.users.models import BibOrganismes
+from pypnusershub.db.models import Organisme as BibOrganismes
 
 
 blueprint = Blueprint("pr_priority_flora", __name__)
@@ -361,7 +357,7 @@ def export_ap():
     if export_format == "geojson":
 
         for d in data:
-            feature = d.as_geofeature("geom_local","indexap", False)
+            feature = d.as_geofeature("geom_local", "indexap", False)
             features.append(feature)
         result = FeatureCollection(features)
 
@@ -396,4 +392,3 @@ def export_ap():
         FionaShapeService.save_and_zip_shapefiles()
 
         return send_from_directory(dir_path, file_name + ".zip", as_attachment=True)
-
