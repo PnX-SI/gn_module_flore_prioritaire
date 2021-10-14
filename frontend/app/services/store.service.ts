@@ -14,7 +14,8 @@ export class StoreService {
   public currentLayer: Layer;
   public sites;
   public map_zp: Map;
-  public zp;
+  public zp = {};
+  public zpProperties = {};
   public idSite;
   public dataLoaded = false;
   public observateur = [];

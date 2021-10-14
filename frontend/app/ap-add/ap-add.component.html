@@ -2,13 +2,13 @@
   <form class="wrapper wrapper-filter">
     <fieldset>
       <legend>
-        <h5>Nouvelle aire de présence pour la prospection de <b>{{ storeService.taxons }}</b> du
+        <h5>Nouvelle aire de présence pour la prospection de <b>{{ storeService.zpProperties?.taxonomy.nom_valide }}</b>
           <b>{{ storeService.dateMin }}</b>
         </h5>
       </legend>
       <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm">
-          <b>Observateur(s) : </b><b *ngFor="let obs of storeService.observateur"> {{obs}}</b>
+          <b>Observateur(s) : </b><b *ngFor="let obs of storeService.zpProperties?.observers"> {{obs.nom_complet}}</b>
         </div><br />
         <fieldset>
           <legend>

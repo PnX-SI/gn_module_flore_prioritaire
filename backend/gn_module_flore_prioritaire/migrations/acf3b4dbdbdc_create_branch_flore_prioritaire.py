@@ -47,7 +47,7 @@ def upgrade():
             "gn_module_flore_prioritaire.migrations.data", "FP.sql"
         )
     )
-    op.get_bind().execute(operations, {"local_srid": local_srid})
+    op.get_bind().execute(operations, {"local_srid": int(local_srid)})
 
 
 def downgrade():

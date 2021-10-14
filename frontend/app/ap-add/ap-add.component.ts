@@ -42,7 +42,8 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   public filteredData = [];
   public paramApp = this.storeService.queryString.append(
     "id_application",
-    ModuleConfig.ID_MODULE
+    // TO FIX
+    5
   );
 
   constructor(
@@ -81,19 +82,20 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     });
     // autocomplete total_max
-    (this.ApFormGroup.controls.total_min.valueChanges
+    this.ApFormGroup.controls.total_min.valueChanges
       //.debounceTime(500)
       .distinctUntilChanged()
       .subscribe(value => {
         if (
           this.ApFormGroup.controls.total_max ===
           null ||
-          this.ApFormGroup.controls.total_max.pristine) {
+          this.ApFormGroup.controls.total_max.pristine
+        ) {
           this.ApFormGroup.patchValue({
             total_max: value
           });
         }
-      });
+      })
   }
 
   ngAfterViewInit() {
@@ -136,7 +138,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
         });
       });
-    });
+    }
   }
 
 

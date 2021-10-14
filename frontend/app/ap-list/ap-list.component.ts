@@ -25,7 +25,6 @@ export class ApListComponent implements OnInit, OnDestroy {
   public currentAp;
   public expanded: any = {};
   @ViewChild('table') table: any;
-  );
 
   constructor(
     public mapService: MapService,

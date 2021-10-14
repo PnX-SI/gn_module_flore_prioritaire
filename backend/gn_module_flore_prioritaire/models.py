@@ -5,8 +5,8 @@ from geoalchemy2 import Geometry
 from pypnusershub.db.models import User
 
 from geonature.utils.env import DB
-from geonature.utils.utilssqlalchemy import serializable, geoserializable
-from geonature.utils.utilsgeometry import shapeserializable
+from utils_flask_sqla.serializers import serializable
+from utils_flask_sqla_geo.serializers import geoserializable, shapeserializable
 
 from geonature.core.ref_geo.models import LAreas
 from pypnnomenclature.models import TNomenclatures
@@ -102,22 +102,34 @@ class TApresence(DB.Model):
         return self.as_geofeature("geom_4326", "indexap", recursif)
 
 
-@serializable
-class CorZpObs(DB.Model):
-    __tablename__ = "cor_zp_obs"
-    __table_args__ = {"schema": "pr_priority_flora"}
+# @serializable
+# class CorZpObs(DB.Model):
+#     __tablename__ = "cor_zp_obs"
+#     __table_args__ = {"schema": "pr_priority_flora"}
 
-    id_role = DB.Column(DB.Integer, ForeignKey(User.id_role), primary_key=True)
-    indexzp = DB.Column(DB.Integer, ForeignKey("TZprospect.indexzp"), primary_key=True)
+#     id_role = DB.Column(DB.Integer, ForeignKey(User.id_role), primary_key=True)
+#     indexzp = DB.Column(DB.Integer, ForeignKey("TZprospect.indexzp"), primary_key=True)
 
 
-@serializable
-class CorZpArea(DB.Model):
-    __tablename__ = "cor_zp_area"
-    __table_args__ = {"schema": "pr_priority_flora"}
+cor_zp_observer = DB.Table('cor_zp_obs',
+    DB.Column('id_role', ForeignKey(User.id_role), primary_key=True),
+    DB.Column('indexzp'),
+    schema="pr_priority_flora"
+)
 
-    id_area = DB.Column(DB.Integer, ForeignKey(LAreas.id_area), primary_key=True)
-    indexzp = DB.Column(DB.Integer, ForeignKey("TZprospect.indexzp"), primary_key=True)
+cor_zp_area = DB.Table('cor_zp_area',
+    DB.Column('id_area', ForeignKey(LAreas.id_area), primary_key=True),
+    DB.Column('indexzp', primary_key=True),
+    schema="pr_priority_flora"
+)
+
+# @serializable
+# class CorZpArea(DB.Model):
+#     __tablename__ = "cor_zp_area"
+#     __table_args__ = {"schema": "pr_priority_flora"}
+
+#     id_area = DB.Column(DB.Integer, ForeignKey(LAreas.id_area), primary_key=True)
+#     indexzp = DB.Column(DB.Integer, ForeignKey("TZprospect.indexzp"), primary_key=True)
 
 
 @serializable
@@ -135,28 +147,36 @@ class TZprospect(DB.Model):
     initial_insert = DB.Column(DB.Unicode)
     geom_4326 = DB.Column(Geometry("GEOMETRY", 4326))
     taxonomy = DB.relationship(
-        "Taxref", primaryjoin="TZprospect.cd_nom == Taxref.cd_nom", backref="taxrefs"
+        "Taxref", 
+        primaryjoin="TZprospect.cd_nom == Taxref.cd_nom", 
+        lazy="joined",
     )
-    cor_ap = relationship(
+    ap = relationship(
         "TApresence", lazy="select", uselist=True, cascade="all, delete-orphan"
     )
-    cor_zp_observer = DB.relationship(
-        User,
-        secondary=CorZpObs.__table__,
-        primaryjoin=(CorZpObs.indexzp == indexzp),
-        secondaryjoin=(CorZpObs.id_role == User.id_role),
-        foreign_keys=[CorZpObs.indexzp, CorZpObs.id_role],
+    observers = DB.relationship(
+        "User",
+        lazy="joined",
+        secondary=cor_zp_observer,
+        primaryjoin=(cor_zp_observer.c.indexzp == indexzp),
+        secondaryjoin=(cor_zp_observer.c.id_role == User.id_role),
+        foreign_keys=[cor_zp_observer.c.indexzp, cor_zp_observer.c.id_role],
     )
-    cor_zp_area = DB.relationship(
+    areas = DB.relationship(
         LAreas,
-        secondary=CorZpArea.__table__,
-        primaryjoin=(CorZpArea.indexzp == indexzp),
-        secondaryjoin=(CorZpArea.id_area == LAreas.id_area),
-        foreign_keys=[CorZpArea.indexzp, CorZpArea.id_area],
+        secondary=cor_zp_area,
+        primaryjoin=(cor_zp_area.c.indexzp == indexzp),
+        secondaryjoin=(cor_zp_area.c.id_area == LAreas.id_area),
+        foreign_keys=[cor_zp_area.c.indexzp, cor_zp_area.c.id_area],
+        lazy="joined"
     )
 
-    def get_geofeature(self, columns=[], recursif=True):
-        return self.as_geofeature("geom_4326", "indexzp", recursif, columns=columns)
+    def get_geofeature(self, fields=[]):
+        return self.as_geofeature(
+            "geom_4326", 
+            "indexzp", 
+            fields=fields,
+        )
 
 
 @serializable

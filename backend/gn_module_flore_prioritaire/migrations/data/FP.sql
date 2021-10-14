@@ -147,7 +147,7 @@ CREATE OR REPLACE FUNCTION pr_priority_flora.fct_trg_cor_ap_area()
 $BODY$
 BEGIN
 
-	DELETE FROM pr_priority_flora.cor_ap_area WHERE indexzp = NEW.indexap;
+	DELETE FROM pr_priority_flora.cor_ap_area WHERE indexap = NEW.indexap;
 	INSERT INTO pr_priority_flora.cor_ap_area (indexap,id_area)
 	SELECT NEW.indexap as indexap, (ref_geo.fct_get_area_intersection(NEW.geom_local)).id_area as id_area;
 

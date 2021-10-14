@@ -1,6 +1,7 @@
 import datetime
 
-from flask import Blueprint, request, send_from_directory
+from flask import Blueprint, request, send_from_directory, jsonify
+from geojson.feature import Feature
 
 from shapely.geometry import asShape
 from geoalchemy2.shape import from_shape, to_shape
@@ -10,18 +11,13 @@ from sqlalchemy import and_
 from geonature.utils.env import DB, ROOT_DIR
 from geonature.utils.utilsgeometry import FionaShapeService
 from geonature.utils.env import DB
-from geonature.utils.utilssqlalchemy import (
-    json_resp,
-    to_json_resp,
-    to_csv_resp,
-)
+
+from utils_flask_sqla.response import json_resp, to_json_resp, to_csv_resp
 from pypnnomenclature.models import TNomenclatures
 from pypnusershub.db.models import User
 from .models import (
     TZprospect,
     TApresence,
-    CorZpArea,
-    CorZpObs,
     ExportAp,
 )
 from geonature.core.taxonomie.models import Taxref
@@ -41,21 +37,23 @@ def get_zprospect():
 
     id_type_commune = blueprint.config["id_type_commune"]
     parameters = request.args
-    q = (
-        DB.session.query(TZprospect, Taxref, func.string_agg(LAreas.area_name, ", "))
-        .outerjoin(Taxref, TZprospect.cd_nom == Taxref.cd_nom)
-        .outerjoin(CorZpArea, CorZpArea.indexzp == TZprospect.indexzp)
-        .outerjoin(CorZpObs, CorZpObs.indexzp == TZprospect.indexzp)
-        .outerjoin(User, User.id_role == CorZpObs.id_role)
-        .outerjoin(BibOrganismes, BibOrganismes.id_organisme == User.id_organisme)
-        .outerjoin(
-            LAreas,
-            and_(
-                LAreas.id_area == CorZpArea.id_area, LAreas.id_type == id_type_commune
-            ),
-        )
-        .group_by(TZprospect, Taxref)
-    )
+    # q = (
+    #     DB.session.query(TZprospect, Taxref, func.string_agg(LAreas.area_name, ", "))
+    #     .outerjoin(Taxref, TZprospect.cd_nom == Taxref.cd_nom)
+    #     .outerjoin(CorZpArea, CorZpArea.indexzp == TZprospect.indexzp)
+    #     .outerjoin(CorZpObs, CorZpObs.indexzp == TZprospect.indexzp)
+    #     .outerjoin(User, User.id_role == CorZpObs.id_role)
+    #     .outerjoin(BibOrganismes, BibOrganismes.id_organisme == User.id_organisme)
+    #     .outerjoin(
+    #         LAreas,
+    #         and_(
+    #             LAreas.id_area == CorZpArea.id_area, LAreas.id_type == id_type_commune
+    #         ),
+    #     )
+    #     .group_by(TZprospect, Taxref)
+    # )
+    q = TZprospect.query
+
     if "indexzp" in parameters:
         q = q.filter(TZprospect.indexzp == parameters["indexzp"])
 
@@ -75,11 +73,24 @@ def get_zprospect():
     features = []
 
     for d in data:
-        feature = d[0].get_geofeature(
-            recursif=False, columns=["indexzp", "date_min", "date_max", "cd_nom"]
+        feature = d.get_geofeature(
+            fields=[
+                "indexzp",
+                "date_min",
+                "date_max",
+                "cd_nom",
+                "taxonomy.nom_valide",
+                "areas.area_name",
+                "observers",
+                "observers.organisme",
+            ],
         )
-        id_zp = feature["properties"]["indexzp"]
-        feature["properties"]["taxon"] = d[1].as_dict(["nom_valide"])
+        feature["properties"]["organisms_list"] = ",".join(
+            map(
+                lambda obs: obs["organisme"]["nom_organisme"],
+                feature["properties"]["observers"],
+            )
+        )
         features.append(feature)
     return FeatureCollection(features)
 
@@ -128,12 +139,10 @@ def post_zp(id_zp=None):
     releve = TZprospect(**data)
     releve.geom_4326 = from_shape(shape, srid=4326)
 
-    cor_zp_observer = (
-        DB.session.query(User).filter(User.id_role.in_(tab_observer)).all()
-    )
+    observers = DB.session.query(User).filter(User.id_role.in_(tab_observer)).all()
 
-    for o in cor_zp_observer:
-        releve.cor_zp_observer.append(o)
+    for o in observers:
+        releve.observers.append(o)
     if "indexzp" in data:
         DB.session.merge(releve)
     else:
@@ -159,6 +168,7 @@ def post_ap():
     if "cor_ap_perturbation" in data:
         tab_pertu = data.pop("cor_ap_perturbation")
 
+    # TODO if no geom 4326 : 400
     shape = asShape(data.pop("geom_4326"))
     ap = TApresence(**data)
     ap.geom_4326 = from_shape(shape, srid=4326)
@@ -187,53 +197,64 @@ def post_ap():
 
 
 @blueprint.route("/organismes", methods=["GET"])
-@json_resp
 def get_organisme():
     """
     Retourne la liste de tous les organismes présents
     """
 
-    q = (
-        DB.session.query(BibOrganismes.nom_organisme)
-        .distinct()
-        .join(User, BibOrganismes.id_organisme == User.id_organisme)
-        .join(CorZpObs, User.id_role == CorZpObs.id_role)
-        .join(TZprospect, CorZpObs.indexzp == TZprospect.indexzp)
-    )
+    # q = (
+    #     DB.session.query(BibOrganismes.nom_organisme)
+    #     .distinct()
+    #     .join(User, BibOrganismes.id_organisme == User.id_organisme)
+    #     .join(CorZpObs, User.id_role == CorZpObs.id_role)
+    #     .join(TZprospect, CorZpObs.indexzp == TZprospect.indexzp)
+    # )
 
-    data = q.all()
+    q = """
+    SELECT DISTINCT b.nom_organisme
+    FROM utilisateurs.bib_organismes b
+    JOIN utilisateurs.t_roles r ON r.id_organisme = b.id_organisme
+    JOIN pr_priority_flora.cor_zp_obs c ON c.id_role = r.id_role
+    """
+
+    data = DB.session.execute(q)
     if data:
         tab_orga = []
         for d in data:
             info_orga = dict()
             info_orga["nom_organisme"] = str(d[0])
             tab_orga.append(info_orga)
-        return tab_orga
+        return jsonify(tab_orga)
     return None
 
 
 @blueprint.route("/communes", methods=["GET"])
-@json_resp
 def get_commune():
     """
     Retourne toutes les communes présentes dans le module
     """
 
-    q = (
-        DB.session.query(LAreas.area_name)
-        .distinct()
-        .join(CorZpArea, LAreas.id_area == CorZpArea.id_area)
-        .join(TZprospect, TZprospect.indexzp == CorZpArea.indexzp)
-    )
+    # q = (
+    #     DB.session.query(LAreas.area_name)
+    #     .distinct()
+    #     .join(CorZpArea, LAreas.id_area == CorZpArea.id_area)
+    #     .join(TZprospect, TZprospect.indexzp == CorZpArea.indexzp)
+    # )
+    # TODO passer en ORM ?
+    q = """
+    SELECT DISTINCT area_name 
+    FROM ref_geo.l_areas l
+    JOIN pr_priority_flora.cor_ap_area ap ON ap.id_area = l.id_area
+    """
 
-    data = q.all()
+    data = DB.session.execute(q)
     if data:
         tab_commune = []
         for d in data:
             nom_com = dict()
             nom_com["nom_commune"] = str(d[0])
             tab_commune.append(nom_com)
-        return tab_commune
+        return jsonify(tab_commune)
     return None
 
 
@@ -266,15 +287,22 @@ def get_all_sites():
 
 #  route get One Zp
 @blueprint.route("/zp/<int:id_zp>", methods=["GET"])
-@json_resp
 def get_one_zp(id_zp):
 
     zp = DB.session.query(TZprospect).get(id_zp)
-
+    # return zp.as_dict(True)
+    # return zp.as_geofeature("geom_4326", "indexzp", True)
+    # return zp.get_geofeature(recursif=False)
     if zp:
         return {
-            "aps": FeatureCollection([ap.get_geofeature() for ap in zp.cor_ap]),
-            "zp": FeatureCollection([zp.get_geofeature()]),
+            "aps": FeatureCollection(
+                [ap.get_geofeature(recursif=False) for ap in zp.ap]
+            ),
+            "zp": zp.as_geofeature(
+                "geom_4326",
+                "indexzp",
+                fields=["observers", "taxonomy", "areas"],
+            ),
         }
     return None
 

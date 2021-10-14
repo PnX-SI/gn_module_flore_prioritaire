@@ -71,6 +71,8 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+    console.log("ZP ADD ????");
+    
 
     // vérifie s'il existe idZp --> c' une modif
 
@@ -97,7 +99,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
           geom_4326: element.zp.features[0].geometry
         });
       });
-    });
+    };
   }
 
   onCancelAddZp() {
@@ -186,3 +188,4 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     }
   }
 
+}

@@ -4,7 +4,7 @@
         Retour à la liste des zones de prospection
     </button>
 </div>
-<h3> Consultation des aires de présence de la ZP {{ storeService.indexZp }} </h3>
+<h3> Consultation des aires de présence de la ZP {{ storeService.zpProperties.indexzp |json }} </h3>
 <div class="wrapper">
     <ul class="nav nav-tabs" role="tablist">
         <li class="nav-item">
@@ -20,19 +20,24 @@
     <div class="tab-content">
         <div class="tab-pane active modal-header  list-group-item" id="infoGen" role="tabpanel">
             <p> <span> <strong>Identifiant Zone de prospection : </strong></span> <span class="strong ">
-                    {{ storeService.indexZp }}
+                    {{ storeService.zpProperties.indexzp }}
                 </span></p>
-            <p> <span><strong> Date : </strong></span> <span class="strong"> {{ storeService.dateMin }}</span></p>
+            <p> <span><strong> Date : </strong></span> <span class="strong"> 
+                {{ storeService.zpProperties.date_min }}
+            </span></p>
             <p> <span><strong> Observateur(s) : </strong></span> <span class="strong"
-                    *ngFor="let obs of storeService.observateur"> {{obs}}
+                    *ngFor="let obs of storeService.zpProperties?.observers"> {{obs.nom_complet}}
                 </span></p>
-            <p> <span><strong> Taxon : </strong></span> <span class="strong"> {{ storeService.taxons }} </span></p>
+            <p> <span><strong> Taxon : </strong></span> <span class="strong"> 
+                {{ storeService.zpProperties?.taxonomy?.nom_complet }}</span></p>
         </div>
         <div class="tab-pane modal-header list-group-item " id="details" role="tabpanel">
-            <p> <span><strong> Nom du site : </strong></span> <span class="strong"> {{ storeService.indexZp }} </span>
+            <p> <span><strong> Nom du site : </strong></span> <span class="strong"> 
+                {{ storeService.zpProperties?.indexZp }}
+             </span>
             </p>
-            <p> <span><strong> Commune(s) : </strong></span> <span class="strong"
-                    *ngFor="let com of storeService.nomCommune"> {{com}}
+            <p> <span><strong> Commune(s) TODO : filtrer par communes : </strong></span> <span class="strong"
+                    *ngFor="let area of storeService.zpProperties?.areas"> {{area.area_name}}
                 </span></p>
         </div>
     </div>

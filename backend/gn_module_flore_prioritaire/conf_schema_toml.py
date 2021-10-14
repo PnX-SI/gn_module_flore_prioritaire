@@ -21,9 +21,9 @@ detail_list_ap_message = {
 
 default_zp_columns = [
     {"name": "Identifiant", "prop": "indexzp", "width": 90},
-    {"name": "Taxon", "prop": "taxon.nom_complet", "width": 350},
+    {"name": "Taxon", "prop": "taxonomy.nom_valid", "width": 350},
     {"name": "Date min", "prop": "date_min", "width": 160},
-    {"name": "Organisme", "prop": "organisme", "width": 200},
+    {"name": "Organisme", "prop": "organisms_list", "width": 200},
 ]
 
 default_list_ap_columns = [
