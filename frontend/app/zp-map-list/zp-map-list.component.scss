@@ -93,10 +93,6 @@ ngx-datatable {
   overflow-y: scroll;
 }
 
-.form-control-sm {
-  height: 5rem !important;
-}
-
 :host /deep/ #dataset-form  {
   height: 2.05rem !important;
 }
@@ -208,24 +204,24 @@ legend {
 
 @-webkit-keyframes spin {
   from {
-      -webkit-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
   }
   to {
-      -webkit-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
   }
 }
 
 @keyframes spin {
   from {
-      transform: rotate(0deg);
+    transform: rotate(0deg);
   }
   to {
-      transform: rotate(360deg);
+    transform: rotate(360deg);
   }
 }
 
 #cover-spin::after {
-  content: '';
+  content: "";
   display: block;
   position: absolute;
   left: 48%;

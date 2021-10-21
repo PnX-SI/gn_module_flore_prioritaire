@@ -2,19 +2,18 @@ import { Component, OnInit, Input, AfterViewInit, OnDestroy } from '@angular/cor
 import { GeoJSON } from 'leaflet';
 import { Subscription } from "rxjs/Subscription";
 import { ToastrService } from 'ngx-toastr';
-import { CommonService } from "@geonature_common/service/common.service";
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
 import { DataFormService } from "@geonature_common/form/data-form.service";
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { GeojsonComponent } from "@geonature_common/map/geojson/geojson.component";
 import { FormGroup } from "@angular/forms";
-import { DataService } from '../services/data.service';
-import { StoreService } from "../services/store.service";
-import { FormService } from "../services/form.service";
+import { DataService } from '../../services/data.service';
+import { StoreService } from "../../services/store.service";
+import { FormService } from "../../services/form.service";
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { ModuleConfig } from "../module.config";
+import { ModuleConfig } from "../../module.config";
 import { CommonService } from "@geonature_common/service/common.service";
 
 
@@ -121,7 +120,8 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
             this.tabPertur.push(typePer);
           });
         }
-
+        console.log(element);
+        
         this.ApFormGroup.patchValue({
           indexap: this.idAp,
           indexzp: element.properties.indexzp,
@@ -132,12 +132,11 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
           total_min: element.properties.total_min,
           total_max: element.properties.total_max,
           id_nomenclatures_phenology: element.properties.pheno.id_nomenclature,
-          id_nomenclatures_habitat: element.properties.habitat.id_nomenclature,
+          id_nomenclatures_habitat: element.properties.habitat ? element.properties.habitat.id_nomenclature : null,
           id_nomenclatures_pente: element.properties.pente.id_nomenclature,
           id_nomenclatures_counting: element.properties.counting.id_nomenclature,
           geom_4326: element.geometry,
           cor_ap_perturbation: element.properties.cor_ap_perturbation === null ? [] : element.properties.cor_ap_perturbation
-
         });
       });
     }

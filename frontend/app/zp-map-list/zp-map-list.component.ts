@@ -10,6 +10,7 @@ import { FormGroup, FormBuilder, FormControl } from "@angular/forms";
 import { StoreService } from '../services/store.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ModuleConfig } from "../module.config";
+import { HttpParams } from '@angular/common/http';
 
 @Component({
   selector: 'pnx-zp-map-list',
@@ -23,7 +24,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   public myGeoJSON;
   public filteredData = [];
   public tabOrganism = [];
-  public tabCom = [];
+  public municipalities = [];
   public tabTaxon = [];
   public dataLoaded = false;
   public oldFilterDate;
@@ -63,69 +64,53 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       filterYear: null,
       filterOrga: null,
       filterCom: null,
-      filterTaxon: null
+      filterTaxon: null,
+      idZp : null
     });
 
     this.filterForm.controls.filterYear.valueChanges
-      .filter(input => {
-        return input != null && input.toString().length === 4;
-      })
       .subscribe(year => {
-        this.onSearchDate(year);
-      });
-
-    this.filterForm.controls.filterYear.valueChanges
-      .filter(input => {
-        return input === null;
-      })
-      .subscribe(year => {
-        this.onDeleteParams("year");
-        this.onDeleteFiltre.emit();
+        
+        if(year && year.toString().length === 4) {
+          console.log(year);
+          this.setQueryString("year", year.toString());
+          this.loadData();
+          
+        }
+        if(!year) {
+          this.deleteParams("year");
+          this.loadData(); 
+        }
       });
 
     this.filterForm.controls.filterOrga.valueChanges
-      .filter(select => {
-        return select !== null;
-      })
       .subscribe(org => {
-        this.onSearchOrganisme(org);
+        if(org) {
+          this.setQueryString("id_organism", org);
+          this.loadData();      
+        }else {
+          this.deleteParams("id_organism");
+          this.loadData();      
+        }
       });
 
-    this.filterForm.controls.filterOrga.valueChanges
-      .filter(input => {
-        return input === null;
-      })
-      .subscribe(org => {
-        this.onDeleteParams("organisme");
-        this.onDeleteFiltre.emit();
-      });
+      
 
     this.filterForm.controls.filterCom.valueChanges
-      .filter(select => {
-        return select !== null;
-      })
-      .subscribe(com => {
-        this.onSearchCom(com);
-      });
-
-    this.filterForm.controls.filterCom.valueChanges
-      .filter(input => {
-        return input === null;
-      })
-      .subscribe(com => {
-        this.onDeleteParams("commune");
-        this.onDeleteFiltre.emit();
+      .subscribe(id_area => {
+        if(id_area) {
+          this.setQueryString("id_area", id_area);
+          this.loadData();
+        } else {
+          this.deleteParams("id_area");
+          this.loadData();
+        }
       });
 
   }
 
-  test($event) {
-    console.log($event.item);
-  }
-
-
-  onChargeList(param?) {
-    this.api.getZProspects(param).subscribe(data => {
+  loadData() {    
+    this.api.getZProspects(this.storeService.queryString).subscribe(data => {
       this.myGeoJSON = data;
       this.mapListService.loadTableData(data);
       this.filteredData = this.mapListService.tableData;
@@ -183,22 +168,12 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     this._map = this.mapService.getMap();
     this.addCustomControl();
 
-    this.api.getOrganisme().subscribe(elem => {
-      elem.forEach(orga => {
-        this.tabOrganism.push(orga.nom_organisme);
-        this.tabOrganism.sort((a, b) => {
-          return a.localeCompare(b);
-        });
-      });
+    this.api.getOrganisme().subscribe(orgs => {
+      this.tabOrganism = orgs
     });
 
-    this.api.getCommune().subscribe(info => {
-      info.forEach(com => {
-        this.tabCom.push(com.nom_commune);
-        this.tabCom.sort((a, b) => {
-          return a.localeCompare(b);
-        });
-      });
+    this.api.getCommune().subscribe(municipalities => {
+      this.municipalities = municipalities;
     });
   }
 
@@ -240,50 +215,27 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     initzoomcontrol.addTo(this._map);
   }
 
-  // Filters
-  onDelete() {
-    console.log("ondelete");
-    this.onChargeList();
-  }
 
-  onSetParams(param: string, value) {
-    //  ajouter le queryString pour télécharger les données
+  setQueryString(param: string, value) {
     this.storeService.queryString = this.storeService.queryString.set(
       param,
       value
     );
   }
 
-  onDeleteParams(param: string) {
-    // effacer le queryString
+  deleteParams(param: string) {
     this.storeService.queryString = this.storeService.queryString.delete(param);
-    this.onChargeList(this.storeService.queryString.toString());
   }
 
-  onSearchDate(event) {
-    // fonction de recherche de date
-    this.onSetParams("year", event);
-    this.oldFilterDate = event;
-    this.onChargeList(this.storeService.queryString.toString());
+  removeCdNom() {
+    this.deleteParams("cd_nom");
+    this.loadData();
   }
 
-  onSearchOrganisme(event) {
-    // fonction de recherche d'organisme
-    this.onSetParams("organisme", event);
-    this.onChargeList(this.storeService.queryString.toString());
-  }
-
-  onSearchCom(event) {
-    // fonction de recherche de commune
-    this.onSetParams("commune", event);
-    this.onChargeList(this.storeService.queryString.toString());
-  }
 
   onSearchTaxon(event) {
-    console.log(event.item);
-
-    this.onSetParams("cd_nom", event.item.cd_nom);
-    this.onChargeList(this.storeService.queryString.toString());
+    this.setQueryString("cd_nom", event.item.cd_nom);
+    this.loadData();
   }
 
   ngOnDestroy() {

@@ -8,9 +8,9 @@ import * as L from "leaflet";
 import { MapListService } from "@geonature_common/map-list/map-list.service";
 import { MapService } from "@geonature_common/map/map.service";
 
-import { DataService } from "../services/data.service";
-import { StoreService } from "../services/store.service";
-import { ModuleConfig } from "../module.config";
+import { DataService } from "../../services/data.service";
+import { StoreService } from "../../services/store.service";
+import { ModuleConfig } from "../../module.config";
 
 @Component({
   selector: "pnx-zp-details",
@@ -38,12 +38,9 @@ export class ZpDetailsComponent implements OnInit {
     private toastr: ToastrService
   ) { }
 
-  ngOnInit() {
-    this.storeService.idSite = this.activatedRoute.snapshot.params['idSite'];
+  ngOnInit() {}
 
-  }
-
-  onAddAp(idZP) {
+  onAddAp(idZP) {    
     this.router.navigate(
       [
         `${ModuleConfig.MODULE_URL}/zp`,

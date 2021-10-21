@@ -16,31 +16,35 @@
                     <div class="row">
                         <div class="searchSite col">
                             <small> Année de visite </small>
-                            <input type="number" class="form-control" [formControl]="filterForm.controls.filterYear"
-                                class="inputSearch" (onDeleteFiltre)="onDelete()">
+                            <input 
+                                type="number" 
+                                class="form-control form-control-sm" 
+                                [formControl]="filterForm.controls.filterYear"
+                            >
                         </div>
                         <div class="searchSite col">
                             <small> Taxon </small>
                             <pnx-taxonomy #taxon [parentFormControl]="filterForm.controls.filterTaxon"
                                 [idList]="storeService.fpConfig.id_list_taxon" [charNumber]="3" [listLength]="20"
-                                (onChange)="onSearchTaxon($event)" (onDelete)="onDeleteParams('cd_nom')">
+                                (onChange)="onSearchTaxon($event)" 
+                                (onDelete)="removeCdNom()">
                             </pnx-taxonomy>
                         </div>
                     </div>
                     <div class="row">
                         <div class="searchSite col">
                             <small> Organisme </small>
-                            <select class="form-control" name="selectOrg"
+                            <select class="form-control form-control-sm" name="selectOrg"
                                 [formControl]="filterForm.controls.filterOrga">
                                 <option [ngValue]=null> -- Sélectionnez un organisme -- </option>
-                                <option *ngFor="let label of tabOrganism"> {{label}} </option>
+                                <option [ngValue]="org.id_organism" *ngFor="let org of tabOrganism"> {{org.name}} </option>
                             </select>
                         </div>
                         <div class="searchSite col">
                             <small> Commune </small>
-                            <select class="form-control" name="selectCom" [formControl]="filterForm.controls.filterCom">
+                            <select class="form-control form-control-sm" name="selectCom" [formControl]="filterForm.controls.filterCom">
                                 <option [ngValue]=null> -- Sélectionnez une commune -- </option>
-                                <option *ngFor="let label of tabCom"> {{label}} </option>
+                                <option [ngValue]="m.id_area" *ngFor="let m of municipalities"> {{m.municipality}} </option>
                             </select>
                         </div>
                     </div>

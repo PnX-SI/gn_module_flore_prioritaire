@@ -1,24 +1,23 @@
-import { NgModule, Component, OnInit, OnDestroy, OnChanges } from "@angular/core";
-import { RouterModule, Router, Routes, ActivatedRoute } from "@angular/router";
+import { Component, OnInit } from "@angular/core";
+import { RouterModule, Router, ActivatedRoute } from "@angular/router";
 import { ToastrService } from "ngx-toastr";
 import * as L from "leaflet";
 import { CommonService } from "@geonature_common/service/common.service";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup } from "@angular/forms";
 import { MapListService } from "@geonature_common/map-list/map-list.service";
 import { MapService } from "@geonature_common/map/map.service";
 import { DataService } from "../services/data.service";
 import { FormService } from "../services/form.service";
 import { StoreService } from "../services/store.service";
-import { ModuleConfig } from "../module.config";
 
 
 @Component({
   selector: "pnx-ap-list-add",
-  templateUrl: "ap-list-add.component.html",
-  styleUrls: ["./ap-list-add.component.scss"],
+  templateUrl: "zp-container.component.html",
+  styleUrls: ["./zp-container.component.scss"],
   providers: [MapListService]
 })
-export class ApListAddComponent implements OnInit {
+export class ZpContainerComponent implements OnInit {
 
   public currentSite = {};
   public idAp;

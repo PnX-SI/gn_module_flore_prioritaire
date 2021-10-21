@@ -1,9 +1,3 @@
-.btn-cancel {
-  color: #fff;
-  background-color: #c00701;
-  border-color: #c00701;
-}
-
 .box-shadow {
   box-shadow: 4px 5px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
@@ -28,37 +22,15 @@
   text-align: left;
 }
 
-.map-card {
-  min-height: 85vh;
-  margin: -25px -15px -15px -15px;
+.btn-color {
+  color: #fff;
+  background-color: #17c001;
+  border-color: #17c001;
+  text-align: right;
 }
-
-#redirect {
-  position: absolute;
-  right: 1%;
-  z-index: 1000;
-  margin-left: 15px;
-  margin-top: 15px;
-  padding-right: 0px;
-  padding-left: 0px;
-  cursor: pointer;
-  height: 40px;
-  width: 40px;
-  border-radius: 30px;
-  //padding: 0px;
-}
-
-#search-btn {
-  position: absolute;
-  right: 1%;
-  top: 25%;
-  height: 35px;
-  font-size: 15px;
-}
-
-#download-btn {
-  margin-top: 5px;
-  padding: 5px;
+.btn-color:hover {
+  background-color: #14af00;
+  border-color: #14af00;
 }
 
 #add-btn {
@@ -67,48 +39,8 @@
   margin-right: 5px;
   padding: 5px;
 }
-
-#refresh-filter {
-  color: red;
-}
-
-.actions {
-  height: 35px;
-  margin-left: 5px;
-  margin-top: 21px;
-  padding: 8px;
-}
-
-.filter-control {
-  height: 2.1rem !important;
-}
-
-.dynamic-form {
-  display: flex;
-  margin-right: 5px;
-  max-width: 15%;
-}
-
-.trash-btn {
-  margin-top: 30px;
-  margin-left: 5px;
-}
-
-#specific-filter {
-  margin-top: -5px;
-  padding-bottom: 5px;
-}
-
-:host /deep/ #button-input {
-  height: 2rem;
-}
-
-.col-list {
-  list-style: none;
-}
-
-.modal-body {
-  text-align: left !important;
+:host /deep/ .single-selection .datatable-body-row.active .datatable-row-group {
+  background-color: rgb(154, 217, 247) !important;
 }
 
 ngx-datatable {
@@ -184,6 +116,16 @@ ngx-datatable {
   width: 40%;
 }
 
+.searchSite {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.box-shadow {
+  box-shadow: 4px 5px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
 fieldset {
   padding: 0.35em 0.625em 0.75em !important;
   border: 1px solid silver !important;
@@ -199,29 +141,4 @@ legend {
 
 .wrapper {
   margin-bottom: 18px;
-}
-
-.searchSite {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 15px;
-}
-// disable overlay
-#overlay,
-#form {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-#overlay {
-  z-index: 1000;
-}
-
-.disabled-form {
-  background-color: #000000;
-  cursor: not-allowed;
-  opacity: 0.3;
 }

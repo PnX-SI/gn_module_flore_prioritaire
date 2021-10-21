@@ -10,7 +10,7 @@
   <form class="wrapper wrapper-filter">
     <fieldset>
       <legend>
-        <h5>Nouvelle aire de présence pour la prospection de <b>{{ storeService.zpProperties?.taxonomy.nom_valide }}</b>
+        <h5>Nouvelle aire de présence pour la prospection de <b>{{ storeService.zpProperties?.taxonomy?.nom_valide }}</b>
           <b>{{ storeService.dateMin }}</b>
         </h5>
       </legend>
@@ -122,7 +122,5 @@
   <button id="cancel-btn" type="button" class="btn btn-cancel box-shadow" (click)="onCancelAp(storeService.idSite)">
     <i class="fa fa-times-circle" aria-hidden="true"> </i> Annuler
   </button>
-
-  Valid : {{ApFormGroup.value |json}}
 
 </div>

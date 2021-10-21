@@ -12,9 +12,9 @@ import { FormService } from './services/form.service';
 
 import { ZpMapListComponent } from './zp-map-list/zp-map-list.component';
 import { ZpAddComponent } from './zp-add/zp-add.component';
-import { ApAddComponent } from './ap-add/ap-add.component';
-import { ZpDetailsComponent } from './zp-details/zp-details.component';
-import { ApListAddComponent } from './ap-list-add/ap-list-add.component';
+import { ApAddComponent } from './zp-container/ap-add/ap-add.component';
+import { ZpDetailsComponent } from './zp-container/zp-details/zp-details.component';
+import { ZpContainerComponent } from "./zp-container/zp-container.component";
 
 // my module routing
 const routes: Routes = [
@@ -22,7 +22,7 @@ const routes: Routes = [
   { path: 'post_zp', component: ZpAddComponent },
   { path: 'post_zp/:indexzp', component: ZpAddComponent },
   {
-    path: 'zp/:idZP', component: ApListAddComponent,
+    path: 'zp/:idZP', component: ZpContainerComponent,
     children: [
       { path: 'ap_list', component: ZpDetailsComponent },
       { path: 'post_ap', component: ApAddComponent },
@@ -35,7 +35,13 @@ const routes: Routes = [
 
 @NgModule({
   imports: [CommonModule, GN2CommonModule, RouterModule.forChild(routes)],
-  declarations: [ZpMapListComponent, ZpAddComponent, ZpDetailsComponent, ApAddComponent, ApListAddComponent],
+  declarations: [
+    ZpMapListComponent, 
+    ZpAddComponent, 
+    ZpDetailsComponent, 
+    ApAddComponent, 
+    ZpContainerComponent
+  ],
 
   providers: [DataService, StoreService, FormService]
 

@@ -37,38 +37,23 @@ def get_zprospect():
 
     id_type_commune = blueprint.config["id_type_commune"]
     parameters = request.args
-    # q = (
-    #     DB.session.query(TZprospect, Taxref, func.string_agg(LAreas.area_name, ", "))
-    #     .outerjoin(Taxref, TZprospect.cd_nom == Taxref.cd_nom)
-    #     .outerjoin(CorZpArea, CorZpArea.indexzp == TZprospect.indexzp)
-    #     .outerjoin(CorZpObs, CorZpObs.indexzp == TZprospect.indexzp)
-    #     .outerjoin(User, User.id_role == CorZpObs.id_role)
-    #     .outerjoin(BibOrganismes, BibOrganismes.id_organisme == User.id_organisme)
-    #     .outerjoin(
-    #         LAreas,
-    #         and_(
-    #             LAreas.id_area == CorZpArea.id_area, LAreas.id_type == id_type_commune
-    #         ),
-    #     )
-    #     .group_by(TZprospect, Taxref)
-    # )
+
     q = TZprospect.query
 
     if "indexzp" in parameters:
         q = q.filter(TZprospect.indexzp == parameters["indexzp"])
 
     if "cd_nom" in parameters:
-        q = q.filter(Taxref.cd_nom == parameters["cd_nom"])
+        q = q.filter(TZprospect.taxonomy.has(cd_nom=parameters["cd_nom"]))
 
-    if "commune" in parameters:
-        q = q.filter(LAreas.area_name == parameters["commune"])
+    if "id_area" in parameters:
+        q = q.filter(TZprospect.areas.any(id_area=parameters["id_area"]))
 
-    if "organisme" in parameters:
-        q = q.filter(BibOrganismes.nom_organisme == parameters["organisme"])
+    if "id_organism" in parameters:
+        q = q.filter(TZprospect.observers.any(id_organisme=parameters["id_organism"]))
 
     if "year" in parameters:
         q = q.filter(func.date_part("year", TZprospect.date_min) == parameters["year"])
-
     data = q.all()
     features = []
 
@@ -201,30 +186,17 @@ def get_organisme():
     """
     Retourne la liste de tous les organismes présents
     """
-
-    # q = (
-    #     DB.session.query(BibOrganismes.nom_organisme)
-    #     .distinct()
-    #     .join(User, BibOrganismes.id_organisme == User.id_organisme)
-    #     .join(CorZpObs, User.id_role == CorZpObs.id_role)
-    #     .join(TZprospect, CorZpObs.indexzp == TZprospect.indexzp)
-    # )
-
     q = """
-    SELECT DISTINCT b.nom_organisme
+    SELECT DISTINCT b.nom_organisme, b.id_organisme
     FROM utilisateurs.bib_organismes b
     JOIN utilisateurs.t_roles r ON r.id_organisme = b.id_organisme
     JOIN pr_priority_flora.cor_zp_obs c ON c.id_role = r.id_role
+    ORDER by b.nom_organisme ASC
     """
 
     data = DB.session.execute(q)
     if data:
-        tab_orga = []
-        for d in data:
-            info_orga = dict()
-            info_orga["nom_organisme"] = str(d[0])
-            tab_orga.append(info_orga)
-        return jsonify(tab_orga)
+        return jsonify([{"name": o[0], "id_organism": o[1]} for o in data])
     return None
 
 
@@ -233,28 +205,18 @@ def get_commune():
     """
     Retourne toutes les communes présentes dans le module
     """
-
-    # q = (
-    #     DB.session.query(LAreas.area_name)
-    #     .distinct()
-    #     .join(CorZpArea, LAreas.id_area == CorZpArea.id_area)
-    #     .join(TZprospect, TZprospect.indexzp == CorZpArea.indexzp)
-    # )
-    # TODO passer en ORM ?
     q = """
-    SELECT DISTINCT area_name 
+    SELECT DISTINCT area_name, l.id_area
     FROM ref_geo.l_areas l
     JOIN pr_priority_flora.cor_ap_area ap ON ap.id_area = l.id_area
+    JOIN ref_geo.bib_areas_types b ON b.id_type = l.id_type
+    WHERE b.type_code = 'COM'
+    ORDER BY area_name ASC
     """
 
     data = DB.session.execute(q)
     if data:
-        tab_commune = []
-        for d in data:
-            nom_com = dict()
-            nom_com["nom_commune"] = str(d[0])
-            tab_commune.append(nom_com)
-        return jsonify(tab_commune)
+        return jsonify([{"municipality": c[0], "id_area": c[1]} for c in data])
     return None
 
 
