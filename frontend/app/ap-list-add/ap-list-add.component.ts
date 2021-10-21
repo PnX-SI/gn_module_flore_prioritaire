@@ -18,7 +18,7 @@ import { ModuleConfig } from "../module.config";
   styleUrls: ["./ap-list-add.component.scss"],
   providers: [MapListService]
 })
-export class ApListAddComponent implements OnInit, OnChanges {
+export class ApListAddComponent implements OnInit {
 
   public currentSite = {};
   public idAp;

@@ -35,7 +35,7 @@ export class FormService {
       ],
       id_nomenclatures_counting: null,
       comment: null,
-      geom_4326: null
+      geom_4326: [null, Validators.required]
     });
     ApFormGroup.setValidators([this.countingValidator]);
 

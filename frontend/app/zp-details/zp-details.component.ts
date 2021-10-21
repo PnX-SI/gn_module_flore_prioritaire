@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { Location } from "@angular/common";
 import { CommonService } from "@geonature_common/service/common.service";
@@ -13,11 +13,11 @@ import { StoreService } from "../services/store.service";
 import { ModuleConfig } from "../module.config";
 
 @Component({
-  selector: "pnx-ap-list",
-  templateUrl: "ap-list.component.html",
-  styleUrls: ["./ap-list.component.scss"],
+  selector: "pnx-zp-details",
+  templateUrl: "zp-details.component.html",
+  styleUrls: ["./zp-details.component.scss"],
 })
-export class ApListComponent implements OnInit, OnDestroy {
+export class ZpDetailsComponent implements OnInit {
 
   public currentSite = {};
   public show = true;

@@ -1,3 +1,14 @@
+#overlay {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #00000061;
+  cursor: not-allowed;
+  z-index: 1000;
+}
+
 .btn-cancel {
   color: #fff;
   background-color: #c00701;
@@ -24,7 +35,7 @@
   margin-bottom: 18px;
 }
 
-.back-button{
+.back-button {
   text-align: left;
 }
 

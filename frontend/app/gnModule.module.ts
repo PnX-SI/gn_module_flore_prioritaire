@@ -13,7 +13,7 @@ import { FormService } from './services/form.service';
 import { ZpMapListComponent } from './zp-map-list/zp-map-list.component';
 import { ZpAddComponent } from './zp-add/zp-add.component';
 import { ApAddComponent } from './ap-add/ap-add.component';
-import { ApListComponent } from './ap-list/ap-list.component';
+import { ZpDetailsComponent } from './zp-details/zp-details.component';
 import { ApListAddComponent } from './ap-list-add/ap-list-add.component';
 
 // my module routing
@@ -24,7 +24,7 @@ const routes: Routes = [
   {
     path: 'zp/:idZP', component: ApListAddComponent,
     children: [
-      { path: 'ap_list', component: ApListComponent },
+      { path: 'ap_list', component: ZpDetailsComponent },
       { path: 'post_ap', component: ApAddComponent },
       { path: 'post_ap/:indexap', component: ApAddComponent },
       { path: '', redirectTo: 'ap_list', pathMatch: 'full' }
@@ -35,7 +35,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [CommonModule, GN2CommonModule, RouterModule.forChild(routes)],
-  declarations: [ZpMapListComponent, ZpAddComponent, ApListComponent, ApAddComponent, ApListAddComponent],
+  declarations: [ZpMapListComponent, ZpAddComponent, ZpDetailsComponent, ApAddComponent, ApListAddComponent],
 
   providers: [DataService, StoreService, FormService]
 

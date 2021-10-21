@@ -15,6 +15,7 @@ import { FormService } from "../services/form.service";
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { ModuleConfig } from "../module.config";
+import { CommonService } from "@geonature_common/service/common.service";
 
 
 @Component({
@@ -43,7 +44,6 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   public paramApp = this.storeService.queryString.append(
     "id_application",
     // TO FIX
-    5
   );
 
   constructor(
@@ -55,7 +55,9 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     public ngbModal: NgbModal,
     public api: DataService,
     public storeService: StoreService,
-    public activatedRoute: ActivatedRoute
+    public activatedRoute: ActivatedRoute,
+    private _commonService: CommonService,
+
   ) { }
 
   ngOnInit() {
@@ -141,6 +143,12 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  formDisabled() {
+      this._commonService.translateToaster(
+        "warning",
+        "Releve.FillGeometryFirst"
+      );
+  }
 
   onCancelAp(indexzp) {
     this.router.navigate(
