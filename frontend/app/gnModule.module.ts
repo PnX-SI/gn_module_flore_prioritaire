@@ -24,10 +24,10 @@ const routes: Routes = [
   {
     path: 'zp/:idZP', component: ZpContainerComponent,
     children: [
-      { path: 'ap_list', component: ZpDetailsComponent },
+      { path: 'details', component: ZpDetailsComponent },
       { path: 'post_ap', component: ApAddComponent },
       { path: 'post_ap/:indexap', component: ApAddComponent },
-      { path: '', redirectTo: 'ap_list', pathMatch: 'full' }
+      { path: '', redirectTo: 'details', pathMatch: 'full' }
     ]
   },
 

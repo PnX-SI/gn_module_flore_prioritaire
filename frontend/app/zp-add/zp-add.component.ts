@@ -52,7 +52,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.leafletDrawOptions.draw.rectangle = true;
-    this.leafletDrawOptions.draw.marker = true;
+    this.leafletDrawOptions.draw.marker = false;
     this.leafletDrawOptions.draw.polyline = false;
     this.leafletDrawOptions.edit.remove = true;
 
@@ -71,11 +71,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    console.log("ZP ADD ????");
-    
-
     // vérifie s'il existe idZp --> c' une modif
-
     if (this.idZp !== undefined) {
       this.api.getOneZP(this.idZp).subscribe(element => {
 

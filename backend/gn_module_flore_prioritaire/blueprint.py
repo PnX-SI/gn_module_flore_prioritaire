@@ -158,18 +158,19 @@ def post_ap():
     ap = TApresence(**data)
     ap.geom_4326 = from_shape(shape, srid=4326)
     print(data)
-    cor_ap_pertubation = (
-        DB.session.query(TNomenclatures)
-        .filter(
-            TNomenclatures.id_nomenclature.in_(
-                [pert["id_nomenclature"] for pert in tab_pertu]
+    if tab_pertu:
+        cor_ap_pertubation = (
+            DB.session.query(TNomenclatures)
+            .filter(
+                TNomenclatures.id_nomenclature.in_(
+                    [pert["id_nomenclature"] for pert in tab_pertu]
+                )
             )
+            .all()
         )
-        .all()
-    )
 
-    for o in cor_ap_pertubation:
-        ap.cor_ap_perturbation.append(o)
+        for o in cor_ap_pertubation:
+            ap.cor_ap_perturbation.append(o)
 
     # TODO: manque indexzp
     if "indexap" in data:
@@ -257,13 +258,11 @@ def get_one_zp(id_zp):
     # return zp.get_geofeature(recursif=False)
     if zp:
         return {
-            "aps": FeatureCollection(
-                [ap.get_geofeature(recursif=False) for ap in zp.ap]
-            ),
+            "aps": FeatureCollection([ap.get_geofeature() for ap in zp.ap]),
             "zp": zp.as_geofeature(
                 "geom_4326",
                 "indexzp",
-                fields=["observers", "taxonomy", "areas"],
+                fields=["observers", "taxonomy", "areas", "areas.area_type"],
             ),
         }
     return None

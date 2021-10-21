@@ -40,8 +40,8 @@ export class ZpContainerComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-
     this.ApFormGroup = this.formService.initFormAp();
+    this.storeService.setLeafletDraw();
   }
 
   ngAfterViewInit() {
@@ -53,32 +53,12 @@ export class ZpContainerComponent implements OnInit {
       data => {
         this.storeService.zp = data['zp'];
         this.storeService.zpProperties = data['zp']["properties"];
+        this.storeService.zpProperties["areas"] = this.storeService.zpProperties["areas"].filter(area => area.area_type.type_code == "COM");
         
         this.storeService.sites = data['aps'];
         this.mapListService.loadTableData(data['aps']);
         this.filteredData = this.mapListService.tableData;
         this.dataLoaded = true;
-
-        // let fullNameObs;
-        // this.storeService.observateur = [];
-        // data['zp'].features[0].properties.cor_zp_observer.forEach(obs => {
-        //   if (obs == data['zp'].features[0].properties.cor_zp_observer[data['zp'].features[0].properties.cor_zp_observer.length - 1]) {
-        //     fullNameObs = obs.nom_complet + '. ';
-        //   } else {
-        //     fullNameObs = obs.nom_complet + ', ';
-        //   }
-        //   this.storeService.observateur.push(fullNameObs);
-        // });
-
-
-        // this.storeService.taxons = data['zp'].features[0].properties.taxonomy.nom_complet;
-        // this.storeService.dateMin = properties.date_min;
-
-        // zoom on zp
-        // HACK devrait être fait par pnx-geojson
-        // this.mapService.map.fitBounds(
-        //   new L.FeatureGroup().addLayer(L.geoJSON(data['zp'])).getBounds()
-        // )
       },
       error => {
         if (error.status != 404) {

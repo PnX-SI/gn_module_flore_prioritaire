@@ -14,7 +14,7 @@ export class StoreService {
   public currentLayer: Layer;
   public sites;
   public map_zp: Map;
-  public zp = {};
+  public zp;
   public zpProperties = {};
   public idSite;
   public dataLoaded = false;
@@ -31,11 +31,7 @@ export class StoreService {
   public altitude_max;
   public fpConfig = ModuleConfig;
   public leafletDrawOptions = leafletDrawOption;
-  public showDraw = false;
-  public paramApp = new HttpParams().append(
-    "id_application",
-    ModuleConfig.ID_MODULE
-  );
+
   public myStylePresent = {
     color: '#008000',
     fill: true,
@@ -55,14 +51,21 @@ export class StoreService {
 
   public urlLoad = `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/export_ap`;
 
-  showLeafletDraw() {
-    this.showDraw = true;
+  setLeafletDraw() {
     this.leafletDrawOptions.draw.rectangle = true;
     this.leafletDrawOptions.draw.marker = true;
     this.leafletDrawOptions.draw.polyline = false;
     this.leafletDrawOptions.draw.polygone = true;
     this.leafletDrawOptions.edit.remove = true;
     this.leafletDrawOptions.edit.edit = true;
+  }
+
+  toggleLeafletDraw(hidden) {    
+    const drawElements = document.getElementsByClassName("leaflet-draw");
+    if(drawElements.length > 0) {
+      const e:any = drawElements[0];
+      e.hidden = hidden;
+    }
   }
 
   openModal(content) {

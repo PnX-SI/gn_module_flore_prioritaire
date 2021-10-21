@@ -33,21 +33,34 @@
         </div>
         <div class="tab-pane modal-header list-group-item " id="details" role="tabpanel">
             <p> <span><strong> Nom du site : </strong></span> <span class="strong"> 
-                {{ storeService.zpProperties?.indexZp }}
+                {{ storeService.zpProperties.indexzp }}
              </span>
             </p>
-            <p> <span><strong> Commune(s) TODO : filtrer par communes : </strong></span> <span class="strong"
-                    *ngFor="let area of storeService.zpProperties?.areas"> {{area.area_name}}
-                </span></p>
+            <p>
+              <b>Commune(s): </b> 
+                <ul>
+                  <li *ngFor="let area of storeService.zpProperties?.areas">
+                        {{area.area_name}}
+                  </li>
+              </ul>
         </div>
     </div>
 </div>
 
 <div class="wrapper">
-    <ngx-datatable #table class="material striped margin-top-xs table-size expandable" [columnMode]="'force'"
-        [rows]="mapListService.tableData" maxWidth="90" [headerHeight]="35" [footerHeight]="40" [rowHeight]="40"
-        [rowHeight]="'auto'" [messages]="storeService.fpConfig.list_ap_message" [selected]="mapListService.selectedRow"
-        [selectionType]="'single'" (select)="mapListService.onRowSelect($event)"
+    <ngx-datatable #table 
+      class="material striped margin-top-xs table-size expandable" 
+        [columnMode]="'force'"
+        [rows]="mapListService.tableData" 
+        maxWidth="90" 
+        [headerHeight]="35"
+        [footerHeight]="40" 
+        [rowHeight]="40"
+        [rowHeight]="'auto'" 
+        [messages]="storeService.fpConfig.list_ap_message" 
+        [selected]="mapListService.selectedRow"
+        [selectionType]="'single'" 
+        (select)="mapListService.onRowSelect($event)"
         [rowClass]="mapListService.getRowClass">
         <ngx-datatable-row-detail [rowHeight]="100" #myDetailRow (toggle)="onDetailToggle($event)">
             <ng-template let-row="row" let-expanded="expanded" ngx-datatable-row-detail-template>

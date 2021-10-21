@@ -18,7 +18,6 @@
           <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
               <small> Taxon : </small>
-              id liste : {{storeService.fpConfig.id_list_taxon}}
               <pnx-taxonomy #taxon [parentFormControl]="ZpFormGroup.controls.cd_nom"
                 [idList]="storeService.fpConfig.id_list_taxon" [charNumber]="3" [listLength]="20">
               </pnx-taxonomy>

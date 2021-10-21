@@ -38,13 +38,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   public tabPertur = [];
   private geojsonSubscription$: Subscription;
   public myGeoJSON: GeoJSON;
-
   public filteredData = [];
-  public paramApp = this.storeService.queryString.append(
-    "id_application",
-    // TO FIX
-  );
-
   constructor(
     public formService: FormService,
     public mapService: MapService,
@@ -56,16 +50,15 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     public storeService: StoreService,
     public activatedRoute: ActivatedRoute,
     private _commonService: CommonService,
+    public mapListService : MapListService,
 
   ) { }
 
   ngOnInit() {
-    this.storeService.showLeafletDraw();
+    this.storeService.toggleLeafletDraw(false);
     this.idAp = this.activatedRoute.snapshot.params['indexap'];
     this.ApFormGroup = this.formService.initFormAp();
-    const url = this.activatedRoute.snapshot._routerState.url;
-
-    this.ApFormGroup.patchValue({ indexzp: url.split('/')[3] });
+    
     // subscription to the geojson observable
     this.geojsonSubscription$ = this.mapService.gettingGeojson$.subscribe(geojson => {
       this.ApFormGroup.patchValue({ geom_4326: geojson.geometry });
@@ -153,26 +146,30 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(
       [
         `${ModuleConfig.MODULE_URL}/zp`,
-        indexzp, 'ap_list'
+        indexzp, 'details'
       ]
     );
   }
   onPostAp() {
     const apForm = JSON.parse(JSON.stringify(this.ApFormGroup.value));
-
-    //perturbation
-    /* apForm["cor_ap_perturbation"] = apForm["cor_ap_perturbation"].map(
-      pertu => {
-        return pertu.id_nomenclatures;
-      }
-    ); */
-
+    // set indexZP
+    apForm["indexzp"] = this.storeService.zp.id;
     this.api.postAp(apForm).subscribe(
       data => {
         this.toastr.success('Aire de présence enregistrée', '', {
           positionClass: 'toast-top-center'
         });
+        this.router.navigate([
+            `${ModuleConfig.MODULE_URL}/zp`, this.storeService.zp.id, 'details'
+        ]);
+      // push ap maplist data       
+      this.mapListService.tableData.push(data.properties);
+      this.storeService.sites.features.push(data);
+      const savedGeojsn = Object.assign({}, this.storeService.sites);
+      this.storeService.sites = null;
+      this.storeService.sites = savedGeojsn;
       });
+
   }
 
   deleteControlValue() {

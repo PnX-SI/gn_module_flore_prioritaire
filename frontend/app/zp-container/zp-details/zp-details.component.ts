@@ -38,7 +38,12 @@ export class ZpDetailsComponent implements OnInit {
     private toastr: ToastrService
   ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
+
+  ngAfterViewInit() {    
+    this.storeService.toggleLeafletDraw(true);
+  }
 
   onAddAp(idZP) {    
     this.router.navigate(
@@ -47,7 +52,6 @@ export class ZpDetailsComponent implements OnInit {
         idZP, 'post_ap'
       ]
     );
-    this.storeService.showLeafletDraw();
   }
 
   onEditAp(idZP, idAP) {
@@ -57,7 +61,6 @@ export class ZpDetailsComponent implements OnInit {
         idZP, 'post_ap', idAP
       ]
     );
-    this.storeService.showLeafletDraw();
   }
 
   onDeleteAp(indexap) {

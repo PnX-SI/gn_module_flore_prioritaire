@@ -130,7 +130,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     this.router.navigate(
       [
         `${ModuleConfig.MODULE_URL}/zp`,
-        indexzp, 'ap_list'
+        indexzp, 'details'
       ]
     );
   }
