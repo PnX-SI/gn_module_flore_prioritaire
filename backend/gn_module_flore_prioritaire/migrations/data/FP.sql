@@ -65,7 +65,7 @@ CREATE TABLE pr_priority_flora.t_apresence(
 	topo_valid                                        BOOLEAN,
 	altitude_min                                      INT DEFAULT 0,
 	altitude_max                                      INT DEFAULT 0,
-  frequency                                         FLOAT,
+    frequency                                         FLOAT,
 	comment                                           VARCHAR (2000),
 	indexzp						  					  BIGINT,
 	id_nomenclatures_pente				  			  INT,
