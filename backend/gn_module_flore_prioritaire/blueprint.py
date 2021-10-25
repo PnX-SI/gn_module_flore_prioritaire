@@ -111,9 +111,9 @@ def post_zp(id_zp=None):
     Poste une nouvelle zone de prospection
     """
     data = dict(request.get_json())
-
     if data["indexzp"] is None:
         data.pop("indexzp")
+    print(data)
 
     tab_observer = []
 
@@ -121,22 +121,22 @@ def post_zp(id_zp=None):
         tab_observer = data.pop("cor_zp_observer")
 
     shape = asShape(data["geom_4326"])
-    releve = TZprospect(**data)
-    releve.geom_4326 = from_shape(shape, srid=4326)
+    zp = TZprospect(**data)
+    zp.geom_4326 = from_shape(shape, srid=4326)
 
     observers = DB.session.query(User).filter(User.id_role.in_(tab_observer)).all()
 
-    for o in observers:
-        releve.observers.append(o)
+    # for o in observers:
+    #     zp.observers.append(o)
     if "indexzp" in data:
-        DB.session.merge(releve)
+        DB.session.merge(zp)
     else:
-        DB.session.add(releve)
-    DB.session.flush()
+        DB.session.add(zp)
+    # DB.session.flush()
 
     DB.session.commit()
 
-    return releve.as_geofeature("geom_4326", "indexzp", True)
+    return zp.as_geofeature("geom_4326", "indexzp", True)
 
 
 @blueprint.route("/post_ap", methods=["POST"])

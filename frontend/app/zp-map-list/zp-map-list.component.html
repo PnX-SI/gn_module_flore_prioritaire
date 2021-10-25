@@ -25,7 +25,7 @@
                         <div class="searchSite col">
                             <small> Taxon </small>
                             <pnx-taxonomy #taxon [parentFormControl]="filterForm.controls.filterTaxon"
-                                [idList]="storeService.fpConfig.id_list_taxon" [charNumber]="3" [listLength]="20"
+                                [idList]="storeService.fpConfig.code_liste_taxon" [charNumber]="3" [listLength]="20"
                                 (onChange)="onSearchTaxon($event)" 
                                 (onDelete)="removeCdNom()">
                             </pnx-taxonomy>

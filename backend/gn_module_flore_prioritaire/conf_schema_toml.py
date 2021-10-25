@@ -58,7 +58,7 @@ class GnModuleSchemaConf(Schema):
     id_type_maille = fields.Integer(load_default=32)
     id_type_commune = fields.Integer(load_default=25)
     id_menu_list_user = fields.Integer(load_default=1)
-    id_list_taxon = fields.Integer(load_default=100)
+    code_liste_taxon = fields.String()
     export_srid = fields.Integer(load_default=2154)
     zoom_center = fields.List(fields.Float(), load_default=coor_zoom_center)
     zoom = fields.Integer(load_default=10)

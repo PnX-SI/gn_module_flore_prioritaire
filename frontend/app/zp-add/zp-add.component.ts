@@ -114,7 +114,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
         console.log(data);
 
         this.router.navigate(
-          [`${ModuleConfig.MODULE_URL}/zp`, data.id, 'ap_list'
+          [`${ModuleConfig.MODULE_URL}/zp`, data.id, 'details'
           ]
         );
       });

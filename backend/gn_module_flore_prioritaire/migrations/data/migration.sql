@@ -73,7 +73,6 @@ WHERE z.supprime = 'false';
 
 
 
--- TODO physinomie 
 insert into taxonomie.bib_attributs (nom_attribut, label_attribut, obligatoire, desc_attribut, type_attribut,type_widget, id_theme, liste_valeur_attribut)
 select 'physionomie','Physionomie','false','Physionomie principale du taxon','text','textarea',1,'{"values":[' || string_agg ('"' || ph.nom_physionomie || '"',',') || ']}' 
 from v1_florepatri.bib_physionomies ph; 
@@ -89,3 +88,22 @@ join v1_florepatri.t_zprospection tz on tz.indexzp = ta.indexzp
 join taxonomie.taxref tx on tx.cd_nom = tz.cd_nom
 join v1_florepatri.bib_physionomies bp on bp.id_physionomie = cap.id_physionomie
 group by tx.cd_ref;
+
+
+
+--update sequences
+SELECT setval('pr_priority_flora.t_zprospect_indexzp_seq', (select max(indexzp) from pr_priority_flora.t_zprospect tz ), true);
+SELECT setval('pr_priority_flora.t_apresence_indexap_seq', (select max(indexap) from pr_priority_flora.t_apresence tz ), true);
+
+INSERT INTO taxonomie.bib_listes
+(nom_liste, desc_liste, code_liste)
+VALUES('Flore prioritaire', 'Liste de taxon pour le module flore prioritaire','FLORE_PRIO');
+
+
+INSERT INTO taxonomie.cor_nom_liste
+(id_liste, id_nom)
+SELECT 
+(SELECT id_liste FROM taxonomie.bib_listes WHERE code_liste = 'FLORE_PRIO'),
+id_nom 
+FROM taxonomie.bib_noms b
+JOIN v1_florepatri.bib_taxons_fp t ON b.cd_nom = t.cd_nom; 
