@@ -35,11 +35,12 @@ def get_zprospect():
     Retourne toutes les zones de prospection du module
     """
 
-    id_type_commune = blueprint.config["id_type_commune"]
     parameters = request.args
+    page = int(parameters.get("page", 0))
+    limit = int(parameters.get("limit", 100))
 
     q = TZprospect.query
-
+    number_without_filter = q.count()
     if "indexzp" in parameters:
         q = q.filter(TZprospect.indexzp == parameters["indexzp"])
 
@@ -54,9 +55,8 @@ def get_zprospect():
 
     if "year" in parameters:
         q = q.filter(func.date_part("year", TZprospect.date_min) == parameters["year"])
-    data = q.all()
+    data = q.order_by(TZprospect.date_min.desc()).limit(limit).offset(page * limit)
     features = []
-
     for d in data:
         feature = d.get_geofeature(
             fields=[
@@ -77,7 +77,7 @@ def get_zprospect():
             )
         )
         features.append(feature)
-    return FeatureCollection(features)
+    return {"total": number_without_filter, "items": FeatureCollection(features)}
 
 
 @blueprint.route("/apresences", methods=["GET"])

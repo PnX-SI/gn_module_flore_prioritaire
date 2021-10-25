@@ -33,6 +33,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   private _map;
   public center;
   public zoom;
+  public nbZp : number;
 
   @Output()
   onDeleteFiltre = new EventEmitter<any>();
@@ -49,14 +50,9 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.displayColumns = ModuleConfig.default_zp_columns;
+    this.storeService.queryString = this.storeService.queryString.set("limit", "12");
     this.mapListService.idName = 'indexzp';
-    this.api.getZProspects().subscribe(data => {
-      this.myGeoJSON = data;
-      this.mapListService.loadTableData(data);
-      this.filteredData = this.mapListService.tableData;
-      this.dataLoaded = true;
-    }
-    );
+    this.loadData();
     this.center = this.storeService.fpConfig.zoom_center;
     this.zoom = this.storeService.fpConfig.zoom;
 
@@ -109,10 +105,19 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
   }
 
+  onChangePage(event) {
+    this.storeService.queryString = this.storeService.queryString.set(
+      "page",
+      event.offset.toString()
+    );
+    this.loadData();
+  }
+
   loadData() {    
     this.api.getZProspects(this.storeService.queryString).subscribe(data => {
-      this.myGeoJSON = data;
-      this.mapListService.loadTableData(data);
+      this.nbZp = data.total;
+      this.myGeoJSON = data.items;
+      this.mapListService.loadTableData(data.items);
       this.filteredData = this.mapListService.tableData;
       this.dataLoaded = true;
     }
