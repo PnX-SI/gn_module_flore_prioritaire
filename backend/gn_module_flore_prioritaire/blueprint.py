@@ -126,17 +126,15 @@ def post_zp(id_zp=None):
 
     observers = DB.session.query(User).filter(User.id_role.in_(tab_observer)).all()
 
-    # for o in observers:
-    #     zp.observers.append(o)
+    for o in observers:
+        zp.observers.append(o)
     if "indexzp" in data:
         DB.session.merge(zp)
     else:
         DB.session.add(zp)
-    # DB.session.flush()
-
     DB.session.commit()
 
-    return zp.as_geofeature("geom_4326", "indexzp", True)
+    return zp.as_geofeature("geom_4326", "indexzp", fields=["observers"])
 
 
 @blueprint.route("/post_ap", methods=["POST"])
