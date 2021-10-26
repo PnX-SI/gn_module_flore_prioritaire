@@ -50,7 +50,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.displayColumns = ModuleConfig.default_zp_columns;
-    this.storeService.queryString = this.storeService.queryString.set("limit", "12");
+    this.storeService.queryString = this.storeService.queryString.set("limit", "13");
     this.mapListService.idName = 'indexzp';
     this.loadData();
     this.center = this.storeService.fpConfig.zoom_center;

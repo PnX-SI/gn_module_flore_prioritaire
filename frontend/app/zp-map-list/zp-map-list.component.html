@@ -1,7 +1,7 @@
 <div class="row row-0">
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm">
         <!-- MAP -->
-        <pnx-map height="94vh" [center]="center" [zoom]="zoom">
+        <pnx-map height="92vh" [center]="center" [zoom]="zoom">
             <!-- <pnx-leaflet-draw [options]="leafletDrawOptions" (layerDrawed)="sendGeoInfo($event)"> </pnx-leaflet-draw> -->
             <pnx-geojson [onEachFeature]="onEachFeature.bind(this)" [geojson]="myGeoJSON"></pnx-geojson>
         </pnx-map>
@@ -69,7 +69,6 @@
                     (page)="onChangePage($event)"
                     [messages]="storeService.fpConfig.zp_message"
                     [offset]="mapListService.page.pageNumber" 
-                    [limit]="mapListService.page.size"
                 >
 
 

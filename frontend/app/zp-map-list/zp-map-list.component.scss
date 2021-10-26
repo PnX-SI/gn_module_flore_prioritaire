@@ -90,7 +90,7 @@
 ngx-datatable {
   max-height: 79vh !important;
   box-shadow: none !important;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 :host /deep/ #dataset-form  {

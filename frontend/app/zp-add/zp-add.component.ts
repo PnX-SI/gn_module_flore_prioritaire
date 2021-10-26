@@ -74,26 +74,16 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     // vérifie s'il existe idZp --> c' une modif
     if (this.idZp !== undefined) {
       this.api.getOneZP(this.idZp).subscribe(element => {
-
-        if (element.zp.features[0].properties.cor_zp_observer !== undefined) {
-          let fullNameObserver;
-          element.zp.features[0].properties.cor_zp_observer.forEach(name => {
-            if (name === element.zp.features[0].properties.cor_zp_observer[element.zp.features[0].properties.cor_zp_observer.length - 1]) {
-              fullNameObserver = name.nom_complet + '. ';
-            } else {
-              fullNameObserver = name.nom_complet + ', ';
-            }
-            this.tabObserver.push(fullNameObserver);
-          });
-        }
-
+        const zp = element.zp.properties;
         this.ZpFormGroup.patchValue({
-          indexzp: this.idZp,
-          cd_nom: element.zp.features[0].properties.taxonomy,
-          date_min: this._dateParser.parse(element.zp.features[0].properties.date_min),
-          cor_zp_observer: element.zp.features[0].properties.cor_zp_observer,
-          geom_4326: element.zp.features[0].geometry
+          indexzp: zp.indexzp,
+          cd_nom: zp.taxonomy,
+          date_min: this._dateParser.parse(zp.date_min),
+          cor_zp_observer: zp.observers,
+          geom_4326: element.zp.geometry
         });
+        this.disabledForm = false;
+
       });
     };
   }
@@ -164,9 +154,6 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
 
 
   sendGeoInfo(geojson) {
-    // renvoie le
-    // this._ms.setGeojsonCoord(geojson);
-    console.log(geojson.geometry);
     this.disabledForm = false;
     this.ZpFormGroup.patchValue({ geom_4326: geojson.geometry })
   }
