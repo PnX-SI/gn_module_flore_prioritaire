@@ -5,11 +5,13 @@ from operator import or_
 
 from flask import Blueprint, request, send_from_directory, jsonify
 from geojson.feature import Feature
+from geonature.core.gn_permissions.tools import cruved_scope_for_user_in_module, get_or_fetch_user_cruved
 
 from shapely.geometry import asShape
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import FeatureCollection
 from sqlalchemy.sql.expression import func, select
+from sqlalchemy.sql.functions import user
 from werkzeug.exceptions import BadRequest, Forbidden
 
 from geonature.utils.env import DB, ROOT_DIR
@@ -42,7 +44,9 @@ def get_zprospect(info_role):
     parameters = request.args
     page = int(parameters.get("page", 0))
     limit = int(parameters.get("limit", 100))
-
+    user_cruved = cruved_scope_for_user_in_module(
+        id_role=info_role.id_role, module_code="GN_MODULE_FLORE_PRIORITAIRE"
+    )
     q = TZprospect.query
     if info_role.value_filter == "2":
         q = q.filter(
@@ -87,6 +91,8 @@ def get_zprospect(info_role):
                 "observers.organisme",
             ],
         )
+        cruved_auth = d.get_model_cruved(info_role, user_cruved[0])
+        feature["properties"]["rights"] = cruved_auth
         feature["properties"]["organisms_list"] = ",".join(
             map(
                 lambda obs: obs["organisme"]["nom_organisme"],

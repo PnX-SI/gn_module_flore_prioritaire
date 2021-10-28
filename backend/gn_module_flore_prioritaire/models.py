@@ -1,3 +1,4 @@
+from geonature.core.utils import ModelCruvedAutorization
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
@@ -11,6 +12,60 @@ from utils_flask_sqla_geo.serializers import geoserializable, shapeserializable
 from geonature.core.ref_geo.models import LAreas
 from pypnnomenclature.models import TNomenclatures
 
+
+class ZpCruvedAuth(DB.Model):
+    """
+    Classe abstraite de contrôle d'accès à la donnée
+    """
+    __abstract__ = True
+
+    def user_is_observer(self, user):
+        for obs in self.observers:
+            if obs.id_role == user.id_role:
+                return True 
+        return False
+
+    def user_is_in_organism_of_zp(self, user):
+        for obs in self.observers:
+            if obs.id_role == user.id_role:
+                return True 
+        return False
+    def user_is_allowed_to(self, user, level):
+        """
+            Fonction permettant de dire si un utilisateur
+            peu ou non agir sur une donnée
+        """
+        # Si l'utilisateur n'a pas de droit d'accès aux données
+        if level == "0" or level not in ("1", "2", "3"):
+            return False
+
+        # Si l'utilisateur à le droit d'accéder à toutes les données
+        if level == "3":
+            return True
+
+        # Si l'utilisateur est propriétaire de la données
+        if self.user_is_observer(user):
+            return True
+
+        # Si l'utilisateur appartient à un organisme
+        # qui a un droit sur la données et
+        # que son niveau d'accès est 2 ou 3
+        if self.user_is_in_organism_of_zp(user) and level in ("2", "3"):
+            return True
+        return False
+
+    def get_model_cruved(self, user, user_cruved):
+        """
+        Return the user's cruved for a model instance.
+        Use in the map-list interface to allow or not an action
+        params:
+            - user : a TRole object
+            - user_cruved: object return by cruved_for_user_in_app(user)
+        """
+        return {
+            action: self.user_is_allowed_to(user, level)
+            for action, level in user_cruved.items()
+        }
 
 @serializable
 class CorApPerturb(DB.Model):
@@ -134,7 +189,7 @@ cor_zp_area = DB.Table('cor_zp_area',
 
 @serializable
 @geoserializable
-class TZprospect(DB.Model):
+class TZprospect(ZpCruvedAuth):
     __tablename__ = "t_zprospect"
     __table_args__ = {"schema": "pr_priority_flora"}
     indexzp = DB.Column(DB.Integer, primary_key=True, autoincrement=True)

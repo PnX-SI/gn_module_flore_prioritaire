@@ -74,8 +74,13 @@
 
                     <ngx-datatable-column maxWidth="10">
                         <ng-template let-row="row" ngx-datatable-cell-template>
-                            <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost"
-                                (click)="onEditZp(row.indexzp)" title="Editer">
+                            <button 
+                                type="button" 
+                                class="btn btn-outline-shadow btn-no-padding btn-ghost"
+                                (click)="onEditZp(row.indexzp)" 
+                                title="Editer"
+                                [disabled]="!row.rights.U"
+                            >
                                 <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                             </button>
                         </ng-template>
@@ -83,8 +88,11 @@
 
                     <ngx-datatable-column maxWidth="10">
                         <ng-template let-row="row" ngx-datatable-cell-template>
-                            <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost"
-                                (click)="onInfo(row.indexzp)" title="Visualiser">
+                            <button 
+                                type="button" 
+                                class="btn btn-outline-shadow btn-no-padding btn-ghost"
+                                (click)="onInfo(row.indexzp)" 
+                                title="Visualiser">
                                 <i class="fa fa-info-circle" aria-hidden="true"></i>
                             </button>
                         </ng-template>
@@ -92,8 +100,12 @@
 
                     <ngx-datatable-column maxWidth="100">
                         <ng-template let-row="row" ngx-datatable-cell-template>
-                            <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost"
-                                (click)="onDeleteZp(row.indexzp)" title="Supprimer">
+                            <button 
+                                type="button" 
+                                class="btn btn-outline-shadow btn-no-padding btn-ghost"
+                                (click)="onDeleteZp(row.indexzp)" 
+                                [disabled]="!row.rights.D"
+                                title="Supprimer">
                                 <i class="fa fa-trash-o" aria-hidden="true"></i> 
                             </button>
                         </ng-template>
