@@ -15,6 +15,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { ModuleConfig } from "../../module.config";
 import { CommonService } from "@geonature_common/service/common.service";
+import { distinctUntilChanged } from "rxjs/operators";
 
 
 @Component({
@@ -60,10 +61,18 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ApFormGroup = this.formService.initFormAp();
     
     // subscription to the geojson observable
-    this.geojsonSubscription$ = this.mapService.gettingGeojson$.subscribe(geojson => {
+    this.geojsonSubscription$ = this.mapService.gettingGeojson$
+    .pipe(
+      distinctUntilChanged()
+    )
+    .subscribe(geojson => {
       this.ApFormGroup.patchValue({ geom_4326: geojson.geometry });
       this.geojson = geojson;
-
+      
+      // get area size
+      this._dfs.getAreaSize(geojson).subscribe(areaSize => {
+        this.ApFormGroup.patchValue({"area": Math.round(areaSize)});
+      })
       // get to geo info from API
       this._dfs.getGeoInfo(geojson).subscribe(res => {
         this.ApFormGroup.patchValue({
@@ -124,10 +133,10 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
           frequency: element.properties.frequency,
           total_min: element.properties.total_min,
           total_max: element.properties.total_max,
-          id_nomenclatures_phenology: element.properties.pheno.id_nomenclature,
+          id_nomenclatures_phenology: element.properties.pheno ? element.properties.pheno.id_nomenclature : null,
           id_nomenclatures_habitat: element.properties.habitat ? element.properties.habitat.id_nomenclature : null,
-          id_nomenclatures_pente: element.properties.pente.id_nomenclature,
-          id_nomenclatures_counting: element.properties.counting.id_nomenclature,
+          id_nomenclatures_pente: element.properties.pente ? element.properties.pente.id_nomenclature: null,
+          id_nomenclatures_counting: element.properties.counting ? element.properties.counting.id_nomenclature : null,
           geom_4326: element.geometry,
           cor_ap_perturbation: element.properties.cor_ap_perturbation === null ? [] : element.properties.cor_ap_perturbation
         });

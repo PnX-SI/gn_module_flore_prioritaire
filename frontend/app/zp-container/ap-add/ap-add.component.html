@@ -37,19 +37,24 @@
               <small> Pente estimée</small>
               <div class="" id="newPente">
                 <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclatures_pente"
-                  [multiSelect]="false" keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+                  [multiSelect]="false" keyValue="id_nomenclature"
                   codeNomenclatureType="TYPE_PENTE">
                 </pnx-nomenclature>
               </div>
             </div>
+            <div class="col-3">
+              <small>Surface (m²)</small>
+              <input class="form-control" type="number" [formControl]="ApFormGroup.get('area')">
+            </div>
           </div>
+
         </fieldset>
       </div>
       <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4 padding-sm">
         <small> Phénologie </small>
         <div class="" id="newPheno">
           <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclatures_phenology" [multiSelect]="false"
-            keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+            keyValue="id_nomenclature"
             codeNomenclatureType="TYPE_PHENOLOGIE">
           </pnx-nomenclature>
         </div>
@@ -58,7 +63,7 @@
         <small> Perturbation(s) </small>
         <div class="" id="newPerturs">
           <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.cor_ap_perturbation" [multiSelect]="true"
-            keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+            keyValue="id_nomenclature"
             codeNomenclatureType="TYPE_PERTURBATION">
           </pnx-nomenclature>
         </div>
@@ -67,7 +72,7 @@
         <small> Habitat </small>
         <div class="" id="newHabitat">
           <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclatures_habitat" [multiSelect]="false"
-            keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+            keyValue="id_nomenclature"
             codeNomenclatureType="ETAT_HABITAT">
           </pnx-nomenclature>
         </div>
@@ -87,7 +92,7 @@
             <small> Objet dénombrement </small>
             <div class="" id="newCounting">
               <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclatures_counting"
-                [multiSelect]="false" keyValue="id_nomenclature" [bindAllItem]="true" keyLabel="label_default"
+                [multiSelect]="false" keyValue="id_nomenclature" 
                 codeNomenclatureType="FLORE_PATRI_METHODO_DENOM">
               </pnx-nomenclature>
             </div>
