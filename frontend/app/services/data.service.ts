@@ -15,7 +15,7 @@ export class DataService {
      }
  
      const test = */
-    return this._http.get<any>(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/z_prospects`, {
+    return this._http.get<any>(`${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/z_prospects`, {
       params: params
     });
   }
@@ -26,41 +26,41 @@ export class DataService {
     for (let key in params) {
       myParams = myParams.set(key, params[key]);
     }
-    return this._http.get<any>(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/apresences`, {
+    return this._http.get<any>(`${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/apresences`, {
       params: myParams
     });
   }
 
   getOneZP(idZp) {
     return this._http.get<any>(
-      `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/zp/${idZp}`
+      `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/zp/${idZp}`
     );
   }
 
   getOneAP(idAp) {
     return this._http.get<any>(
-      `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/ap/${idAp}`
+      `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/ap/${idAp}`
     );
   }
 
   getOrganisme() {
     return this._http.get<any>(
-      `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/organismes`
+      `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/organismes`
     );
   }
 
   getCommune() {
     return this._http.get<any>(
-      `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/communes`
+      `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/communes`
     );
   }
 
   postZp(data: any) {
-    return this._http.post<any>(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/post_zp`, data);
+    return this._http.post<any>(`${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/post_zp`, data);
   }
 
   patchZp(data: any, idZp) {
-    return this._http.post<any>(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/post_zp/${idZp}`, data);
+    return this._http.post<any>(`${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/post_zp/${idZp}`, data);
   }
 
   postAp(data: any) {
@@ -68,15 +68,22 @@ export class DataService {
   }
 
   patchAp(data: any, idAp) {
-    return this._http.post<any>(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/post_ap/${idAp}`, data);
+    return this._http.post<any>(`${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/post_ap/${idAp}`, data);
   }
 
   deleteZp(idZp) {
-    return this._http.delete(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/zp/${idZp}`);
+    return this._http.delete(`${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/zp/${idZp}`);
   }
 
   deleteAp(idAp) {
-    return this._http.delete(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/ap/${idAp}`);
+    return this._http.delete(`${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/ap/${idAp}`);
+  }
+
+  areaContain(geomA, geomB) {
+    return this._http.post(
+      `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/area_contain`,
+      {"geom_a": geomA, "geom_b": geomB}
+    )
   }
 }
 

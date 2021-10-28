@@ -66,23 +66,38 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
       distinctUntilChanged()
     )
     .subscribe(geojson => {
-      this.ApFormGroup.patchValue({ geom_4326: geojson.geometry });
-      this.geojson = geojson;
-      
-      // get area size
-      this._dfs.getAreaSize(geojson).subscribe(areaSize => {
-        this.ApFormGroup.patchValue({"area": Math.round(areaSize)});
+
+      // check if ap is in zp 
+      console.log(this.storeService.zp.geometry);
+      this.api.areaContain(this.storeService.zp.geometry, geojson.geometry).subscribe(contain => {
+        if(contain) {
+          this.ApFormGroup.patchValue({ geom_4326: geojson.geometry });
+          this.geojson = geojson;
+          // get area size
+          this._dfs.getAreaSize(geojson).subscribe(areaSize => {
+            this.ApFormGroup.patchValue({"area": Math.round(areaSize)});
+          })
+          // get to geo info from API
+          this._dfs.getGeoInfo(geojson).subscribe(res => {
+            this.ApFormGroup.patchValue({
+              altitude_min: res.altitude.altitude_min,
+              altitude_max: res.altitude.altitude_max
+            });
+          });
+          this._dfs.getFormatedGeoIntersection(geojson).subscribe(res => {
+            this.areasIntersected = res;
+          });
+        } else {
+          this.ApFormGroup.patchValue({"geom_4326": null});
+          this._commonService.regularToaster(
+            "warning",
+            "L'aire de présence n'est pas inclue dans la zone de prospection"
+          );
+        }
+        
       })
-      // get to geo info from API
-      this._dfs.getGeoInfo(geojson).subscribe(res => {
-        this.ApFormGroup.patchValue({
-          altitude_min: res.altitude.altitude_min,
-          altitude_max: res.altitude.altitude_max
-        });
-      });
-      this._dfs.getFormatedGeoIntersection(geojson).subscribe(res => {
-        this.areasIntersected = res;
-      });
+      
+
     });
     // autocomplete total_max
     this.ApFormGroup.controls.total_min.valueChanges

@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from flask import Blueprint, request, send_from_directory, jsonify
 from geojson.feature import Feature
@@ -6,7 +7,7 @@ from geojson.feature import Feature
 from shapely.geometry import asShape
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import FeatureCollection
-from sqlalchemy.sql.expression import func
+from sqlalchemy.sql.expression import func, select
 from werkzeug.exceptions import BadRequest
 
 from geonature.utils.env import DB, ROOT_DIR
@@ -382,7 +383,6 @@ def export_ap():
 
 
 @blueprint.route("/area_contain", methods=["POST"])
-@json_resp
 def check_ap_in_zp():
 
     data = request.get_json()
@@ -393,4 +393,13 @@ def check_ap_in_zp():
         assert "geom_b" in data
     except AssertionError:
         raise BadRequest("missing geom_a or geom_b in posted JSON")
+    q = DB.session.execute(select([
+            func.st_contains(
+               func.ST_GeomFromGeoJSON(json.dumps(data["geom_a"])),
+                func.ST_GeomFromGeoJSON(json.dumps(data["geom_b"])),
+            )]
+        )
+    )
+    result = q.scalar()
+    return jsonify(result)
     
