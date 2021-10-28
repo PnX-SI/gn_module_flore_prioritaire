@@ -7,7 +7,8 @@ from shapely.geometry import asShape
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import FeatureCollection
 from sqlalchemy.sql.expression import func
-from sqlalchemy import and_
+from werkzeug.exceptions import BadRequest
+
 from geonature.utils.env import DB, ROOT_DIR
 from geonature.utils.utilsgeometry import FionaShapeService
 from geonature.utils.env import DB
@@ -266,11 +267,10 @@ def get_one_zp(id_zp):
     return None
 
 
-#  route get One Ap
 @blueprint.route("/ap/<int:id_ap>", methods=["GET"])
 @json_resp
 def get_one_ap(id_ap):
-
+    
     ap = DB.session.query(TApresence).get(id_ap)
 
     return ap.get_geofeature()
@@ -379,3 +379,18 @@ def export_ap():
         FionaShapeService.save_and_zip_shapefiles()
 
         return send_from_directory(dir_path, file_name + ".zip", as_attachment=True)
+
+
+@blueprint.route("/area_contain", methods=["POST"])
+@json_resp
+def check_ap_in_zp():
+
+    data = request.get_json()
+
+    ["geom_a", "geom_b"]
+    try:
+        assert "geom_a" in data
+        assert "geom_b" in data
+    except AssertionError:
+        raise BadRequest("missing geom_a or geom_b in posted JSON")
+    

@@ -12,27 +12,15 @@ export class FormService {
       indexap: null,
       indexzp: null,
       cor_ap_perturbation: new Array(),
-      area: null,
+      area: [{value: null, disabled: true}],
       id_nomenclatures_pente: null,
       altitude_min: null,
       altitude_max: null,
       id_nomenclatures_phenology: null,
       id_nomenclatures_habitat: null,
       frequency: null,
-      total_min: [
-        1,
-        Validators.compose([
-          Validators.required,
-          Validators.pattern("[0-9]+[0-9]*")
-        ])
-      ],
-      total_max: [
-        1,
-        Validators.compose([
-          Validators.required,
-          Validators.pattern("[0-9]+[0-9]*")
-        ])
-      ],
+      total_min: null,
+      total_max: null,
       id_nomenclatures_counting: null,
       comment: null,
       geom_4326: [null, Validators.required]

@@ -18,6 +18,7 @@ JOIN pr_priority_flora.t_zprospect z on z.indexzp = obs.indexzp -- join to remov
 ;
 
 INSERT INTO pr_priority_flora.t_apresence(
+    indexap,
     area, 
     topo_valid, 
     altitude_min, 
@@ -38,6 +39,7 @@ INSERT INTO pr_priority_flora.t_apresence(
     geom_point_4326
 )
 SELECT
+ a.indexap,
  surfaceap::FLOAT, 
  a.topo_valid, 
  altitude_retenue, 
@@ -63,13 +65,13 @@ JOIN pr_priority_flora.t_zprospect z ON z.indexzp = a.indexzp
 ;
 
 INSERT INTO pr_priority_flora.cor_ap_perturb 
-SELECT indexzp, id_nomenclature, NULL as pres_effective
+SELECT a.indexap , id_nomenclature, NULL as pres_effective
 FROM v1_florepatri.cor_ap_perturb cor 
-JOIN v1_florepatri.t_zprospection z on z.indexzp = cor.indexzp
-JOIN v1_florepatri.bib_perturbations b ON b.code_per = cor.code_per
+JOIN pr_priority_flora.t_apresence a on a.indexap = cor.indexap 
+JOIN v1_florepatri.bib_perturbations b ON b.codeper = cor.codeper
 JOIN ref_nomenclatures.t_nomenclatures t ON t.label_default = b.description
-JOIN ref_nomenclatures.bib_nomenclatures_types bib ON bib.id_type = t.id_type AND bib.mnemonique = 'TYPE_PERTURBATION';
-WHERE z.supprime = 'false';
+JOIN ref_nomenclatures.bib_nomenclatures_types bib ON bib.id_type = t.id_type AND bib.mnemonique = 'TYPE_PERTURBATION'
+;
 
 
 

@@ -95,7 +95,7 @@ CREATE TABLE pr_priority_flora.t_apresence(
 
 CREATE TABLE pr_priority_flora.cor_zp_area(
 	id_area   INT  NOT NULL,
-	indexzp   INT  NOT NULL,
+	indexzp   BIGINT  NOT NULL,
 	
 	CONSTRAINT pk_cor_zp_area PRIMARY KEY (id_area,indexzp),
 	CONSTRAINT fk_cor_zp_area_l_areas FOREIGN KEY (id_area) REFERENCES ref_geo.l_areas(id_area) ON UPDATE CASCADE ON DELETE NO ACTION,
@@ -111,7 +111,7 @@ WITH (
 
 CREATE TABLE pr_priority_flora.cor_ap_area(
 	id_area   INT  NOT NULL,
-	indexap   INT  NOT NULL,
+	indexap   BIGINT  NOT NULL,
 	
 	CONSTRAINT pk_cor_ap_area PRIMARY KEY (id_area,indexap),
 	CONSTRAINT fk_cor_ap_area_l_areas FOREIGN KEY (id_area) REFERENCES ref_geo.l_areas(id_area) ON UPDATE CASCADE ON DELETE NO ACTION,
@@ -126,7 +126,7 @@ WITH (
 ------------------------------------------------------------
 
 CREATE TABLE pr_priority_flora.cor_ap_perturb(
-	indexap           INT  NOT NULL,
+	indexap           BIGINT  NOT NULL,
 	id_nomenclature   INT  NOT NULL,
 	pres_effective		BOOLEAN,	
 
