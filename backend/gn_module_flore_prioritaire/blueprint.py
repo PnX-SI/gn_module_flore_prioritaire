@@ -1,5 +1,7 @@
 import datetime
 import json
+from logging import info
+from operator import or_
 
 from flask import Blueprint, request, send_from_directory, jsonify
 from geojson.feature import Feature
@@ -8,7 +10,7 @@ from shapely.geometry import asShape
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import FeatureCollection
 from sqlalchemy.sql.expression import func, select
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, Forbidden
 
 from geonature.utils.env import DB, ROOT_DIR
 from geonature.utils.utilsgeometry import FionaShapeService
@@ -23,25 +25,38 @@ from .models import (
     ExportAp,
 )
 from geonature.core.taxonomie.models import Taxref
-from geonature.core.ref_geo.models import LAreas
-from pypnusershub.db.models import Organisme as BibOrganismes
-
+from geonature.core.gn_permissions import decorators as permissions
+from pypnusershub.db.models import Organisme
 
 blueprint = Blueprint("pr_priority_flora", __name__)
 
 
 @blueprint.route("/z_prospects", methods=["GET"])
+@permissions.check_cruved_scope("R", True, module_code="GN_MODULE_FLORE_PRIORITAIRE")
 @json_resp
-def get_zprospect():
+def get_zprospect(info_role):
     """
     Retourne toutes les zones de prospection du module
     """
-
+    print(info_role)
     parameters = request.args
     page = int(parameters.get("page", 0))
     limit = int(parameters.get("limit", 100))
 
     q = TZprospect.query
+    if info_role.value_filter == "2":
+        q = q.filter(
+                TZprospect.observers.any(or_(
+                    User.id_role == info_role.id_role,
+                    User.id_organisme == info_role.id_organisme,
+                ))
+        )
+    if info_role.value_filter == "1":
+        q = q.filter(
+                TZprospect.observers.any(
+                    User.id_role == info_role.id_role,
+                )
+        )
     number_without_filter = q.count()
     if "indexzp" in parameters:
         q = q.filter(TZprospect.indexzp == parameters["indexzp"])
@@ -83,15 +98,15 @@ def get_zprospect():
 
 
 @blueprint.route("/apresences", methods=["GET"])
+@permissions.check_cruved_scope("R", module_code="GN_MODULE_FLORE_PRIORITAIRE")
 @json_resp
 def get_apresences():
     """
     Retourne toutes les aires de présence d'une zone de prospection
     """
     parameters = request.args
-    q = DB.session.query(TApresence, TZprospect).outerjoin(
-        TZprospect, TApresence.indexzp == TZprospect.indexzp
-    )
+    q = TApresence.query
+
     if "indexzp" in parameters:
         q = q.filter(TApresence.indexzp == parameters["indexzp"])
     data = q.all()
@@ -99,7 +114,6 @@ def get_apresences():
 
     for d in data:
         feature = d[0].get_geofeature()
-        id_ap = feature["properties"]["indexap"]
         features.append(feature)
 
     return FeatureCollection(features)
@@ -107,15 +121,15 @@ def get_apresences():
 
 @blueprint.route("/post_zp", methods=["POST"])
 @blueprint.route("/post_zp/<int:id_zp>", methods=["POST"])
+@permissions.check_cruved_scope("C", True, module_code="GN_MODULE_FLORE_PRIORITAIRE")
 @json_resp
-def post_zp(id_zp=None):
+def post_zp(info_role, id_zp=None):
     """
     Poste une nouvelle zone de prospection
     """
     data = dict(request.get_json())
     if data["indexzp"] is None:
         data.pop("indexzp")
-    print(data)
 
     tab_observer = []
 
@@ -131,6 +145,25 @@ def post_zp(id_zp=None):
     for o in observers:
         zp.observers.append(o)
     if "indexzp" in data:
+        if info_role.value_filter in ("1", "2"):
+            q = DB.session.query(TZprospect).filter_by(indexzp=data["indexzp"])
+            if info_role.value_filter == "2":
+                q = q.filter(
+                        TZprospect.observers.any(or_(
+                            User.id_role == info_role.id_role,
+                            User.id_organisme == info_role.id_organisme,
+                        ))
+                )
+            if info_role.value_filter == "1":
+                q = q.filter(
+                        TZprospect.observers.any(
+                            User.id_role == info_role.id_role,
+                        )
+                )
+            check_cruved = DB.session.query(q.exists()).scalar()
+            if not check_cruved:
+                raise Forbidden("Vous n'avez pas les droits pour éditer cette ZP")
+        
         DB.session.merge(zp)
     else:
         DB.session.add(zp)
@@ -140,8 +173,9 @@ def post_zp(id_zp=None):
 
 
 @blueprint.route("/post_ap", methods=["POST"])
+@permissions.check_cruved_scope("C", True, module_code="GN_MODULE_FLORE_PRIORITAIRE")
 @json_resp
-def post_ap():
+def post_ap(info_role):
     """
     Poste une nouvelle aire de présence
     """
@@ -157,7 +191,6 @@ def post_ap():
     shape = asShape(data.pop("geom_4326"))
     ap = TApresence(**data)
     ap.geom_4326 = from_shape(shape, srid=4326)
-    print(data)
     if tab_pertu:
         cor_ap_pertubation = (
             DB.session.query(TNomenclatures)
@@ -172,8 +205,26 @@ def post_ap():
         for o in cor_ap_pertubation:
             ap.cor_ap_perturbation.append(o)
 
-    # TODO: manque indexzp
     if "indexap" in data:
+        if info_role.value_filter in ("1", "2"):
+            q = DB.session.query(TZprospect).filter_by(indexzp=data["indexzp"])
+            if info_role.value_filter == "2":
+                q = q.filter(
+                        TZprospect.observers.any(or_(
+                            User.id_role == info_role.id_role,
+                            User.id_organisme == info_role.id_organisme,
+                        ))
+                )
+            if info_role.value_filter == "1":
+                q = q.filter(
+                        TZprospect.observers.any(
+                            User.id_role == info_role.id_role,
+                        )
+                )
+            check_cruved = DB.session.query(q.exists()).scalar()
+            if not check_cruved:
+                raise Forbidden("Vous n'avez pas les droits pour éditer cette AP")
+        
         DB.session.merge(ap)
     else:
         DB.session.add(ap)

@@ -33,8 +33,9 @@
           <div class="form-group">
             <small> Observateur(s) : </small>
             <div class="" id="newObserver">
-              <pnx-observers [parentFormControl]="ZpFormGroup.controls.cor_zp_observer" [bindAllItem]="true"
-                [disabled]="disabledForm" [idMenu]="storeService.fpConfig.id_menu_list_user">
+              <pnx-observers 
+                [parentFormControl]="ZpFormGroup.controls.cor_zp_observer" 
+                [idMenu]="storeService.fpConfig.id_menu_list_user">
               </pnx-observers>
             </div>
           </div>

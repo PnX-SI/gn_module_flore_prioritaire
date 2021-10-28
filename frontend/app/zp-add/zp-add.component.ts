@@ -117,6 +117,8 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     finalForm.date_min = this._dateParser.format(
       finalForm.date_min
     );
+    console.log(finalForm);
+    
 
     //observers
     finalForm["cor_zp_observer"] = finalForm["cor_zp_observer"].map(
