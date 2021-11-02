@@ -4,7 +4,7 @@
 
 from marshmallow import Schema, fields
 
-available_export_format = ["geojson", "csv", "shapefile"]
+available_export_format = ["csv", "shapefile"]
 
 zp_message = {
     "emptyMessage": "Aucune zone à afficher ",
@@ -26,16 +26,9 @@ default_zp_columns = [
     {"name": "Organisme", "prop": "organisms_list", "width": 200},
 ]
 
-default_list_ap_columns = [
-    {"name": "Date", "prop": "visit_date_min"},
-    {"name": "Observateur(s)", "prop": "observers"},
-    {"name": "Présence/ Absence ? ", "prop": "state"},
-    # {"name": 'identifiant', "prop": "id_base_visit"}
-]
-
 default_ap_columns = [
-    {"name": "Fréquence", "prop": "nb_transects_frequency"},
-    {"name": "Altitude", "prop": "altitude_min"},
+    {"name": "Fréquence", "prop": "frequency"},
+    {"name": "Altitude min", "prop": "altitude_min"},
     {"name": "Altitude max", "prop": "altitude_max"},
 ]
 
@@ -52,9 +45,6 @@ class GnModuleSchemaConf(Schema):
     )
     default_zp_columns = fields.List(fields.Dict(), load_default=default_zp_columns)
     default_ap_columns = fields.List(fields.Dict(), load_default=default_ap_columns)
-    default_list_ap_columns = fields.List(
-        fields.Dict(), load_default=default_list_ap_columns
-    )
     id_type_maille = fields.Integer(load_default=32)
     id_type_commune = fields.Integer(load_default=25)
     id_menu_list_user = fields.Integer(load_default=1)
