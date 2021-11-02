@@ -62,7 +62,7 @@
       <div class="form-group col-xs-8 col-sm-8 col-md-8 col-lg-8 padding-sm">
         <small> Perturbation(s) </small>
         <div class="" id="newPerturs">
-          <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.cor_ap_perturbation" [multiSelect]="true"
+          <pnx-nomenclature [bindAllItem]="true" [parentFormControl]="ApFormGroup.controls.cor_ap_perturbation" [multiSelect]="true"
             keyValue="id_nomenclature"
             codeNomenclatureType="TYPE_PERTURBATION">
           </pnx-nomenclature>

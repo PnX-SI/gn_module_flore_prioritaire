@@ -186,7 +186,15 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
         this.router.navigate([
             `${ModuleConfig.MODULE_URL}/zp`, this.storeService.zp.id, 'details'
         ]);
-      // push ap maplist data       
+      // push ap maplist data
+      console.log(apForm);
+      if(apForm["indexap"]) {
+        // remove from list
+        this.mapListService.tableData = this.mapListService.tableData.filter(ap=> ap.indexap != apForm["indexap"])
+        // remove from map
+        this.storeService.sites.features = this.storeService.sites.features.filter(ap=> ap.id != apForm["indexap"])
+      }
+      
       this.mapListService.tableData.push(data.properties);
       this.storeService.sites.features.push(data);
       const savedGeojsn = Object.assign({}, this.storeService.sites);
