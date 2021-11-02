@@ -49,7 +49,7 @@ export class StoreService {
 
   public queryString = new HttpParams();
 
-  public urlLoad = `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/export_ap`;
+  public urlLoad = `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/export_zp`;
 
   setLeafletDraw() {
     this.leafletDrawOptions.draw.rectangle = true;

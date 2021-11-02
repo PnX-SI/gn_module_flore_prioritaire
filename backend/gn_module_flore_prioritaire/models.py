@@ -6,8 +6,10 @@ from geoalchemy2 import Geometry
 from pypnusershub.db.models import User
 
 from geonature.utils.env import DB
+from geonature.utils.config import config
+
 from utils_flask_sqla.serializers import serializable
-from utils_flask_sqla_geo.serializers import geoserializable, shapeserializable
+from utils_flask_sqla_geo.serializers import geoserializable, geofileserializable
 
 from geonature.core.ref_geo.models import LAreas
 from pypnnomenclature.models import TNomenclatures
@@ -236,16 +238,19 @@ class TZprospect(ZpCruvedAuth):
 
 @serializable
 @geoserializable
-@shapeserializable
-class ExportAp(DB.Model):
-    __tablename__ = "export_ap"
+@geofileserializable
+class ExportZp(DB.Model):
+    __tablename__ = "export_zp"
     __table_args__ = {"schema": "pr_priority_flora"}
+    indexzp = DB.Column(DB.Integer, primary_key=True)
     indexap = DB.Column(DB.Integer, primary_key=True)
     observateurs = DB.Column(DB.Unicode)
     altitude_min = DB.Column(DB.Integer)
     altitude_max = DB.Column(DB.Integer)
     comment = DB.Column(DB.Unicode)
     area_name = DB.Column(DB.Unicode)
+    date_min = DB.Column(DB.DateTime)
+    date_max = DB.Column(DB.DateTime)
     # nom_valide = DB.Column(DB.Unicode)
     habitat = DB.Column(DB.Unicode)
     pente = DB.Column(DB.Unicode)
@@ -255,4 +260,7 @@ class ExportAp(DB.Model):
     counting = DB.Column(DB.Unicode)
     total_min = DB.Column(DB.Integer)
     total_max = DB.Column(DB.Integer)
-    geom_local = DB.Column(Geometry("GEOMETRY", 4326))
+    ap_geom_local = DB.Column(Geometry("GEOMETRY", config["LOCAL_SRID"]))
+    zp_geom_local = DB.Column(Geometry("GEOMETRY", config["LOCAL_SRID"]))
+    ap_geom_local_wkt = DB.Column(DB.Unicode)
+    zp_geom_local_wkt = DB.Column(DB.Unicode)

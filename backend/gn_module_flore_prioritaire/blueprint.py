@@ -15,7 +15,7 @@ from sqlalchemy.sql.functions import user
 from werkzeug.exceptions import BadRequest, Forbidden
 
 from geonature.utils.env import DB, ROOT_DIR
-from geonature.utils.utilsgeometry import FionaShapeService
+from utils_flask_sqla_geo.utilsgeometry import export_geodata_as_file
 from geonature.utils.env import DB
 
 from utils_flask_sqla.response import json_resp, to_json_resp, to_csv_resp
@@ -24,7 +24,8 @@ from pypnusershub.db.models import User
 from .models import (
     TZprospect,
     TApresence,
-    ExportAp,
+    ExportZp,
+    cor_zp_area
 )
 from geonature.core.taxonomie.models import Taxref
 from geonature.core.gn_permissions import decorators as permissions
@@ -61,7 +62,6 @@ def get_zprospect(info_role):
                     User.id_role == info_role.id_role,
                 )
         )
-    number_without_filter = q.count()
     if "indexzp" in parameters:
         q = q.filter(TZprospect.indexzp == parameters["indexzp"])
 
@@ -76,6 +76,7 @@ def get_zprospect(info_role):
 
     if "year" in parameters:
         q = q.filter(func.date_part("year", TZprospect.date_min) == parameters["year"])
+    filtered_number = q.count()
     data = q.order_by(TZprospect.date_min.desc()).limit(limit).offset(page * limit)
     features = []
     for d in data:
@@ -100,7 +101,7 @@ def get_zprospect(info_role):
             )
         )
         features.append(feature)
-    return {"total": number_without_filter, "items": FeatureCollection(features)}
+    return {"total": filtered_number, "items": FeatureCollection(features)}
 
 
 @blueprint.route("/apresences", methods=["GET"])
@@ -279,6 +280,7 @@ def get_commune():
 
 
 @blueprint.route("/sites", methods=["GET"])
+@permissions.check_cruved_scope("R", module_code="GN_MODULE_FLORE_PRIORITAIRE")
 @json_resp
 def get_all_sites():
     """
@@ -306,26 +308,25 @@ def get_all_sites():
 
 
 #  route get One Zp
-@blueprint.route("/zp/<int:id_zp>", methods=["GET"])
+@blueprint.route("/zp/<id_zp>", methods=["GET"])
+@permissions.check_cruved_scope("R", module_code="GN_MODULE_FLORE_PRIORITAIRE")
 def get_one_zp(id_zp):
-
+    print("ENTER LA ?????")
     zp = DB.session.query(TZprospect).get(id_zp)
-    # return zp.as_dict(True)
-    # return zp.as_geofeature("geom_4326", "indexzp", True)
-    # return zp.get_geofeature(recursif=False)
     if zp:
-        return {
+        return jsonify({
             "aps": FeatureCollection([ap.get_geofeature() for ap in zp.ap]),
             "zp": zp.as_geofeature(
                 "geom_4326",
                 "indexzp",
                 fields=["observers", "taxonomy", "areas", "areas.area_type"],
             ),
-        }
+        })
     return None
 
 
 @blueprint.route("/ap/<int:id_ap>", methods=["GET"])
+@permissions.check_cruved_scope("R", module_code="GN_MODULE_FLORE_PRIORITAIRE")
 @json_resp
 def get_one_ap(id_ap):
     
@@ -336,6 +337,7 @@ def get_one_ap(id_ap):
 
 #  route get One Zp
 @blueprint.route("/zp/<int:id_zp>", methods=["DELETE"])
+@permissions.check_cruved_scope("D", module_code="GN_MODULE_FLORE_PRIORITAIRE")
 @json_resp
 def delete_one_zp(id_zp):
 
@@ -349,9 +351,9 @@ def delete_one_zp(id_zp):
 
 
 @blueprint.route("/ap/<int:id_ap>", methods=["DELETE"])
+@permissions.check_cruved_scope("D", module_code="GN_MODULE_FLORE_PRIORITAIRE")
 @json_resp
 def delete_one_ap(id_ap):
-
     ap = DB.session.query(TApresence).get(id_ap)
     if ap:
         DB.session.delete(ap)
@@ -360,12 +362,12 @@ def delete_one_ap(id_ap):
     return None
 
 
-@blueprint.route("/export_ap", methods=["GET"])
+@blueprint.route("/export_zp", methods=["GET"])
+@permissions.check_cruved_scope("E", module_code="GN_MODULE_FLORE_PRIORITAIRE")
 def export_ap():
     """
     Télécharge les données d'une aire de présence
     """
-
     parameters = request.args
 
     export_format = (
@@ -373,68 +375,92 @@ def export_ap():
     )
 
     file_name = datetime.datetime.now().strftime("%Y_%m_%d_%Hh%Mm%S")
-    q = DB.session.query(ExportAp)
+    q = DB.session.query(ExportZp)
 
     if "indexap" in parameters:
-        q = DB.session.query(ExportAp).filter(ExportAp.indexap == parameters["indexap"])
+        q = DB.session.query(ExportZp).filter(ExportZp.indexap == parameters["indexap"])
     elif "indexzp" in parameters:
-        q = DB.session.query(ExportAp).filter(
-            ExportAp.id_base_site == parameters["indexzp"]
+        q = DB.session.query(ExportZp).filter(
+            ExportZp.id_base_site == parameters["indexzp"]
         )
     elif "organisme" in parameters:
-        q = DB.session.query(ExportAp).filter(
-            ExportAp.organisme == parameters["organisme"]
+        q = DB.session.query(ExportZp).filter(
+            ExportZp.organisme == parameters["organisme"]
         )
-    elif "commune" in parameters:
-        q = DB.session.query(ExportAp).filter(
-            ExportAp.area_name == parameters["commune"]
+    elif "id_area" in parameters:
+        print("LAAAAA")
+        q = DB.session.query(ExportZp).join(
+            cor_zp_area, cor_zp_area.c.indexzp == ExportZp.indexzp
+        ).filter(
+            cor_zp_area.c.id_area == parameters["id_area"]
         )
+        print(q)
     elif "year" in parameters:
-        q = DB.session.query(ExportAp).filter(
-            func.date_part("year", ExportAp.visit_date) == parameters["year"]
+        q = DB.session.query(ExportZp).filter(
+            func.date_part("year", ExportZp.date_min) == parameters["year"]
         )
     elif "cd_nom" in parameters:
-        q = DB.session.query(ExportAp).filter(ExportAp.cd_nom == parameters["cd_nom"])
+        q = DB.session.query(ExportZp).filter(ExportZp.cd_nom == parameters["cd_nom"])
 
     data = q.all()
     features = []
 
-    if export_format == "geojson":
-
-        for d in data:
-            feature = d.as_geofeature("geom_local", "indexap", False)
-            features.append(feature)
-        result = FeatureCollection(features)
-
-        return to_json_resp(result, as_file=True, filename=file_name, indent=4)
-
-    elif export_format == "csv":
+    if export_format == "csv":
         tab_ap = []
 
         for d in data:
             ap = d.as_dict()
-            geom_wkt = to_shape(d.geom_local)
-            ap["geom_local"] = geom_wkt
-
             tab_ap.append(ap)
 
         return to_csv_resp(file_name, tab_ap, tab_ap[0].keys(), ";")
 
     else:
-
+        print("ICI???")
+        db_cols = [
+            db_col for db_col in ExportZp.__table__.columns
+        ]
         dir_path = str(ROOT_DIR / "backend/static/shapefiles")
-
-        FionaShapeService.create_shapes_struct(
-            db_cols=ExportAp.__mapper__.c,
+        export_geodata_as_file(
+            view=ExportZp,
             srid=2154,
+            db_cols=db_cols,
+            data=data,
             dir_path=dir_path,
             file_name=file_name,
+            geom_col="ap_geom_local",
+            geojson_col=None,
+            export_format="gpkg"
         )
+        # FionaShapeService.create_shapes_struct(
+        #     db_cols=ExportZp.__mapper__.c,
+        #     srid=2154,
+        #     dir_path=dir_path,
+        #     file_name=file_name,
+        # )
 
-        for row in data:
-            FionaShapeService.create_feature(row.as_dict(), row.geom_local)
+        # for row in data:
+        #     FionaShapeService.create_feature(row.as_dict(), row.ap_geom_local)
 
-        FionaShapeService.save_and_zip_shapefiles()
+
+
+        # FionaShapeService.save_and_zip_shapefiles()
+
+
+        # db_cols = [
+        #     db_col for db_col in ExportZp.__table__.columns
+        # ]
+        # dir_name, file_name = export_as_geo_file(
+        #     export_format=export_format,
+        #     export_view=ExportZp,
+        #     db_cols=db_cols,
+        #     geojson_col=None,
+        #     data=data,
+        #     file_name=file_name,
+        # )
+        # db_cols = [
+        #     db_col for db_col in export_view.db_cols if db_col.key in export_columns
+        # ]
+
 
         return send_from_directory(dir_path, file_name + ".zip", as_attachment=True)
 
