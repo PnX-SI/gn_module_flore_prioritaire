@@ -69,6 +69,7 @@
                     (page)="onChangePage($event)"
                     [messages]="storeService.fpConfig.zp_message"
                     [offset]="mapListService.page.pageNumber" 
+                    [limit]="13"
                 >
 
 
@@ -111,12 +112,16 @@
                         </ng-template>
                     </ngx-datatable-column>
 
+
                     <ngx-datatable-column *ngFor="let col of displayColumns" [name]="col.name" [prop]="col.prop"
                         [maxWidth]="col.width">
                     </ngx-datatable-column>
 
                 </ngx-datatable>
             </div>
+            <pnx-modal-download labelButton='Télécharger ces aires de présence' [pathDownload]='storeService.urlLoad'
+                [exportFormat]='storeService.fpConfig.export_available_format' [queryString]='storeService.queryString'>
+            </pnx-modal-download>
             <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onAddZp()">
                 <i class="fa fa-plus-circle" aria-hidden="true"> </i> Ajouter une nouvelle zone de prospection
             </button>
