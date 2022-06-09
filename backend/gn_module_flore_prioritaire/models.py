@@ -13,6 +13,7 @@ from utils_flask_sqla_geo.serializers import geoserializable, geofileserializabl
 
 from geonature.core.ref_geo.models import LAreas
 from pypnnomenclature.models import TNomenclatures
+from apptax.taxonomie.models import Taxref
 
 
 class ZpCruvedAuth(DB.Model):
@@ -24,13 +25,13 @@ class ZpCruvedAuth(DB.Model):
     def user_is_observer(self, user):
         for obs in self.observers:
             if obs.id_role == user.id_role:
-                return True 
+                return True
         return False
 
     def user_is_in_organism_of_zp(self, user):
         for obs in self.observers:
             if obs.id_role == user.id_role:
-                return True 
+                return True
         return False
     def user_is_allowed_to(self, user, level):
         """
@@ -198,14 +199,14 @@ class TZprospect(ZpCruvedAuth):
     date_min = DB.Column(DB.DateTime)
     date_max = DB.Column(DB.DateTime)
     cd_nom = DB.Column(
-        DB.ForeignKey("taxonomie.taxref.cd_nom", onupdate="CASCADE"), nullable=False
+        DB.ForeignKey(Taxref.cd_nom, onupdate="CASCADE"), nullable=False
     )
     topo_valid = DB.Column(DB.Unicode)
     initial_insert = DB.Column(DB.Unicode)
     geom_4326 = DB.Column(Geometry("GEOMETRY", 4326))
     taxonomy = DB.relationship(
-        "Taxref", 
-        primaryjoin="TZprospect.cd_nom == Taxref.cd_nom", 
+        Taxref,
+        primaryjoin=(cd_nom == Taxref.cd_nom),
         lazy="joined",
     )
     ap = relationship(
@@ -230,8 +231,8 @@ class TZprospect(ZpCruvedAuth):
 
     def get_geofeature(self, fields=[]):
         return self.as_geofeature(
-            "geom_4326", 
-            "indexzp", 
+            "geom_4326",
+            "indexzp",
             fields=fields,
         )
 
