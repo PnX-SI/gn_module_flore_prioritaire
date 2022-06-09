@@ -1,7 +1,0 @@
-[gn_module]
-blueprint = gn_module_flore_prioritaire.blueprint:blueprint
-code = gn_module_flore_prioritaire:MODULE_CODE
-config_schema = gn_module_flore_prioritaire.conf_schema_toml:GnModuleSchemaConf
-migrations = gn_module_flore_prioritaire:migrations
-picto = gn_module_flore_prioritaire:MODULE_PICTO
-
