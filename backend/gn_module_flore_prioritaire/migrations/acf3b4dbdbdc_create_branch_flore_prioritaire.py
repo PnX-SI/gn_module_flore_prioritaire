@@ -1,4 +1,4 @@
-"""Create branch gn_module_flore_prioritaire
+"""Create branch priority_flora
 
 Revision ID: acf3b4dbdbdc
 Revises: 
@@ -15,7 +15,7 @@ from geonature.core.gn_commons.models import TParameters
 # revision identifiers, used by Alembic.
 revision = "acf3b4dbdbdc"
 down_revision = None
-branch_labels = ("gn_module_flore_prioritaire",)
+branch_labels = ("priority_flora",)
 depends_on = ("f06cc80cc8ba",)  # GeoNature 2.7.5
 
 
@@ -44,14 +44,14 @@ def upgrade():
     )
     operations = text(
         importlib.resources.read_text(
-            "gn_module_flore_prioritaire.migrations.data", "FP.sql"
+            "priority_flora.migrations.data", "FP.sql"
         )
     )
     op.get_bind().execute(operations, {"local_srid": int(local_srid)})
 
 
 def downgrade():
-    op.execute("DROP SCHEMA pr_priority_flora CASCADE")
+    op.execute("DROP SCHEMA priority_flora CASCADE")
     delete_nomenclatures("ETAT_HABITAT")
     delete_nomenclatures("TYPE_PENTE")
     delete_nomenclatures("TYPE_PERTURBATION")

@@ -1,2 +1,2 @@
-MODULE_CODE = "GN_MODULE_FLORE_PRIORITAIRE"
+MODULE_CODE = "priority_flora"
 MODULE_PICTO = "fa-pagelines"

@@ -12,9 +12,9 @@ with (root_dir / "requirements.in").open() as f:
 
 
 setuptools.setup(
-    name="gn_module_flore_prioritaire",
+    name="priority_flora",
     version=version,
-    description="Flore Prioritaire",
+    description="Bilan Stationnel",
     long_description=long_description,
     long_description_content_type="text/x-rst",
     maintainer="Parcs nationaux des Écrins et des Cévennes, Conservatoire Botanique National Alpin",
@@ -22,15 +22,15 @@ setuptools.setup(
     url="https://github.com/PnX-SI/gn_module_flore_prioritaire",
     packages=setuptools.find_packages("backend"),
     package_dir={"": "backend"},
-    package_data={"gn_module_flore_prioritaire.migrations": ["data/*.sql"]},
+    package_data={"gn_module_priority_flora.migrations": ["data/*.sql"]},
     install_requires=requirements,
     entry_points={
         "gn_module": [
-            "code = gn_module_flore_prioritaire:MODULE_CODE",
-            "picto = gn_module_flore_prioritaire:MODULE_PICTO",
-            "blueprint = gn_module_flore_prioritaire.blueprint:blueprint",
-            "config_schema = gn_module_flore_prioritaire.conf_schema_toml:GnModuleSchemaConf",
-            "migrations = gn_module_flore_prioritaire:migrations",
+            "code = gn_module_priority_flora:MODULE_CODE",
+            "picto = gn_module_priority_flora:MODULE_PICTO",
+            "blueprint = gn_module_priority_flora.blueprint:blueprint",
+            "config_schema = gn_module_priority_flora.conf_schema_toml:GnModuleSchemaConf",
+            "migrations = gn_module_priority_flora:migrations",
         ],
     },
     classifiers=[

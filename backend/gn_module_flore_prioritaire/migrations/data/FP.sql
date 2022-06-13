@@ -5,9 +5,9 @@ SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
-CREATE SCHEMA pr_priority_flora;
+CREATE SCHEMA priority_flora;
 
-SET search_path = pr_priority_flora, pg_catalog, public;
+SET search_path = priority_flora, pg_catalog, public;
 
 SET default_with_oids = false;
 
@@ -19,7 +19,7 @@ SET default_with_oids = false;
 -- Table: t_zprospect
 ------------------------------------------------------------
 
-CREATE TABLE pr_priority_flora.t_zprospect(
+CREATE TABLE priority_flora.t_zprospect(
 	indexzp             bigserial NOT NULL,
 	date_min            DATE,
 	date_max            DATE,
@@ -44,12 +44,12 @@ WITH (
 -- Table: cor_zp_obs
 ------------------------------------------------------------
 
-CREATE TABLE pr_priority_flora.cor_zp_obs(
+CREATE TABLE priority_flora.cor_zp_obs(
 	indexzp   INT  NOT NULL,
 	id_role   INT  NOT NULL,
 	
 	CONSTRAINT pk_cor_zp_obs PRIMARY KEY (indexzp,id_role),
-	CONSTRAINT fk_cor_zp_obs_t_zprospect FOREIGN KEY (indexzp) REFERENCES pr_priority_flora.t_zprospect(indexzp) ON UPDATE CASCADE ON DELETE CASCADE,
+	CONSTRAINT fk_cor_zp_obs_t_zprospect FOREIGN KEY (indexzp) REFERENCES priority_flora.t_zprospect(indexzp) ON UPDATE CASCADE ON DELETE CASCADE,
 	CONSTRAINT fk_cor_zp_obs_t_roles FOREIGN KEY (id_role) REFERENCES utilisateurs.t_roles(id_role) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 WITH (
@@ -59,7 +59,7 @@ WITH (
 -- Table: t_apresence
 ------------------------------------------------------------
 
-CREATE TABLE pr_priority_flora.t_apresence(
+CREATE TABLE priority_flora.t_apresence(
 	indexap                                           bigserial NOT NULL,
 	area                                              FLOAT,
 	topo_valid                                        BOOLEAN,
@@ -81,7 +81,7 @@ CREATE TABLE pr_priority_flora.t_apresence(
 	geom_point_4326                                   geometry(Point,4326),
 	
   CONSTRAINT pk_t_apresence PRIMARY KEY (indexap),
-	CONSTRAINT fk_t_apresence_t_zprospect FOREIGN KEY (indexzp) REFERENCES pr_priority_flora.t_zprospect(indexzp) ON UPDATE CASCADE ON DELETE CASCADE,
+	CONSTRAINT fk_t_apresence_t_zprospect FOREIGN KEY (indexzp) REFERENCES priority_flora.t_zprospect(indexzp) ON UPDATE CASCADE ON DELETE CASCADE,
 	CONSTRAINT fk_t_apresence_t_nomenclatures_id_pente FOREIGN KEY (id_nomenclatures_pente) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature) ON UPDATE CASCADE ON DELETE NO ACTION,
 	CONSTRAINT fk_t_apresence_t_nomenclatures_id_counting FOREIGN KEY (id_nomenclatures_counting) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature) ON UPDATE CASCADE ON DELETE NO ACTION,
 	CONSTRAINT fk_t_apresence_t_nomenclatures_id_habitat FOREIGN KEY (id_nomenclatures_habitat) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature) ON UPDATE CASCADE ON DELETE NO ACTION,
@@ -93,13 +93,13 @@ CREATE TABLE pr_priority_flora.t_apresence(
 -- Table: cor_zp_area
 ------------------------------------------------------------
 
-CREATE TABLE pr_priority_flora.cor_zp_area(
+CREATE TABLE priority_flora.cor_zp_area(
 	id_area   INT  NOT NULL,
 	indexzp   BIGINT  NOT NULL,
 	
 	CONSTRAINT pk_cor_zp_area PRIMARY KEY (id_area,indexzp),
 	CONSTRAINT fk_cor_zp_area_l_areas FOREIGN KEY (id_area) REFERENCES ref_geo.l_areas(id_area) ON UPDATE CASCADE ON DELETE NO ACTION,
-	CONSTRAINT fk_cor_zp_area_t_zprospect FOREIGN KEY (indexzp) REFERENCES pr_priority_flora.t_zprospect(indexzp) ON UPDATE CASCADE ON DELETE CASCADE
+	CONSTRAINT fk_cor_zp_area_t_zprospect FOREIGN KEY (indexzp) REFERENCES priority_flora.t_zprospect(indexzp) ON UPDATE CASCADE ON DELETE CASCADE
 )
 WITH (
   OIDS=FALSE
@@ -109,13 +109,13 @@ WITH (
 -- Table: cor_ap_area
 ------------------------------------------------------------
 
-CREATE TABLE pr_priority_flora.cor_ap_area(
+CREATE TABLE priority_flora.cor_ap_area(
 	id_area   INT  NOT NULL,
 	indexap   BIGINT  NOT NULL,
 	
 	CONSTRAINT pk_cor_ap_area PRIMARY KEY (id_area,indexap),
 	CONSTRAINT fk_cor_ap_area_l_areas FOREIGN KEY (id_area) REFERENCES ref_geo.l_areas(id_area) ON UPDATE CASCADE ON DELETE NO ACTION,
-	CONSTRAINT fk_cor_ap_area_t_apresence FOREIGN KEY (indexap) REFERENCES pr_priority_flora.t_apresence(indexap) ON UPDATE CASCADE ON DELETE CASCADE
+	CONSTRAINT fk_cor_ap_area_t_apresence FOREIGN KEY (indexap) REFERENCES priority_flora.t_apresence(indexap) ON UPDATE CASCADE ON DELETE CASCADE
 )
 WITH (
   OIDS=FALSE
@@ -125,13 +125,13 @@ WITH (
 -- Table: cor_ap_perturb
 ------------------------------------------------------------
 
-CREATE TABLE pr_priority_flora.cor_ap_perturb(
+CREATE TABLE priority_flora.cor_ap_perturb(
 	indexap           BIGINT  NOT NULL,
 	id_nomenclature   INT  NOT NULL,
 	pres_effective		BOOLEAN,	
 
 	CONSTRAINT pk_cor_ap_perturb PRIMARY KEY (indexap,id_nomenclature),
-	CONSTRAINT fk_cor_ap_perturb_t_apresence FOREIGN KEY (indexap) REFERENCES pr_priority_flora.t_apresence(indexap) ON UPDATE CASCADE ON DELETE CASCADE,
+	CONSTRAINT fk_cor_ap_perturb_t_apresence FOREIGN KEY (indexap) REFERENCES priority_flora.t_apresence(indexap) ON UPDATE CASCADE ON DELETE CASCADE,
 	CONSTRAINT fk_cor_ap_perturb_t_nomenclatures FOREIGN KEY (id_nomenclature) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 WITH (
@@ -142,13 +142,13 @@ WITH (
 -- Fonction Trigger: actualisation de cor_ap_area
 ------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION pr_priority_flora.fct_trg_cor_ap_area()
+CREATE OR REPLACE FUNCTION priority_flora.fct_trg_cor_ap_area()
   RETURNS trigger AS
 $BODY$
 BEGIN
 
-	DELETE FROM pr_priority_flora.cor_ap_area WHERE indexap = NEW.indexap;
-	INSERT INTO pr_priority_flora.cor_ap_area (indexap,id_area)
+	DELETE FROM priority_flora.cor_ap_area WHERE indexap = NEW.indexap;
+	INSERT INTO priority_flora.cor_ap_area (indexap,id_area)
 	SELECT NEW.indexap as indexap, (ref_geo.fct_get_area_intersection(NEW.geom_local)).id_area as id_area;
 
   RETURN NEW;
@@ -161,13 +161,13 @@ $BODY$
 -- Fonction Trigger: actualisation de cor_zp_area
 ------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION pr_priority_flora.fct_trg_cor_zp_area()
+CREATE OR REPLACE FUNCTION priority_flora.fct_trg_cor_zp_area()
   RETURNS trigger AS
 $BODY$
 BEGIN
 
-	DELETE FROM pr_priority_flora.cor_zp_area WHERE indexzp = NEW.indexzp;
-	INSERT INTO pr_priority_flora.cor_zp_area (indexzp,id_area)
+	DELETE FROM priority_flora.cor_zp_area WHERE indexzp = NEW.indexzp;
+	INSERT INTO priority_flora.cor_zp_area (indexzp,id_area)
 	SELECT NEW.indexzp as indexzp, (ref_geo.fct_get_area_intersection(NEW.geom_local)).id_area as id_area;
 
   RETURN NEW;
@@ -182,9 +182,9 @@ $BODY$
 
 CREATE TRIGGER trg_cor_zp_area
   AFTER INSERT OR UPDATE OF geom_4326
-  ON pr_priority_flora.t_zprospect
+  ON priority_flora.t_zprospect
   FOR EACH ROW
-  EXECUTE PROCEDURE pr_priority_flora.fct_trg_cor_zp_area();
+  EXECUTE PROCEDURE priority_flora.fct_trg_cor_zp_area();
 
 ------------------------------------------------------------------
 -- Trigger: Lancement actualisation de cor_ap_area sur t_apresence
@@ -192,21 +192,21 @@ CREATE TRIGGER trg_cor_zp_area
 
 CREATE TRIGGER trg_cor_ap_area
   AFTER INSERT OR UPDATE OF geom_4326
-  ON pr_priority_flora.t_apresence
+  ON priority_flora.t_apresence
   FOR EACH ROW
-  EXECUTE PROCEDURE pr_priority_flora.fct_trg_cor_ap_area();
+  EXECUTE PROCEDURE priority_flora.fct_trg_cor_ap_area();
 
 -----------------------------------------------------------------------
 -- Fonction Trigger: actualisation des champs geom_local
 -----------------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION pr_priority_flora.insert_zp()
+CREATE OR REPLACE FUNCTION priority_flora.insert_zp()
   RETURNS trigger AS
 $BODY$
 
 BEGIN
 
-IF new.indexzp in (SELECT indexzp FROM pr_priority_flora.t_zprospect) THEN
+IF new.indexzp in (SELECT indexzp FROM priority_flora.t_zprospect) THEN
 	RETURN NULL;
 ELSE
 
@@ -222,13 +222,13 @@ $BODY$
 -- Fonction Trigger: actualisation du champ geom_local et de la surface 
 -----------------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION pr_priority_flora.insert_ap()
+CREATE OR REPLACE FUNCTION priority_flora.insert_ap()
   RETURNS trigger AS
 $BODY$
 
 BEGIN
 
-IF new.indexap in (SELECT indexap FROM pr_priority_flora.t_apresence) THEN
+IF new.indexap in (SELECT indexap FROM priority_flora.t_apresence) THEN
 	RETURN NULL;
 ELSE
 
@@ -248,9 +248,9 @@ $BODY$
 
 CREATE TRIGGER tri_insert_zp
   BEFORE INSERT
-  ON pr_priority_flora.t_zprospect
+  ON priority_flora.t_zprospect
   FOR EACH ROW
-  EXECUTE PROCEDURE pr_priority_flora.insert_zp();
+  EXECUTE PROCEDURE priority_flora.insert_zp();
 
 ------------------------------------------------------------------------
 -- Trigger: Lancement actualisation du champ geom_local sur t_apresence
@@ -259,15 +259,15 @@ CREATE TRIGGER tri_insert_zp
 
 CREATE TRIGGER tri_insert_ap
   BEFORE INSERT
-  ON pr_priority_flora.t_apresence
+  ON priority_flora.t_apresence
   FOR EACH ROW
-  EXECUTE PROCEDURE pr_priority_flora.insert_ap();
+  EXECUTE PROCEDURE priority_flora.insert_ap();
 
 ------------------------------------
 -- Vue: Création de la vue d'export
 ------------------------------------
 
-CREATE OR REPLACE VIEW pr_priority_flora.export_ap AS 
+CREATE OR REPLACE VIEW priority_flora.export_ap AS 
   SELECT ap.indexap AS indexap,
 				ap.altitude_min AS altitude_min,
  				ap.altitude_max AS altitude_max,
@@ -283,13 +283,13 @@ CREATE OR REPLACE VIEW pr_priority_flora.export_ap AS
     		string_agg(n.label_default::text, ','::text) AS label_perturbation,
     		string_agg(a.area_name::text, ','::text) AS area_name,
 				ap.geom_4326 AS geom_local
-  FROM pr_priority_flora.t_apresence ap
-     LEFT JOIN pr_priority_flora.t_zprospect z ON z.indexzp = ap.indexzp
-     LEFT JOIN pr_priority_flora.cor_zp_obs observer ON observer.indexzp = z.indexzp
+  FROM priority_flora.t_apresence ap
+     LEFT JOIN priority_flora.t_zprospect z ON z.indexzp = ap.indexzp
+     LEFT JOIN priority_flora.cor_zp_obs observer ON observer.indexzp = z.indexzp
      LEFT JOIN utilisateurs.t_roles roles ON roles.id_role = observer.id_role
-     LEFT JOIN pr_priority_flora.cor_ap_area cap ON cap.indexap = ap.indexap
+     LEFT JOIN priority_flora.cor_ap_area cap ON cap.indexap = ap.indexap
      LEFT JOIN ref_geo.l_areas a ON a.id_area = cap.id_area
-     LEFT JOIN pr_priority_flora.cor_ap_perturb p ON ap.indexap = p.indexap
+     LEFT JOIN priority_flora.cor_ap_perturb p ON ap.indexap = p.indexap
      LEFT JOIN ref_nomenclatures.t_nomenclatures n ON p.id_nomenclature = n.id_nomenclature
   WHERE a.id_type = ref_geo.get_id_area_type('COM'::character varying)
   GROUP BY ap.indexap,ap.altitude_min,ap.altitude_max,ap.frequency,ap.comment,ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_pente),

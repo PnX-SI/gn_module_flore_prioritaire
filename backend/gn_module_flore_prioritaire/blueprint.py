@@ -31,11 +31,11 @@ from geonature.core.taxonomie.models import Taxref
 from geonature.core.gn_permissions import decorators as permissions
 from pypnusershub.db.models import Organisme
 
-blueprint = Blueprint("pr_priority_flora", __name__)
+blueprint = Blueprint("priority_flora", __name__)
 
 
 @blueprint.route("/z_prospects", methods=["GET"])
-@permissions.check_cruved_scope("R", True, module_code="GN_MODULE_FLORE_PRIORITAIRE")
+@permissions.check_cruved_scope("R", True, module_code="priority_flora")
 @json_resp
 def get_zprospect(info_role):
     """
@@ -46,7 +46,7 @@ def get_zprospect(info_role):
     page = int(parameters.get("page", 0))
     limit = int(parameters.get("limit", 100))
     user_cruved = cruved_scope_for_user_in_module(
-        id_role=info_role.id_role, module_code="GN_MODULE_FLORE_PRIORITAIRE"
+        id_role=info_role.id_role, module_code="priority_flora"
     )
     q = TZprospect.query
     if info_role.value_filter == "2":
@@ -105,7 +105,7 @@ def get_zprospect(info_role):
 
 
 @blueprint.route("/apresences", methods=["GET"])
-@permissions.check_cruved_scope("R", module_code="GN_MODULE_FLORE_PRIORITAIRE")
+@permissions.check_cruved_scope("R", module_code="priority_flora")
 @json_resp
 def get_apresences():
     """
@@ -128,7 +128,7 @@ def get_apresences():
 
 @blueprint.route("/post_zp", methods=["POST"])
 @blueprint.route("/post_zp/<int:id_zp>", methods=["POST"])
-@permissions.check_cruved_scope("C", True, module_code="GN_MODULE_FLORE_PRIORITAIRE")
+@permissions.check_cruved_scope("C", True, module_code="priority_flora")
 @json_resp
 def post_zp(info_role, id_zp=None):
     """
@@ -180,7 +180,7 @@ def post_zp(info_role, id_zp=None):
 
 
 @blueprint.route("/post_ap", methods=["POST"])
-@permissions.check_cruved_scope("C", True, module_code="GN_MODULE_FLORE_PRIORITAIRE")
+@permissions.check_cruved_scope("C", True, module_code="priority_flora")
 @json_resp
 def post_ap(info_role):
     """
@@ -249,7 +249,7 @@ def get_organisme():
     SELECT DISTINCT b.nom_organisme, b.id_organisme
     FROM utilisateurs.bib_organismes b
     JOIN utilisateurs.t_roles r ON r.id_organisme = b.id_organisme
-    JOIN pr_priority_flora.cor_zp_obs c ON c.id_role = r.id_role
+    JOIN priority_flora.cor_zp_obs c ON c.id_role = r.id_role
     ORDER by b.nom_organisme ASC
     """
 
@@ -267,7 +267,7 @@ def get_commune():
     q = """
     SELECT DISTINCT area_name, l.id_area
     FROM ref_geo.l_areas l
-    JOIN pr_priority_flora.cor_ap_area ap ON ap.id_area = l.id_area
+    JOIN priority_flora.cor_ap_area ap ON ap.id_area = l.id_area
     JOIN ref_geo.bib_areas_types b ON b.id_type = l.id_type
     WHERE b.type_code = 'COM'
     ORDER BY area_name ASC
@@ -280,7 +280,7 @@ def get_commune():
 
 
 @blueprint.route("/sites", methods=["GET"])
-@permissions.check_cruved_scope("R", module_code="GN_MODULE_FLORE_PRIORITAIRE")
+@permissions.check_cruved_scope("R", module_code="priority_flora")
 @json_resp
 def get_all_sites():
     """
@@ -309,7 +309,7 @@ def get_all_sites():
 
 #  route get One Zp
 @blueprint.route("/zp/<id_zp>", methods=["GET"])
-@permissions.check_cruved_scope("R", module_code="GN_MODULE_FLORE_PRIORITAIRE")
+@permissions.check_cruved_scope("R", module_code="priority_flora")
 def get_one_zp(id_zp):
     print("ENTER LA ?????")
     zp = DB.session.query(TZprospect).get(id_zp)
@@ -326,7 +326,7 @@ def get_one_zp(id_zp):
 
 
 @blueprint.route("/ap/<int:id_ap>", methods=["GET"])
-@permissions.check_cruved_scope("R", module_code="GN_MODULE_FLORE_PRIORITAIRE")
+@permissions.check_cruved_scope("R", module_code="priority_flora")
 @json_resp
 def get_one_ap(id_ap):
     
@@ -337,7 +337,7 @@ def get_one_ap(id_ap):
 
 #  route get One Zp
 @blueprint.route("/zp/<int:id_zp>", methods=["DELETE"])
-@permissions.check_cruved_scope("D", module_code="GN_MODULE_FLORE_PRIORITAIRE")
+@permissions.check_cruved_scope("D", module_code="priority_flora")
 @json_resp
 def delete_one_zp(id_zp):
 
@@ -351,7 +351,7 @@ def delete_one_zp(id_zp):
 
 
 @blueprint.route("/ap/<int:id_ap>", methods=["DELETE"])
-@permissions.check_cruved_scope("D", module_code="GN_MODULE_FLORE_PRIORITAIRE")
+@permissions.check_cruved_scope("D", module_code="priority_flora")
 @json_resp
 def delete_one_ap(id_ap):
     ap = DB.session.query(TApresence).get(id_ap)
@@ -363,7 +363,7 @@ def delete_one_ap(id_ap):
 
 
 @blueprint.route("/export_zp", methods=["GET"])
-@permissions.check_cruved_scope("E", module_code="GN_MODULE_FLORE_PRIORITAIRE")
+@permissions.check_cruved_scope("E", module_code="priority_flora")
 def export_ap():
     """
     Télécharge les données d'une aire de présence

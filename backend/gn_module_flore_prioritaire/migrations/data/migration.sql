@@ -1,4 +1,4 @@
-INSERT INTO pr_priority_flora.t_zprospect (
+INSERT INTO priority_flora.t_zprospect (
     indexzp, date_min, date_max, topo_valid, initial_insert,
     cd_nom, id_dataset, unique_id_sinp_zp, geom_local,
     geom_4326, geom_point_4326
@@ -11,13 +11,13 @@ FROM v1_florepatri.t_zprospection
 WHERE supprime = 'false';
 ;
 
-INSERT INTO pr_priority_flora.cor_zp_obs (indexzp, id_role)
+INSERT INTO priority_flora.cor_zp_obs (indexzp, id_role)
 SELECT obs.indexzp, codeobs
 FROM v1_florepatri.cor_zp_obs obs
-JOIN pr_priority_flora.t_zprospect z on z.indexzp = obs.indexzp -- join to remove supprime=false
+JOIN priority_flora.t_zprospect z on z.indexzp = obs.indexzp -- join to remove supprime=false
 ;
 
-INSERT INTO pr_priority_flora.t_apresence(
+INSERT INTO priority_flora.t_apresence(
     indexap,
     area, 
     topo_valid, 
@@ -61,13 +61,13 @@ st_centroid(
     st_transform(the_geom_3857, 4326)
 )
 FROM v1_florepatri.t_apresence a
-JOIN pr_priority_flora.t_zprospect z ON z.indexzp = a.indexzp
+JOIN priority_flora.t_zprospect z ON z.indexzp = a.indexzp
 ;
 
-INSERT INTO pr_priority_flora.cor_ap_perturb 
+INSERT INTO priority_flora.cor_ap_perturb 
 SELECT a.indexap , id_nomenclature, NULL as pres_effective
 FROM v1_florepatri.cor_ap_perturb cor 
-JOIN pr_priority_flora.t_apresence a on a.indexap = cor.indexap 
+JOIN priority_flora.t_apresence a on a.indexap = cor.indexap 
 JOIN v1_florepatri.bib_perturbations b ON b.codeper = cor.codeper
 JOIN ref_nomenclatures.t_nomenclatures t ON t.label_default = b.description
 JOIN ref_nomenclatures.bib_nomenclatures_types bib ON bib.id_type = t.id_type AND bib.mnemonique = 'TYPE_PERTURBATION'
@@ -94,8 +94,8 @@ group by tx.cd_ref;
 
 
 --update sequences
-SELECT setval('pr_priority_flora.t_zprospect_indexzp_seq', (select max(indexzp) from pr_priority_flora.t_zprospect tz ), true);
-SELECT setval('pr_priority_flora.t_apresence_indexap_seq', (select max(indexap) from pr_priority_flora.t_apresence tz ), true);
+SELECT setval('priority_flora.t_zprospect_indexzp_seq', (select max(indexzp) from priority_flora.t_zprospect tz ), true);
+SELECT setval('priority_flora.t_apresence_indexap_seq', (select max(indexap) from priority_flora.t_apresence tz ), true);
 
 INSERT INTO taxonomie.bib_listes
 (nom_liste, desc_liste, code_liste)
