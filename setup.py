@@ -12,9 +12,9 @@ with (root_dir / "requirements.in").open() as f:
 
 
 setuptools.setup(
-    name="priority_flora",
+    name="gn_module_priority_flora",
     version=version,
-    description="Bilan Stationnel",
+    description="Module Conservation Bilan Stationnel",
     long_description=long_description,
     long_description_content_type="text/x-rst",
     maintainer="Parcs nationaux des Écrins et des Cévennes, Conservatoire Botanique National Alpin",
@@ -22,7 +22,7 @@ setuptools.setup(
     url="https://github.com/PnX-SI/gn_module_flore_prioritaire",
     packages=setuptools.find_packages("backend"),
     package_dir={"": "backend"},
-    package_data={"gn_module_priority_flora.migrations": ["data/*.sql"]},
+    package_data={"gn_module_priority_flora.migrations": ["data/*.sql", "data/*.csv"]},
     install_requires=requirements,
     entry_points={
         "gn_module": [
