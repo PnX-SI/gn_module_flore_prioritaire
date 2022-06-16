@@ -1,2 +1,2 @@
-MODULE_CODE = "priority_flora"
+MODULE_CODE = "PRIORITY_FLORA"
 MODULE_PICTO = "fa-pagelines"
