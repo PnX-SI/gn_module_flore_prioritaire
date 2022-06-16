@@ -21,7 +21,7 @@ depends_on = None
 def upgrade():
     operations = text(
         importlib.resources.read_text(
-            "priority_flora.migrations.data", "data.sql"
+            "gn_module_priority_flora.migrations.data", "data.sql"
         )
     )
     op.get_bind().execute(operations)
