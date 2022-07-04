@@ -13,9 +13,10 @@ from sqlalchemy.sql import text
 
 # revision identifiers, used by Alembic.
 revision = '955c298bac7b'
-down_revision = 'acf3b4dbdbdc'
-branch_labels = None
-depends_on = None
+down_revision = None
+branch_labels = "priority_flora"
+# Add nomenclatures shared in conservation modules
+depends_on = ("0a97fffb151c",)
 
 
 def upgrade():

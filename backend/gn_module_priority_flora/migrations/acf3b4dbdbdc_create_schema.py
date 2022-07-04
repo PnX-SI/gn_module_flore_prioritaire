@@ -14,9 +14,9 @@ from geonature.core.gn_commons.models import TParameters
 
 # revision identifiers, used by Alembic.
 revision = "acf3b4dbdbdc"
-down_revision = None
-branch_labels = "priority_flora"
-depends_on = ("0a97fffb151c",)  # Add nomenclatures shared in conservation modules
+down_revision = "955c298bac7b"
+branch_labels = None
+depends_on = None
 
 
 def upgrade():
