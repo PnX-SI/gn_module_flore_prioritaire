@@ -41,7 +41,6 @@ def get_zprospect(info_role):
     """
     Retourne toutes les zones de prospection du module
     """
-    print(info_role)
     parameters = request.args
     page = int(parameters.get("page", 0))
     limit = int(parameters.get("limit", 100))
@@ -249,7 +248,7 @@ def get_organisme():
     SELECT DISTINCT b.nom_organisme, b.id_organisme
     FROM utilisateurs.bib_organismes b
     JOIN utilisateurs.t_roles r ON r.id_organisme = b.id_organisme
-    JOIN priority_flora.cor_zp_obs c ON c.id_role = r.id_role
+    JOIN pr_priority_flora.cor_zp_obs c ON c.id_role = r.id_role
     ORDER by b.nom_organisme ASC
     """
 
@@ -267,7 +266,7 @@ def get_commune():
     q = """
     SELECT DISTINCT area_name, l.id_area
     FROM ref_geo.l_areas l
-    JOIN priority_flora.cor_ap_area ap ON ap.id_area = l.id_area
+    JOIN pr_priority_flora.cor_ap_area ap ON ap.id_area = l.id_area
     JOIN ref_geo.bib_areas_types b ON b.id_type = l.id_type
     WHERE b.type_code = 'COM'
     ORDER BY area_name ASC

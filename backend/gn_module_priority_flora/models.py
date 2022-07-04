@@ -73,10 +73,10 @@ class ZpCruvedAuth(DB.Model):
 @serializable
 class CorApPerturb(DB.Model):
     __tablename__ = "cor_ap_perturb"
-    __table_args__ = {"schema": "priority_flora"}
+    __table_args__ = {"schema": "pr_priority_flora"}
 
     indexap = DB.Column(
-        DB.ForeignKey("priority_flora.t_apresence.indexap", onupdate="CASCADE"),
+        DB.ForeignKey("pr_priority_flora.t_apresence.indexap", onupdate="CASCADE"),
         primary_key=True,
         nullable=False,
     )
@@ -97,7 +97,7 @@ class CorApPerturb(DB.Model):
 @serializable
 class CorApArea(DB.Model):
     __tablename__ = "cor_ap_area"
-    __table_args__ = {"schema": "priority_flora"}
+    __table_args__ = {"schema": "pr_priority_flora"}
 
     id_area = DB.Column(DB.Integer, ForeignKey(LAreas.id_area), primary_key=True)
     indexap = DB.Column(DB.Integer, ForeignKey("TApresence.indexap"), primary_key=True)
@@ -107,10 +107,10 @@ class CorApArea(DB.Model):
 @geoserializable
 class TApresence(DB.Model):
     __tablename__ = "t_apresence"
-    __table_args__ = {"schema": "priority_flora"}
+    __table_args__ = {"schema": "pr_priority_flora"}
     indexap = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
     indexzp = DB.Column(
-        DB.ForeignKey("priority_flora.t_zprospect.indexzp"), nullable=False
+        DB.ForeignKey("pr_priority_flora.t_zprospect.indexzp"), nullable=False
     )
     altitude_min = DB.Column(DB.Integer)
     altitude_max = DB.Column(DB.Integer)
@@ -172,19 +172,19 @@ class TApresence(DB.Model):
 cor_zp_observer = DB.Table('cor_zp_obs',
     DB.Column('id_role', ForeignKey(User.id_role), primary_key=True),
     DB.Column('indexzp'),
-    schema="priority_flora"
+    schema="pr_priority_flora"
 )
 
 cor_zp_area = DB.Table('cor_zp_area',
     DB.Column('id_area', ForeignKey(LAreas.id_area), primary_key=True),
     DB.Column('indexzp', primary_key=True),
-    schema="priority_flora"
+    schema="pr_priority_flora"
 )
 
 # @serializable
 # class CorZpArea(DB.Model):
 #     __tablename__ = "cor_zp_area"
-#     __table_args__ = {"schema": "priority_flora"}
+#     __table_args__ = {"schema": "pr_priority_flora"}
 
 #     id_area = DB.Column(DB.Integer, ForeignKey(LAreas.id_area), primary_key=True)
 #     indexzp = DB.Column(DB.Integer, ForeignKey("TZprospect.indexzp"), primary_key=True)
@@ -194,7 +194,7 @@ cor_zp_area = DB.Table('cor_zp_area',
 @geoserializable
 class TZprospect(ZpCruvedAuth):
     __tablename__ = "t_zprospect"
-    __table_args__ = {"schema": "priority_flora"}
+    __table_args__ = {"schema": "pr_priority_flora"}
     indexzp = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
     date_min = DB.Column(DB.DateTime)
     date_max = DB.Column(DB.DateTime)
@@ -242,7 +242,7 @@ class TZprospect(ZpCruvedAuth):
 @geofileserializable
 class ExportZp(DB.Model):
     __tablename__ = "export_zp"
-    __table_args__ = {"schema": "priority_flora"}
+    __table_args__ = {"schema": "pr_priority_flora"}
     indexzp = DB.Column(DB.Integer, primary_key=True)
     indexap = DB.Column(DB.Integer, primary_key=True)
     observateurs = DB.Column(DB.Unicode)
