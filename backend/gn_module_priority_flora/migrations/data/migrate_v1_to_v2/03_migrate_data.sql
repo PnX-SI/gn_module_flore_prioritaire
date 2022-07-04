@@ -30,6 +30,7 @@ INSERT INTO pr_priority_flora.t_zprospect (
     topo_valid,
     initial_insert,
     cd_nom,
+    additional_data,
     geom_local,
     geom_4326,
     geom_point_4326
@@ -41,6 +42,12 @@ INSERT INTO pr_priority_flora.t_zprospect (
         topo_valid,
         saisie_initiale,
         cd_nom,
+        json_build_object(
+            'migrateOriginalInfos',
+            json_build_object(
+                'indexzp', mtz.indexzp
+            )
+        ),
         the_geom_2154,
         st_transform(geom_mixte_3857, 4326),
         st_transform(geom_point_3857, 4326)
@@ -112,6 +119,7 @@ INSERT INTO pr_priority_flora.t_apresence(
     id_history_action,
     total_min,
     total_max,
+    additional_data,
     geom_local,
     geom_4326,
     geom_point_4326
@@ -132,6 +140,12 @@ INSERT INTO pr_priority_flora.t_apresence(
         NULL, -- id_history_action
         total_steriles+total_fertiles , --total_min
         total_steriles+total_fertiles, -- total max
+        json_build_object(
+            'migrateOriginalInfos',
+            json_build_object(
+                'indexap', mta.indexap
+            )
+        ),
         the_geom_2154,
         st_transform(the_geom_3857, 4326),
         st_centroid(st_transform(the_geom_3857, 4326))
