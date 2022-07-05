@@ -19,30 +19,51 @@
 
     <div class="tab-content">
         <div class="tab-pane active modal-header  list-group-item" id="infoGen" role="tabpanel">
-            <p> <span> <strong>Identifiant Zone de prospection : </strong></span> <span class="strong ">
+            <p>
+                <span>
+                    <b>Identifiant Zone de prospection : </b> 
                     {{ storeService.zpProperties.indexzp }}
-                </span></p>
-            <p> <span><strong> Date : </strong></span> <span class="strong"> 
+                </span>
+            </p>
+            <p>
+                <span>
+                    <b> Date : </b>
                 {{ storeService.zpProperties.date_min }}
-            </span></p>
-            <p> <span><strong> Observateur(s) : </strong></span> <span class="strong"
-                    *ngFor="let obs of storeService.zpProperties?.observers"> {{obs.nom_complet}}
-                </span></p>
-            <p> <span><strong> Taxon : </strong></span> <span class="strong"> 
-                {{ storeService.zpProperties?.taxonomy?.nom_complet }}</span></p>
+                </span> 
+            </p>
+            <p>
+                <span>
+                    <b>Observateur(s) :</b>
+                        <ul class="comma-list">
+                            <li *ngFor="let obs of storeService.zpProperties?.observers">
+                                {{obs.nom_complet}}
+                            </li>
+                        </ul>
+                </span>
+            <p>
+                <span>
+                    <b> Taxon : </b>
+                    {{ storeService.zpProperties?.taxonomy?.nom_complet }}
+                </span>
+            </p>
         </div>
         <div class="tab-pane modal-header list-group-item " id="details" role="tabpanel">
-            <p> <span><strong> Nom du site : </strong></span> <span class="strong"> 
-                {{ storeService.zpProperties.indexzp }}
+            <p>
+                <span>
+                    <b> Nom du site : </b>
+                    {{ storeService.zpProperties.indexzp }}
              </span>
             </p>
             <p>
-              <b>Commune(s): </b> 
-                <ul>
-                  <li *ngFor="let area of storeService.zpProperties?.areas">
-                        {{area.area_name}}
-                  </li>
-              </ul>
+                <span>
+                    <b>Commune(s): </b> 
+                        <ul class="comma-list">
+                            <li *ngFor="let area of storeService.zpProperties?.areas">
+                                {{area.area_name}}
+                            </li>
+                        </ul>
+                </span>
+            </p>
         </div>
     </div>
 </div>

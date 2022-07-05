@@ -3,7 +3,6 @@ import { Router, ActivatedRoute } from "@angular/router";
 import { Location } from "@angular/common";
 import { CommonService } from "@geonature_common/service/common.service";
 import { ToastrService } from "ngx-toastr";
-import * as L from "leaflet";
 
 import { MapListService } from "@geonature_common/map-list/map-list.service";
 import { MapService } from "@geonature_common/map/map.service";
@@ -11,6 +10,8 @@ import { MapService } from "@geonature_common/map/map.service";
 import { DataService } from "../../services/data.service";
 import { StoreService } from "../../services/store.service";
 import { ModuleConfig } from "../../module.config";
+import { ObserversComponent } from "@geonature_common/form/observers/observers.component";
+
 
 @Component({
   selector: "pnx-zp-details",
@@ -21,7 +22,7 @@ export class ZpDetailsComponent implements OnInit {
 
   public currentSite = {};
   public show = true;
-  private _map;
+  private map;
   public currentAp;
   public expanded: any = {};
   @ViewChild('table') table: any;
@@ -35,7 +36,7 @@ export class ZpDetailsComponent implements OnInit {
     private _commonService: CommonService,
     public activatedRoute: ActivatedRoute,
     public mapListService: MapListService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
   ) { }
 
   ngOnInit() {
@@ -74,7 +75,6 @@ export class ZpDetailsComponent implements OnInit {
         })
         this.storeService.sites['features'] = filterFeature;
 
-        console.log(filterFeature)
         this.storeService.sites = Object.assign({}, this.storeService.sites);
         this._commonService.translateToaster(
           "success",
@@ -103,7 +103,6 @@ export class ZpDetailsComponent implements OnInit {
       }
       i++
     }
-    console.log(this.currentAp);
 
     //this.mapListService.rowDetail.toggleExpandRow(indexap);
     this.table.rowDetail.toggleExpandRow(row);

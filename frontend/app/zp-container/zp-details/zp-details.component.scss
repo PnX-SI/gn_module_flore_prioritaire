@@ -14,6 +14,24 @@
   border: none;
 }
 
+.comma-list {
+  display: inline;
+  list-style: none;
+  padding: 0px;
+}
+
+.comma-list li {
+  display: inline;
+}
+
+.comma-list li::after {
+  content: ",";
+}
+
+.comma-list li:last-child::after {
+  content: "";
+}
+
 .wrapper {
   margin-bottom: 18px;
 }
