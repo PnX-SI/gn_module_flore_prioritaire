@@ -168,20 +168,20 @@ INSERT INTO pr_priority_flora.t_apresence(
                 'surface_ap_maitrisee_foncierement', mta.surface_ap_maitrisee_foncierement,
                 'pourcentage_ap_maitrisee_foncierement', mta.pourcentage_ap_maitrisee_foncierement
             )
-        ),
+        ) AS additional_data,
         mta.the_geom_2154,
         st_transform(mta.the_geom_3857, 4326),
         st_centroid(st_transform(mta.the_geom_3857, 4326))
     FROM migrate_v1_florepatri.t_apresence AS mta
-    JOIN migrate_v1_florepatri.bib_comptages_methodo AS bcm
+    LEFT JOIN migrate_v1_florepatri.bib_comptages_methodo AS bcm
         ON bcm.id_comptage_methodo = mta.id_comptage_methodo
-    JOIN migrate_v1_florepatri.t_zprospection AS tz
+    LEFT JOIN migrate_v1_florepatri.t_zprospection AS tz
         ON tz.indexzp = mta.indexzp
-    JOIN migrate_v1_florepatri.bib_etats_conservation AS bec 
+    LEFT JOIN migrate_v1_florepatri.bib_etats_conservation AS bec 
         ON bec.idetatconservation = mta.idetatconservation
-    JOIN migrate_v1_florepatri.bib_menaces AS bm
+    LEFT JOIN migrate_v1_florepatri.bib_menaces AS bm
         ON bm.idmenace = mta.idmenace 
-    JOIN migrate_v1_florepatri.bib_frequences_methodo_new AS bfmn
+    LEFT JOIN migrate_v1_florepatri.bib_frequences_methodo_new AS bfmn
         ON bfmn.id_frequence_methodo_new = mta.id_frequence_methodo_new 
     WHERE mta.supprime = 'false'
         AND NOT EXISTS (
