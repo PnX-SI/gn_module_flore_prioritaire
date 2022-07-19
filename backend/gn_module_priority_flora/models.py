@@ -240,28 +240,29 @@ class TZprospect(ZpCruvedAuth):
 @serializable
 @geoserializable
 @geofileserializable
-class ExportZp(DB.Model):
-    __tablename__ = "export_zp"
+class ExportAp(DB.Model):
+    __tablename__ = "export_ap"
     __table_args__ = {"schema": "pr_priority_flora"}
-    indexzp = DB.Column(DB.Integer, primary_key=True)
-    indexap = DB.Column(DB.Integer, primary_key=True)
+    id_zp = DB.Column(DB.Integer, primary_key=True)
+    id_ap = DB.Column(DB.Integer, primary_key=True)
+    taxon = DB.Column(DB.Unicode)
     observateurs = DB.Column(DB.Unicode)
-    altitude_min = DB.Column(DB.Integer)
-    altitude_max = DB.Column(DB.Integer)
-    comment = DB.Column(DB.Unicode)
-    area_name = DB.Column(DB.Unicode)
-    date_min = DB.Column(DB.DateTime)
-    date_max = DB.Column(DB.DateTime)
-    # nom_valide = DB.Column(DB.Unicode)
+    organisme = DB.Column(DB.Unicode)
     habitat = DB.Column(DB.Unicode)
-    pente = DB.Column(DB.Unicode)
     pheno = DB.Column(DB.Unicode)
-    label_perturbation = DB.Column(DB.Unicode)
-    frequency = DB.Column(DB.Integer)
-    counting = DB.Column(DB.Unicode)
+    pente = DB.Column(DB.Unicode)
+    decompte = DB.Column(DB.Unicode)
     total_min = DB.Column(DB.Integer)
     total_max = DB.Column(DB.Integer)
+    type_perturbation = DB.Column(DB.Unicode)
+    frequence_methode = DB.Column(DB.Integer)
+    remarques = DB.Column(DB.Unicode)
+    secteur = DB.Column(DB.Unicode)
+    date_min = DB.Column(DB.DateTime)
+    date_max = DB.Column(DB.DateTime)
+    altitude_min = DB.Column(DB.Integer)
+    altitude_max = DB.Column(DB.Integer)
+    surface_ap = DB.Column(DB.Integer)
+    surface_zp = DB.Column(DB.Integer)
     ap_geom_local = DB.Column(Geometry("GEOMETRY", config["LOCAL_SRID"]))
     zp_geom_local = DB.Column(Geometry("GEOMETRY", config["LOCAL_SRID"]))
-    ap_geom_local_wkt = DB.Column(DB.Unicode)
-    zp_geom_local_wkt = DB.Column(DB.Unicode)

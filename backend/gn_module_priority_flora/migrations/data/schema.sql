@@ -263,32 +263,59 @@ CREATE TRIGGER tri_insert_ap
 -- Vue: Création de la vue d'export
 ------------------------------------
 
-CREATE OR REPLACE VIEW pr_priority_flora.export_ap AS 
-  SELECT ap.indexap AS indexap,
-				ap.altitude_min AS altitude_min,
- 				ap.altitude_max AS altitude_max,
- 				ap.frequency AS frequency,
- 				ap.comment AS comment,
- 				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_pente) as pente,
-				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_counting) as counting,
-				ap.total_min AS total_min,
-				ap.total_max AS total_max,
-				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_habitat) as habitat,
-				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_phenology) as pheno, 
-    		string_agg((roles.nom_role::text || ' '::text) || roles.prenom_role::text, ','::text) AS observateurs,
-    		string_agg(n.label_default::text, ','::text) AS label_perturbation,
-    		string_agg(a.area_name::text, ','::text) AS area_name,
-				ap.geom_4326 AS geom_local
-  FROM pr_priority_flora.t_apresence ap
-     LEFT JOIN pr_priority_flora.t_zprospect z ON z.indexzp = ap.indexzp
-     LEFT JOIN pr_priority_flora.cor_zp_obs observer ON observer.indexzp = z.indexzp
-     LEFT JOIN utilisateurs.t_roles roles ON roles.id_role = observer.id_role
-     LEFT JOIN pr_priority_flora.cor_ap_area cap ON cap.indexap = ap.indexap
-     LEFT JOIN ref_geo.l_areas a ON a.id_area = cap.id_area
-     LEFT JOIN pr_priority_flora.cor_ap_perturb p ON ap.indexap = p.indexap
-     LEFT JOIN ref_nomenclatures.t_nomenclatures n ON p.id_nomenclature = n.id_nomenclature
-  WHERE a.id_type = ref_geo.get_id_area_type('COM'::character varying)
-  GROUP BY ap.indexap,ap.altitude_min,ap.altitude_max,ap.frequency,ap.comment,ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_pente),
-				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_counting), ap.total_min, ap.total_max, 
-				ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_habitat), ref_nomenclatures.get_nomenclature_label(ap.id_nomenclatures_phenology),ap.geom_4326;
-				
+
+CREATE OR REPLACE VIEW pr_priority_flora.export_ap
+AS
+
+SELECT DISTINCT 
+	ta.indexzp AS id_zp,
+	ta.indexap AS id_ap,
+	t.nom_complet AS taxon,
+	string_agg((roles.nom_role::text || ' '::text) || roles.prenom_role::text, ', '::text) AS observateurs,
+	bo.nom_organisme AS organisme,
+	ref_nomenclatures.get_nomenclature_label(ta.id_nomenclatures_habitat) AS habitat,
+    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclatures_phenology) AS pheno,
+    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclatures_pente) AS pente,
+    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclatures_counting) AS decompte,
+    ta.total_min,
+    ta.total_max,
+    string_agg(tn.label_default::text, ', '::text) AS type_perturbation,
+    ta.frequency AS frequence_methode,
+	ta."comment"  AS remarques,
+    string_agg(la.area_name::text, ', '::text) AS secteur,
+    tz.date_min AS date_min,
+    tz.date_max AS date_max,
+	ta.altitude_min AS altitude_min,
+	ta.altitude_max AS altitude_max,
+	ta."area" AS surface_ap,
+	ST_area(tz.geom_local) AS surface_zp,
+	ta.geom_local AS ap_geom_local,
+	tz.geom_local AS zp_geom_local
+FROM
+	pr_priority_flora.t_apresence ta
+	LEFT JOIN pr_priority_flora.cor_ap_area cap
+		ON cap.indexap = ta.indexap
+    LEFT JOIN ref_geo.l_areas la 
+    	ON la.id_area = cap.id_area
+    LEFT JOIN pr_priority_flora.cor_zp_obs observer
+    	ON observer.indexzp = ta.indexzp
+	LEFT JOIN utilisateurs.t_roles AS roles 
+		ON roles.id_role = observer.id_role 
+	LEFT JOIN utilisateurs.bib_organismes AS bo
+		ON bo.id_organisme = roles.id_organisme
+	LEFT JOIN pr_priority_flora.cor_ap_perturb caper
+		ON caper.indexap = ta.indexap
+	LEFT JOIN ref_nomenclatures.t_nomenclatures tn
+		ON tn.id_nomenclature = caper.id_nomenclature
+	LEFT JOIN pr_priority_flora.t_zprospect tz 
+		ON tz.indexzp = ta.indexzp
+	LEFT JOIN taxonomie.taxref t 
+		ON t.cd_nom = tz.cd_nom 
+WHERE la.id_type = ref_geo.get_id_area_type('COM'::character varying)
+GROUP BY ta.indexap, ta.indexzp, t.nom_complet, bo.nom_organisme, tz.geom_local, tz.date_min, tz.date_max 
+
+;
+	
+	
+	
+	

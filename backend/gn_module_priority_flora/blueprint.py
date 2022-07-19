@@ -24,7 +24,7 @@ from pypnusershub.db.models import User
 from .models import (
     TZprospect,
     TApresence,
-    ExportZp,
+    ExportAp,
     cor_zp_area
 )
 from geonature.core.taxonomie.models import Taxref
@@ -361,7 +361,7 @@ def delete_one_ap(id_ap):
     return None
 
 
-@blueprint.route("/export_zp", methods=["GET"])
+@blueprint.route("/export_ap", methods=["GET"])
 @permissions.check_cruved_scope("E", module_code="priority_flora")
 def export_ap():
     """
@@ -374,32 +374,30 @@ def export_ap():
     )
 
     file_name = datetime.datetime.now().strftime("%Y_%m_%d_%Hh%Mm%S")
-    q = DB.session.query(ExportZp)
+    q = DB.session.query(ExportAp)
 
     if "indexap" in parameters:
-        q = DB.session.query(ExportZp).filter(ExportZp.indexap == parameters["indexap"])
+        q = DB.session.query(ExportAp).filter(ExportAp.id_ap == parameters["indexap"])
     elif "indexzp" in parameters:
-        q = DB.session.query(ExportZp).filter(
-            ExportZp.id_base_site == parameters["indexzp"]
+        q = DB.session.query(ExportAp).filter(
+            ExportAp.id_zp == parameters["indexzp"]
         )
     elif "organisme" in parameters:
-        q = DB.session.query(ExportZp).filter(
-            ExportZp.organisme == parameters["organisme"]
+        q = DB.session.query(ExportAp).filter(
+            ExportAp.organisme == parameters["organisme"]
         )
     elif "id_area" in parameters:
-        print("LAAAAA")
-        q = DB.session.query(ExportZp).join(
-            cor_zp_area, cor_zp_area.c.indexzp == ExportZp.indexzp
+        q = DB.session.query(ExportAp).join(
+            cor_zp_area, cor_zp_area.c.indexzp == ExportAp.id_zp
         ).filter(
             cor_zp_area.c.id_area == parameters["id_area"]
         )
-        print(q)
     elif "year" in parameters:
-        q = DB.session.query(ExportZp).filter(
-            func.date_part("year", ExportZp.date_min) == parameters["year"]
+        q = DB.session.query(ExportAp).filter(
+            func.date_part("year", ExportAp.date_min) == parameters["year"]
         )
     elif "cd_nom" in parameters:
-        q = DB.session.query(ExportZp).filter(ExportZp.cd_nom == parameters["cd_nom"])
+        q = DB.session.query(ExportAp).filter(ExportAp.cd_nom == parameters["cd_nom"])
 
     data = q.all()
     features = []
@@ -414,13 +412,12 @@ def export_ap():
         return to_csv_resp(file_name, tab_ap, tab_ap[0].keys(), ";")
 
     else:
-        print("ICI???")
         db_cols = [
-            db_col for db_col in ExportZp.__table__.columns
+            db_col for db_col in ExportAp.__table__.columns
         ]
         dir_path = str(ROOT_DIR / "backend/static/shapefiles")
         export_geodata_as_file(
-            view=ExportZp,
+            view=ExportAp,
             srid=2154,
             db_cols=db_cols,
             data=data,
@@ -431,7 +428,7 @@ def export_ap():
             export_format="gpkg"
         )
         # FionaShapeService.create_shapes_struct(
-        #     db_cols=ExportZp.__mapper__.c,
+        #     db_cols=ExportAp.__mapper__.c,
         #     srid=2154,
         #     dir_path=dir_path,
         #     file_name=file_name,
@@ -446,11 +443,11 @@ def export_ap():
 
 
         # db_cols = [
-        #     db_col for db_col in ExportZp.__table__.columns
+        #     db_col for db_col in ExportAp.__table__.columns
         # ]
         # dir_name, file_name = export_as_geo_file(
         #     export_format=export_format,
-        #     export_view=ExportZp,
+        #     export_view=ExportAp,
         #     db_cols=db_cols,
         #     geojson_col=None,
         #     data=data,
