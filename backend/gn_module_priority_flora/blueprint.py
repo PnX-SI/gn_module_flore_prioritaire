@@ -30,6 +30,7 @@ from .models import (
 from geonature.core.taxonomie.models import Taxref
 from geonature.core.gn_permissions import decorators as permissions
 from pypnusershub.db.models import Organisme
+from geonature.utils.errors import GeonatureApiError
 
 blueprint = Blueprint("priority_flora", __name__)
 
@@ -310,7 +311,6 @@ def get_all_sites():
 @blueprint.route("/zp/<id_zp>", methods=["GET"])
 @permissions.check_cruved_scope("R", module_code="priority_flora")
 def get_one_zp(id_zp):
-    print("ENTER LA ?????")
     zp = DB.session.query(TZprospect).get(id_zp)
     if zp:
         return jsonify({
@@ -368,6 +368,7 @@ def export_ap():
     Télécharge les données d'une aire de présence
     """
     parameters = request.args
+    print(f"parameters : {parameters}")
 
     export_format = (
         parameters["export_format"] if "export_format" in request.args else "shapefile"
@@ -382,9 +383,11 @@ def export_ap():
         q = DB.session.query(ExportAp).filter(
             ExportAp.id_zp == parameters["indexzp"]
         )
-    elif "organisme" in parameters:
-        q = DB.session.query(ExportAp).filter(
-            ExportAp.organisme == parameters["organisme"]
+    elif "id_organism" in parameters:
+        q = DB.session.query(ExportAp).join(
+            Organisme, Organisme.nom_organisme == ExportAp.organisme
+        ).filter(
+            Organisme.id_organisme == parameters["id_organism"]
         )
     elif "id_area" in parameters:
         q = DB.session.query(ExportAp).join(
@@ -397,10 +400,11 @@ def export_ap():
             func.date_part("year", ExportAp.date_min) == parameters["year"]
         )
     elif "cd_nom" in parameters:
-        q = DB.session.query(ExportAp).filter(ExportAp.cd_nom == parameters["cd_nom"])
+        q = DB.session.query(ExportAp).join(
+            Taxref, Taxref.nom_valide == ExportAp.taxon
+        ).filter(Taxref.cd_nom == parameters["cd_nom"])
 
     data = q.all()
-    features = []
 
     if export_format == "csv":
         tab_ap = []
@@ -412,54 +416,36 @@ def export_ap():
         return to_csv_resp(file_name, tab_ap, tab_ap[0].keys(), ";")
 
     else:
-        db_cols = [
-            db_col for db_col in ExportAp.__table__.columns
-        ]
-        dir_path = str(ROOT_DIR / "backend/static/shapefiles")
-        export_geodata_as_file(
-            view=ExportAp,
-            srid=2154,
-            db_cols=db_cols,
-            data=data,
-            dir_path=dir_path,
-            file_name=file_name,
-            geom_col="ap_geom_local",
-            geojson_col=None,
-            export_format="gpkg"
+
+        try:
+            db_cols = [
+                db_col for db_col in ExportAp.__table__.columns
+            ]
+            dir_path = str(ROOT_DIR / "backend/static/shapefiles")
+            export_geodata_as_file(
+                view=ExportAp,
+                srid=2154,
+                db_cols=db_cols,
+                data=data,
+                dir_path=dir_path,
+                file_name=file_name,
+                geom_col="ap_geom_local",
+                geojson_col=None,
+                export_format="gpkg"
+            )
+
+            return send_from_directory(dir_path, file_name + ".zip", as_attachment=True)
+        
+        except GeonatureApiError as e:
+            message = str(e)
+
+        return render_template(
+            "error.html",
+            error=message,
+            redirect= AppConfig.API_ENDPOINT
+            + "/#/"
+            + blueprint.config["MODULE_URL"],
         )
-        # FionaShapeService.create_shapes_struct(
-        #     db_cols=ExportAp.__mapper__.c,
-        #     srid=2154,
-        #     dir_path=dir_path,
-        #     file_name=file_name,
-        # )
-
-        # for row in data:
-        #     FionaShapeService.create_feature(row.as_dict(), row.ap_geom_local)
-
-
-
-        # FionaShapeService.save_and_zip_shapefiles()
-
-
-        # db_cols = [
-        #     db_col for db_col in ExportAp.__table__.columns
-        # ]
-        # dir_name, file_name = export_as_geo_file(
-        #     export_format=export_format,
-        #     export_view=ExportAp,
-        #     db_cols=db_cols,
-        #     geojson_col=None,
-        #     data=data,
-        #     file_name=file_name,
-        # )
-        # db_cols = [
-        #     db_col for db_col in export_view.db_cols if db_col.key in export_columns
-        # ]
-
-
-        return send_from_directory(dir_path, file_name + ".zip", as_attachment=True)
-
 
 @blueprint.route("/area_contain", methods=["POST"])
 def check_ap_in_zp():
