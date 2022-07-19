@@ -125,14 +125,14 @@ INSERT INTO pr_priority_flora.t_apresence(
     geom_point_4326
 )
     SELECT
-        indexap,
-        surfaceap::FLOAT,
-        topo_valid,
-        altitude_retenue,
-        altitude_retenue,
-        frequenceap,
-        remarques,
-        indexzp,
+        mta.indexap,
+        mta.surfaceap::FLOAT,
+        mta.topo_valid,
+        mta.altitude_retenue,
+        mta.altitude_retenue,
+        mta.frequenceap,
+        mta.remarques,
+        mta.indexzp,
         NULL, -- Pas de notion de pente
         ref_nomenclatures.get_id_nomenclature('FLORE_PATRI_METHODO_DENOM',mta.id_comptage_methodo::text), -- counting
         NULL,
@@ -143,14 +143,47 @@ INSERT INTO pr_priority_flora.t_apresence(
         json_build_object(
             'migrateOriginalInfos',
             json_build_object(
-                'indexap', mta.indexap
+                'indexap', mta.indexap,
+                'nb_transects_ap', mta.nb_transects_frequence,
+    	        'nb_points_ap', mta.nb_points_frequence,
+    	        'nom_frequence_methodo', bfmn.nom_frequence_methodo_new,
+                'frequence_ap', mta.frequenceap,
+                'methode_comptage', bcm.nom_comptage_methodo,
+                'nb_placettes_comptage', mta.nb_placettes_comptage,
+                'surface_placette_comptage', mta.surface_placette_comptage,
+    	        'nb_contacts_ap', mta.nb_contacts_frequence,
+    	        'total_fertiles', mta.total_fertiles,
+                'total_steriles', mta.total_steriles,
+                'effectif_placettes_fertiles', mta.effectif_placettes_fertiles,
+                'effectif_placettes_steriles', mta.effectif_placettes_steriles,
+                'ap_topo_valid', mta.topo_valid,
+                'zp_topo_valid', tz.topo_valid,
+                'etat_conservation', bec.libelle,
+                'conservation_commentaire', mta.conservation_commentaire,
+                'pourcentage_ap_conservation_favorable', mta.pourcentage_ap_conservation_favorable, 
+                'conservation_commentaire', mta.conservation_commentaire,
+                'menace', bm.libelle,
+                'pourcentage_ap_non_menacee', mta.pourcentage_ap_non_menacee,
+                'pourcentage_ap_espace_protege_F', mta.pourcentage_ap_espace_protege_f, 
+                'surface_ap_maitrisee_foncierement', mta.surface_ap_maitrisee_foncierement,
+                'pourcentage_ap_maitrisee_foncierement', mta.pourcentage_ap_maitrisee_foncierement
             )
         ),
-        the_geom_2154,
-        st_transform(the_geom_3857, 4326),
-        st_centroid(st_transform(the_geom_3857, 4326))
+        mta.the_geom_2154,
+        st_transform(mta.the_geom_3857, 4326),
+        st_centroid(st_transform(mta.the_geom_3857, 4326))
     FROM migrate_v1_florepatri.t_apresence AS mta
-    WHERE supprime = 'false'
+    JOIN migrate_v1_florepatri.bib_comptages_methodo AS bcm
+        ON bcm.id_comptage_methodo = mta.id_comptage_methodo
+    JOIN migrate_v1_florepatri.t_zprospection AS tz
+        ON tz.indexzp = mta.indexzp
+    JOIN migrate_v1_florepatri.bib_etats_conservation AS bec 
+        ON bec.idetatconservation = mta.idetatconservation
+    JOIN migrate_v1_florepatri.bib_menaces AS bm
+        ON bm.idmenace = mta.idmenace 
+    JOIN migrate_v1_florepatri.bib_frequences_methodo_new AS bfmn
+        ON bfmn.id_frequence_methodo_new = mta.id_frequence_methodo_new 
+    WHERE mta.supprime = 'false'
         AND NOT EXISTS (
             SELECT 'X'
             FROM pr_priority_flora.t_apresence AS ta
