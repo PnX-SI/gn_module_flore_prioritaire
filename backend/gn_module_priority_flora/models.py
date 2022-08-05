@@ -251,7 +251,7 @@ class ExportAp(DB.Model):
     habitat = DB.Column(DB.Unicode)
     pheno = DB.Column(DB.Unicode)
     pente = DB.Column(DB.Unicode)
-    decompte = DB.Column(DB.Unicode)
+    comptage = DB.Column(DB.Unicode)
     total_min = DB.Column(DB.Integer)
     total_max = DB.Column(DB.Integer)
     type_perturbation = DB.Column(DB.Unicode)

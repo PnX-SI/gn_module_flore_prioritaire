@@ -2,8 +2,12 @@
 -- into GeoNature v2 Priority Flora module schema.
 -- Usage:
 --  1. go to sql directory: cd backend/gn_module_priority_flora/migrations/data/migrate_v1_to_v2
---  2. migrate data with scripts #2 :
---    export PGPASSWORD="<db_pass>"; psql -h "<db_host>" -U "<db_user>" -d "<db_name>" -f "02_migrate_data.sql"
+--  2. create foreign data table with script #1 :
+--    export PGPASSWORD="<db_pass>"; psql -h "<db_host>" -U "<db_user>" -d "<db_name>" -f "01_create_fdw.sql"
+--  3. migrate users with scripts #2 :
+--    export PGPASSWORD="<db_pass>"; psql -h "<db_host>" -U "<db_user>" -d "<db_name>" -f "02_migrate_users.sql"
+--  4. migrate data with scripts #3 :
+--    export PGPASSWORD="<db_pass>"; psql -h "<db_host>" -U "<db_user>" -d "<db_name>" -f "03_migrate_data.sql"
 --
 -- where:
 -- - <db_pass>: GeoNature v2 database user password.
@@ -11,20 +15,11 @@
 -- - <db_user>: GeoNature v2 database user name with write access. Ex.: "geonatadmin".
 -- - <db_name>: GeoNature v2 database name. Ex.: "geonature2db".
 
--- TODO :
--- 1. vérifier les noms des champs. !!L.87 + L.159 "cor_ap_perturb"!!
--- 2. ajouter des not exists pour éviter les erreurs d'insertion.
--- 3. analyser le contenu migré pour voir si on ne peut pas l'améliorer.
--- 4. lancer le script #2 02_migrate.sql et le corriger
--- 5. vérifier le bon fonctionne du module (front et back) avec les données => le corriger si erreurs...
--- 6. migrer dans branche refactor les modules SFT, SHT et enfin SHS.
-
 BEGIN;
 
 \echo '----------------------------------------------------------------------------'
 \echo 'PRIORITY_FLORA => Insert data into "t_zprospect"'
 INSERT INTO pr_priority_flora.t_zprospect (
-    indexzp,
     date_min,
     date_max,
     topo_valid,
@@ -33,10 +28,11 @@ INSERT INTO pr_priority_flora.t_zprospect (
     additional_data,
     geom_local,
     geom_4326,
-    geom_point_4326
+    geom_point_4326,
+    meta_create_date,
+    meta_update_date
 )
     SELECT
-        indexzp,
         dateobs,
         dateobs,
         topo_valid,
@@ -45,30 +41,35 @@ INSERT INTO pr_priority_flora.t_zprospect (
         json_build_object(
             'migrateOriginalInfos',
             json_build_object(
-                'indexzp', mtz.indexzp
+                'indexZp', mtz.indexzp,
+                'topoValid', mtz.topo_valid,
+                'validation', mtz.validation,
+                'erreurSignalee', mtz.erreur_signalee,
+                'taxonSaisie', mtz.taxon_saisi,
+                'idOrganisme', mtz.id_organisme,
+                'nomOrganisme', bo.nom_organisme
             )
         ),
         the_geom_2154,
         st_transform(geom_mixte_3857, 4326),
-        st_transform(geom_point_3857, 4326)
+        st_transform(geom_point_3857, 4326),
+        date_insert,
+        date_update
     FROM migrate_v1_florepatri.t_zprospection AS mtz
+        LEFT JOIN migrate_v1_utilisateurs.bib_organismes AS bo
+            ON mtz.id_organisme = bo.id_organisme
     WHERE supprime = 'false'
         AND NOT EXISTS (
             SELECT 'X'
             FROM pr_priority_flora.t_zprospect AS tz
-            WHERE tz.indexzp = mtz.indexzp
+            WHERE CAST(tz.additional_data-> 'migrateOriginalInfos' ->> 'indexZp' AS BIGINT) = mtz.indexzp
         )
     ;
 
 
-
-\echo '----------------------------------------------------------------------------'
-\echo 'PRIORITY_FLORA => Update sequence for "t_zprospect"'
-SELECT setval(
-    'pr_priority_flora.t_zprospect_indexzp_seq',
-    (SELECT max(indexzp) FROM pr_priority_flora.t_zprospect),
-    true
-) ;
+CREATE TRIGGER tri_meta_dates_change_zprospect BEFORE
+INSERT OR UPDATE ON pr_priority_flora.t_zprospect
+FOR EACH ROW EXECUTE FUNCTION fct_trg_meta_dates_change() ;
 
 
 \echo '----------------------------------------------------------------------------'
@@ -76,7 +77,7 @@ SELECT setval(
 WITH coresp AS (
 	SELECT
         tr.id_role,
-        CAST(tr.champs_addi-> 'migrateOriginalInfos' ->> 'roleId' AS INT) AS roleId
+        CAST(tr.champs_addi-> 'migrateOriginalInfos' ->> 'roleId' AS BIGINT) AS roleId
     from utilisateurs.t_roles AS tr
 )
 
@@ -85,26 +86,27 @@ INSERT INTO pr_priority_flora.cor_zp_obs (
     id_role
 )
     SELECT
-        mcor.indexzp,
+        tz.indexzp,
 		coresp.id_role
     FROM migrate_v1_florepatri.cor_zp_obs AS mcor
         JOIN migrate_v1_florepatri.t_zprospection AS tzp
             ON tzp.indexzp = mcor.indexzp
         JOIN coresp
         	ON coresp.roleId = mcor.codeobs
+        JOIN pr_priority_flora.t_zprospect AS tz
+            ON CAST(tz.additional_data-> 'migrateOriginalInfos' ->> 'indexZp' AS BIGINT) = mcor.indexzp
     WHERE tzp.supprime = 'false'
         AND NOT EXISTS (
             SELECT 'X'
             FROM pr_priority_flora.cor_zp_obs AS pf
-            WHERE pf.indexzp = mcor.indexzp
-                AND pf.id_role = mcor.codeobs
+            WHERE pf.indexzp = tz.indexzp
+                AND pf.id_role = coresp.id_role
         )
     ;
 
 \echo '----------------------------------------------------------------------------'
 \echo 'PRIORITY_FLORA => Insert data into "t_apresence"'
 INSERT INTO pr_priority_flora.t_apresence(
-    indexap,
     area,
     topo_valid,
     altitude_min,
@@ -122,98 +124,94 @@ INSERT INTO pr_priority_flora.t_apresence(
     additional_data,
     geom_local,
     geom_4326,
-    geom_point_4326
+    geom_point_4326,
+    meta_create_date,
+    meta_update_date
 )
     SELECT
-        mta.indexap,
         mta.surfaceap::FLOAT,
         mta.topo_valid,
         mta.altitude_retenue,
         mta.altitude_retenue,
         mta.frequenceap,
         mta.remarques,
-        mta.indexzp,
-        NULL, -- Pas de notion de pente
-        ref_nomenclatures.get_id_nomenclature('FLORE_PATRI_METHODO_DENOM',mta.id_comptage_methodo::text), -- counting
-        NULL,
-        ref_nomenclatures.get_id_nomenclature('TYPE_PHENOLOGIE',mta.codepheno::text), -- counting
-        NULL, -- id_history_action
-        total_steriles+total_fertiles , --total_min
-        total_steriles+total_fertiles, -- total max
+        tz.indexzp,
+        NULL, -- Pas de notion de pente.
+        ref_nomenclatures.get_id_nomenclature('TYPE_COMPTAGE', mta.id_comptage_methodo::text),
+        NULL, -- Pas de notion d'habitat.
+        ref_nomenclatures.get_id_nomenclature('TYPE_PHENOLOGIE', mta.codepheno::text),
+        NULL, -- Pas de notion d'historique des actions.
+        total_steriles + total_fertiles , --total_min
+        total_steriles + total_fertiles, -- total max
         json_build_object(
             'migrateOriginalInfos',
             json_build_object(
-                'indexap', mta.indexap,
-                'nb_transects_ap', mta.nb_transects_frequence,
-    	        'nb_points_ap', mta.nb_points_frequence,
-    	        'nom_frequence_methodo', bfmn.nom_frequence_methodo_new,
-                'frequence_ap', mta.frequenceap,
-                'methode_comptage', bcm.nom_comptage_methodo,
-                'nb_placettes_comptage', mta.nb_placettes_comptage,
-                'surface_placette_comptage', mta.surface_placette_comptage,
-    	        'nb_contacts_ap', mta.nb_contacts_frequence,
-    	        'total_fertiles', mta.total_fertiles,
-                'total_steriles', mta.total_steriles,
-                'effectif_placettes_fertiles', mta.effectif_placettes_fertiles,
-                'effectif_placettes_steriles', mta.effectif_placettes_steriles,
-                'ap_topo_valid', mta.topo_valid,
-                'zp_topo_valid', tz.topo_valid,
-                'etat_conservation', bec.libelle,
-                'conservation_commentaire', mta.conservation_commentaire,
-                'pourcentage_ap_conservation_favorable', mta.pourcentage_ap_conservation_favorable, 
-                'conservation_commentaire', mta.conservation_commentaire,
+                'indexAp', mta.indexap,
+                'insee', mta.insee,
+                'methodeFrequence', bfmn.nom_frequence_methodo_new,
+                'nbTransectsAp', mta.nb_transects_frequence,
+    	        'nbPointsAp', mta.nb_points_frequence,
+    	        'nbContactsAp', mta.nb_contacts_frequence,
+                'methodeComptage', bcm.nom_comptage_methodo,
+                'nbPlacettesComptage', mta.nb_placettes_comptage,
+                'surfacePlacetteComptage', mta.surface_placette_comptage,
+                'longueurPas', mta.longueur_pas,
+    	        'effectifPlacettesSteriles', mta.effectif_placettes_steriles,
+                'effectifPlacettesFertiles', mta.effectif_placettes_fertiles,
+                'totalSteriles', mta.total_steriles,
+                'totalFertiles', mta.total_fertiles,
+                'etatConservation', bec.libelle,
+                'pourcentageApConservationFavorable', mta.pourcentage_ap_conservation_favorable,
+                'conservationCommentaire', mta.conservation_commentaire,
                 'menace', bm.libelle,
-                'pourcentage_ap_non_menacee', mta.pourcentage_ap_non_menacee,
-                'pourcentage_ap_espace_protege_F', mta.pourcentage_ap_espace_protege_f, 
-                'surface_ap_maitrisee_foncierement', mta.surface_ap_maitrisee_foncierement,
-                'pourcentage_ap_maitrisee_foncierement', mta.pourcentage_ap_maitrisee_foncierement
+                'pourcentageApNonMenacee', mta.pourcentage_ap_non_menacee,
+                'pourcentageApEspaceProtegeF', mta.pourcentage_ap_espace_protege_f,
+                'surfaceApMaitriseeFoncierement', mta.surface_ap_maitrisee_foncierement,
+                'pourcentageApMaitriseeFoncierement', mta.pourcentage_ap_maitrisee_foncierement,
+                'dateSuivi', mta.date_suivi
             )
         ) AS additional_data,
         mta.the_geom_2154,
         st_transform(mta.the_geom_3857, 4326),
-        st_centroid(st_transform(mta.the_geom_3857, 4326))
+        st_centroid(st_transform(mta.the_geom_3857, 4326)),
+        mta.date_insert,
+        mta.date_update
     FROM migrate_v1_florepatri.t_apresence AS mta
-    LEFT JOIN migrate_v1_florepatri.bib_comptages_methodo AS bcm
-        ON bcm.id_comptage_methodo = mta.id_comptage_methodo
-    LEFT JOIN migrate_v1_florepatri.t_zprospection AS tz
-        ON tz.indexzp = mta.indexzp
-    LEFT JOIN migrate_v1_florepatri.bib_etats_conservation AS bec 
-        ON bec.idetatconservation = mta.idetatconservation
-    LEFT JOIN migrate_v1_florepatri.bib_menaces AS bm
-        ON bm.idmenace = mta.idmenace 
-    LEFT JOIN migrate_v1_florepatri.bib_frequences_methodo_new AS bfmn
-        ON bfmn.id_frequence_methodo_new = mta.id_frequence_methodo_new 
+        LEFT JOIN migrate_v1_florepatri.bib_comptages_methodo AS bcm
+            ON bcm.id_comptage_methodo = mta.id_comptage_methodo
+        LEFT JOIN migrate_v1_florepatri.bib_etats_conservation AS bec
+            ON bec.idetatconservation = mta.idetatconservation
+        LEFT JOIN migrate_v1_florepatri.bib_menaces AS bm
+            ON bm.idmenace = mta.idmenace
+        LEFT JOIN migrate_v1_florepatri.bib_frequences_methodo_new AS bfmn
+            ON bfmn.id_frequence_methodo_new = mta.id_frequence_methodo_new
+        JOIN pr_priority_flora.t_zprospect AS tz
+            ON CAST(tz.additional_data-> 'migrateOriginalInfos' ->> 'indexZp' AS BIGINT) = mta.indexzp
     WHERE mta.supprime = 'false'
         AND NOT EXISTS (
             SELECT 'X'
             FROM pr_priority_flora.t_apresence AS ta
-            WHERE ta.indexap = mta.indexap
-                AND ta.indexzp = mta.indexzp
+            WHERE CAST(ta.additional_data-> 'migrateOriginalInfos' ->> 'indexAp' AS BIGINT) = mta.indexap
         )
     ;
 
-\echo '----------------------------------------------------------------------------'
-\echo 'PRIORITY_FLORA => Update sequence for "t_apresence"'
-SELECT setval(
-    'pr_priority_flora.t_apresence_indexap_seq',
-    (SELECT max(indexap) FROM pr_priority_flora.t_apresence),
-    true
-) ;
+CREATE TRIGGER tri_meta_dates_change_apresence BEFORE
+INSERT OR UPDATE ON pr_priority_flora.t_apresence
+FOR EACH ROW EXECUTE FUNCTION fct_trg_meta_dates_change() ;
 
 
 \echo '----------------------------------------------------------------------------'
 \echo 'PRIORITY_FLORA => Insert data into "cor_ap_perturb"'
 WITH nomenclature AS (
-	select 
+	SELECT
 		id_nomenclature,
 		b.codeper
-	from ref_nomenclatures.t_nomenclatures AS tn
+	FROM ref_nomenclatures.t_nomenclatures AS tn
 	    JOIN migrate_v1_florepatri.bib_perturbations AS b
 	        ON tn.label_default = b.description
 	    JOIN ref_nomenclatures.bib_nomenclatures_types AS bib
 	    	ON (bib.id_type = tn.id_type AND bib.mnemonique = 'TYPE_PERTURBATION')
 )
-
 INSERT INTO pr_priority_flora.cor_ap_perturb (
     indexap,
     id_nomenclature,
@@ -222,18 +220,17 @@ INSERT INTO pr_priority_flora.cor_ap_perturb (
     SELECT
         a.indexap,
         n.id_nomenclature,
-        NULL AS pres_effective
-
+        NULL
     FROM migrate_v1_florepatri.cor_ap_perturb AS mcor
         JOIN pr_priority_flora.t_apresence AS a
-            ON a.indexap = mcor.indexap
+            ON CAST(a.additional_data-> 'migrateOriginalInfos' ->> 'indexAp' AS BIGINT) = mcor.indexap
         JOIN nomenclature AS n
         	ON n.codeper = mcor.codeper
 	WHERE NOT EXISTS (
         SELECT 'X'
-        FROM pr_priority_flora.cor_ap_perturb AS pf
-        WHERE pf.indexap = mcor.indexap
-            AND pf.id_nomenclature = n.id_nomenclature
+        FROM pr_priority_flora.cor_ap_perturb AS cap
+        WHERE cap.indexap = a.indexap
+            AND cap.id_nomenclature = n.id_nomenclature
     ) ;
 
 \echo '----------------------------------------------------------------------------'
@@ -325,7 +322,7 @@ INSERT INTO taxonomie.bib_listes (
     'Liste de taxons pour le module Priority Flora.',
     'Plantae',
     'PRIORITY_FLORA'
-) 
+)
 ON CONFLICT (nom_liste) DO NOTHING ;
 
 
@@ -357,8 +354,8 @@ ON CONFLICT (nom_liste) DO NOTHING ;
 \echo '----------------------------------------------------------------------------'
 \echo 'TAXONOMIE => Insert data into "cor_nom_liste"'
 WITH code_liste AS (
-    SELECT id_liste 
-    FROM taxonomie.bib_listes 
+    SELECT id_liste
+    FROM taxonomie.bib_listes
     WHERE code_liste = 'PRIORITY_FLORA'
 )
 INSERT INTO taxonomie.cor_nom_liste (
@@ -367,7 +364,7 @@ INSERT INTO taxonomie.cor_nom_liste (
 )
     SELECT
         cl.id_liste,
-        b.id_nom 
+        b.id_nom
     FROM taxonomie.bib_noms AS b
         JOIN migrate_v1_florepatri.bib_taxons_fp AS t
             ON b.cd_nom = t.cd_nom,
