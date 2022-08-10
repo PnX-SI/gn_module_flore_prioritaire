@@ -36,7 +36,7 @@
             <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
               <small> Pente estimée</small>
               <div class="" id="newPente">
-                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclatures_pente"
+                <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclature_incline"
                   [multiSelect]="false" keyValue="id_nomenclature"
                   codeNomenclatureType="TYPE_PENTE">
                 </pnx-nomenclature>
@@ -53,7 +53,7 @@
       <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4 padding-sm">
         <small> Phénologie </small>
         <div class="" id="newPheno">
-          <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclatures_phenology" [multiSelect]="false"
+          <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclature_phenology" [multiSelect]="false"
             keyValue="id_nomenclature"
             codeNomenclatureType="TYPE_PHENOLOGIE">
           </pnx-nomenclature>
@@ -71,7 +71,7 @@
       <div class="form-group col-xs-8 col-sm-8 col-md-8 col-lg-8 padding-sm">
         <small> Habitat </small>
         <div class="" id="newHabitat">
-          <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclatures_habitat" [multiSelect]="false"
+          <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclature_habitat" [multiSelect]="false"
             keyValue="id_nomenclature"
             codeNomenclatureType="ETAT_HABITAT">
           </pnx-nomenclature>
@@ -91,9 +91,9 @@
           <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
             <small> Objet dénombrement </small>
             <div class="" id="newCounting">
-              <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclatures_counting"
-                [multiSelect]="false" keyValue="id_nomenclature" 
-                codeNomenclatureType="FLORE_PATRI_METHODO_DENOM">
+              <pnx-nomenclature [parentFormControl]="ApFormGroup.controls.id_nomenclature_counting"
+                [multiSelect]="false" keyValue="id_nomenclature"
+                codeNomenclatureType="TYPE_COMPTAGE">
               </pnx-nomenclature>
             </div>
           </div>

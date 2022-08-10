@@ -20,13 +20,13 @@ import { ZpContainerComponent } from "./zp-container/zp-container.component";
 const routes: Routes = [
   { path: '', component: ZpMapListComponent },
   { path: 'post_zp', component: ZpAddComponent },
-  { path: 'post_zp/:indexzp', component: ZpAddComponent },
+  { path: 'post_zp/:idZp', component: ZpAddComponent },
   {
     path: 'zp/:idZP', component: ZpContainerComponent,
     children: [
       { path: 'details', component: ZpDetailsComponent },
       { path: 'post_ap', component: ApAddComponent },
-      { path: 'post_ap/:indexap', component: ApAddComponent },
+      { path: 'post_ap/:idAp', component: ApAddComponent },
       { path: '', redirectTo: 'details', pathMatch: 'full' }
     ]
   },
@@ -36,10 +36,10 @@ const routes: Routes = [
 @NgModule({
   imports: [CommonModule, GN2CommonModule, RouterModule.forChild(routes)],
   declarations: [
-    ZpMapListComponent, 
-    ZpAddComponent, 
-    ZpDetailsComponent, 
-    ApAddComponent, 
+    ZpMapListComponent,
+    ZpAddComponent,
+    ZpDetailsComponent,
+    ApAddComponent,
     ZpContainerComponent
   ],
 

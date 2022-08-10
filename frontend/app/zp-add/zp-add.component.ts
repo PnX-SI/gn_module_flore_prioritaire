@@ -56,11 +56,11 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     this.leafletDrawOptions.draw.polyline = false;
     this.leafletDrawOptions.edit.remove = true;
 
-    this.idZp = this.activatedRoute.snapshot.params['indexzp'];
+    this.idZp = this.activatedRoute.snapshot.params['idZp'];
 
 
     this.ZpFormGroup = this._fb.group({
-      indexzp: null,
+      id_zp: null,
       cd_nom: null,
       date_min: null,
       cor_zp_observer: [],
@@ -76,7 +76,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
       this.api.getOneZP(this.idZp).subscribe(element => {
         const zp = element.zp.properties;
         this.ZpFormGroup.patchValue({
-          indexzp: zp.indexzp,
+          id_zp: zp.id_zp,
           cd_nom: zp.taxonomy,
           date_min: this._dateParser.parse(zp.date_min),
           cor_zp_observer: zp.observers,
@@ -118,7 +118,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
       finalForm.date_min
     );
     console.log(finalForm);
-    
+
 
     //observers
     finalForm["cor_zp_observer"] = finalForm["cor_zp_observer"].map(

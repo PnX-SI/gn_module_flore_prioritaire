@@ -8,7 +8,7 @@ list_visit_message = {emptyMessage = "Aucune visite sur ce site ", totalMessage 
 detail_list_visit_message = {emptyMessage = "Aucune autre visite sur ce site ", totalMessage = "visites au total"}
 
 default_site_columns = [
-    { name = "Identifiant", prop = "indexzp", width = "90"},
+    { name = "Identifiant", prop = "id_zp", width = "90"},
     { name = "Taxon", prop = "cd_nom", width = "350"},
     { name = "Date Min", prop = "date_min", width = "120"},
     { name = "Date Max", prop = "date_max", width = "160"},

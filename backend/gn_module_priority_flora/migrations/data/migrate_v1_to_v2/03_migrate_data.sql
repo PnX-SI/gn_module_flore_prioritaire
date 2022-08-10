@@ -82,11 +82,11 @@ WITH coresp AS (
 )
 
 INSERT INTO pr_priority_flora.cor_zp_obs (
-    indexzp,
+    id_zp,
     id_role
 )
     SELECT
-        tz.indexzp,
+        tz.id_zp,
 		coresp.id_role
     FROM migrate_v1_florepatri.cor_zp_obs AS mcor
         JOIN migrate_v1_florepatri.t_zprospection AS tzp
@@ -99,7 +99,7 @@ INSERT INTO pr_priority_flora.cor_zp_obs (
         AND NOT EXISTS (
             SELECT 'X'
             FROM pr_priority_flora.cor_zp_obs AS pf
-            WHERE pf.indexzp = tz.indexzp
+            WHERE pf.id_zp = tz.id_zp
                 AND pf.id_role = coresp.id_role
         )
     ;
@@ -113,11 +113,11 @@ INSERT INTO pr_priority_flora.t_apresence(
     altitude_max,
     frequency,
     "comment",
-    indexzp,
-    id_nomenclatures_pente,
-    id_nomenclatures_counting,
-    id_nomenclatures_habitat,
-    id_nomenclatures_phenology,
+    id_zp,
+    id_nomenclature_incline,
+    id_nomenclature_counting,
+    id_nomenclature_habitat,
+    id_nomenclature_phenology,
     id_history_action,
     total_min,
     total_max,
@@ -135,7 +135,7 @@ INSERT INTO pr_priority_flora.t_apresence(
         mta.altitude_retenue,
         mta.frequenceap,
         mta.remarques,
-        tz.indexzp,
+        tz.id_zp,
         NULL, -- Pas de notion de pente.
         ref_nomenclatures.get_id_nomenclature('TYPE_COMPTAGE', mta.id_comptage_methodo::text),
         NULL, -- Pas de notion d'habitat.
@@ -213,12 +213,12 @@ WITH nomenclature AS (
 	    	ON (bib.id_type = tn.id_type AND bib.mnemonique = 'TYPE_PERTURBATION')
 )
 INSERT INTO pr_priority_flora.cor_ap_perturb (
-    indexap,
+    id_ap,
     id_nomenclature,
-    pres_effective
+    effective_presence
 )
     SELECT
-        a.indexap,
+        a.id_ap,
         n.id_nomenclature,
         NULL
     FROM migrate_v1_florepatri.cor_ap_perturb AS mcor
@@ -229,7 +229,7 @@ INSERT INTO pr_priority_flora.cor_ap_perturb (
 	WHERE NOT EXISTS (
         SELECT 'X'
         FROM pr_priority_flora.cor_ap_perturb AS cap
-        WHERE cap.indexap = a.indexap
+        WHERE cap.id_ap = a.id_ap
             AND cap.id_nomenclature = n.id_nomenclature
     ) ;
 

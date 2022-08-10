@@ -47,14 +47,14 @@ export class ZpContainerComponent implements OnInit {
   ngAfterViewInit() {
     this.mapService.map.doubleClickZoom.disable();
     this.storeService.idSite = this.activatedRoute.snapshot.params['idZP'];
-    this.mapListService.idName = 'indexap';
+    this.mapListService.idName = 'id_ap';
     this.mapListService.enableMapListConnexion(this.mapService.getMap());
     this._api.getOneZP(this.storeService.idSite).subscribe(
       data => {
         this.storeService.zp = data['zp'];
         this.storeService.zpProperties = data['zp']["properties"];
         this.storeService.zpProperties["areas"] = this.storeService.zpProperties["areas"].filter(area => area.area_type.type_code == "COM");
-        
+
         this.storeService.sites = data['aps'];
         this.mapListService.loadTableData(data['aps']);
         this.filteredData = this.mapListService.tableData;

@@ -9,19 +9,19 @@ export class FormService {
 
   initFormAp(): FormGroup {
     const ApFormGroup = this._fb.group({
-      indexap: null,
-      indexzp: null,
+      id_ap: null,
+      id_zp: null,
       cor_ap_perturbation: new Array(),
       area: [{value: null, disabled: true}],
-      id_nomenclatures_pente: null,
+      id_nomenclature_incline: null,
       altitude_min: null,
       altitude_max: null,
-      id_nomenclatures_phenology: null,
-      id_nomenclatures_habitat: null,
+      id_nomenclature_phenology: null,
+      id_nomenclature_habitat: null,
       frequency: null,
       total_min: null,
       total_max: null,
-      id_nomenclatures_counting: null,
+      id_nomenclature_counting: null,
       comment: null,
       geom_4326: [null, Validators.required]
     });

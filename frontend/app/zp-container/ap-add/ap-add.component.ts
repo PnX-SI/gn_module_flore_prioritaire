@@ -57,9 +57,9 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     this.storeService.toggleLeafletDraw(false);
-    this.idAp = this.activatedRoute.snapshot.params['indexap'];
+    this.idAp = this.activatedRoute.snapshot.params['idAp'];
     this.ApFormGroup = this.formService.initFormAp();
-    
+
     // subscription to the geojson observable
     this.geojsonSubscription$ = this.mapService.gettingGeojson$
     .pipe(
@@ -67,7 +67,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     )
     .subscribe(geojson => {
 
-      // check if ap is in zp 
+      // check if ap is in zp
       console.log(this.storeService.zp.geometry);
       this.api.areaContain(this.storeService.zp.geometry, geojson.geometry).subscribe(contain => {
         if(contain) {
@@ -94,9 +94,9 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
             "L'aire de présence n'est pas inclue dans la zone de prospection"
           );
         }
-        
+
       })
-      
+
 
     });
     // autocomplete total_max
@@ -138,20 +138,20 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
           });
         }
         console.log(element);
-        
+
         this.ApFormGroup.patchValue({
-          indexap: this.idAp,
-          indexzp: element.properties.indexzp,
+          id_ap: this.idAp,
+          id_zp: element.properties.id_zp,
           altitude_min: element.properties.altitude_min,
           altitude_max: element.properties.altitude_max,
           comment: element.properties.comment,
           frequency: element.properties.frequency,
           total_min: element.properties.total_min,
           total_max: element.properties.total_max,
-          id_nomenclatures_phenology: element.properties.pheno ? element.properties.pheno.id_nomenclature : null,
-          id_nomenclatures_habitat: element.properties.habitat ? element.properties.habitat.id_nomenclature : null,
-          id_nomenclatures_pente: element.properties.pente ? element.properties.pente.id_nomenclature: null,
-          id_nomenclatures_counting: element.properties.counting ? element.properties.counting.id_nomenclature : null,
+          id_nomenclature_phenology: element.properties.pheno ? element.properties.pheno.id_nomenclature : null,
+          id_nomenclature_habitat: element.properties.habitat ? element.properties.habitat.id_nomenclature : null,
+          id_nomenclature_incline: element.properties.incline ? element.properties.incline.id_nomenclature: null,
+          id_nomenclature_counting: element.properties.counting ? element.properties.counting.id_nomenclature : null,
           geom_4326: element.geometry,
           cor_ap_perturbation: element.properties.cor_ap_perturbation === null ? [] : element.properties.cor_ap_perturbation
         });
@@ -166,18 +166,14 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
       );
   }
 
-  onCancelAp(indexzp) {
-    this.router.navigate(
-      [
-        `${ModuleConfig.MODULE_URL}/zp`,
-        indexzp, 'details'
-      ]
-    );
+  onCancelAp(idZp) {
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/zp`, idZp, "details"]);
   }
+
   onPostAp() {
     const apForm = JSON.parse(JSON.stringify(this.ApFormGroup.value));
     // set indexZP
-    apForm["indexzp"] = this.storeService.zp.id;
+    apForm["id_zp"] = this.storeService.zp.id;
     this.api.postAp(apForm).subscribe(
       data => {
         this.toastr.success('Aire de présence enregistrée', '', {
@@ -188,13 +184,17 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
         ]);
       // push ap maplist data
       console.log(apForm);
-      if(apForm["indexap"]) {
+      if (apForm["id_ap"]) {
         // remove from list
-        this.mapListService.tableData = this.mapListService.tableData.filter(ap=> ap.indexap != apForm["indexap"])
+        this.mapListService.tableData = this.mapListService.tableData.filter(
+          ap => ap.id_ap != apForm["id_ap"]
+        );
         // remove from map
-        this.storeService.sites.features = this.storeService.sites.features.filter(ap=> ap.id != apForm["indexap"])
+        this.storeService.sites.features = this.storeService.sites.features.filter(
+          (ap) => ap.id != apForm["id_ap"]
+        );
       }
-      
+
       this.mapListService.tableData.push(data.properties);
       this.storeService.sites.features.push(data);
       const savedGeojsn = Object.assign({}, this.storeService.sites);

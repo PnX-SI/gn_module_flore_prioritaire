@@ -62,8 +62,8 @@ def get_zprospect(info_role):
                     User.id_role == info_role.id_role,
                 )
         )
-    if "indexzp" in parameters:
-        q = q.filter(TZprospect.indexzp == parameters["indexzp"])
+    if "id_zp" in parameters:
+        q = q.filter(TZprospect.id_zp == parameters["id_zp"])
 
     if "cd_nom" in parameters:
         q = q.filter(TZprospect.taxonomy.has(cd_nom=parameters["cd_nom"]))
@@ -82,7 +82,7 @@ def get_zprospect(info_role):
     for d in data:
         feature = d.get_geofeature(
             fields=[
-                "indexzp",
+                "id_zp",
                 "date_min",
                 "date_max",
                 "cd_nom",
@@ -114,8 +114,8 @@ def get_apresences():
     parameters = request.args
     q = TApresence.query
 
-    if "indexzp" in parameters:
-        q = q.filter(TApresence.indexzp == parameters["indexzp"])
+    if "id_zp" in parameters:
+        q = q.filter(TApresence.id_zp == parameters["id_zp"])
     data = q.all()
     features = []
 
@@ -135,8 +135,8 @@ def post_zp(info_role, id_zp=None):
     Poste une nouvelle zone de prospection
     """
     data = dict(request.get_json())
-    if data["indexzp"] is None:
-        data.pop("indexzp")
+    if data["id_zp"] is None:
+        data.pop("id_zp")
 
     tab_observer = []
 
@@ -151,9 +151,9 @@ def post_zp(info_role, id_zp=None):
 
     for o in observers:
         zp.observers.append(o)
-    if "indexzp" in data:
+    if "id_zp" in data:
         if info_role.value_filter in ("1", "2"):
-            q = DB.session.query(TZprospect).filter_by(indexzp=data["indexzp"])
+            q = DB.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
             if info_role.value_filter == "2":
                 q = q.filter(
                         TZprospect.observers.any(or_(
@@ -170,13 +170,13 @@ def post_zp(info_role, id_zp=None):
             check_cruved = DB.session.query(q.exists()).scalar()
             if not check_cruved:
                 raise Forbidden("Vous n'avez pas les droits pour éditer cette ZP")
-        
+
         DB.session.merge(zp)
     else:
         DB.session.add(zp)
     DB.session.commit()
 
-    return zp.as_geofeature("geom_4326", "indexzp", fields=["observers"])
+    return zp.as_geofeature("geom_4326", "id_zp", fields=["observers"])
 
 
 @blueprint.route("/post_ap", methods=["POST"])
@@ -188,8 +188,8 @@ def post_ap(info_role):
     """
     data = dict(request.get_json())
     tab_pertu = []
-    if data["indexap"] is None:
-        data.pop("indexap")
+    if data["id_ap"] is None:
+        data.pop("id_ap")
 
     if "cor_ap_perturbation" in data:
         tab_pertu = data.pop("cor_ap_perturbation")
@@ -212,9 +212,9 @@ def post_ap(info_role):
         for o in cor_ap_pertubation:
             ap.cor_ap_perturbation.append(o)
 
-    if "indexap" in data:
+    if "id_ap" in data:
         if info_role.value_filter in ("1", "2"):
-            q = DB.session.query(TZprospect).filter_by(indexzp=data["indexzp"])
+            q = DB.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
             if info_role.value_filter == "2":
                 q = q.filter(
                         TZprospect.observers.any(or_(
@@ -231,13 +231,13 @@ def post_ap(info_role):
             check_cruved = DB.session.query(q.exists()).scalar()
             if not check_cruved:
                 raise Forbidden("Vous n'avez pas les droits pour éditer cette AP")
-        
+
         DB.session.merge(ap)
     else:
         DB.session.add(ap)
     DB.session.commit()
 
-    return ap.as_geofeature("geom_4326", "indexap", True)
+    return ap.as_geofeature("geom_4326", "id_ap", True)
 
 
 @blueprint.route("/organismes", methods=["GET"])
@@ -290,8 +290,8 @@ def get_all_sites():
     q = DB.session.query(TZprospect, Taxref).outerjoin(
         Taxref, TZprospect.cd_nom == Taxref.cd_nom
     )
-    if "indexzp" in parameters:
-        q = q.filter(TZprospect.indexzp == parameters["indexzp"])
+    if "id_zp" in parameters:
+        q = q.filter(TZprospect.id_zp == parameters["id_zp"])
 
     if "cd_nom" in parameters:
         q = q.filter(Taxref.cd_nom == parameters["cd_nom"])
@@ -299,8 +299,8 @@ def get_all_sites():
     data = q.all()
     features = []
     for d in data:
-        feature = d[0].as_geofeature("geom_4326", "indexzp", True)
-        id_zp = feature["properties"]["indexzp"]
+        feature = d[0].as_geofeature("geom_4326", "id_zp", True)
+        id_zp = feature["properties"]["id_zp"]
         feature["properties"]["taxon"] = d[1].as_dict()
         features.append(feature)
 
@@ -317,7 +317,7 @@ def get_one_zp(id_zp):
             "aps": FeatureCollection([ap.get_geofeature() for ap in zp.ap]),
             "zp": zp.as_geofeature(
                 "geom_4326",
-                "indexzp",
+                "id_zp",
                 fields=["observers", "taxonomy", "areas", "areas.area_type"],
             ),
         })
@@ -328,7 +328,7 @@ def get_one_zp(id_zp):
 @permissions.check_cruved_scope("R", module_code="priority_flora")
 @json_resp
 def get_one_ap(id_ap):
-    
+
     ap = DB.session.query(TApresence).get(id_ap)
 
     return ap.get_geofeature()
@@ -377,11 +377,11 @@ def export_ap():
     file_name = datetime.datetime.now().strftime("%Y_%m_%d_%Hh%Mm%S")
     q = DB.session.query(ExportAp)
 
-    if "indexap" in parameters:
-        q = DB.session.query(ExportAp).filter(ExportAp.id_ap == parameters["indexap"])
-    elif "indexzp" in parameters:
+    if "id_ap" in parameters:
+        q = DB.session.query(ExportAp).filter(ExportAp.id_ap == parameters["id_ap"])
+    elif "id_zp" in parameters:
         q = DB.session.query(ExportAp).filter(
-            ExportAp.id_zp == parameters["indexzp"]
+            ExportAp.id_zp == parameters["id_zp"]
         )
     elif "id_organism" in parameters:
         q = DB.session.query(ExportAp).join(
@@ -391,7 +391,7 @@ def export_ap():
         )
     elif "id_area" in parameters:
         q = DB.session.query(ExportAp).join(
-            cor_zp_area, cor_zp_area.c.indexzp == ExportAp.id_zp
+            cor_zp_area, cor_zp_area.c.id_zp == ExportAp.id_zp
         ).filter(
             cor_zp_area.c.id_area == parameters["id_area"]
         )
@@ -435,7 +435,7 @@ def export_ap():
             )
 
             return send_from_directory(dir_path, file_name + ".zip", as_attachment=True)
-        
+
         except GeonatureApiError as e:
             message = str(e)
 
@@ -467,4 +467,3 @@ def check_ap_in_zp():
     )
     result = q.scalar()
     return jsonify(result)
-    

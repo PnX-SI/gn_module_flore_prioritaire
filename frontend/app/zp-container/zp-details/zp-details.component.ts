@@ -42,11 +42,11 @@ export class ZpDetailsComponent implements OnInit {
   ngOnInit() {
   }
 
-  ngAfterViewInit() {    
+  ngAfterViewInit() {
     this.storeService.toggleLeafletDraw(true);
   }
 
-  onAddAp(idZP) {    
+  onAddAp(idZP) {
     this.router.navigate(
       [
         `${ModuleConfig.MODULE_URL}/zp`,
@@ -64,28 +64,25 @@ export class ZpDetailsComponent implements OnInit {
     );
   }
 
-  onDeleteAp(indexap) {
-    this._api.deleteAp(indexap).subscribe(
-      data => {
-        this.mapListService.tableData = this.mapListService.tableData.filter(item => {
-          return indexap !== item.indexap
-        })
-        const filterFeature = this.storeService.sites.features.filter(feature => {
-          return indexap !== feature.properties.indexap
-        })
+  onDeleteAp(idAp) {
+    this._api.deleteAp(idAp).subscribe(
+      (data) => {
+        this.mapListService.tableData = this.mapListService.tableData.filter((item) => {
+          return idAp !== item.id_ap;
+        });
+        const filterFeature = this.storeService.sites.features.filter((feature) => {
+          return idAp !== feature.properties.id_ap;
+        });
         this.storeService.sites['features'] = filterFeature;
 
         this.storeService.sites = Object.assign({}, this.storeService.sites);
-        this._commonService.translateToaster(
-          "success",
-          "Releve.DeleteSuccessfully"
-        );
+        this._commonService.translateToaster('success', 'Releve.DeleteSuccessfully');
       },
-      error => {
+      (error) => {
         if (error.status === 403) {
-          this._commonService.translateToaster("error", "NotAllowed");
+          this._commonService.translateToaster('error', 'NotAllowed');
         } else {
-          this._commonService.translateToaster("error", "ErrorMessage");
+          this._commonService.translateToaster('error', 'ErrorMessage');
         }
       }
     );
@@ -98,13 +95,12 @@ export class ZpDetailsComponent implements OnInit {
   toggleExpandRow(row) {
     let i = 0;
     while (i < this.storeService.sites.features.length) {
-      if (row.indexap == this.storeService.sites.features[i].properties.indexap) {
+      if (row.id_ap == this.storeService.sites.features[i].properties.id_ap) {
         this.currentAp = this.storeService.sites.features[i]
       }
       i++
     }
 
-    //this.mapListService.rowDetail.toggleExpandRow(indexap);
     this.table.rowDetail.toggleExpandRow(row);
   }
 

@@ -1,33 +1,47 @@
-.box-shadow {
-  box-shadow: 4px 5px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+// Definition list
+dl.def-list-inline {
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  margin: 0
+}
+.def-list-inline dt {
+  float: left;
+  width: 25%;
+  padding: 0;
+  margin: 0
+}
+.def-list-inline dd {
+  float: left;
+  width: 75%;
+  padding: 0;
+  margin: 0
 }
 
+// Lists
 .list-sht {
   max-height: 94vh;
   overflow-y: auto;
   padding-bottom: 5px;
 }
-
 .list-group-item {
   background-color: #fff;
   color: #181818;
   border: none;
 }
 
+// Comma list
 .comma-list {
   display: inline;
   list-style: none;
-  padding: 0px;
+  padding: 0;
 }
-
 .comma-list li {
   display: inline;
 }
-
 .comma-list li::after {
   content: ",";
 }
-
 .comma-list li:last-child::after {
   content: "";
 }
@@ -36,10 +50,10 @@
   margin-bottom: 18px;
 }
 
+// Buttons
 .back-button {
   text-align: left;
 }
-
 .btn-color {
   color: #fff;
   background-color: #17c001;
@@ -50,58 +64,55 @@
   background-color: #14af00;
   border-color: #14af00;
 }
-
 #add-btn {
   float: right;
   margin-top: 5px;
   margin-right: 5px;
   padding: 5px;
 }
-:host /deep/ .single-selection .datatable-body-row.active .datatable-row-group {
-  background-color: rgb(154, 217, 247) !important;
-}
-
-ngx-datatable {
-  max-height: 79vh !important;
-  box-shadow: none !important;
-  overflow-y: scroll;
-}
-
-:host /deep/ #dataset-form  {
-  height: 2.05rem !important;
-}
-
-:host /deep/ .ngx-datatable.material .datatable-footer .page-count {
-  padding: 5px;
-  line-height: 1.2;
-  height: 40px;
-}
-
-.modal-body {
-  text-align: center;
-}
-:host /deep/ .datatable-body-row.active .datatable-row-group {
-  background-color: rgb(117, 227, 118) !important;
-}
-.card-padding {
-  background-color: white;
-  padding: 10px;
-}
-
-.ngx-datatable.material {
-  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-    0 1px 5px 0 rgba(0, 0, 0, 0.12) !important;
-}
-
-.disabled {
-  cursor: not-allowed !important;
-}
-
 .export-button {
   width: 70%;
   margin: 0 auto;
 }
 
+// Datatable
+:host /deep/ .single-selection .datatable-body-row.active .datatable-row-group {
+  background-color: rgb(154, 217, 247) !important;
+}
+:host /deep/ .ngx-datatable.material .datatable-body .datatable-row-detail {
+  padding: 2px;
+}
+ngx-datatable {
+  max-height: 79vh !important;
+  box-shadow: none !important;
+  overflow-y: scroll;
+}
+:host /deep/ #dataset-form  {
+  height: 2.05rem !important;
+}
+:host /deep/ .ngx-datatable.material .datatable-footer .page-count {
+  padding: 5px;
+  line-height: 1.2;
+  height: 40px;
+}
+:host /deep/ .datatable-body-row.active .datatable-row-group {
+  background-color: rgb(117, 227, 118) !important;
+}
+.ngx-datatable.material {
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12) !important;
+}
+
+.modal-body {
+  text-align: center;
+}
+.card-padding {
+  background-color: white;
+  padding: 10px;
+}
+.disabled {
+  cursor: not-allowed !important;
+}
 .modal-dialog {
   max-width: none !important;
   width: 50%;

@@ -63,3 +63,34 @@ INSERT INTO ref_nomenclatures.t_nomenclatures (id_type, cd_nomenclature, mnemoni
     (ref_nomenclatures.get_id_nomenclature_type('TYPE_COMPTAGE'),'2','Échantillonage','Échantillonage','Échantillonage des taxons présent sur la surface.','Échantillonage','Échantillonage des taxons présent sur la surface.',0,CONCAT(ref_nomenclatures.get_id_nomenclature_type('TYPE_COMPTAGE'),'.002')),
     (ref_nomenclatures.get_id_nomenclature_type('TYPE_COMPTAGE'),'9','Aucun comptage','Aucun comptage','Aucun comptage','Aucun comptage','Aucun comptage.',0,CONCAT(ref_nomenclatures.get_id_nomenclature_type('TYPE_COMPTAGE'),'.003'))
 ;
+
+
+-------------------------------------------------------------------------
+-- TAXONOMIE => Insert data into "bib_listes"
+-------------------------------------------------------------------------
+
+INSERT INTO taxonomie.bib_listes (
+    nom_liste,
+    desc_liste,
+    regne,
+    code_liste
+) VALUES (
+    'Priority Flora',
+    'Liste de taxons pour le module Priority Flora.',
+    'Plantae',
+    'PRIORITY_FLORA'
+) ;
+
+
+-------------------------------------------------------------------------
+-- COMMONS : update PRIORITY_FLORA module
+-------------------------------------------------------------------------
+
+UPDATE gn_commons.t_modules
+SET
+    module_label = 'Bilan stationnel',
+    module_picto = 'fa-pagelines',
+    module_desc = 'Module de Suivi de la flore prioritaire d''un territoire.',
+    module_doc_url = 'https://github.com/PnX-SI/gn_module_flore_prioritaire'
+WHERE module_code = 'PRIORITY_FLORA' ;
+

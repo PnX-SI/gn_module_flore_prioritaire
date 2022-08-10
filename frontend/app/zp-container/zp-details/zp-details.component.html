@@ -4,7 +4,7 @@
         Retour à la liste des zones de prospection
     </button>
 </div>
-<h3> Consultation des aires de présence de la ZP {{ storeService.zpProperties.indexzp |json }} </h3>
+<h3> Consultation des aires de présence de la ZP {{ storeService.zpProperties.id_zp |json }} </h3>
 <div class="wrapper">
     <ul class="nav nav-tabs" role="tablist">
         <li class="nav-item">
@@ -21,15 +21,15 @@
         <div class="tab-pane active modal-header  list-group-item" id="infoGen" role="tabpanel">
             <p>
                 <span>
-                    <b>Identifiant Zone de prospection : </b> 
-                    {{ storeService.zpProperties.indexzp }}
+                    <b>Identifiant Zone de prospection : </b>
+                    {{ storeService.zpProperties.id_zp }}
                 </span>
             </p>
             <p>
                 <span>
                     <b> Date : </b>
                 {{ storeService.zpProperties.date_min }}
-                </span> 
+                </span>
             </p>
             <p>
                 <span>
@@ -51,12 +51,12 @@
             <p>
                 <span>
                     <b> Nom du site : </b>
-                    {{ storeService.zpProperties.indexzp }}
+                    {{ storeService.zpProperties.id_zp }}
              </span>
             </p>
             <p>
                 <span>
-                    <b>Commune(s): </b> 
+                    <b>Commune(s): </b>
                         <ul class="comma-list">
                             <li *ngFor="let area of storeService.zpProperties?.areas">
                                 {{area.area_name}}
@@ -69,32 +69,38 @@
 </div>
 
 <div class="wrapper">
-    <ngx-datatable #table 
-      class="material striped margin-top-xs table-size expandable" 
+    <ngx-datatable #table
+      class="material striped margin-top-xs table-size expandable"
         [columnMode]="'force'"
-        [rows]="mapListService.tableData" 
-        maxWidth="90" 
+        [rows]="mapListService.tableData"
+        maxWidth="90"
         [headerHeight]="35"
-        [footerHeight]="40" 
+        [footerHeight]="40"
         [rowHeight]="40"
-        [rowHeight]="'auto'" 
-        [messages]="storeService.fpConfig.list_ap_message" 
+        [rowHeight]="'auto'"
+        [messages]="storeService.fpConfig.list_ap_message"
         [selected]="mapListService.selectedRow"
-        [selectionType]="'single'" 
+        [selectionType]="'single'"
         (select)="mapListService.onRowSelect($event)"
         [rowClass]="mapListService.getRowClass">
         <ngx-datatable-row-detail [rowHeight]="100" #myDetailRow (toggle)="onDetailToggle($event)">
             <ng-template let-row="row" let-expanded="expanded" ngx-datatable-row-detail-template>
-                <div style="padding-left:35px;">
-                    <div style="font-size: 15px"><strong>Détails</strong></div>
-                    <div style="font-size: 12px"><strong>Phénologie :</strong> {{row.pheno?.definition_default}}</div>
-                    <div style="font-size: 12px"><strong>Pente :</strong>
-                        {{row.pente?.definition_default}}</div>
-                    <div style="font-size: 12px"><strong>Type d'habitat :</strong> {{row.habitat?.definition_default}}
-                    </div>
-                    <div style="font-size: 12px"><strong>Total :</strong> {{row.total_min}}</div>
-                    <div style="font-size: 12px"><strong>Remarques :</strong> {{row.comment}}</div>
-                </div>
+                <dl class="def-list-inline small">
+                    <dt>Phénologie :</dt>
+                    <dd>&nbsp;{{row.pheno?.definition_default}}</dd>
+
+                    <dt>Pente :</dt>
+                    <dd>&nbsp;{{row.incline?.definition_default}}</dd>
+
+                    <dt>Type d'habitat :</dt>
+                    <dd>&nbsp;{{row.habitat?.definition_default}}</dd>
+
+                    <dt>Total :</dt>
+                    <dd>&nbsp;{{row.total_min}}</dd>
+
+                    <dt>Remarques :</dt>
+                    <dd>&nbsp;{{row.comment}}</dd>
+                </dl>
             </ng-template>
         </ngx-datatable-row-detail>
         <ngx-datatable-column maxWidth="10">
@@ -107,7 +113,7 @@
         <ngx-datatable-column maxWidth="10">
             <ng-template let-row="row" ngx-datatable-cell-template>
                 <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost"
-                    (click)="onEditAp(storeService.idSite,row.indexap)" title="Editer">
+                    (click)="onEditAp(storeService.idSite,row.id_ap)" title="Editer">
                     <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                 </button>
             </ng-template>
@@ -115,7 +121,7 @@
         <ngx-datatable-column maxWidth="10">
             <ng-template let-row="row" ngx-datatable-cell-template>
                 <button type="button" class="btn btn-outline-shadow btn-no-padding btn-ghost"
-                    (click)="onDeleteAp(row.indexap)" title="Supprimer">
+                    (click)="onDeleteAp(row.id_ap)" title="Supprimer">
                     <i class="fa fa-trash-o" aria-hidden="true"></i>
                 </button>
             </ng-template>
