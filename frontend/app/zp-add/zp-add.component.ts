@@ -94,14 +94,12 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
 
   onSave() {
     let finalForm = this.formateDataFormZp();
-    console.log(finalForm);
 
     this.api.postZp(finalForm).subscribe(
       (data) => {
         this.toastr.success('Zone de prospection enregistrée', '', {
           positionClass: 'toast-top-center'
         });
-        console.log(data);
 
         this.router.navigate(
           [`${ModuleConfig.MODULE_URL}/zp`, data.id, 'details'
@@ -117,8 +115,6 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     finalForm.date_min = this._dateParser.format(
       finalForm.date_min
     );
-    console.log(finalForm);
-
 
     //observers
     finalForm["cor_zp_observer"] = finalForm["cor_zp_observer"].map(

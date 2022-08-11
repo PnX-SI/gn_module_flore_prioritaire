@@ -47,7 +47,6 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    console.log("ModuleConfig.default_zp_columns:", ModuleConfig.default_zp_columns);
     this.displayColumns = ModuleConfig.default_zp_columns;
     this.storeService.queryString = this.storeService.queryString.set("limit", "10");
     this.mapListService.idName = "id_zp";
@@ -65,7 +64,6 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
     this.filterForm.controls.filterYear.valueChanges.subscribe((year) => {
       if (year && year.toString().length === 4) {
-        console.log(year);
         this.setQueryString("year", year.toString());
         this.loadData();
       }
@@ -110,7 +108,6 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       this.myGeoJSON = data.items;
       this.mapListService.loadTableData(data.items);
       this.filteredData = this.mapListService.tableData;
-      console.log("this.filteredData:", this.filteredData);
       this.dataLoaded = true;
     });
   }

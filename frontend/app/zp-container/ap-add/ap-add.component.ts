@@ -62,7 +62,6 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(distinctUntilChanged())
       .subscribe((geojson) => {
         // check if ap is in zp
-        console.log(this.storeService.zp.geometry);
         this.api
           .areaContain(this.storeService.zp.geometry, geojson.geometry)
           .subscribe((contain) => {
@@ -128,7 +127,6 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
             this.tabPertur.push(typePer);
           });
         }
-        console.log(element);
 
         this.ApFormGroup.patchValue({
           id_ap: this.idAp,
@@ -179,7 +177,6 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
       });
       this.router.navigate([`${ModuleConfig.MODULE_URL}/zp`, this.storeService.zp.id, "details"]);
       // push ap maplist data
-      console.log(apForm);
       if (apForm["id_ap"]) {
         // remove from list
         this.mapListService.tableData = this.mapListService.tableData.filter(
