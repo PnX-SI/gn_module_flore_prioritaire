@@ -9,12 +9,14 @@
   <ul class="nav nav-tabs" role="tablist">
     <li class="nav-item">
       <a class="nav-link active" data-toggle="tab" href="#infoGen" role="tab">
-        <i class="fa fa-info-circle"> </i> Informations Générales
+        <i class="fa fa-info-circle"> </i>
+        Informations Générales
       </a>
     </li>
     <li class="nav-item" *ngIf="show">
       <a class="nav-link" data-toggle="tab" href="#details" role="tab">
-        <i class="fa fa-search police"> </i> Détails
+        <i class="fa fa-search police"> </i>
+        Détails
       </a>
     </li>
   </ul>
@@ -156,22 +158,25 @@
   </ngx-datatable>
 </div>
 
-<div id="end-btn">
-  <pnx-modal-download
-    labelButton="Télécharger ces aires de présence"
-    [pathDownload]="storeService.urlLoad"
-    [exportFormat]="storeService.fpConfig.export_available_format"
-    [queryString]="storeService.queryString"
-  >
-  </pnx-modal-download>
-
-  <button
-    id="add-btn"
-    type="button"
-    class="btn btn-sm box-shadow btn-color"
-    (click)="onAddAp(storeService.idSite)"
-  >
-    <i class="fa fa-plus-circle" aria-hidden="true"></i>
-    Ajouter une nouvelle aire de présence
-  </button>
+<div class="row">
+  <div class="col-sm-12 col-md-6">
+    <pnx-modal-download
+      *ngIf="mapListService.tableData.length > 0"
+      labelButton="Télécharger ces aires de présence"
+      [pathDownload]="storeService.urlLoad"
+      [exportFormat]="storeService.fpConfig.export_available_format"
+      [queryString]="storeService.queryString"
+    >
+    </pnx-modal-download>
+  </div>
+  <div class="col-sm-12 col-md-6">
+    <button
+      type="button"
+      class="btn btn-sm btn-success box-shadow"
+      (click)="onAddAp(storeService.idSite)"
+    >
+      <i class="fa fa-plus-circle" aria-hidden="true"></i>
+      Ajouter une nouvelle aire de présence
+    </button>
+  </div>
 </div>

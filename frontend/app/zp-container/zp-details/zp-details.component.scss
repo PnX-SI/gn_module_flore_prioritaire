@@ -46,10 +46,6 @@ dl.def-list-inline {
   content: "";
 }
 
-.wrapper {
-  margin-bottom: 18px;
-}
-
 // Buttons
 .back-button {
   text-align: left;
@@ -73,6 +69,18 @@ dl.def-list-inline {
 .export-button {
   width: 70%;
   margin: 0 auto;
+}
+.format-btn {
+  margin-left: 5px;
+}
+.box-shadow {
+  box-shadow: 4px 5px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+:host /deep/ .trash-btn {
+  position: relative;
+  top: 28px;
+  left: 5px;
+  margin-right: 5px;
 }
 
 // Datatable
@@ -103,6 +111,7 @@ ngx-datatable {
     0 1px 5px 0 rgba(0, 0, 0, 0.12) !important;
 }
 
+// Modal
 .modal-body {
   text-align: center;
 }
@@ -117,57 +126,40 @@ ngx-datatable {
   max-width: none !important;
   width: 50%;
 }
-
 #modal-download {
   max-width: none !important;
   width: 50%;
 }
 
-.format-btn {
-  margin-left: 5px;
-}
-
+// Filters form
 :host /deep/ .dynamic-form-wrapper {
   display: flex;
 }
 :host /deep/ .dynamic-form {
   display: flex;
 }
-
-:host /deep/ .trash-btn {
-  position: relative;
-  top: 28px;
-  left: 5px;
-  margin-right: 5px;
-}
-
 :host /deep/ .filter-control {
   width: 40%;
 }
+fieldset {
+  padding: 0.35em 0.625em 0.75em !important;
+  border: 1px solid silver !important;
+  margin: 0 2px !important;
+  border-radius: 3px;
+}
+legend {
+  width: auto;
+  font-size: inherit;
+}
 
+// Map
 .searchSite {
   display: flex;
   flex-direction: column;
   margin-bottom: 15px;
 }
 
-.box-shadow {
-  box-shadow: 4px 5px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
-
-fieldset {
-  padding: 0.35em 0.625em 0.75em !important;
-  border: 1px solid silver !important;
-  margin: 0 2px !important;
-  border-radius: 3px;
-  // background-color: #f3f3f3;
-}
-
-legend {
-  width: auto;
-  font-size: inherit;
-}
-
+// Generic
 .wrapper {
   margin-bottom: 18px;
 }
