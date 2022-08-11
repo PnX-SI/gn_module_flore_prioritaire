@@ -1,16 +1,14 @@
-import { Component, OnInit, Input, AfterViewInit, EventEmitter, Output } from '@angular/core';
-import { MapListService } from '@geonature_common/map-list/map-list.service';
-import { MapService } from '@geonature_common/map/map.service';
-import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
+import { Component, OnInit, Input, AfterViewInit, EventEmitter, Output } from "@angular/core";
+import { MapListService } from "@geonature_common/map-list/map-list.service";
+import { MapService } from "@geonature_common/map/map.service";
+import { leafletDrawOption } from "@geonature_common/map/leaflet-draw.options";
 import { CommonService } from "@geonature_common/service/common.service";
 import * as L from "leaflet";
-import { FormService } from '@geonature_common/form/form.service';
-import { DataService } from '../services/data.service';
-import { FormGroup, FormBuilder, FormControl } from "@angular/forms";
-import { StoreService } from '../services/store.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { DataService } from "../services/data.service";
+import { FormGroup, FormBuilder } from "@angular/forms";
+import { StoreService } from "../services/store.service";
+import { Router, ActivatedRoute } from "@angular/router";
 import { ModuleConfig } from "../module.config";
-import { HttpParams } from '@angular/common/http';
 
 @Component({
   selector: "pnx-zp-map-list",
@@ -49,6 +47,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
+    console.log("ModuleConfig.default_zp_columns:", ModuleConfig.default_zp_columns);
     this.displayColumns = ModuleConfig.default_zp_columns;
     this.storeService.queryString = this.storeService.queryString.set("limit", "10");
     this.mapListService.idName = "id_zp";
@@ -111,6 +110,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       this.myGeoJSON = data.items;
       this.mapListService.loadTableData(data.items);
       this.filteredData = this.mapListService.tableData;
+      console.log("this.filteredData:", this.filteredData);
       this.dataLoaded = true;
     });
   }

@@ -10,8 +10,6 @@ import { MapService } from "@geonature_common/map/map.service";
 import { DataService } from "../../services/data.service";
 import { StoreService } from "../../services/store.service";
 import { ModuleConfig } from "../../module.config";
-import { ObserversComponent } from "@geonature_common/form/observers/observers.component";
-
 
 @Component({
   selector: "pnx-zp-details",
@@ -19,13 +17,12 @@ import { ObserversComponent } from "@geonature_common/form/observers/observers.c
   styleUrls: ["./zp-details.component.scss"],
 })
 export class ZpDetailsComponent implements OnInit {
-
   public currentSite = {};
   public show = true;
   private map;
   public currentAp;
   public expanded: any = {};
-  @ViewChild('table') table: any;
+  @ViewChild("table") table: any;
 
   constructor(
     public mapService: MapService,
@@ -36,32 +33,21 @@ export class ZpDetailsComponent implements OnInit {
     private _commonService: CommonService,
     public activatedRoute: ActivatedRoute,
     public mapListService: MapListService,
-    private toastr: ToastrService,
-  ) { }
+    private toastr: ToastrService
+  ) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   ngAfterViewInit() {
     this.storeService.toggleLeafletDraw(true);
   }
 
   onAddAp(idZP) {
-    this.router.navigate(
-      [
-        `${ModuleConfig.MODULE_URL}/zp`,
-        idZP, 'post_ap'
-      ]
-    );
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/zp`, idZP, "post_ap"]);
   }
 
   onEditAp(idZP, idAP) {
-    this.router.navigate(
-      [
-        `${ModuleConfig.MODULE_URL}/zp`,
-        idZP, 'post_ap', idAP
-      ]
-    );
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/zp`, idZP, "post_ap", idAP]);
   }
 
   onDeleteAp(idAp) {
@@ -73,16 +59,16 @@ export class ZpDetailsComponent implements OnInit {
         const filterFeature = this.storeService.sites.features.filter((feature) => {
           return idAp !== feature.properties.id_ap;
         });
-        this.storeService.sites['features'] = filterFeature;
+        this.storeService.sites["features"] = filterFeature;
 
         this.storeService.sites = Object.assign({}, this.storeService.sites);
-        this._commonService.translateToaster('success', 'Releve.DeleteSuccessfully');
+        this._commonService.translateToaster("success", "Releve.DeleteSuccessfully");
       },
       (error) => {
         if (error.status === 403) {
-          this._commonService.translateToaster('error', 'NotAllowed');
+          this._commonService.translateToaster("error", "NotAllowed");
         } else {
-          this._commonService.translateToaster('error', 'ErrorMessage');
+          this._commonService.translateToaster("error", "ErrorMessage");
         }
       }
     );
@@ -96,16 +82,15 @@ export class ZpDetailsComponent implements OnInit {
     let i = 0;
     while (i < this.storeService.sites.features.length) {
       if (row.id_ap == this.storeService.sites.features[i].properties.id_ap) {
-        this.currentAp = this.storeService.sites.features[i]
+        this.currentAp = this.storeService.sites.features[i];
       }
-      i++
+      i++;
     }
 
     this.table.rowDetail.toggleExpandRow(row);
   }
 
   onDetailToggle(event) {
-    console.log('Detail Toggled', event);
+    console.log("Detail Toggled", event);
   }
-
 }

@@ -21,7 +21,6 @@
   height: 40px;
   width: 40px;
   border-radius: 30px;
-  //padding: 0px;
 }
 
 #search-btn {
@@ -30,18 +29,6 @@
   top: 25%;
   height: 35px;
   font-size: 15px;
-}
-
-#download-btn {
-  margin-top: 5px;
-  padding: 5px;
-}
-
-#add-btn {
-  float: right;
-  margin-top: 5px;
-  margin-right: 5px;
-  padding: 5px;
 }
 
 #refresh-filter {
@@ -93,7 +80,7 @@ ngx-datatable {
   overflow-y: auto;
 }
 
-:host /deep/ #dataset-form  {
+:host /deep/ #dataset-form {
   height: 2.05rem !important;
 }
 

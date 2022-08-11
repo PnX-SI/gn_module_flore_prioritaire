@@ -1,144 +1,159 @@
 <div class="row row-0">
-    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm">
-        <!-- MAP -->
-        <pnx-map height="92vh" [center]="center" [zoom]="zoom">
-            <pnx-geojson
-                [onEachFeature]="onEachFeature.bind(this)"
-                [geojson]="myGeoJSON"
-            ></pnx-geojson>
-        </pnx-map>
-    </div>
-    <div class="card col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm tab-container list-sht">
-        <div class="card-body">
-            <form class="wrapper wrapper-filter">
-                <fieldset>
-                    <legend>
-                        <h3>Consultation des Zones de Prospection</h3>
-                    </legend>
-                    <div class="row">
-                        <div class="searchSite col">
-                            <small> Année de visite </small>
-                            <input
-                                type="number"
-                                class="form-control form-control-sm"
-                                [formControl]="filterForm.controls.filterYear"
-                            >
-                        </div>
-                        <div class="searchSite col">
-                            <small> Taxon </small>
-                            <pnx-taxonomy #taxon [parentFormControl]="filterForm.controls.filterTaxon"
-                                [idList]="storeService.fpConfig.code_liste_taxon" [charNumber]="3" [listLength]="20"
-                                (onChange)="onSearchTaxon($event)"
-                                (onDelete)="removeCdNom()">
-                            </pnx-taxonomy>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="searchSite col">
-                            <small> Organisme </small>
-                            <select class="form-control form-control-sm" name="selectOrg"
-                                [formControl]="filterForm.controls.filterOrga">
-                                <option [ngValue]=null> -- Sélectionnez un organisme -- </option>
-                                <option [ngValue]="org.id_organism" *ngFor="let org of tabOrganism"> {{org.name}} </option>
-                            </select>
-                        </div>
-                        <div class="searchSite col">
-                            <small> Commune </small>
-                            <select class="form-control form-control-sm" name="selectCom" [formControl]="filterForm.controls.filterCom">
-                                <option [ngValue]=null> -- Sélectionnez une commune -- </option>
-                                <option [ngValue]="m.id_area" *ngFor="let m of municipalities"> {{m.municipality}} </option>
-                            </select>
-                        </div>
-                    </div>
-                </fieldset>
-            </form>
-            <div class="wrapper wrapper-datatable">
-                <ngx-datatable
-                    #table
-                    class="material striped margin-top-xs table-size expandable"
-                    [rows]="filteredData"
-                    maxWidth="90"
-                    [headerHeight]="35"
-                    [footerHeight]="40"
-                    [rowHeight]="40" [columnMode]="'force'"
-                    [selected]="mapListService.selectedRow"
-                    [selectionType]="'single'"
-                    (select)="mapListService.onRowSelect($event)"
-                    [rowClass]="mapListService.getRowClass"
-                    [loadingIndicator]="mapListService.isLoading"
-                    [externalPaging]="true"
-                    [count]="nbZp"
-                    (page)="onChangePage($event)"
-                    [messages]="storeService.fpConfig.zp_message"
-                    [offset]="mapListService.page.pageNumber"
-                    [limit]="13"
-                >
-                    <ngx-datatable-column maxWidth="10">
-                        <ng-template let-row="row" ngx-datatable-cell-template>
-                            <button
-                                type="button"
-                                class="btn btn-outline-shadow btn-no-padding btn-ghost"
-                                (click)="onEditZp(row.id_zp)"
-                                title="Editer"
-                                [disabled]="!row.rights.U"
-                            >
-                                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-                            </button>
-                        </ng-template>
-                    </ngx-datatable-column>
-
-                    <ngx-datatable-column maxWidth="10">
-                        <ng-template let-row="row" ngx-datatable-cell-template>
-                            <button
-                                type="button"
-                                class="btn btn-outline-shadow btn-no-padding btn-ghost"
-                                (click)="onInfo(row.id_zp)"
-                                title="Visualiser">
-                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                            </button>
-                        </ng-template>
-                    </ngx-datatable-column>
-
-                    <ngx-datatable-column maxWidth="100">
-                        <ng-template let-row="row" ngx-datatable-cell-template>
-                            <button
-                                type="button"
-                                class="btn btn-outline-shadow btn-no-padding btn-ghost"
-                                (click)="onDeleteZp(row.id_zp)"
-                                [disabled]="!row.rights.D"
-                                title="Supprimer">
-                                <i class="fa fa-trash-o" aria-hidden="true"></i>
-                            </button>
-                        </ng-template>
-                    </ngx-datatable-column>
-
-
-                    <ngx-datatable-column
-                        *ngFor="let col of displayColumns"
-                        [name]="col.name"
-                        [prop]="col.prop"
-                        [maxWidth]="col.width"
-                    >
-                    </ngx-datatable-column>
-
-                </ngx-datatable>
+  <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm">
+    <!-- MAP -->
+    <pnx-map height="92vh" [center]="center" [zoom]="zoom">
+      <pnx-geojson [onEachFeature]="onEachFeature.bind(this)" [geojson]="myGeoJSON"></pnx-geojson>
+    </pnx-map>
+  </div>
+  <div class="card col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm tab-container list-sht">
+    <div class="card-body">
+      <form class="wrapper wrapper-filter">
+        <fieldset>
+          <legend>
+            <h3>Consultation des Zones de Prospection</h3>
+          </legend>
+          <div class="row">
+            <div class="searchSite col">
+              <small> Année de visite </small>
+              <input
+                type="number"
+                class="form-control form-control-sm"
+                [formControl]="filterForm.controls.filterYear"
+              />
             </div>
-            <pnx-modal-download
-                labelButton="Télécharger ces aires de présence"
-                [pathDownload]="storeService.urlLoad"
-                [exportFormat]="storeService.fpConfig.export_available_format"
-                [queryString]="storeService.queryString"
-            >
-            </pnx-modal-download>
-            <button
-                id="add-btn"
+            <div class="searchSite col">
+              <small> Taxon </small>
+              <pnx-taxonomy
+                #taxon
+                [parentFormControl]="filterForm.controls.filterTaxon"
+                [idList]="storeService.fpConfig.code_liste_taxon"
+                [charNumber]="3"
+                [listLength]="20"
+                (onChange)="onSearchTaxon($event)"
+                (onDelete)="removeCdNom()"
+              >
+              </pnx-taxonomy>
+            </div>
+          </div>
+          <div class="row">
+            <div class="searchSite col">
+              <small> Organisme </small>
+              <select
+                class="form-control form-control-sm"
+                name="selectOrg"
+                [formControl]="filterForm.controls.filterOrga"
+              >
+                <option [ngValue]="null"> -- Sélectionnez un organisme -- </option>
+                <option [ngValue]="org.id_organism" *ngFor="let org of tabOrganism">
+                  {{ org.name }}
+                </option>
+              </select>
+            </div>
+            <div class="searchSite col">
+              <small> Commune </small>
+              <select
+                class="form-control form-control-sm"
+                name="selectCom"
+                [formControl]="filterForm.controls.filterCom"
+              >
+                <option [ngValue]="null"> -- Sélectionnez une commune -- </option>
+                <option [ngValue]="m.id_area" *ngFor="let m of municipalities">
+                  {{ m.municipality }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+      <div class="wrapper wrapper-datatable">
+        <ngx-datatable
+          #table
+          class="material striped margin-top-xs table-size expandable"
+          [rows]="filteredData"
+          maxWidth="90"
+          [headerHeight]="35"
+          [footerHeight]="40"
+          [rowHeight]="40"
+          [columnMode]="'force'"
+          [selected]="mapListService.selectedRow"
+          [selectionType]="'single'"
+          (select)="mapListService.onRowSelect($event)"
+          [rowClass]="mapListService.getRowClass"
+          [loadingIndicator]="mapListService.isLoading"
+          [externalPaging]="true"
+          [count]="nbZp"
+          (page)="onChangePage($event)"
+          [messages]="storeService.fpConfig.zp_message"
+          [offset]="mapListService.page.pageNumber"
+          [limit]="10"
+        >
+          <ngx-datatable-column maxWidth="10">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <button
                 type="button"
-                class="btn btn-success box-shadow"
-                (click)="onAddZp()"
-            >
-                <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                Ajouter une nouvelle zone de prospection
-            </button>
+                class="btn btn-outline-shadow btn-no-padding btn-ghost"
+                (click)="onEditZp(row.id_zp)"
+                title="Editer"
+                [disabled]="!row.rights.U"
+              >
+                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+              </button>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column maxWidth="10">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <button
+                type="button"
+                class="btn btn-outline-shadow btn-no-padding btn-ghost"
+                (click)="onInfo(row.id_zp)"
+                title="Visualiser"
+              >
+                <i class="fa fa-info-circle" aria-hidden="true"></i>
+              </button>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column maxWidth="100">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <button
+                type="button"
+                class="btn btn-outline-shadow btn-no-padding btn-ghost"
+                (click)="onDeleteZp(row.id_zp)"
+                [disabled]="!row.rights.D"
+                title="Supprimer"
+              >
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+              </button>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column
+            *ngFor="let col of displayColumns"
+            [name]="col.name"
+            [prop]="col.prop"
+            [maxWidth]="col.width"
+          >
+          </ngx-datatable-column>
+        </ngx-datatable>
+      </div>
+      <div class="row">
+        <div class="col-sm-6">
+          <pnx-modal-download
+            labelButton="Télécharger ces aires de présence"
+            [pathDownload]="storeService.urlLoad"
+            [exportFormat]="storeService.fpConfig.export_available_format"
+            [queryString]="storeService.queryString"
+          >
+          </pnx-modal-download>
         </div>
+        <div class="col-sm-6">
+          <button type="button" class="btn btn-success box-shadow" (click)="onAddZp()">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+            Ajouter une nouvelle zone de prospection
+          </button>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
