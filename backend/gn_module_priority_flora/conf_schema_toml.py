@@ -4,26 +4,26 @@
 
 from marshmallow import Schema, fields
 
-available_export_format = ["csv", "shapefile"]
+available_export_format = ["csv", "geojson"]
 
 zp_message = {
     "emptyMessage": "Aucune zone à afficher ",
-    "totalMessage": "zone(s) de prospection au total",
+    "totalMessage": "zone(s) de prospection",
 }
 list_ap_message = {
     "emptyMessage": "Aucune aire de présence sur cette zone de prospection ",
-    "totalMessage": "aire(s) de présence au total",
+    "totalMessage": "aire(s) de présence",
 }
 detail_list_ap_message = {
     "emptyMessage": "Aucune autre visite sur ce site ",
-    "totalMessage": "visites au total",
+    "totalMessage": "visites",
 }
 
 default_zp_columns = [
-    {"name": "Identifiant", "prop": "id_zp", "width": 90},
+    {"name": "Id", "prop": "id_zp", "width": 70},
     {"name": "Taxon", "prop": "taxonomy.nom_valide", "width": 350},
-    {"name": "Date min", "prop": "date_min", "width": 160},
-    {"name": "Organisme", "prop": "organisms_list", "width": 200},
+    {"name": "Date min", "prop": "date_min", "width": 120},
+    {"name": "Organisme", "prop": "organisms_list", "width": 400},
 ]
 
 default_ap_columns = [
@@ -48,7 +48,7 @@ class GnModuleSchemaConf(Schema):
     id_type_maille = fields.Integer(load_default=32)
     id_type_commune = fields.Integer(load_default=25)
     id_menu_list_user = fields.Integer(load_default=1)
-    code_liste_taxon = fields.String()
+    code_liste_taxon = fields.String(load_default="PRIORITY_FLORA")
     export_srid = fields.Integer(load_default=2154)
     zoom_center = fields.List(fields.Float(), load_default=coor_zoom_center)
     zoom = fields.Integer(load_default=10)
