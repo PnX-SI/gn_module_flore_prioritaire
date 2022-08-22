@@ -1,54 +1,85 @@
-<div
-  id="overlay"
-  *ngIf="!ApFormGroup?.value?.geom_4326"
-  class="disabled-form"
-  (click)="formDisabled()"
-></div>
+<div class="row mx-0">
+  <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 px-0">
+    <pnx-map height="92vh">
+      <pnx-geojson
+        [onEachFeature]="onEachZp.bind(this)"
+        [geojson]="storeService.zp"
+        [zoomOnFirstTime]="true"
+      >
+      </pnx-geojson>
+      <pnx-leaflet-draw
+        [geojson]="geojson"
+        [options]="storeService.leafletDrawOptions"
+        (layerDeleted)="deleteApGeom()"
+      >
+      </pnx-leaflet-draw>
+    </pnx-map>
+  </div>
 
-<div class="card-body">
-  <form class="wrapper wrapper-filter">
-    <fieldset>
-      <legend>
-        <h5>
-          Édition d'une aire de présence pour la prospection de
-          <b>{{ storeService.zpProperties?.taxonomy?.nom_valide }}</b>
-          <b>{{ storeService.dateMin }}</b>
-        </h5>
-      </legend>
-      <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm">
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm">
-          <b>Observateur(s) : </b
-          ><b *ngFor="let obs of storeService.zpProperties?.observers"> {{ obs.nom_complet }}</b>
-        </div>
-        <br />
+  <div class="card col-xs-12 col-sm-12 col-md-6 col-lg-6 px-0">
+    <h3 class="card-header">
+      Édition d'une aire de présence pour la prospection de
+      <b>{{ storeService.zpProperties?.taxonomy?.nom_valide }}</b>
+      <b>{{ storeService.dateMin }}</b>
+    </h3>
+
+    <div class="card-body overflow-auto px-2 no-gutters">
+      <p class="card-text">
+        <b>Observateur(s) : </b>
+        <b *ngFor="let obs of storeService.zpProperties?.observers">
+          {{ obs.nom_complet }} ;</b
+        >
+      </p>
+
+      <form>
         <fieldset>
           <legend>
-            <h6><b>Situation</b></h6>
+            <h4>Situation</h4>
           </legend>
-          <div class="row row-0">
-            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
-              <small> {{ "Releve.MinAltitude" | translate }} </small>
+
+          <div class="row form-group">
+            <div class="col-xs-12 col-sm-6">
+              <label for="altitude_min">Altitude min.</label>
               <input
+                [ngClass]="{
+                  'is-invalid': ApFormGroup.errors?.invalidAltitude
+                }"
                 class="form-control"
                 type="number"
                 [formControl]="ApFormGroup.controls.altitude_min"
               />
             </div>
-            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
-              <small> {{ "Releve.MaxAltitude" | translate }} </small>
+
+            <div class="col-xs-12 col-sm-6 pl-2">
+              <label for="altitude_max">Altitude max.</label>
               <input
+                [ngClass]="{
+                  'is-invalid': ApFormGroup.errors?.invalidAltitude
+                }"
                 class="form-control"
                 type="number"
                 [formControl]="ApFormGroup.controls.altitude_max"
               />
             </div>
           </div>
-          <div class="row row-0">
-            <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
-              <small> Pente estimée</small>
-              <div class="" id="newPente">
+
+          <div
+            *ngIf="ApFormGroup.errors?.invalidAltitude"
+            class="alert alert-warning"
+            role="alert"
+          >
+            L'altitude maximum ne peut pas être inférieur à l'altitude
+            minimum.
+          </div>
+
+          <div class="row form-group">
+            <div class="col-xs-12 col-sm-6">
+              <label for="id_nomenclature_incline">Pente estimée</label>
+              <div id="newPente">
                 <pnx-nomenclature
-                  [parentFormControl]="ApFormGroup.controls.id_nomenclature_incline"
+                  [parentFormControl]="
+                    ApFormGroup.controls.id_nomenclature_incline
+                  "
                   [multiSelect]="false"
                   keyValue="id_nomenclature"
                   codeNomenclatureType="TYPE_PENTE"
@@ -56,125 +87,200 @@
                 </pnx-nomenclature>
               </div>
             </div>
-            <div class="col-3">
-              <small>Surface (m²)</small>
-              <input class="form-control" type="number" [formControl]="ApFormGroup.get('area')" />
+
+            <div class="col-xs-12 col-sm-6 pl-2">
+              <label for="area">Surface (m²)</label>
+              <input
+                class="form-control"
+                type="number"
+                [formControl]="ApFormGroup.controls.area"
+              />
             </div>
+          </div>
+
+          <div *ngIf="!ApFormGroup?.value?.geom_4326">
+            <p class="alert alert-warning" role="alert">
+              <mat-icon>warning</mat-icon>
+              Veuillez saisir la géométrie de l'AP sur la carte.
+            </p>
           </div>
         </fieldset>
-      </div>
-      <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4 padding-sm">
-        <small> Phénologie </small>
-        <div class="" id="newPheno">
-          <pnx-nomenclature
-            [parentFormControl]="ApFormGroup.controls.id_nomenclature_phenology"
-            [multiSelect]="false"
-            keyValue="id_nomenclature"
-            codeNomenclatureType="TYPE_PHENOLOGIE"
-          >
-          </pnx-nomenclature>
+
+        <div class="row form-group">
+          <div class="col-sm-12 col-md-8">
+            <label for="id_nomenclature_phenology">Phénologie</label>
+            <pnx-nomenclature
+              [parentFormControl]="
+                ApFormGroup.controls.id_nomenclature_phenology
+              "
+              [multiSelect]="false"
+              keyValue="id_nomenclature"
+              codeNomenclatureType="TYPE_PHENOLOGIE"
+            >
+            </pnx-nomenclature>
+          </div>
         </div>
-      </div>
-      <div class="form-group col-xs-8 col-sm-8 col-md-8 col-lg-8 padding-sm">
-        <small> Perturbation(s) </small>
-        <div class="" id="newPerturs">
-          <pnx-nomenclature
-            [bindAllItem]="true"
-            [parentFormControl]="ApFormGroup.controls.cor_ap_perturbation"
-            [multiSelect]="true"
-            keyValue="id_nomenclature"
-            codeNomenclatureType="TYPE_PERTURBATION"
-          >
-          </pnx-nomenclature>
+
+        <div class="row form-group">
+          <div class="col-sm-12 col-md-8">
+            <label for="cor_ap_perturbation">Perturbation(s)</label>
+            <pnx-nomenclature
+              [bindAllItem]="true"
+              [parentFormControl]="ApFormGroup.controls.cor_ap_perturbation"
+              [multiSelect]="true"
+              keyValue="id_nomenclature"
+              codeNomenclatureType="TYPE_PERTURBATION"
+            >
+            </pnx-nomenclature>
+          </div>
         </div>
-      </div>
-      <div class="form-group col-xs-8 col-sm-8 col-md-8 col-lg-8 padding-sm">
-        <small> Habitat </small>
-        <div class="" id="newHabitat">
-          <pnx-nomenclature
-            [parentFormControl]="ApFormGroup.controls.id_nomenclature_habitat"
-            [multiSelect]="false"
-            keyValue="id_nomenclature"
-            codeNomenclatureType="ETAT_HABITAT"
-          >
-          </pnx-nomenclature>
+
+        <div class="row form-group">
+          <div class="col-sm-12 col-md-8">
+            <label for="id_nomenclature_habitat">Habitat</label>
+            <pnx-nomenclature
+              [parentFormControl]="
+                ApFormGroup.controls.id_nomenclature_habitat
+              "
+              [multiSelect]="false"
+              keyValue="id_nomenclature"
+              codeNomenclatureType="ETAT_HABITAT"
+            >
+            </pnx-nomenclature>
+          </div>
         </div>
-      </div>
-      <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
-        <small> Fréquence estimée en % </small>
-        <div class="">
-          <input
-            type="text"
-            class="form-control"
-            id="frequency"
-            [formControl]="ApFormGroup.controls.frequency"
-          />
+
+        <div class="row form-group">
+          <div class="col-xs-3">
+            <label for="frequency">Fréquence estimée en %</label>
+            <input
+              type="number"
+              class="form-control"
+              id="frequency"
+              min="0"
+              max="100"
+              [formControl]="ApFormGroup.controls.frequency"
+            />
+          </div>
         </div>
-      </div>
-      <fieldset>
-        <legend>
-          <h6><b> Dénombrement </b></h6>
-        </legend>
-        <div class="row row-0">
-          <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3 padding-sm">
-            <small> Objet dénombrement </small>
-            <div class="" id="newCounting">
-              <pnx-nomenclature
-                [parentFormControl]="ApFormGroup.controls.id_nomenclature_counting"
-                [multiSelect]="false"
-                keyValue="id_nomenclature"
-                codeNomenclatureType="TYPE_COMPTAGE"
-              >
-              </pnx-nomenclature>
+
+        <fieldset>
+          <legend>
+            <h4>Dénombrement</h4>
+          </legend>
+
+          <div class="row row-0 form-group">
+            <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 padding-sm">
+              <small> Objet dénombrement </small>
+              <div id="newCounting">
+                <pnx-nomenclature
+                  [parentFormControl]="
+                    ApFormGroup.controls.id_nomenclature_counting
+                  "
+                  [multiSelect]="false"
+                  keyValue="id_nomenclature"
+                  codeNomenclatureType="TYPE_COMPTAGE"
+                >
+                </pnx-nomenclature>
+              </div>
+            </div>
+
+            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 padding-sm">
+              <small> Min </small>
+              <input
+                [ngClass]="{
+                  'is-invalid': ApFormGroup.errors?.invalidCount
+                }"
+                class="form-control"
+                type="number"
+                min="0"
+                [formControl]="ApFormGroup.controls.total_min"
+              />
+            </div>
+
+            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 padding-sm">
+              <small> Max </small>
+              <input
+                [ngClass]="{
+                  'is-invalid': ApFormGroup.errors?.invalidCount
+                }"
+                class="form-control"
+                type="number"
+                min="0"
+                [formControl]="ApFormGroup.controls.total_max"
+              />
             </div>
           </div>
-          <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
-            <small> Min </small>
-            <input
-              [ngClass]="{ 'is-invalid': ApFormGroup.controls.errors?.invalidCount }"
-              class="form-control"
-              type="number"
-              min="0"
-              [formControl]="ApFormGroup.controls.total_min"
-            />
+
+          <div
+            *ngIf="ApFormGroup.errors?.invalidCount"
+            class="alert alert-warning"
+            role="alert"
+          >
+            Le dénombrement maximum ne peut pas être inférieur au
+            dénombrement minimum.
           </div>
-          <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 padding-sm">
-            <small> Max </small>
-            <input
-              [ngClass]="{ 'is-invalid': ApFormGroup.controls.errors?.invalidCount }"
+        </fieldset>
+
+        <fieldset>
+          <legend>
+            <h4>Commentaires</h4>
+          </legend>
+          <div
+            class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm"
+          >
+            <textarea
               class="form-control"
-              type="number"
-              min="0"
-              [formControl]="ApFormGroup.controls.total_max"
-            />
+              rows="5"
+              id="commentaire"
+              [formControl]="ApFormGroup.controls.comment"
+            ></textarea>
           </div>
+        </fieldset>
+      </form>
+    </div>
+
+    <div class="card-footer">
+      <div class="row">
+        <div class="col">
+          <button
+            type="button"
+            class="btn btn-danger box-shadow"
+            (click)="onCancelAp(storeService.idSite)"
+          >
+            <i class="fa fa-times-circle" aria-hidden="true"> </i>
+            Annuler
+          </button>
         </div>
-        <small *ngIf="ApFormGroup.controls.errors?.invalidCount" class="error" style="color:red">
-          {{ "Counting.CountError" | translate }}
-        </small>
-      </fieldset>
-      <div class="form-group">
-        <small> Commentaires </small>
-        <div class="">
-          <textarea
-            class="form-control"
-            rows="2"
-            id="commentaire"
-            [formControl]="ApFormGroup.controls.comment"
-          ></textarea>
+
+        <div class="col text-right">
+          <div
+            [matTooltip]="
+              (ApFormGroup.valid && ApFormGroup.dirty)
+              ? 'Enregistrer le formulaire.'
+              : (
+                (!ApFormGroup.pristine)
+                ? 'Formulaire invalide, vérifier les messages d&rsquo;erreur.'
+                : (
+                  (idAp === undefined)
+                  ? 'Veuillez compléter le formulaire.'
+                  : 'Veuillez modifier le formulaire.'
+                )
+              )
+            "
+          >
+            <button
+              [disabled]="!ApFormGroup.valid || ApFormGroup.pristine"
+              type="button"
+              class="btn btn-success box-shadow"
+              (click)="onPostAp()"
+            >
+              <i class="fa fa-plus-circle" aria-hidden="true"> </i>
+              Enregistrer
+            </button>
+          </div>
         </div>
       </div>
-    </fieldset>
-  </form>
-  <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onPostAp()">
-    <i class="fa fa-plus-circle" aria-hidden="true"> </i> Enregistrer
-  </button>
-  <button
-    id="cancel-btn"
-    type="button"
-    class="btn btn-cancel box-shadow"
-    (click)="onCancelAp(storeService.idSite)"
-  >
-    <i class="fa fa-times-circle" aria-hidden="true"> </i> Annuler
-  </button>
+    </div>
+  </div>
 </div>

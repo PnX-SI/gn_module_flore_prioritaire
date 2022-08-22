@@ -1,68 +1,145 @@
-<div class="row row-0">
-  <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm">
+<div class="row mx-0">
+  <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 px-0">
     <!-- MAP -->
-    <pnx-map height="94vh">
-      <pnx-leaflet-draw [geojson]="ZpFormGroup.value.geom_4326" [options]="leafletDrawOptions" [zoomLevel]="1"
-        (layerDrawed)="sendGeoInfo($event)" (layerDeleted)="deleteControlValue()">
+    <pnx-map height="92vh">
+      <pnx-leaflet-draw
+        [geojson]="ZpFormGroup.value.geom_4326"
+        [options]="leafletDrawOptions"
+        [zoomLevel]="1"
+        (layerDrawed)="sendGeoInfo($event)"
+        (layerDeleted)="deleteGeoInfo()"
+      >
       </pnx-leaflet-draw>
     </pnx-map>
   </div>
 
-  <div class="card col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm tab-container list-sht" (click)="formDisabled()">
-    <div class="card-body">
-      <form class="wrapper wrapper-filter">
-        <fieldset [disabled]="disabledForm">
-          <legend>
-            <h3>Édition / Ajout d'une zone de prospection</h3>
-          </legend>
-          <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-              <small> Taxon : </small>
-              <pnx-taxonomy #taxon [parentFormControl]="ZpFormGroup.controls.cd_nom"
-                [idList]="storeService.fpConfig.code_liste_taxon" [charNumber]="3" [listLength]="20">
+  <div class="card col-xs-12 col-sm-12 col-md-6 col-lg-6 px-0">
+    <h3 class="card-header">
+      <ng-container *ngIf="idZp == null; else updateMode">Ajout</ng-container>
+      <ng-template #updateMode>Édition</ng-template>
+      d'une zone de prospection
+    </h3>
+
+    <div class="card-body px-2 no-gutters">
+      <form class="mb-3">
+        <fieldset>
+          <div *ngIf="!ZpFormGroup?.value?.geom_4326">
+            <p class="alert alert-warning" role="alert">
+              <mat-icon>warning</mat-icon>
+              Veuillez saisir la géométrie de la ZP sur la carte ci-contre.
+            </p>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-lg-12">
+              <label for="cd_nom" class="required">
+                Taxon :
+              </label>
+              <pnx-taxonomy
+                #taxon
+                [parentFormControl]="ZpFormGroup.controls.cd_nom"
+                [idList]="storeService.fpConfig.code_liste_taxon"
+                [charNumber]="3"
+                [listLength]="20"
+              >
               </pnx-taxonomy>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-              <small> Date : </small>
-              <pnx-date [parentFormControl]="ZpFormGroup.controls.date_min" [disabled]="disabledForm">
-              </pnx-date>
+            <div
+              class="col-lg-12 mt-2"
+              *ngIf="
+                ZpFormGroup.controls.cd_nom.touched
+                && ZpFormGroup.controls.cd_nom.errors?.required
+              "
+            >
+              <p class="alert alert-warning" role="alert">
+                <mat-icon>warning</mat-icon>
+                Veuillez saisir un taxon.
+              </p>
             </div>
           </div>
-          <div class="form-group">
-            <small> Observateur(s) : </small>
-            <div class="" id="newObserver">
-              <pnx-observers 
-                [parentFormControl]="ZpFormGroup.controls.cor_zp_observer" 
-                [idMenu]="storeService.fpConfig.id_menu_list_user">
+
+          <div class="row mt-3">
+            <div class="col-sm-12 col-md-6 col-lg-6">
+              <label for="date_min" class="required">
+                Dates :
+              </label>
+              <pnx-date
+                [parentFormControl]="ZpFormGroup.controls.date_min"
+                [disabled]="disabledForm"
+              >
+              </pnx-date>
+            </div>
+            <div
+              class="col-md-12 col-lg-6 mt-2"
+              *ngIf="
+                (ZpFormGroup.controls.date_min.touched || submitted)
+                && ZpFormGroup.controls.date_min.errors?.required
+              "
+            >
+              <p class="alert alert-warning" role="alert">
+                <mat-icon>warning</mat-icon>
+                Veuillez saisir un date de prospection.
+              </p>
+            </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col">
+              <label for="cor_zp_observer">
+                Observateur(s) :
+              </label>
+              <pnx-observers
+                [parentFormControl]="ZpFormGroup.controls.cor_zp_observer"
+                [idMenu]="storeService.fpConfig.id_menu_list_user"
+              >
               </pnx-observers>
             </div>
           </div>
         </fieldset>
       </form>
-      <button id="add-btn" type="button" class="btn btn-success box-shadow" (click)="onSave()"
-        [disabled]="disabledForm">
-        <i class="fa fa-plus-circle" aria-hidden="true"> </i> Enregistrer
-      </button>
-      <!-- <ng-template #content let-c="close" let-d="dismiss">
-        <div class="modal-header">
-          <h4 class="modal-title"> Pour saisir les mailles: </h4>
-          <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
-            <span aria-hidden="true">&times;</span>
+    </div>
+
+    <div class="card-footer">
+      <div class="row">
+        <div class="col">
+          <button
+            type="button"
+            class="btn btn-danger box-shadow"
+            (click)="onCancel()"
+          >
+            <i class="fa fa-times-circle" aria-hidden="true"> </i>
+            Annuler
           </button>
         </div>
 
-        <div class="modal-body">
-          <p class="col-list">Y a t-il une ou plusieurs aire(s) de présence dans cette zone de prospection ? </p>
+        <div class="col text-right">
+          <div
+            [matTooltip]="
+              (ZpFormGroup.valid && ZpFormGroup.dirty)
+              ? 'Enregistrer le formulaire.'
+              : (
+                (!ZpFormGroup.pristine)
+                ? 'Formulaire invalide, vérifier les messages d&rsquo;erreur.'
+                : (
+                  (idZp === undefined)
+                  ? 'Veuillez compléter le formulaire.'
+                  : 'Veuillez modifier le formulaire.'
+                )
+              )
+            "
+          >
+            <button
+              type="button"
+              class="btn btn-success box-shadow"
+              [disabled]="!ZpFormGroup.valid || ZpFormGroup.pristine"
+              (click)="onSubmit()"
+            >
+              <i class="fa fa-plus-circle" aria-hidden="true"> </i>
+              Enregistrer
+            </button>
+          </div>
         </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-dark" (click)="c('Close click')">Fermer</button>
-        </div>
-      </ng-template> -->
-      <button id="cancel-btn" type="button" class="btn btn-cancel box-shadow" (click)="onCancelAddZp()">
-        <i class="fa fa-times-circle" aria-hidden="true"> </i> Annuler
-      </button>
+      </div>
     </div>
   </div>
+</div>

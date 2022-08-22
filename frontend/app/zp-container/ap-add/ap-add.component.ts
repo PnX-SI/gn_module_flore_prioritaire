@@ -1,27 +1,28 @@
-import { Component, OnInit, Input, AfterViewInit, OnDestroy } from "@angular/core";
-import { GeoJSON } from "leaflet";
-import { Subscription } from "rxjs/Subscription";
-import { ToastrService } from "ngx-toastr";
-import { MapListService } from "@geonature_common/map-list/map-list.service";
-import { MapService } from "@geonature_common/map/map.service";
-import { DataFormService } from "@geonature_common/form/data-form.service";
-import { leafletDrawOption } from "@geonature_common/map/leaflet-draw.options";
-import { GeojsonComponent } from "@geonature_common/map/geojson/geojson.component";
-import { FormGroup } from "@angular/forms";
-import { DataService } from "../../services/data.service";
-import { StoreService } from "../../services/store.service";
-import { FormService } from "../../services/form.service";
-import { Router, ActivatedRoute } from "@angular/router";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { ModuleConfig } from "../../module.config";
-import { CommonService } from "@geonature_common/service/common.service";
-import { distinctUntilChanged } from "rxjs/operators";
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
+
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { GeoJSON } from 'leaflet';
+import { ToastrService } from 'ngx-toastr';
+import { distinctUntilChanged } from 'rxjs/operators';
+import { Subscription } from 'rxjs/Subscription';
+
+import { DataFormService } from '@geonature_common/form/data-form.service';
+import { MapListService } from '@geonature_common/map-list/map-list.service';
+import { MapService } from '@geonature_common/map/map.service';
+import { CommonService } from '@geonature_common/service/common.service';
+
+import { ModuleConfig } from '../../module.config';
+import { DataService } from '../../services/data.service';
+import { FormService } from '../../services/form.service';
+import { StoreService } from '../../services/store.service';
 
 @Component({
-  selector: "pnx-ap-add",
-  templateUrl: "ap-add.component.html",
-  styleUrls: ["ap-add.component.scss"],
-  providers: [],
+  selector: 'pnx-ap-add',
+  templateUrl: 'ap-add.component.html',
+  styleUrls: ['ap-add.component.scss'],
+  providers: [MapListService]
 })
 export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   private ApFormGroup: FormGroup;
@@ -38,70 +39,105 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   private geojsonSubscription$: Subscription;
   public myGeoJSON: GeoJSON;
   public filteredData = [];
+
   constructor(
     public formService: FormService,
     public mapService: MapService,
     public router: Router,
-    private toastr: ToastrService,
-    private _dfs: DataFormService,
+    private toastrService: ToastrService,
+    private dataFormService: DataFormService,
     public ngbModal: NgbModal,
     public api: DataService,
     public storeService: StoreService,
     public activatedRoute: ActivatedRoute,
-    private _commonService: CommonService,
+    private commonService: CommonService,
     public mapListService: MapListService
   ) {}
 
   ngOnInit() {
-    this.storeService.toggleLeafletDraw(false);
-    this.idAp = this.activatedRoute.snapshot.params["idAp"];
+    this.extractUrlParams();
     this.ApFormGroup = this.formService.initFormAp();
+    this.storeService.setLeafletDraw();
+    this.initializeOnLeafletDrawAddGeom();
+    this.initializeTotalMaxAutocomplete();
+  }
 
-    // subscription to the geojson observable
+  private extractUrlParams() {
+    this.idAp = this.activatedRoute.snapshot.params['idAp'];
+    this.activatedRoute.parent.params.subscribe(params => {
+      this.storeService.idSite = params['idZP'];
+    });
+  }
+
+  private initializeOnLeafletDrawAddGeom() {
+    // Subscription to the geojson observable. Used when new geom add on map by Leaflet Draw
     this.geojsonSubscription$ = this.mapService.gettingGeojson$
       .pipe(distinctUntilChanged())
-      .subscribe((geojson) => {
+      .subscribe(geojson => {
         // check if ap is in zp
         this.api
           .areaContain(this.storeService.zp.geometry, geojson.geometry)
-          .subscribe((contain) => {
+          .subscribe(contain => {
             if (contain) {
-              this.ApFormGroup.patchValue({ geom_4326: geojson.geometry });
-              this.geojson = geojson;
-              // get area size
-              this._dfs.getAreaSize(geojson).subscribe((areaSize) => {
-                this.ApFormGroup.patchValue({ area: Math.round(areaSize) });
+              // Update geom control in form
+              this.ApFormGroup.patchValue({
+                geom_4326: geojson.geometry
               });
-              // get to geo info from API
-              this._dfs.getGeoInfo(geojson).subscribe((res) => {
+              this.ApFormGroup.markAsDirty();
+
+              // Get area size
+              this.dataFormService.getAreaSize(geojson).subscribe(areaSize => {
                 this.ApFormGroup.patchValue({
-                  altitude_min: res.altitude.altitude_min,
-                  altitude_max: res.altitude.altitude_max,
+                  area: Math.round(areaSize)
                 });
               });
-              this._dfs.getFormatedGeoIntersection(geojson).subscribe((res) => {
-                this.areasIntersected = res;
+
+              // Get to geo info from API
+              this.dataFormService.getGeoInfo(geojson).subscribe(res => {
+                if (res.altitude.altitude_min && res.altitude.altitude_max) {
+                  this.ApFormGroup.patchValue({
+                    altitude_min: res.altitude.altitude_min,
+                    altitude_max: res.altitude.altitude_max
+                  });
+                } else {
+                  this.commonService.regularToaster(
+                    'warning',
+                    "Les altitudes minimum et maximum de la nouvelle aire de présence " +
+                    "n'ont pu être mis à jour automatiquement. Vérifier votre DEM !"
+                  );
+                }
               });
+
+              // Get intersected geometry
+              this.dataFormService
+                .getFormatedGeoIntersection(geojson)
+                .subscribe(res => {
+                  this.areasIntersected = res;
+                });
             } else {
-              this.ApFormGroup.patchValue({ geom_4326: null });
-              this._commonService.regularToaster(
-                "warning",
-                "L'aire de présence n'est pas inclue dans la zone de prospection"
+              this.geojson = null;
+              this.ApFormGroup.patchValue({
+                geom_4326: null
+              });
+              this.commonService.regularToaster(
+                'warning',
+                "L'aire de présence n'est pas inclue dans la zone de prospection."
               );
             }
           });
       });
-    // autocomplete total_max
+  }
+
+  private initializeTotalMaxAutocomplete() {
     this.ApFormGroup.controls.total_min.valueChanges
-      //.debounceTime(500)
       .distinctUntilChanged()
-      .subscribe((value) => {
+      .subscribe(value => {
         if (
           this.ApFormGroup.controls.total_max === null ||
           this.ApFormGroup.controls.total_max.pristine
         ) {
           this.ApFormGroup.patchValue({
-            total_max: value,
+            total_max: value
           });
         }
       });
@@ -110,94 +146,153 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     this.mapService.map.doubleClickZoom.disable();
 
-    // vérifie s'il existe idAp --> c' une modif
-
+    // Update mode
     if (this.idAp !== undefined) {
-      this.api.getOneAP(this.idAp).subscribe((element) => {
-        let typePer;
-        let tabApPerturb = element.properties.cor_ap_perturbation;
+      this.api.getOneAP(this.idAp).subscribe(
+        element => {
+          let typePer;
+          let tabApPerturb = element.properties.cor_ap_perturbation;
+          if (tabApPerturb !== undefined) {
+            tabApPerturb.forEach(per => {
+              if (per === tabApPerturb[tabApPerturb.length - 1]) {
+                typePer = per.label_fr + '. ';
+              } else {
+                typePer = per.label_fr + ', ';
+              }
+              this.tabPertur.push(typePer);
+            });
+          }
 
-        if (tabApPerturb !== undefined) {
-          tabApPerturb.forEach((per) => {
-            if (per === tabApPerturb[tabApPerturb.length - 1]) {
-              typePer = per.label_fr + ". ";
-            } else {
-              typePer = per.label_fr + ", ";
-            }
-            this.tabPertur.push(typePer);
+          const ap = element.properties;
+          this.ApFormGroup.patchValue({
+            id_ap: this.idAp,
+            id_zp: ap.id_zp,
+            altitude_min: ap.altitude_min,
+            altitude_max: ap.altitude_max,
+            comment: ap.comment,
+            frequency: ap.frequency,
+            total_min: ap.total_min,
+            total_max: ap.total_max,
+            id_nomenclature_phenology: ap.pheno
+              ? ap.pheno.id_nomenclature
+              : null,
+            id_nomenclature_habitat: ap.habitat
+              ? ap.habitat.id_nomenclature
+              : null,
+            id_nomenclature_incline: ap.incline
+              ? ap.incline.id_nomenclature
+              : null,
+            id_nomenclature_counting: ap.counting
+              ? ap.counting.id_nomenclature
+              : null,
+            geom_4326: element.geometry,
+            area: Math.round(ap.area),
+            cor_ap_perturbation:
+              ap.cor_ap_perturbation === null ? [] : ap.cor_ap_perturbation
           });
+          this.geojson = element.geometry;
+        },
+        error => {
+          if (error.status != 404) {
+            this.toastrService.error(
+              "Une erreur est survenue lors de la récupération des informations de l'AP sur le serveur",
+              '',
+              {
+                positionClass: 'toast-top-right'
+              }
+            );
+            console.log('error: ', error);
+          }
         }
-
-        this.ApFormGroup.patchValue({
-          id_ap: this.idAp,
-          id_zp: element.properties.id_zp,
-          altitude_min: element.properties.altitude_min,
-          altitude_max: element.properties.altitude_max,
-          comment: element.properties.comment,
-          frequency: element.properties.frequency,
-          total_min: element.properties.total_min,
-          total_max: element.properties.total_max,
-          id_nomenclature_phenology: element.properties.pheno
-            ? element.properties.pheno.id_nomenclature
-            : null,
-          id_nomenclature_habitat: element.properties.habitat
-            ? element.properties.habitat.id_nomenclature
-            : null,
-          id_nomenclature_incline: element.properties.incline
-            ? element.properties.incline.id_nomenclature
-            : null,
-          id_nomenclature_counting: element.properties.counting
-            ? element.properties.counting.id_nomenclature
-            : null,
-          geom_4326: element.geometry,
-          cor_ap_perturbation:
-            element.properties.cor_ap_perturbation === null
-              ? []
-              : element.properties.cor_ap_perturbation,
-        });
-      });
+      );
     }
+
+    this.api.getOneZP(this.storeService.idSite).subscribe(
+      data => {
+        this.storeService.zp = data['zp'];
+        this.storeService.zpProperties = data['zp']['properties'];
+        this.storeService.zpProperties[
+          'areas'
+        ] = this.storeService.zpProperties['areas'].filter(
+          area => area.area_type.type_code == 'COM'
+        );
+
+        //this.storeService.sites = data['aps'];
+      },
+      error => {
+        if (error.status != 404) {
+          this.toastrService.error(
+            'Une erreur est survenue lors de la récupération des informations sur le serveur',
+            '',
+            {
+              positionClass: 'toast-top-right'
+            }
+          );
+          console.log('error: ', error);
+        }
+      }
+    );
   }
 
-  formDisabled() {
-    this._commonService.translateToaster("warning", "Releve.FillGeometryFirst");
+  onEachZp(feature, layer) {
+    layer.setStyle({ color: '#F4D03F', fillOpacity: 0, weight: 4 });
   }
 
   onCancelAp(idZp) {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/zp`, idZp, "details"]);
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/zp`, idZp, 'details']);
   }
 
   onPostAp() {
-    const apForm = JSON.parse(JSON.stringify(this.ApFormGroup.value));
-    // set indexZP
-    apForm["id_zp"] = this.storeService.zp.id;
-    this.api.postAp(apForm).subscribe((data) => {
-      this.toastr.success("Aire de présence enregistrée", "", {
-        positionClass: "toast-top-center",
-      });
-      this.router.navigate([`${ModuleConfig.MODULE_URL}/zp`, this.storeService.zp.id, "details"]);
-      // push ap maplist data
-      if (apForm["id_ap"]) {
-        // remove from list
-        this.mapListService.tableData = this.mapListService.tableData.filter(
-          (ap) => ap.id_ap != apForm["id_ap"]
-        );
-        // remove from map
-        this.storeService.sites.features = this.storeService.sites.features.filter(
-          (ap) => ap.id != apForm["id_ap"]
-        );
-      }
+    if (this.ApFormGroup.valid) {
+      const apForm = JSON.parse(JSON.stringify(this.ApFormGroup.value));
+      // set indexZP
+      apForm['id_zp'] = this.storeService.zp.id;
+      this.api.postAp(apForm).subscribe(data => {
+        this.toastrService.success('Aire de présence enregistrée', '', {
+          positionClass: 'toast-top-center'
+        });
+        this.router.navigate([
+          `${ModuleConfig.MODULE_URL}/zp`,
+          this.storeService.zp.id,
+          'details'
+        ]);
+        // push ap maplist data
+        if (apForm['id_ap']) {
+          // remove from list
+          this.mapListService.tableData = this.mapListService.tableData.filter(
+            ap => ap.id_ap != apForm['id_ap']
+          );
+          // remove from map
+          this.storeService.sites.features = this.storeService.sites.features.filter(
+            ap => ap.id != apForm['id_ap']
+          );
+        }
 
-      this.mapListService.tableData.push(data.properties);
-      this.storeService.sites.features.push(data);
-      const savedGeojsn = Object.assign({}, this.storeService.sites);
-      this.storeService.sites = null;
-      this.storeService.sites = savedGeojsn;
-    });
+        this.mapListService.tableData.push(data.properties);
+        this.storeService.sites.features.push(data);
+        // TODO: see if the code below is really necessary
+        const savedGeojsn = Object.assign({}, this.storeService.sites);
+        this.storeService.sites = null;
+        this.storeService.sites = savedGeojsn;
+      });
+    } else {
+      console.log('Form invalid !');
+    }
   }
 
-  deleteControlValue() {
-    console.log("Suppression");
+  sendGeoInfo(geojson) {
+    //this.ApFormGroup.patchValue({ geom_4326: geojson.geometry });
+    //this.geojson = geojson.geometry;
+    console.log("In sendGeoInfo")
+  }
+
+  deleteApGeom() {
+    this.ApFormGroup.patchValue({
+      geom_4326: null,
+      area: null
+    });
+    this.ApFormGroup.markAsDirty();
+    this.geojson = null;
   }
 
   ngOnDestroy() {

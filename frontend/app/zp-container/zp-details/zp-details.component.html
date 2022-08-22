@@ -1,182 +1,294 @@
-<div>
-  <button type="button" class="btn btn-link btn-sm back-button" (click)="backToZp()">
-    <i class="fa fa-arrow-left" aria-hidden="true"> </i>
-    Retour à la liste des zones de prospection
-  </button>
-</div>
-<h3>Consultation des aires de présence de la ZP {{ storeService.zpProperties.id_zp | json }}</h3>
-<div class="wrapper">
-  <ul class="nav nav-tabs" role="tablist">
-    <li class="nav-item">
-      <a class="nav-link active" data-toggle="tab" href="#infoGen" role="tab">
-        <i class="fa fa-info-circle"> </i>
-        Informations Générales
-      </a>
-    </li>
-    <li class="nav-item" *ngIf="show">
-      <a class="nav-link" data-toggle="tab" href="#details" role="tab">
-        <i class="fa fa-search police"> </i>
-        Détails
-      </a>
-    </li>
-  </ul>
-
-  <div class="tab-content">
-    <div class="tab-pane active modal-header  list-group-item" id="infoGen" role="tabpanel">
-      <p>
-        <span>
-          <b>Identifiant Zone de prospection : </b>
-          {{ storeService.zpProperties.id_zp }}
-        </span>
-      </p>
-      <p>
-        <span>
-          <b> Date : </b>
-          {{ storeService.zpProperties.date_min }}
-        </span>
-      </p>
-      <p>
-        <span>
-          <b>Observateur(s) :</b>
-          <ul class="comma-list">
-            <li *ngFor="let obs of storeService.zpProperties?.observers">
-              {{ obs.nom_complet }}
-            </li>
-          </ul>
-        </span>
-      </p>
-
-      <p>
-        <span>
-          <b> Taxon : </b>
-          {{ storeService.zpProperties?.taxonomy?.nom_complet }}
-        </span>
-      </p>
-    </div>
-    <div class="tab-pane modal-header list-group-item " id="details" role="tabpanel">
-      <p>
-        <span>
-          <b> Nom du site : </b>
-          {{ storeService.zpProperties.id_zp }}
-        </span>
-      </p>
-      <p>
-        <span>
-          <b>Commune(s) : </b>
-          <ul class="comma-list">
-            <li *ngFor="let area of storeService.zpProperties?.areas">
-              {{ area.area_name }}
-            </li>
-          </ul>
-        </span>
-      </p>
-    </div>
+<div class="row mx-0">
+  <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 px-0">
+    <pnx-map height="92vh">
+      <pnx-geojson
+        [onEachFeature]="onEachZp.bind(this)"
+        [geojson]="storeService.zp"
+        [zoomOnFirstTime]="true"
+      >
+      </pnx-geojson>
+      <pnx-geojson
+        [onEachFeature]="onEachFeature.bind(this)"
+        [geojson]="storeService.sites"
+      >
+      </pnx-geojson>
+    </pnx-map>
   </div>
-</div>
 
-<div class="wrapper">
-  <ngx-datatable
-    #table
-    class="material striped margin-top-xs table-size expandable"
-    [columnMode]="'force'"
-    [rows]="mapListService.tableData"
-    maxWidth="90"
-    [headerHeight]="35"
-    [footerHeight]="40"
-    [rowHeight]="40"
-    [rowHeight]="'auto'"
-    [messages]="storeService.fpConfig.list_ap_message"
-    [selected]="mapListService.selectedRow"
-    [selectionType]="'single'"
-    (select)="mapListService.onRowSelect($event)"
-    [rowClass]="mapListService.getRowClass"
-  >
-    <ngx-datatable-row-detail [rowHeight]="100" #myDetailRow (toggle)="onDetailToggle($event)">
-      <ng-template let-row="row" let-expanded="expanded" ngx-datatable-row-detail-template>
-        <dl class="def-list-inline small">
-          <dt>Phénologie :</dt>
-          <dd>&nbsp;{{ row.pheno?.definition_default }}</dd>
+  <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 p-0 mh-100">
+    <div class="col px-0 text-left">
+      <button
+        type="button"
+        class="btn btn-link btn-sm back-button"
+        (click)="backToZp()"
+      >
+        <i class="fa fa-arrow-left" aria-hidden="true"> </i>
+        Retour à la liste des zones de prospection
+      </button>
+    </div>
 
-          <dt>Pente :</dt>
-          <dd>&nbsp;{{ row.incline?.definition_default }}</dd>
+    <div class="card px-0">
+      <h3 class="card-header">
+        Consultation des aires de présence de la ZP {{ idZp }}
+      </h3>
 
-          <dt>Type d'habitat :</dt>
-          <dd>&nbsp;{{ row.habitat?.definition_default }}</dd>
+      <div class="card-body overflow-auto px-2">
+        <ul class="nav nav-tabs" role="tablist">
+          <li class="nav-item">
+            <a
+              id="nav-infos-general-tab"
+              class="nav-link active"
+              data-toggle="tab"
+              href="#infos-general"
+              role="tab"
+            >
+              <i class="fa fa-info-circle"> </i>
+              Informations Générales
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="show">
+            <a
+              id="nav-infos-details-tab"
+              class="nav-link"
+              data-toggle="tab"
+              href="#infos-details"
+              role="tab"
+            >
+              <i class="fa fa-search police"> </i>
+              Détails
+            </a>
+          </li>
+        </ul>
 
-          <dt>Total :</dt>
-          <dd>&nbsp;{{ row.total_min }}</dd>
+        <div class="tab-content m-2">
+          <div
+            id="infos-general"
+            class="tab-pane active"
+            role="tabpanel"
+            aria-labelledby="nav-infos-general-tab"
+          >
+            <p>
+              <span>
+                <b>Identifiant Zone de prospection : </b>
+                {{ storeService.zpProperties.id_zp }}
+              </span>
+            </p>
+            <p>
+              <span>
+                <b> Date : </b>
+                {{
+                  storeService.zpProperties.date_min
+                    | date: 'longDate':null:'fr'
+                }}
+              </span>
+            </p>
+            <p>
+              <span>
+                <b>Observateur(s) : </b>
+                <ul class="comma-list">
+                  <li *ngFor="let obs of storeService.zpProperties?.observers">
+                    {{ obs.nom_complet }}
+                  </li>
+                </ul>
+              </span>
+            </p>
 
-          <dt>Remarques :</dt>
-          <dd>&nbsp;{{ row.comment }}</dd>
-        </dl>
-      </ng-template>
-    </ngx-datatable-row-detail>
-    <ngx-datatable-column maxWidth="10">
-      <ng-template let-row="row" let-expanded="expanded" ngx-datatable-cell-template>
-        <a
-          href="javascript:void(0)"
-          [class.datatable-icon-right]="!expanded"
-          [class.datatable-icon-down]="expanded"
-          title="Détails"
-          (click)="toggleExpandRow(row)"
-        >
-        </a>
-      </ng-template>
-    </ngx-datatable-column>
-    <ngx-datatable-column maxWidth="10">
-      <ng-template let-row="row" ngx-datatable-cell-template>
-        <button
-          type="button"
-          class="btn btn-outline-shadow btn-no-padding btn-ghost"
-          (click)="onEditAp(storeService.idSite, row.id_ap)"
-          title="Editer"
-        >
-          <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-        </button>
-      </ng-template>
-    </ngx-datatable-column>
-    <ngx-datatable-column maxWidth="10">
-      <ng-template let-row="row" ngx-datatable-cell-template>
-        <button
-          type="button"
-          class="btn btn-outline-shadow btn-no-padding btn-ghost"
-          (click)="onDeleteAp(row.id_ap)"
-          title="Supprimer"
-        >
-          <i class="fa fa-trash-o" aria-hidden="true"></i>
-        </button>
-      </ng-template>
-    </ngx-datatable-column>
+            <p>
+              <span>
+                <b> Taxon : </b>
+                {{ storeService.zpProperties?.taxonomy?.nom_complet }}
+              </span>
+            </p>
+          </div>
 
-    <ngx-datatable-column
-      *ngFor="let col of storeService.fpConfig.default_ap_columns"
-      [name]="col.name"
-      [prop]="col.prop"
-      maxWidth="col.maxWidth"
-    >
-    </ngx-datatable-column>
-  </ngx-datatable>
-</div>
+          <div
+            id="infos-details"
+            class="tab-pane fade"
+            role="tabpanel"
+            aria-labelledby="nav-infos-details-tab"
+          >
+            <p>
+              <span>
+                <b> Nom du site : </b>
+                {{ storeService.zpProperties.id_zp }}
+              </span>
+            </p>
+            <p>
+              <span>
+                <b>Commune(s) : </b>
+                <ul class="comma-list">
+                  <li *ngFor="let area of storeService.zpProperties?.areas">
+                    {{ area.area_name }}
+                  </li>
+                </ul>
+              </span>
+            </p>
+          </div>
+        </div>
 
-<div class="row">
-  <div class="col-sm-12 col-md-6">
-    <pnx-modal-download
-      *ngIf="mapListService.tableData.length > 0"
-      labelButton="Télécharger ces aires de présence"
-      [pathDownload]="storeService.urlLoad"
-      [exportFormat]="storeService.fpConfig.export_available_format"
-      [queryString]="storeService.queryString"
-    >
-    </pnx-modal-download>
-  </div>
-  <div class="col-sm-12 col-md-6">
-    <button
-      type="button"
-      class="btn btn-sm btn-success box-shadow"
-      (click)="onAddAp(storeService.idSite)"
-    >
-      <i class="fa fa-plus-circle" aria-hidden="true"></i>
-      Ajouter une nouvelle aire de présence
-    </button>
+        <div class="mx-0 mb-0 mt-3">
+          <ngx-datatable
+            #table
+            class="material striped margin-top-xs table-size expandable"
+            [columnMode]="'force'"
+            [rows]="mapListService.tableData"
+            maxWidth="90"
+            [headerHeight]="35"
+            [footerHeight]="40"
+            [rowHeight]="40"
+            [rowHeight]="'auto'"
+            [messages]="storeService.fpConfig.list_ap_message"
+            [selected]="mapListService.selectedRow"
+            [selectionType]="'single'"
+            (select)="mapListService.onRowSelect($event)"
+            [rowClass]="mapListService.getRowClass"
+          >
+            <ngx-datatable-row-detail [rowHeight]="auto" #myDetailRow>
+              <ng-template
+                let-row="row"
+                let-expanded="expanded"
+                ngx-datatable-row-detail-template
+              >
+                <dl class="def-list-inline small">
+                  <dt>Phénologie</dt>
+                  <dd [matTooltip]="row.pheno?.definition_default">
+                    {{ row.pheno?.label_default }}&nbsp;
+                  </dd>
+
+                  <dt>Pente</dt>
+                  <dd [matTooltip]="row.incline?.definition_default">
+                    {{ row.incline?.label_default }}&nbsp;
+                  </dd>
+
+                  <dt>Type d'habitat</dt>
+                  <dd [matTooltip]="row.habitat?.definition_default">
+                    {{ row.habitat?.label_default }}&nbsp;
+                  </dd>
+
+                  <dt>Dénombrement</dt>
+                  <dd>
+                    <span
+                      *ngIf="row.total_min == row.total_max; else totalDiff"
+                    >
+                      {{ row.total_min }}
+                    </span>
+                    <ng-template>
+                      <span #totalDiff>
+                        min. : {{ row.total_min }} / max. : {{ row.total_max }}
+                      </span>
+                    </ng-template>
+                    <ng-container *ngIf="row.counting">
+                      (<span [matTooltip]="row.counting?.definition_default">
+                        {{ row.counting?.label_default }} </span
+                      >)
+                    </ng-container>
+                    &nbsp;
+                  </dd>
+
+                  <dt>Perturbations</dt>
+                  <dd>
+                    <ul class="comma-list">
+                      <li
+                        *ngFor="let perturbation of row.cor_ap_perturbation"
+                        [matTooltip]="perturbation.definition_default"
+                      >
+                        {{ perturbation.label_default }}
+                      </li>
+                    </ul>
+                    &nbsp;
+                  </dd>
+
+                  <dt>Remarques</dt>
+                  <dd>{{ row.comment }}&nbsp;</dd>
+                </dl>
+              </ng-template>
+            </ngx-datatable-row-detail>
+
+            <ngx-datatable-column maxWidth="10">
+              <ng-template
+                let-row="row"
+                let-expanded="expanded"
+                ngx-datatable-cell-template
+              >
+                <a
+                  href="javascript:void(0)"
+                  [class.datatable-icon-right]="!expanded"
+                  [class.datatable-icon-down]="expanded"
+                  title="Détails"
+                  (click)="toggleExpandRow(row)"
+                >
+                </a>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column maxWidth="10">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <button
+                  type="button"
+                  class="btn btn-outline-shadow btn-no-padding btn-ghost"
+                  (click)="onEditAp(storeService.idSite, row.id_ap)"
+                  title="Editer"
+                >
+                  <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                </button>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column maxWidth="10">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <button
+                  type="button"
+                  class="btn btn-outline-shadow btn-no-padding btn-ghost"
+                  (click)="onDeleteAp(row.id_ap)"
+                  title="Supprimer"
+                >
+                  <i class="fa fa-trash-o" aria-hidden="true"></i>
+                </button>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column
+              *ngFor="let col of storeService.fpConfig.default_ap_columns"
+              [name]="col.name"
+              [prop]="col.prop"
+              maxWidth="col.maxWidth"
+            >
+              <ng-template
+                *ngIf="col.prop == 'frequency'"
+                let-value="value"
+                ngx-datatable-cell-template
+              >
+                {{ value | number: '1.0-2' }}
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <pnx-modal-download
+              *ngIf="mapListService.tableData.length > 0"
+              labelButton="Télécharger ces aires de présence"
+              [pathDownload]="storeService.urlLoad"
+              [exportFormat]="storeService.fpConfig.export_available_format"
+              [queryString]="storeService.queryString"
+            >
+            </pnx-modal-download>
+          </div>
+          <div class="col-sm-12 col-md-6 text-right">
+            <button
+              type="button"
+              class="btn btn-sm btn-success box-shadow"
+              (click)="onAddAp(storeService.idSite)"
+            >
+              <i class="fa fa-plus-circle" aria-hidden="true"></i>
+              Ajouter une nouvelle aire de présence
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

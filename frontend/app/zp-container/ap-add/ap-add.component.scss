@@ -1,150 +1,32 @@
-#overlay {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color: #00000061;
-  cursor: not-allowed;
-  z-index: 1000;
-}
-
-.btn-cancel {
-  color: #fff;
-  background-color: #c00701;
-  border-color: #c00701;
-}
-
-.box-shadow {
-  box-shadow: 4px 5px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
-
-.list-sht {
-  max-height: 94vh;
-  overflow-y: auto;
-  padding-bottom: 5px;
-}
-
-.list-group-item {
-  background-color: #fff;
-  color: #181818;
-  border: none;
-}
-
-.wrapper {
-  margin-bottom: 18px;
-}
-
-.back-button {
-  text-align: left;
-}
-
-.map-card {
-  min-height: 85vh;
-  margin: -25px -15px -15px -15px;
-}
-
-#redirect {
-  position: absolute;
-  right: 1%;
-  z-index: 1000;
-  margin-left: 15px;
-  margin-top: 15px;
-  padding-right: 0px;
-  padding-left: 0px;
-  cursor: pointer;
-  height: 40px;
-  width: 40px;
-  border-radius: 30px;
-  //padding: 0px;
-}
-
-#search-btn {
-  position: absolute;
-  right: 1%;
-  top: 25%;
-  height: 35px;
-  font-size: 15px;
-}
-
-#download-btn {
-  margin-top: 5px;
-  padding: 5px;
-}
-
-#add-btn {
-  float: right;
-  margin-top: 5px;
-  margin-right: 5px;
-  padding: 5px;
-}
-
-#refresh-filter {
-  color: red;
-}
-
-.actions {
-  height: 35px;
-  margin-left: 5px;
-  margin-top: 21px;
-  padding: 8px;
-}
-
-.filter-control {
-  height: 2.1rem !important;
-}
-
-.dynamic-form {
-  display: flex;
-  margin-right: 5px;
-  max-width: 15%;
-}
-
-.trash-btn {
-  margin-top: 30px;
-  margin-left: 5px;
-}
-
-#specific-filter {
-  margin-top: -5px;
-  padding-bottom: 5px;
-}
-
-:host /deep/ #button-input {
-  height: 2rem;
-}
-
-.col-list {
-  list-style: none;
-}
-
-.modal-body {
-  text-align: left !important;
-}
-
-input {
-  height: 2rem !important;
-}
-
+// Tags
 fieldset {
   padding: 0.35em 0.625em 0.75em !important;
   border: 1px solid silver !important;
-  margin: 0 2px !important;
+  margin: 0 2px 15px 2px !important;
   border-radius: 3px;
-  // background-color: #f3f3f3;
 }
-
 legend {
   width: auto;
   font-size: inherit;
+  padding: 8px 3px 0 3px;
 }
+// Grid row gutters
+.no-gutters .row {
+  margin-right: 0;
+  margin-left: 0;
 
-.wrapper {
-  margin-bottom: 18px;
+  > .col,
+  > [class*="col-"] {
+    padding-right: 0;
+    padding-left: 0;
+  }
 }
-
-.searchSite {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 15px;
+// Others
+@media (min-width: 768px) {
+  .card-body {
+    height: 70vh;
+  }
+}
+.box-shadow {
+  box-shadow: 4px 5px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }

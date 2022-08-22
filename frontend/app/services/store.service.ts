@@ -31,25 +31,21 @@ export class StoreService {
   public altitude_max;
   public fpConfig = ModuleConfig;
   public leafletDrawOptions = leafletDrawOption;
-
+  public presence = 0;
+  public queryString = new HttpParams();
+  public urlLoad = `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/export_ap`;
   public myStylePresent = {
-    color: '#008000',
+    color: "#008000",
     fill: true,
     fillOpacity: 0.2,
-    weight: 3
+    weight: 3,
   };
 
   constructor(
     public _api: DataService,
     public mapListService: MapListService,
     private _modalService: NgbModal
-  ) { }
-
-  public presence = 0;
-
-  public queryString = new HttpParams();
-
-  public urlLoad = `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/export_ap`;
+  ) {}
 
   setLeafletDraw() {
     this.leafletDrawOptions.draw.rectangle = true;
@@ -60,10 +56,10 @@ export class StoreService {
     this.leafletDrawOptions.edit.edit = true;
   }
 
-  toggleLeafletDraw(hidden) {    
+  toggleLeafletDraw(hidden) {
     const drawElements = document.getElementsByClassName("leaflet-draw");
-    if(drawElements.length > 0) {
-      const e:any = drawElements[0];
+    if (drawElements.length > 0) {
+      const e: any = drawElements[0];
       e.hidden = hidden;
     }
   }
@@ -72,9 +68,3 @@ export class StoreService {
     this._modalService.open(content);
   }
 }
-
-
-
-
-
-

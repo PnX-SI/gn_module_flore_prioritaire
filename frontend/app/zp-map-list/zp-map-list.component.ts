@@ -1,20 +1,30 @@
-import { Component, OnInit, Input, AfterViewInit, EventEmitter, Output } from "@angular/core";
-import { MapListService } from "@geonature_common/map-list/map-list.service";
-import { MapService } from "@geonature_common/map/map.service";
-import { leafletDrawOption } from "@geonature_common/map/leaflet-draw.options";
-import { CommonService } from "@geonature_common/service/common.service";
-import * as L from "leaflet";
-import { DataService } from "../services/data.service";
-import { FormGroup, FormBuilder } from "@angular/forms";
-import { StoreService } from "../services/store.service";
-import { Router, ActivatedRoute } from "@angular/router";
-import { ModuleConfig } from "../module.config";
+import { HttpParams } from '@angular/common/http';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  EventEmitter,
+  Output
+} from '@angular/core';
+import { FormGroup, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+
+import * as L from 'leaflet';
+
+import { MapListService } from '@geonature_common/map-list/map-list.service';
+import { MapService } from '@geonature_common/map/map.service';
+import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
+import { CommonService } from '@geonature_common/service/common.service';
+
+import { DataService } from '../services/data.service';
+import { StoreService } from '../services/store.service';
+import { ModuleConfig } from '../module.config';
 
 @Component({
-  selector: "pnx-zp-map-list",
-  templateUrl: "zp-map-list.component.html",
-  styleUrls: ["zp-map-list.component.scss"],
-  providers: [MapListService],
+  selector: 'pnx-zp-map-list',
+  templateUrl: 'zp-map-list.component.html',
+  styleUrls: ['zp-map-list.component.scss'],
+  providers: [MapListService]
 })
 export class ZpMapListComponent implements OnInit, AfterViewInit {
   public leafletDrawOptions = leafletDrawOption;
@@ -48,8 +58,12 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.displayColumns = ModuleConfig.default_zp_columns;
-    this.storeService.queryString = this.storeService.queryString.set("limit", "10");
-    this.mapListService.idName = "id_zp";
+    this.storeService.queryString = new HttpParams();
+    this.storeService.queryString = this.storeService.queryString.set(
+      'limit',
+      '10'
+    );
+    this.mapListService.idName = 'id_zp';
     this.loadData();
     this.center = this.storeService.fpConfig.zoom_center;
     this.zoom = this.storeService.fpConfig.zoom;
@@ -59,36 +73,36 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       filterOrga: null,
       filterCom: null,
       filterTaxon: null,
-      idZp: null,
+      idZp: null
     });
 
-    this.filterForm.controls.filterYear.valueChanges.subscribe((year) => {
+    this.filterForm.controls.filterYear.valueChanges.subscribe(year => {
       if (year && year.toString().length === 4) {
-        this.setQueryString("year", year.toString());
+        this.setQueryString('year', year.toString());
         this.loadData();
       }
       if (!year) {
-        this.deleteParams("year");
+        this.deleteParams('year');
         this.loadData();
       }
     });
 
-    this.filterForm.controls.filterOrga.valueChanges.subscribe((org) => {
+    this.filterForm.controls.filterOrga.valueChanges.subscribe(org => {
       if (org) {
-        this.setQueryString("id_organism", org);
+        this.setQueryString('id_organism', org);
         this.loadData();
       } else {
-        this.deleteParams("id_organism");
+        this.deleteParams('id_organism');
         this.loadData();
       }
     });
 
-    this.filterForm.controls.filterCom.valueChanges.subscribe((id_area) => {
+    this.filterForm.controls.filterCom.valueChanges.subscribe(id_area => {
       if (id_area) {
-        this.setQueryString("id_area", id_area);
+        this.setQueryString('id_area', id_area);
         this.loadData();
       } else {
-        this.deleteParams("id_area");
+        this.deleteParams('id_area');
         this.loadData();
       }
     });
@@ -96,14 +110,14 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
   onChangePage(event) {
     this.storeService.queryString = this.storeService.queryString.set(
-      "page",
+      'page',
       event.offset.toString()
     );
     this.loadData();
   }
 
   loadData() {
-    this.api.getZProspects(this.storeService.queryString).subscribe((data) => {
+    this.api.getZProspects(this.storeService.queryString).subscribe(data => {
       this.nbZp = data.total;
       this.myGeoJSON = data.items;
       this.mapListService.loadTableData(data.items);
@@ -120,27 +134,30 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   }
 
   onInfo(idZp) {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/zp`, idZp, "details"]);
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/zp`, idZp, 'details']);
   }
 
   onDeleteZp(idZp) {
     this.api.deleteZp(idZp).subscribe(
-      (data) => {
-        this.filteredData = this.filteredData.filter((item) => {
+      data => {
+        this.filteredData = this.filteredData.filter(item => {
           return idZp !== item.id_zp;
         });
-        const filterFeature = this.myGeoJSON.features.filter((feature) => {
+        const filterFeature = this.myGeoJSON.features.filter(feature => {
           return idZp !== feature.properties.id_zp;
         });
-        this.myGeoJSON["features"] = filterFeature;
+        this.myGeoJSON['features'] = filterFeature;
         this.myGeoJSON = Object.assign({}, this.myGeoJSON);
-        this._commonService.translateToaster("success", "Releve.DeleteSuccessfully");
+        this._commonService.translateToaster(
+          'success',
+          'Releve.DeleteSuccessfully'
+        );
       },
-      (error) => {
+      error => {
         if (error.status === 403) {
-          this._commonService.translateToaster("error", "NotAllowed");
+          this._commonService.translateToaster('error', 'NotAllowed');
         } else {
-          this._commonService.translateToaster("error", "ErrorMessage");
+          this._commonService.translateToaster('error', 'ErrorMessage');
         }
       }
     );
@@ -153,11 +170,11 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     this._map = this.mapService.getMap();
     this.addCustomControl();
 
-    this.api.getOrganisme().subscribe((orgs) => {
+    this.api.getOrganisme().subscribe(orgs => {
       this.tabOrganism = orgs;
     });
 
-    this.api.getCommune().subscribe((municipalities) => {
+    this.api.getCommune().subscribe(municipalities => {
       this.municipalities = municipalities;
     });
   }
@@ -167,29 +184,30 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   }
 
   deleteControlValue() {
-    console.log("Suppression");
+    console.log('Suppression');
   }
 
   onEachFeature(feature, layer) {
     this.mapListService.layerDict[feature.id] = layer;
     layer.on({
-      click: (e) => {
+      click: e => {
         this.mapListService.toggleStyle(layer);
         this.mapListService.mapSelected.next(feature.id);
-      },
+      }
     });
   }
 
   addCustomControl() {
     let initzoomcontrol = new L.Control();
-    initzoomcontrol.setPosition("topleft");
+    initzoomcontrol.setPosition('topleft');
     initzoomcontrol.onAdd = () => {
       var container = L.DomUtil.create(
-        "button",
-        " btn btn-sm btn-outline-shadow leaflet-bar leaflet-control leaflet-control-custom"
+        'button',
+        ' btn btn-sm btn-outline-shadow leaflet-bar leaflet-control leaflet-control-custom'
       );
-      container.innerHTML = '<i class="material-icons" style="line-height:normal;">crop_free</i>';
-      container.style.padding = "1px 4px";
+      container.innerHTML =
+        '<i class="material-icons" style="line-height:normal;">crop_free</i>';
+      container.style.padding = '1px 4px';
       container.title = "Réinitialiser l'emprise de la carte";
       container.onclick = () => {
         this._map.setView(this.center, this.zoom);
@@ -200,7 +218,10 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   }
 
   setQueryString(param: string, value) {
-    this.storeService.queryString = this.storeService.queryString.set(param, value);
+    this.storeService.queryString = this.storeService.queryString.set(
+      param,
+      value
+    );
   }
 
   deleteParams(param: string) {
@@ -208,21 +229,19 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   }
 
   removeCdNom() {
-    this.deleteParams("cd_nom");
+    this.deleteParams('cd_nom');
     this.loadData();
   }
 
   onSearchTaxon(event) {
-    this.setQueryString("cd_nom", event.item.cd_nom);
+    this.setQueryString('cd_nom', event.item.cd_nom);
     this.loadData();
   }
 
   ngOnDestroy() {
     let filterkey = this.storeService.queryString.keys();
-    filterkey.forEach((key) => {
+    filterkey.forEach(key => {
       this.storeService.queryString = this.storeService.queryString.delete(key);
     });
-
-    //this.mysubscribe.unsubribe();
   }
 }

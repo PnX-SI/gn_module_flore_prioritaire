@@ -1,34 +1,34 @@
-import { NgModule } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { Routes, RouterModule } from "@angular/router";
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Routes, RouterModule } from '@angular/router';
 
-import { GN2CommonModule } from "@geonature_common/GN2Common.module";
+import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 
-import { DataService } from "./services/data.service";
-import { StoreService } from "./services/store.service";
-import { FormService } from "./services/form.service";
+import { DataService } from './services/data.service';
+import { StoreService } from './services/store.service';
+import { FormService } from './services/form.service';
 
-import { ZpMapListComponent } from "./zp-map-list/zp-map-list.component";
-import { ZpAddComponent } from "./zp-add/zp-add.component";
-import { ApAddComponent } from "./zp-container/ap-add/ap-add.component";
-import { ZpDetailsComponent } from "./zp-container/zp-details/zp-details.component";
-import { ZpContainerComponent } from "./zp-container/zp-container.component";
+import { ZpMapListComponent } from './zp-map-list/zp-map-list.component';
+import { ZpAddComponent } from './zp-add/zp-add.component';
+import { ApAddComponent } from './zp-container/ap-add/ap-add.component';
+import { ZpDetailsComponent } from './zp-container/zp-details/zp-details.component';
+import { ZpContainerComponent } from './zp-container/zp-container.component';
 
 // my module routing
 const routes: Routes = [
-  { path: "", component: ZpMapListComponent },
-  { path: "post_zp", component: ZpAddComponent },
-  { path: "post_zp/:idZp", component: ZpAddComponent },
+  { path: '', component: ZpMapListComponent },
+  { path: 'post_zp', component: ZpAddComponent },
+  { path: 'post_zp/:idZp', component: ZpAddComponent },
   {
-    path: "zp/:idZP",
+    path: 'zp/:idZP',
     component: ZpContainerComponent,
     children: [
-      { path: "details", component: ZpDetailsComponent },
-      { path: "post_ap", component: ApAddComponent },
-      { path: "post_ap/:idAp", component: ApAddComponent },
-      { path: "", redirectTo: "details", pathMatch: "full" },
-    ],
-  },
+      { path: 'details', component: ZpDetailsComponent },
+      { path: 'post_ap', component: ApAddComponent },
+      { path: 'post_ap/:idAp', component: ApAddComponent },
+      { path: '', redirectTo: 'details', pathMatch: 'full' }
+    ]
+  }
 ];
 
 @NgModule({
@@ -38,9 +38,9 @@ const routes: Routes = [
     ZpAddComponent,
     ZpDetailsComponent,
     ApAddComponent,
-    ZpContainerComponent,
+    ZpContainerComponent
   ],
 
-  providers: [DataService, StoreService, FormService],
+  providers: [DataService, StoreService, FormService]
 })
 export class GeonatureModule {}
