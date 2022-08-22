@@ -2,10 +2,12 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { ToastrService } from 'ngx-toastr';
+import { MatDialog } from '@angular/material';
 
 import { CommonService } from '@geonature_common/service/common.service';
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
+import { ConfirmationDialog } from '@geonature_common/others/modal-confirmation/confirmation.dialog';
 
 import { DataService } from '../../services/data.service';
 import { StoreService } from '../../services/store.service';
@@ -16,7 +18,7 @@ import { ModuleConfig } from '../../module.config';
   selector: 'pnx-zp-details',
   templateUrl: 'zp-details.component.html',
   styleUrls: ['./zp-details.component.scss'],
-  providers: [MapListService],
+  providers: [MapListService]
 })
 export class ZpDetailsComponent implements OnInit {
   public idZp: string;
@@ -29,6 +31,7 @@ export class ZpDetailsComponent implements OnInit {
   public dataLoaded = false;
 
   constructor(
+    public dialog: MatDialog,
     public mapService: MapService,
     public storeService: StoreService,
     public activatedRoute: ActivatedRoute,
@@ -36,7 +39,7 @@ export class ZpDetailsComponent implements OnInit {
     public api: DataService,
     private commonService: CommonService,
     public mapListService: MapListService,
-    private toastr: ToastrService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit() {
@@ -98,34 +101,45 @@ export class ZpDetailsComponent implements OnInit {
   }
 
   onDeleteAp(idAp) {
-    this.api.deleteAp(idAp).subscribe(
-      data => {
-        this.mapListService.tableData = this.mapListService.tableData.filter(
-          item => {
-            return idAp !== item.id_ap;
-          }
-        );
-        const filterFeature = this.storeService.sites.features.filter(
-          feature => {
-            return idAp !== feature.properties.id_ap;
-          }
-        );
-        this.storeService.sites['features'] = filterFeature;
+    const msg = `Êtes vous sûr de vouloir supprimer l'AP ${idAp} ?`;
+    const dialogRef = this.dialog.open(ConfirmationDialog, {
+      width: '350px',
+      position: { top: '5%' },
+      data: { message: msg }
+    });
 
-        this.storeService.sites = Object.assign({}, this.storeService.sites);
-        this.commonService.translateToaster(
-          'success',
-          'Releve.DeleteSuccessfully'
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.api.deleteAp(idAp).subscribe(
+          data => {
+            this.mapListService.tableData = this.mapListService.tableData.filter(
+              item => {
+                return idAp !== item.id_ap;
+              }
+            );
+            const filterFeature = this.storeService.sites.features.filter(
+              feature => {
+                return idAp !== feature.properties.id_ap;
+              }
+            );
+            this.storeService.sites['features'] = filterFeature;
+
+            this.storeService.sites = Object.assign({}, this.storeService.sites);
+            this.commonService.translateToaster(
+              'success',
+              'Releve.DeleteSuccessfully'
+            );
+          },
+          error => {
+            if (error.status === 403) {
+              this.commonService.translateToaster('error', 'NotAllowed');
+            } else {
+              this.commonService.translateToaster('error', 'ErrorMessage');
+            }
+          }
         );
-      },
-      error => {
-        if (error.status === 403) {
-          this.commonService.translateToaster('error', 'NotAllowed');
-        } else {
-          this.commonService.translateToaster('error', 'ErrorMessage');
-        }
       }
-    );
+    });
   }
 
   backToZp() {
@@ -152,8 +166,12 @@ export class ZpDetailsComponent implements OnInit {
     // Bind popup
     const customPopup =
       '<div class="title">' +
-      'Altitude : ' + site.altitude_max + 'm <br /> ' +
-      'Surface : ' + Math.round(site.area) + ' m\u00b2' +
+      'Altitude : ' +
+      site.altitude_max +
+      'm <br /> ' +
+      'Surface : ' +
+      Math.round(site.area) +
+      ' m\u00b2' +
       '</div>';
     const customOptions = {
       className: 'custom-popup'

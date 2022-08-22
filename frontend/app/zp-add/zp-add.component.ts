@@ -92,7 +92,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   }
 
   onSubmit() {
-    let finalForm = this.formateDataFormZp();
+    let finalForm = this.formatDataFormZp();
 
     this.api.postZp(finalForm).subscribe(data => {
       this.toastrService.success('Zone de prospection enregistrée', '', {
@@ -107,7 +107,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private formateDataFormZp() {
+  private formatDataFormZp() {
     const finalForm = JSON.parse(JSON.stringify(this.ZpFormGroup.value));
 
     finalForm.date_min = this.dateParser.format(finalForm.date_min);

@@ -10,11 +10,13 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import * as L from 'leaflet';
+import { MatDialog } from "@angular/material";
 
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { CommonService } from '@geonature_common/service/common.service';
+import { ConfirmationDialog } from '@geonature_common/others/modal-confirmation/confirmation.dialog';
 
 import { DataService } from '../services/data.service';
 import { StoreService } from '../services/store.service';
@@ -47,13 +49,14 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   onDeleteFiltre = new EventEmitter<any>();
 
   constructor(
+    public dialog: MatDialog,
     public mapService: MapService,
     private mapListService: MapListService,
     public router: Router,
     public storeService: StoreService,
-    private _commonService: CommonService,
+    private commonService: CommonService,
     public api: DataService,
-    private _fb: FormBuilder
+    private formBuilder: FormBuilder
   ) {}
 
   ngOnInit() {
@@ -68,7 +71,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     this.center = this.storeService.fpConfig.zoom_center;
     this.zoom = this.storeService.fpConfig.zoom;
 
-    this.filterForm = this._fb.group({
+    this.filterForm = this.formBuilder.group({
       filterYear: null,
       filterOrga: null,
       filterCom: null,
@@ -138,29 +141,40 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   }
 
   onDeleteZp(idZp) {
-    this.api.deleteZp(idZp).subscribe(
-      data => {
-        this.filteredData = this.filteredData.filter(item => {
-          return idZp !== item.id_zp;
-        });
-        const filterFeature = this.myGeoJSON.features.filter(feature => {
-          return idZp !== feature.properties.id_zp;
-        });
-        this.myGeoJSON['features'] = filterFeature;
-        this.myGeoJSON = Object.assign({}, this.myGeoJSON);
-        this._commonService.translateToaster(
-          'success',
-          'Releve.DeleteSuccessfully'
+    const msg = `Êtes vous sûr de vouloir supprimer la ZP ${idZp} ?`;
+    const dialogRef = this.dialog.open(ConfirmationDialog, {
+      width: '350px',
+      position: { top: '5%' },
+      data: { message: msg }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.api.deleteZp(idZp).subscribe(
+          data => {
+            this.filteredData = this.filteredData.filter(item => {
+              return idZp !== item.id_zp;
+            });
+            const filterFeature = this.myGeoJSON.features.filter(feature => {
+              return idZp !== feature.properties.id_zp;
+            });
+            this.myGeoJSON['features'] = filterFeature;
+            this.myGeoJSON = Object.assign({}, this.myGeoJSON);
+            this.commonService.translateToaster(
+              'success',
+              'Releve.DeleteSuccessfully'
+            );
+          },
+          error => {
+            if (error.status === 403) {
+              this.commonService.translateToaster('error', 'NotAllowed');
+            } else {
+              this.commonService.translateToaster('error', 'ErrorMessage');
+            }
+          }
         );
-      },
-      error => {
-        if (error.status === 403) {
-          this._commonService.translateToaster('error', 'NotAllowed');
-        } else {
-          this._commonService.translateToaster('error', 'ErrorMessage');
-        }
       }
-    );
+    });
   }
 
   ngAfterViewInit() {
