@@ -1,25 +1,25 @@
 from geonature.core.utils import ModelCruvedAutorization
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from geoalchemy2 import Geometry
 from pypnusershub.db.models import User
 
-from geonature.utils.env import DB
-from geonature.utils.config import config
-
+from apptax.taxonomie.models import Taxref
+from pypnnomenclature.models import TNomenclatures
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable, geofileserializable
 
+from geonature.core.gn_meta.models import TDatasets
 from geonature.core.ref_geo.models import LAreas
-from pypnnomenclature.models import TNomenclatures
-from apptax.taxonomie.models import Taxref
-
+from geonature.utils.config import config
+from geonature.utils.env import DB
 
 class ZpCruvedAuth(DB.Model):
     """
     Classe abstraite de contrôle d'accès à la donnée
     """
+
     __abstract__ = True
 
     def user_is_observer(self, user):
@@ -33,10 +33,11 @@ class ZpCruvedAuth(DB.Model):
             if obs.id_role == user.id_role:
                 return True
         return False
+
     def user_is_allowed_to(self, user, level):
         """
-            Fonction permettant de dire si un utilisateur
-            peu ou non agir sur une donnée
+        Fonction permettant de dire si un utilisateur
+        peu ou non agir sur une donnée
         """
         # Si l'utilisateur n'a pas de droit d'accès aux données
         if level == "0" or level not in ("1", "2", "3"):
@@ -66,9 +67,9 @@ class ZpCruvedAuth(DB.Model):
             - user_cruved: object return by cruved_for_user_in_app(user)
         """
         return {
-            action: self.user_is_allowed_to(user, level)
-            for action, level in user_cruved.items()
+            action: self.user_is_allowed_to(user, level) for action, level in user_cruved.items()
         }
+
 
 @serializable
 class CorApPerturb(DB.Model):
@@ -76,13 +77,17 @@ class CorApPerturb(DB.Model):
     __table_args__ = {"schema": "pr_priority_flora"}
 
     id_ap = DB.Column(
-        DB.ForeignKey("pr_priority_flora.t_apresence.id_ap", onupdate="CASCADE"),
+        DB.ForeignKey(
+            "pr_priority_flora.t_apresence.id_ap",
+            onupdate="CASCADE",
+        ),
         primary_key=True,
         nullable=False,
     )
     id_nomenclature = DB.Column(
         DB.ForeignKey(
-            "ref_nomenclatures.t_nomenclatures.id_nomenclature", onupdate="CASCADE"
+            "ref_nomenclatures.t_nomenclatures.id_nomenclature",
+            onupdate="CASCADE",
         ),
         primary_key=True,
         nullable=False,
@@ -96,14 +101,21 @@ class CorApPerturb(DB.Model):
     )
 
 
-
 @serializable
 class CorApArea(DB.Model):
     __tablename__ = "cor_ap_area"
     __table_args__ = {"schema": "pr_priority_flora"}
 
-    id_area = DB.Column(DB.Integer, ForeignKey(LAreas.id_area), primary_key=True)
-    id_ap = DB.Column(DB.Integer, ForeignKey("TApresence.id_ap"), primary_key=True)
+    id_area = DB.Column(
+        DB.Integer,
+        ForeignKey(LAreas.id_area),
+        primary_key=True,
+    )
+    id_ap = DB.Column(
+        DB.Integer,
+        ForeignKey("TApresence.id_ap"),
+        primary_key=True,
+    )
 
 
 @serializable
@@ -111,22 +123,32 @@ class CorApArea(DB.Model):
 class TApresence(DB.Model):
     __tablename__ = "t_apresence"
     __table_args__ = {"schema": "pr_priority_flora"}
+
     id_ap = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
-    id_zp = DB.Column(
-        DB.ForeignKey("pr_priority_flora.t_zprospect.id_zp"), nullable=False
-    )
+    area = DB.Column(DB.Integer)
+    topo_valid = DB.Column(DB.Boolean)
     altitude_min = DB.Column(DB.Integer)
     altitude_max = DB.Column(DB.Integer)
-    area = DB.Column(DB.Integer)
-    id_nomenclature_incline = DB.Column(DB.Integer)
-    id_nomenclature_phenology = DB.Column(DB.Integer)
-    id_nomenclature_habitat = DB.Column(DB.Integer)
     frequency = DB.Column(DB.Integer)
+    comment = DB.Column(DB.String(4000))
+    id_zp = DB.Column(
+        DB.ForeignKey("pr_priority_flora.t_zprospect.id_zp"),
+        nullable=False,
+    )
+    id_nomenclature_incline = DB.Column(DB.Integer)
     id_nomenclature_counting = DB.Column(DB.Integer)
+    id_nomenclature_habitat = DB.Column(DB.Integer)
+    id_nomenclature_phenology = DB.Column(DB.Integer)
+    id_history_action = DB.Column(DB.Integer)
     total_min = DB.Column(DB.Integer)
     total_max = DB.Column(DB.Integer)
-    comment = DB.Column(DB.String(4000))
+    uuid_ap = DB.Column(UUID(as_uuid=True))
+    additional_data = DB.Column(JSONB)
+    geom_local = DB.Column(Geometry("GEOMETRY", 2154))
     geom_4326 = DB.Column(Geometry("GEOMETRY", 4326))
+    geom_point_4326 = DB.Column(Geometry("POINT", 4326))
+    meta_create_date = DB.Column(DB.DateTime)
+    meta_update_date = DB.Column(DB.DateTime)
 
     cor_ap_perturbation = DB.relationship(
         TNomenclatures,
@@ -140,57 +162,43 @@ class TApresence(DB.Model):
         primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclature_incline),
         foreign_keys=[id_nomenclature_incline],
     )
-
     pheno = DB.relationship(
         TNomenclatures,
         primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclature_phenology),
         foreign_keys=[id_nomenclature_phenology],
     )
-
     habitat = DB.relationship(
         TNomenclatures,
         primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclature_habitat),
         foreign_keys=[id_nomenclature_habitat],
     )
-
     counting = DB.relationship(
         TNomenclatures,
         primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclature_counting),
         foreign_keys=[id_nomenclature_counting],
     )
 
-    def get_geofeature(self, columns=[], recursif=True):
-        return self.as_geofeature("geom_4326", "id_ap", recursif)
+    def get_geofeature(self, fields=[]):
+        return self.as_geofeature(
+            "geom_4326",
+            "id_ap",
+            fields=fields,
+        )
 
 
-# @serializable
-# class CorZpObs(DB.Model):
-#     __tablename__ = "cor_zp_obs"
-#     __table_args__ = {"schema": "priority_flora"}
-
-#     id_role = DB.Column(DB.Integer, ForeignKey(User.id_role), primary_key=True)
-#     id_zp = DB.Column(DB.Integer, ForeignKey("TZprospect.id_zp"), primary_key=True)
-
-
-cor_zp_observer = DB.Table('cor_zp_obs',
-    DB.Column('id_role', ForeignKey(User.id_role), primary_key=True),
-    DB.Column('id_zp'),
-    schema="pr_priority_flora"
+cor_zp_observer = DB.Table(
+    "cor_zp_obs",
+    DB.Column("id_role", ForeignKey(User.id_role), primary_key=True),
+    DB.Column("id_zp"),
+    schema="pr_priority_flora",
 )
 
-cor_zp_area = DB.Table('cor_zp_area',
-    DB.Column('id_area', ForeignKey(LAreas.id_area), primary_key=True),
-    DB.Column('id_zp', primary_key=True),
-    schema="pr_priority_flora"
+cor_zp_area = DB.Table(
+    "cor_zp_area",
+    DB.Column("id_area", ForeignKey(LAreas.id_area), primary_key=True),
+    DB.Column("id_zp", primary_key=True),
+    schema="pr_priority_flora",
 )
-
-# @serializable
-# class CorZpArea(DB.Model):
-#     __tablename__ = "cor_zp_area"
-#     __table_args__ = {"schema": "pr_priority_flora"}
-
-#     id_area = DB.Column(DB.Integer, ForeignKey(LAreas.id_area), primary_key=True)
-#     id_zp = DB.Column(DB.Integer, ForeignKey("TZprospect.id_zp"), primary_key=True)
 
 
 @serializable
@@ -198,22 +206,37 @@ cor_zp_area = DB.Table('cor_zp_area',
 class TZprospect(ZpCruvedAuth):
     __tablename__ = "t_zprospect"
     __table_args__ = {"schema": "pr_priority_flora"}
+
     id_zp = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
     date_min = DB.Column(DB.DateTime)
     date_max = DB.Column(DB.DateTime)
-    cd_nom = DB.Column(
-        DB.ForeignKey(Taxref.cd_nom, onupdate="CASCADE"), nullable=False
-    )
     topo_valid = DB.Column(DB.Unicode)
     initial_insert = DB.Column(DB.Unicode)
+    cd_nom = DB.Column(
+        DB.ForeignKey(Taxref.cd_nom, onupdate="CASCADE"),
+        nullable=False,
+    )
+    id_dataset = DB.Column(
+        DB.ForeignKey(TDatasets.id_dataset, onupdate="CASCADE"),
+    )
+    uuid_zp = DB.Column(UUID(as_uuid=True))
+    additional_data = DB.Column(JSONB)
+    geom_local = DB.Column(Geometry("GEOMETRY", 2154))
     geom_4326 = DB.Column(Geometry("GEOMETRY", 4326))
+    geom_point_4326 = DB.Column(Geometry("POINT", 4326))
+    meta_create_date = DB.Column(DB.DateTime)
+    meta_update_date = DB.Column(DB.DateTime)
+
     taxonomy = DB.relationship(
         Taxref,
         primaryjoin=(cd_nom == Taxref.cd_nom),
         lazy="joined",
     )
     ap = relationship(
-        "TApresence", lazy="select", uselist=True, cascade="all, delete-orphan"
+        "TApresence",
+        lazy="select",
+        uselist=True,
+        cascade="all, delete-orphan",
     )
     observers = DB.relationship(
         "User",
@@ -229,7 +252,7 @@ class TZprospect(ZpCruvedAuth):
         primaryjoin=(cor_zp_area.c.id_zp == id_zp),
         secondaryjoin=(cor_zp_area.c.id_area == LAreas.id_area),
         foreign_keys=[cor_zp_area.c.id_zp, cor_zp_area.c.id_area],
-        lazy="joined"
+        lazy="joined",
     )
 
     def get_geofeature(self, fields=[]):
@@ -246,6 +269,7 @@ class TZprospect(ZpCruvedAuth):
 class ExportAp(DB.Model):
     __tablename__ = "export_ap"
     __table_args__ = {"schema": "pr_priority_flora"}
+
     id_zp = DB.Column(DB.Integer, primary_key=True)
     id_ap = DB.Column(DB.Integer, primary_key=True)
     taxon = DB.Column(DB.Unicode)

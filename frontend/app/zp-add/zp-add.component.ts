@@ -100,16 +100,20 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   private formatDataFormZp() {
     const finalForm = JSON.parse(JSON.stringify(this.zpForm.value));
 
+    // Taxon
+    finalForm.cd_nom = finalForm.cd_nom.cd_nom;
+
     // Date
     finalForm.date_min = this.dateParser.format(finalForm.date_min);
 
     // Observers
-    finalForm['cor_zp_observer'] = finalForm['cor_zp_observer'].map(obs => {
-      return obs.id_role;
-    });
-
-    // Taxon
-    finalForm.cd_nom = finalForm.cd_nom.cd_nom;
+    if (finalForm['cor_zp_observer']) {
+      finalForm['cor_zp_observer'] = finalForm['cor_zp_observer'].map(obs => {
+        return obs.id_role;
+      });
+    } else {
+      finalForm['cor_zp_observer'] = [];
+    }
 
     return finalForm;
   }

@@ -16,7 +16,7 @@ export class StoreService {
   public fpConfig = ModuleConfig;
   public leafletDrawOptions = leafletDrawOption;
   public queryString = new HttpParams();
-  public urlLoad = `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/export_ap`;
+  public urlLoad = `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/presence-areas/export`;
 
   constructor() {}
 

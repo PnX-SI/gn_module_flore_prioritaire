@@ -34,10 +34,10 @@ from .models import (
 blueprint = Blueprint("priority_flora", __name__)
 
 
-@blueprint.route("/z_prospects", methods=["GET"])
+@blueprint.route("/prospect-zones", methods=["GET"])
 @permissions.check_cruved_scope("R", True, module_code="priority_flora")
 @json_resp
-def get_zprospect(info_role):
+def get_prospect_zones(info_role):
     """
     Retourne toutes les zones de prospection du module
     """
@@ -103,10 +103,10 @@ def get_zprospect(info_role):
     return {"total": filtered_number, "items": FeatureCollection(features)}
 
 
-@blueprint.route("/apresences", methods=["GET"])
+@blueprint.route("/presence-areas", methods=["GET"])
 @permissions.check_cruved_scope("R", module_code="priority_flora")
 @json_resp
-def get_apresences():
+def get_presence_areas():
     """
     Retourne toutes les aires de présence d'une zone de prospection
     """
@@ -124,11 +124,12 @@ def get_apresences():
     return FeatureCollection(features)
 
 
-@blueprint.route("/post_zp", methods=["POST"])
-@blueprint.route("/post_zp/<int:id_zp>", methods=["POST"])
+# TODO: handle id_zp when PUT used
+@blueprint.route("/prospect-zones", methods=["POST"])
+@blueprint.route("/prospect-zones/<int:id_zp>", methods=["PUT"])
 @permissions.check_cruved_scope("C", True, module_code="priority_flora")
 @json_resp
-def post_zp(info_role, id_zp=None):
+def edit_prospect_zone(info_role, id_zp=None):
     """
     Poste une nouvelle zone de prospection
     """
@@ -172,34 +173,36 @@ def post_zp(info_role, id_zp=None):
         DB.session.add(zp)
     DB.session.commit()
 
-    return zp.as_geofeature("geom_4326", "id_zp", fields=["observers"])
+    return zp.get_geofeature(fields=["observers"])
 
 
-@blueprint.route("/post_ap", methods=["POST"])
+# TODO: handle id_ap when PUT used
+@blueprint.route("/presence-areas", methods=["POST"])
+@blueprint.route("/prospect-areas/<int:id_ap>", methods=["PUT"])
 @permissions.check_cruved_scope("C", True, module_code="priority_flora")
 @json_resp
-def post_ap(info_role):
+def add_presence_area(info_role, id_ap=None):
     """
     Poste une nouvelle aire de présence
     """
     data = dict(request.get_json())
-    tab_pertu = []
+    perturbations = []
     if data["id_ap"] is None:
         data.pop("id_ap")
 
     if "cor_ap_perturbation" in data:
-        tab_pertu = data.pop("cor_ap_perturbation")
+        perturbations = data.pop("cor_ap_perturbation")
 
     # TODO if no geom 4326 : 400
     shape = asShape(data.pop("geom_4326"))
     ap = TApresence(**data)
     ap.geom_4326 = from_shape(shape, srid=4326)
-    if tab_pertu:
+    if perturbations:
         cor_ap_pertubation = (
             DB.session.query(TNomenclatures)
             .filter(
                 TNomenclatures.id_nomenclature.in_(
-                    [pert["id_nomenclature"] for pert in tab_pertu]
+                    [pert["id_nomenclature"] for pert in perturbations]
                 )
             )
             .all()
@@ -233,10 +236,10 @@ def post_ap(info_role):
         DB.session.add(ap)
     DB.session.commit()
 
-    return ap.as_geofeature("geom_4326", "id_ap", True)
+    return ap.get_geofeature()
 
 
-@blueprint.route("/organismes", methods=["GET"])
+@blueprint.route("/organisms", methods=["GET"])
 def get_organisme():
     """
     Retourne la liste de tous les organismes présents
@@ -257,7 +260,7 @@ def get_organisme():
     return None
 
 
-@blueprint.route("/communes", methods=["GET"])
+@blueprint.route("/municipalities", methods=["GET"])
 def get_commune():
     """
     Retourne toutes les communes présentes dans le module
@@ -279,63 +282,37 @@ def get_commune():
     return None
 
 
-@blueprint.route("/sites", methods=["GET"])
+@blueprint.route("/prospect-zones/<id_zp>", methods=["GET"])
 @permissions.check_cruved_scope("R", module_code="priority_flora")
-@json_resp
-def get_all_sites():
-    """
-    Retourne toutes les zones de prospection
-    """
-    parameters = request.args
-    query = DB.session.query(TZprospect, Taxref).outerjoin(
-        Taxref, TZprospect.cd_nom == Taxref.cd_nom
-    )
-    if "id_zp" in parameters:
-        query = query.filter(TZprospect.id_zp == parameters["id_zp"])
-
-    if "cd_nom" in parameters:
-        query = query.filter(Taxref.cd_nom == parameters["cd_nom"])
-    data = query.all()
-
-    features = []
-    for d in data:
-        feature = d[0].as_geofeature("geom_4326", "id_zp", True)
-        id_zp = feature["properties"]["id_zp"]
-        feature["properties"]["taxon"] = d[1].as_dict()
-        features.append(feature)
-    return FeatureCollection(features)
-
-
-#  route get One Zp
-@blueprint.route("/zp/<id_zp>", methods=["GET"])
-@permissions.check_cruved_scope("R", module_code="priority_flora")
-def get_one_zp(id_zp):
+def get_prospect_zone(id_zp):
     zp = DB.session.query(TZprospect).get(id_zp)
     if zp:
         return jsonify({
-            "aps": FeatureCollection([ap.get_geofeature() for ap in zp.ap]),
-            "zp": zp.as_geofeature(
-                "geom_4326",
-                "id_zp",
-                fields=["observers", "taxonomy", "areas", "areas.area_type"],
-            ),
+            "aps": FeatureCollection([
+                ap.get_geofeature(
+                    fields=["cor_ap_perturbation", "incline", "pheno", "habitat", "counting"]
+                )
+                for ap in zp.ap
+            ]),
+            "zp": zp.get_geofeature(fields=["observers", "taxonomy", "areas", "areas.area_type"]),
         })
     return None
 
 
-@blueprint.route("/ap/<int:id_ap>", methods=["GET"])
+@blueprint.route("/presence-areas/<int:id_ap>", methods=["GET"])
 @permissions.check_cruved_scope("R", module_code="priority_flora")
 @json_resp
-def get_one_ap(id_ap):
+def get_presence_area(id_ap):
     ap = DB.session.query(TApresence).get(id_ap)
-    return ap.get_geofeature()
+    return ap.get_geofeature(
+        fields=["cor_ap_perturbation", "incline", "pheno", "habitat", "counting"]
+    )
 
 
-#  route get One Zp
-@blueprint.route("/zp/<int:id_zp>", methods=["DELETE"])
+@blueprint.route("/prospect-zones/<int:id_zp>", methods=["DELETE"])
 @permissions.check_cruved_scope("D", module_code="priority_flora")
 @json_resp
-def delete_one_zp(id_zp):
+def delete_prospect_zone(id_zp):
     zp = DB.session.query(TZprospect).get(id_zp)
     if zp:
         DB.session.delete(zp)
@@ -344,10 +321,10 @@ def delete_one_zp(id_zp):
     return None
 
 
-@blueprint.route("/ap/<int:id_ap>", methods=["DELETE"])
+@blueprint.route("/presence-areas/<int:id_ap>", methods=["DELETE"])
 @permissions.check_cruved_scope("D", module_code="priority_flora")
 @json_resp
-def delete_one_ap(id_ap):
+def delete_presence_area(id_ap):
     ap = DB.session.query(TApresence).get(id_ap)
     if ap:
         DB.session.delete(ap)
@@ -356,14 +333,13 @@ def delete_one_ap(id_ap):
     return None
 
 
-@blueprint.route("/export_ap", methods=["GET"])
+@blueprint.route("/presence-areas/export", methods=["GET"])
 @permissions.check_cruved_scope("E", module_code="priority_flora")
-def export_ap():
+def export_presence_areas():
     """
     Télécharge les données d'une aire de présence
     """
     parameters = request.args
-    print(f"parameters : {parameters}")
 
     export_format = (
         parameters["export_format"] if "export_format" in request.args else "geojson"
@@ -419,8 +395,8 @@ def export_ap():
         return to_json_resp(result, as_file=True, filename=file_name, indent=4)
 
 
-@blueprint.route("/area_contain", methods=["POST"])
-def check_ap_in_zp():
+@blueprint.route("/area-contain", methods=["POST"])
+def check_presence_area_in_prospect_zone():
     data = request.get_json()
 
     ["geom_a", "geom_b"]
