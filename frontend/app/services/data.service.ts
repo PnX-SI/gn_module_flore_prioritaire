@@ -1,90 +1,104 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+
 import { AppConfig } from '@geonature_config/app.config';
+
 import { ModuleConfig } from '../module.config';
 
 @Injectable()
 export class DataService {
-  constructor(private _http: HttpClient) { }
+  constructor(private api: HttpClient) {}
 
-  getZProspects(params?: any) {
-    /*  let myParams = new HttpParams();
- 
-     for (let key in params) {
-       myParams = myParams.set(key, params[key]);
-     }
- 
-     const test = */
-    return this._http.get<any>(`${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/z_prospects`, {
-      params: params
-    });
+  getProspectZones(params?: any) {
+    return this.api.get<any>(
+      `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/z_prospects`,
+      {
+        params: params
+      }
+    );
   }
 
-  getApresences(params: any) {
-    let myParams = new HttpParams();
-
+  getPresenceAreas(params: any) {
+    let urlParams = new HttpParams();
     for (let key in params) {
-      myParams = myParams.set(key, params[key]);
+      urlParams = urlParams.set(key, params[key]);
     }
-    return this._http.get<any>(`${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/apresences`, {
-      params: myParams
-    });
+    return this.api.get<any>(
+      `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/apresences`,
+      {
+        params: urlParams
+      }
+    );
   }
 
-  getOneZP(idZp) {
-    return this._http.get<any>(
+  getOneProspectZone(idZp) {
+    return this.api.get<any>(
       `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/zp/${idZp}`
     );
   }
 
-  getOneAP(idAp) {
-    return this._http.get<any>(
+  getOnePresenceArea(idAp) {
+    return this.api.get<any>(
       `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/ap/${idAp}`
     );
   }
 
-  getOrganisme() {
-    return this._http.get<any>(
+  getOrganisms() {
+    return this.api.get<any>(
       `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/organismes`
     );
   }
 
-  getCommune() {
-    return this._http.get<any>(
+  getMunicipalities() {
+    return this.api.get<any>(
       `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/communes`
     );
   }
 
-  postZp(data: any) {
-    return this._http.post<any>(`${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/post_zp`, data);
+  addProspectZone(data: any) {
+    return this.api.post<any>(
+      `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/post_zp`,
+      data
+    );
   }
 
-  patchZp(data: any, idZp) {
-    return this._http.post<any>(`${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/post_zp/${idZp}`, data);
+  updateProspectZone(data: any, idZp) {
+    return this.api.post<any>(
+      `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/post_zp/${idZp}`,
+      data
+    );
   }
 
-  postAp(data: any) {
-    return this._http.post<any>(`${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/post_ap`, data);
+  addPresenceArea(data: any) {
+    return this.api.post<any>(
+      `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/post_ap`,
+      data
+    );
   }
 
-  patchAp(data: any, idAp) {
-    return this._http.post<any>(`${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/post_ap/${idAp}`, data);
+  updatePresenceArea(data: any, idAp) {
+    return this.api.post<any>(
+      `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/post_ap/${idAp}`,
+      data
+    );
   }
 
-  deleteZp(idZp) {
-    return this._http.delete(`${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/zp/${idZp}`);
+  deleteProspectZone(idZp) {
+    return this.api.delete(
+      `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/zp/${idZp}`
+    );
   }
 
-  deleteAp(idAp) {
-    return this._http.delete(`${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/ap/${idAp}`);
+  deletePresenceArea(idAp) {
+    return this.api.delete(
+      `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/ap/${idAp}`
+    );
   }
 
-  areaContain(geomA, geomB) {
-    return this._http.post(
+  containArea(geomA, geomB) {
+    return this.api.post(
       `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/area_contain`,
-      {"geom_a": geomA, "geom_b": geomB}
-    )
+      { geom_a: geomA, geom_b: geomB }
+    );
   }
 }
-
-

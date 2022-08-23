@@ -13,22 +13,17 @@ import { DataService } from '../../services/data.service';
 import { StoreService } from '../../services/store.service';
 import { ModuleConfig } from '../../module.config';
 
-
 @Component({
-  selector: 'pnx-zp-details',
+  selector: 'gn-pf-zp-details',
   templateUrl: 'zp-details.component.html',
   styleUrls: ['./zp-details.component.scss'],
   providers: [MapListService]
 })
 export class ZpDetailsComponent implements OnInit {
   public idZp: string;
-  public currentSite = {};
-  public show = true;
   public currentAp;
-  public expanded: any = {};
   @ViewChild('table') table: any;
   public filteredData = [];
-  public dataLoaded = false;
 
   constructor(
     public dialog: MatDialog,
@@ -39,12 +34,12 @@ export class ZpDetailsComponent implements OnInit {
     public api: DataService,
     private commonService: CommonService,
     public mapListService: MapListService,
-    private toastr: ToastrService
+    private toastrService: ToastrService
   ) {}
 
   ngOnInit() {
     this.activatedRoute.parent.params.subscribe(params => {
-      this.idZp = params['idZP'];
+      this.idZp = params['idZp'];
       this.storeService.queryString = this.storeService.queryString.set(
         'id_zp',
         this.idZp
@@ -57,7 +52,7 @@ export class ZpDetailsComponent implements OnInit {
     this.mapService.map.doubleClickZoom.disable();
     this.mapListService.idName = 'id_ap';
     this.mapListService.enableMapListConnexion(this.mapService.getMap());
-    this.api.getOneZP(this.storeService.idSite).subscribe(
+    this.api.getOneProspectZone(this.storeService.idSite).subscribe(
       data => {
         this.storeService.zp = data['zp'];
         this.storeService.zpProperties = data['zp']['properties'];
@@ -70,11 +65,10 @@ export class ZpDetailsComponent implements OnInit {
         this.storeService.sites = data['aps'];
         this.mapListService.loadTableData(data['aps']);
         this.filteredData = this.mapListService.tableData;
-        this.dataLoaded = true;
       },
       error => {
         if (error.status != 404) {
-          this.toastr.error(
+          this.toastrService.error(
             'Une erreur est survenue lors de la récupération des informations sur le serveur',
             '',
             {
@@ -87,17 +81,12 @@ export class ZpDetailsComponent implements OnInit {
     );
   }
 
-  onAddAp(idZP) {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/zp`, idZP, 'post_ap']);
+  onAddAp(idZp) {
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/zps`, idZp, 'aps', 'add']);
   }
 
-  onEditAp(idZP, idAP) {
-    this.router.navigate([
-      `${ModuleConfig.MODULE_URL}/zp`,
-      idZP,
-      'post_ap',
-      idAP
-    ]);
+  onEditAp(idZp, idAp) {
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/zps`, idZp, 'aps', idAp, 'edit']);
   }
 
   onDeleteAp(idAp) {
@@ -110,7 +99,7 @@ export class ZpDetailsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.api.deleteAp(idAp).subscribe(
+        this.api.deletePresenceArea(idAp).subscribe(
           data => {
             this.mapListService.tableData = this.mapListService.tableData.filter(
               item => {
@@ -124,7 +113,10 @@ export class ZpDetailsComponent implements OnInit {
             );
             this.storeService.sites['features'] = filterFeature;
 
-            this.storeService.sites = Object.assign({}, this.storeService.sites);
+            this.storeService.sites = Object.assign(
+              {},
+              this.storeService.sites
+            );
             this.commonService.translateToaster(
               'success',
               'Releve.DeleteSuccessfully'
@@ -132,9 +124,15 @@ export class ZpDetailsComponent implements OnInit {
           },
           error => {
             if (error.status === 403) {
-              this.commonService.translateToaster('error', 'NotAllowed');
+              this.commonService.translateToaster(
+                'error',
+                'NotAllowed'
+              );
             } else {
-              this.commonService.translateToaster('error', 'ErrorMessage');
+              this.commonService.translateToaster(
+                'error',
+                'ErrorMessage'
+              );
             }
           }
         );
@@ -142,7 +140,7 @@ export class ZpDetailsComponent implements OnInit {
     });
   }
 
-  backToZp() {
+  backToZpsList() {
     this.router.navigate([`${ModuleConfig.MODULE_URL}`]);
   }
 

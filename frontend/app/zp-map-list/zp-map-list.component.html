@@ -3,7 +3,7 @@
     <pnx-map height="92vh" [center]="center" [zoom]="zoom">
       <pnx-geojson
         [onEachFeature]="onEachFeature.bind(this)"
-        [geojson]="myGeoJSON"
+        [geojson]="geojson"
       ></pnx-geojson>
     </pnx-map>
   </div>
@@ -25,19 +25,19 @@
               <input
                 type="number"
                 class="form-control form-control-sm"
-                [formControl]="filterForm.controls.filterYear"
+                [formControl]="filtersForm.controls.filterYear"
               />
             </div>
             <div class="searchSite col">
               <small> Taxon </small>
               <pnx-taxonomy
                 #taxon
-                [parentFormControl]="filterForm.controls.filterTaxon"
+                [parentFormControl]="filtersForm.controls.filterTaxon"
                 [idList]="storeService.fpConfig.code_liste_taxon"
                 [charNumber]="3"
                 [listLength]="20"
                 (onChange)="onSearchTaxon($event)"
-                (onDelete)="removeCdNom()"
+                (onDelete)="onRemoveTaxon()"
               >
               </pnx-taxonomy>
             </div>
@@ -48,14 +48,14 @@
               <select
                 class="form-control form-control-sm"
                 name="selectOrg"
-                [formControl]="filterForm.controls.filterOrga"
+                [formControl]="filtersForm.controls.filterOrga"
               >
                 <option [ngValue]="null">
                   -- Sélectionnez un organisme --
                 </option>
                 <option
                   [ngValue]="org.id_organism"
-                  *ngFor="let org of tabOrganism"
+                  *ngFor="let org of organisms"
                 >
                   {{ org.name }}
                 </option>
@@ -66,7 +66,7 @@
               <select
                 class="form-control form-control-sm"
                 name="selectCom"
-                [formControl]="filterForm.controls.filterCom"
+                [formControl]="filtersForm.controls.filterCom"
               >
                 <option [ngValue]="null">
                   -- Sélectionnez une commune --

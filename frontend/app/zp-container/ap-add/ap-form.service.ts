@@ -8,7 +8,7 @@ import {
 } from '@angular/forms';
 
 @Injectable()
-export class FormService {
+export class ApFormService {
   public disabled = true;
 
   constructor(private formBuilder: FormBuilder) {}
@@ -32,7 +32,9 @@ export class FormService {
         comment: null,
         geom_4326: [null, Validators.required]
       },
-      { validators: [this.countingValidator, this.invalidAltitude] }
+      {
+        validators: [this.countingValidator, this.invalidAltitudeValidator]
+      }
     );
   }
 
@@ -45,7 +47,7 @@ export class FormService {
     return null;
   }
 
-  invalidAltitude(ApFormGroup: AbstractControl): ValidationErrors | null {
+  invalidAltitudeValidator(ApFormGroup: AbstractControl): ValidationErrors | null {
     const altitudeMin = ApFormGroup.get('altitude_min').value;
     const altitudeMax = ApFormGroup.get('altitude_max').value;
     if (altitudeMin && altitudeMax) {

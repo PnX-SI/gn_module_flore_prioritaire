@@ -18,9 +18,11 @@
 
   <div class="card col-xs-12 col-sm-12 col-md-6 col-lg-6 px-0">
     <h3 class="card-header">
-      Édition d'une aire de présence pour la prospection de
+      <ng-container *ngIf="idAp == null; else updateMode">Ajout</ng-container>
+      <ng-template #updateMode>Édition</ng-template>
+      d'une aire de présence pour la prospection de
       <b>{{ storeService.zpProperties?.taxonomy?.nom_valide }}</b>
-      <b>{{ storeService.dateMin }}</b>
+      le <b>{{ storeService.zpProperties?.date_min | date: 'longDate':null:'fr' }}</b>
     </h3>
 
     <div class="card-body overflow-auto px-2 no-gutters">
@@ -42,11 +44,11 @@
               <label for="altitude_min">Altitude min.</label>
               <input
                 [ngClass]="{
-                  'is-invalid': ApFormGroup.errors?.invalidAltitude
+                  'is-invalid': apForm.errors?.invalidAltitude
                 }"
                 class="form-control"
                 type="number"
-                [formControl]="ApFormGroup.controls.altitude_min"
+                [formControl]="apForm.controls.altitude_min"
               />
             </div>
 
@@ -54,17 +56,17 @@
               <label for="altitude_max">Altitude max.</label>
               <input
                 [ngClass]="{
-                  'is-invalid': ApFormGroup.errors?.invalidAltitude
+                  'is-invalid': apForm.errors?.invalidAltitude
                 }"
                 class="form-control"
                 type="number"
-                [formControl]="ApFormGroup.controls.altitude_max"
+                [formControl]="apForm.controls.altitude_max"
               />
             </div>
           </div>
 
           <div
-            *ngIf="ApFormGroup.errors?.invalidAltitude"
+            *ngIf="apForm.errors?.invalidAltitude"
             class="alert alert-warning"
             role="alert"
           >
@@ -78,7 +80,7 @@
               <div id="newPente">
                 <pnx-nomenclature
                   [parentFormControl]="
-                    ApFormGroup.controls.id_nomenclature_incline
+                    apForm.controls.id_nomenclature_incline
                   "
                   [multiSelect]="false"
                   keyValue="id_nomenclature"
@@ -93,12 +95,12 @@
               <input
                 class="form-control"
                 type="number"
-                [formControl]="ApFormGroup.controls.area"
+                [formControl]="apForm.controls.area"
               />
             </div>
           </div>
 
-          <div *ngIf="!ApFormGroup?.value?.geom_4326">
+          <div *ngIf="!apForm?.value?.geom_4326">
             <p class="alert alert-warning" role="alert">
               <mat-icon>warning</mat-icon>
               Veuillez saisir la géométrie de l'AP sur la carte.
@@ -111,7 +113,7 @@
             <label for="id_nomenclature_phenology">Phénologie</label>
             <pnx-nomenclature
               [parentFormControl]="
-                ApFormGroup.controls.id_nomenclature_phenology
+                apForm.controls.id_nomenclature_phenology
               "
               [multiSelect]="false"
               keyValue="id_nomenclature"
@@ -126,7 +128,7 @@
             <label for="cor_ap_perturbation">Perturbation(s)</label>
             <pnx-nomenclature
               [bindAllItem]="true"
-              [parentFormControl]="ApFormGroup.controls.cor_ap_perturbation"
+              [parentFormControl]="apForm.controls.cor_ap_perturbation"
               [multiSelect]="true"
               keyValue="id_nomenclature"
               codeNomenclatureType="TYPE_PERTURBATION"
@@ -140,7 +142,7 @@
             <label for="id_nomenclature_habitat">Habitat</label>
             <pnx-nomenclature
               [parentFormControl]="
-                ApFormGroup.controls.id_nomenclature_habitat
+                apForm.controls.id_nomenclature_habitat
               "
               [multiSelect]="false"
               keyValue="id_nomenclature"
@@ -159,7 +161,7 @@
               id="frequency"
               min="0"
               max="100"
-              [formControl]="ApFormGroup.controls.frequency"
+              [formControl]="apForm.controls.frequency"
             />
           </div>
         </div>
@@ -175,7 +177,7 @@
               <div id="newCounting">
                 <pnx-nomenclature
                   [parentFormControl]="
-                    ApFormGroup.controls.id_nomenclature_counting
+                    apForm.controls.id_nomenclature_counting
                   "
                   [multiSelect]="false"
                   keyValue="id_nomenclature"
@@ -189,12 +191,12 @@
               <small> Min </small>
               <input
                 [ngClass]="{
-                  'is-invalid': ApFormGroup.errors?.invalidCount
+                  'is-invalid': apForm.errors?.invalidCount
                 }"
                 class="form-control"
                 type="number"
                 min="0"
-                [formControl]="ApFormGroup.controls.total_min"
+                [formControl]="apForm.controls.total_min"
               />
             </div>
 
@@ -202,18 +204,18 @@
               <small> Max </small>
               <input
                 [ngClass]="{
-                  'is-invalid': ApFormGroup.errors?.invalidCount
+                  'is-invalid': apForm.errors?.invalidCount
                 }"
                 class="form-control"
                 type="number"
                 min="0"
-                [formControl]="ApFormGroup.controls.total_max"
+                [formControl]="apForm.controls.total_max"
               />
             </div>
           </div>
 
           <div
-            *ngIf="ApFormGroup.errors?.invalidCount"
+            *ngIf="apForm.errors?.invalidCount"
             class="alert alert-warning"
             role="alert"
           >
@@ -233,7 +235,7 @@
               class="form-control"
               rows="5"
               id="commentaire"
-              [formControl]="ApFormGroup.controls.comment"
+              [formControl]="apForm.controls.comment"
             ></textarea>
           </div>
         </fieldset>
@@ -246,7 +248,7 @@
           <button
             type="button"
             class="btn btn-danger box-shadow"
-            (click)="onCancelAp(storeService.idSite)"
+            (click)="onCancel(storeService.idSite)"
           >
             <i class="fa fa-times-circle" aria-hidden="true"> </i>
             Annuler
@@ -256,10 +258,10 @@
         <div class="col text-right">
           <div
             [matTooltip]="
-              (ApFormGroup.valid && ApFormGroup.dirty)
+              (apForm.valid && apForm.dirty)
               ? 'Enregistrer le formulaire.'
               : (
-                (!ApFormGroup.pristine)
+                (!apForm.pristine)
                 ? 'Formulaire invalide, vérifier les messages d&rsquo;erreur.'
                 : (
                   (idAp === undefined)
@@ -270,10 +272,10 @@
             "
           >
             <button
-              [disabled]="!ApFormGroup.valid || ApFormGroup.pristine"
+              [disabled]="!apForm.valid || apForm.pristine"
               type="button"
               class="btn btn-success box-shadow"
-              (click)="onPostAp()"
+              (click)="onSubmit()"
             >
               <i class="fa fa-plus-circle" aria-hidden="true"> </i>
               Enregistrer

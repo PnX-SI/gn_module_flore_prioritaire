@@ -1,14 +1,5 @@
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  ViewChild,
-} from '@angular/core';
-import {
-  FormGroup,
-  FormBuilder,
-  Validators,
-} from '@angular/forms';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { NgbDateParserFormatter } from '@ng-bootstrap/ng-bootstrap';
@@ -16,7 +7,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 
 import { DataFormService } from '@geonature_common/form/data-form.service';
-import { GeojsonComponent } from '@geonature_common/map/geojson/geojson.component';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { MapService } from '@geonature_common/map/map.service';
 import { MapListService } from '@geonature_common/map-list/map-list.service';
@@ -25,20 +15,16 @@ import { DataService } from '../services/data.service';
 import { StoreService } from '../services/store.service';
 import { ModuleConfig } from '../module.config';
 
-
 @Component({
-  selector: 'pf-zp-add',
+  selector: 'gn-pf-zp-add',
   templateUrl: 'zp-add.component.html',
   styleUrls: ['zp-add.component.scss'],
   providers: [MapListService, MapService]
 })
 export class ZpAddComponent implements OnInit, AfterViewInit {
   public leafletDrawOptions = leafletDrawOption;
-  public ZpFormGroup: FormGroup;
+  public zpForm: FormGroup;
   public idZp;
-
-  @ViewChild('geojson')
-  geojson: GeojsonComponent;
 
   constructor(
     public activatedRoute: ActivatedRoute,
@@ -53,9 +39,20 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    this.setLeafletDrawOptions();
     this.idZp = this.activatedRoute.snapshot.params['idZp'];
-    this.ZpFormGroup = this.formBuilder.group({
+    this.initializeLeafletDrawOptions();
+    this.initializeZpForm();
+  }
+
+  private initializeLeafletDrawOptions() {
+    this.leafletDrawOptions.draw.rectangle = true;
+    this.leafletDrawOptions.draw.marker = false;
+    this.leafletDrawOptions.draw.polyline = false;
+    this.leafletDrawOptions.edit.remove = true;
+  }
+
+  private initializeZpForm() {
+    this.zpForm = this.formBuilder.group({
       id_zp: null,
       cd_nom: [null, Validators.required],
       date_min: [null, Validators.required],
@@ -64,19 +61,12 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private setLeafletDrawOptions() {
-    this.leafletDrawOptions.draw.rectangle = true;
-    this.leafletDrawOptions.draw.marker = false;
-    this.leafletDrawOptions.draw.polyline = false;
-    this.leafletDrawOptions.edit.remove = true;
-  }
-
   ngAfterViewInit() {
     // Update mode
     if (this.idZp !== undefined) {
-      this.api.getOneZP(this.idZp).subscribe(element => {
+      this.api.getOneProspectZone(this.idZp).subscribe(element => {
         const zp = element.zp.properties;
-        this.ZpFormGroup.patchValue({
+        this.zpForm.patchValue({
           id_zp: zp.id_zp,
           cd_nom: zp.taxonomy,
           date_min: this.dateParser.parse(zp.date_min),
@@ -94,13 +84,13 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   onSubmit() {
     let finalForm = this.formatDataFormZp();
 
-    this.api.postZp(finalForm).subscribe(data => {
+    this.api.addProspectZone(finalForm).subscribe(data => {
       this.toastrService.success('Zone de prospection enregistrée', '', {
         positionClass: 'toast-top-center'
       });
 
       this.router.navigate([
-        `${ModuleConfig.MODULE_URL}/zp`,
+        `${ModuleConfig.MODULE_URL}/zps`,
         data.id,
         'details'
       ]);
@@ -108,28 +98,29 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   }
 
   private formatDataFormZp() {
-    const finalForm = JSON.parse(JSON.stringify(this.ZpFormGroup.value));
+    const finalForm = JSON.parse(JSON.stringify(this.zpForm.value));
 
+    // Date
     finalForm.date_min = this.dateParser.format(finalForm.date_min);
 
-    //observers
+    // Observers
     finalForm['cor_zp_observer'] = finalForm['cor_zp_observer'].map(obs => {
       return obs.id_role;
     });
 
-    //taxon
+    // Taxon
     finalForm.cd_nom = finalForm.cd_nom.cd_nom;
 
     return finalForm;
   }
 
-  sendGeoInfo(geojson) {
-    this.ZpFormGroup.patchValue({ geom_4326: geojson.geometry });
-    this.ZpFormGroup.markAsDirty();
+  addGeoInfo(geojson) {
+    this.zpForm.patchValue({ geom_4326: geojson.geometry });
+    this.zpForm.markAsDirty();
   }
 
   deleteGeoInfo() {
-    this.ZpFormGroup.patchValue({ geom_4326: null });
-    this.ZpFormGroup.markAsDirty();
+    this.zpForm.patchValue({ geom_4326: null });
+    this.zpForm.markAsDirty();
   }
 }

@@ -1,16 +1,10 @@
 import { HttpParams } from '@angular/common/http';
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  EventEmitter,
-  Output
-} from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import * as L from 'leaflet';
-import { MatDialog } from "@angular/material";
+import { MatDialog } from '@angular/material';
 
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
@@ -23,30 +17,23 @@ import { StoreService } from '../services/store.service';
 import { ModuleConfig } from '../module.config';
 
 @Component({
-  selector: 'pnx-zp-map-list',
+  selector: 'gn-pf-map-list',
   templateUrl: 'zp-map-list.component.html',
   styleUrls: ['zp-map-list.component.scss'],
   providers: [MapListService]
 })
 export class ZpMapListComponent implements OnInit, AfterViewInit {
   public leafletDrawOptions = leafletDrawOption;
-  public sites;
-  public myGeoJSON;
+  public geojson;
   public filteredData = [];
-  public tabOrganism = [];
+  public organisms = [];
   public municipalities = [];
-  public tabTaxon = [];
-  public dataLoaded = false;
-  public oldFilterDate;
-  public filterForm: FormGroup;
+  public filtersForm: FormGroup;
   public displayColumns: Array<any>;
-  private _map;
+  private map;
   public center;
   public zoom;
   public nbZp: number;
-
-  @Output()
-  onDeleteFiltre = new EventEmitter<any>();
 
   constructor(
     public dialog: MatDialog,
@@ -71,134 +58,117 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     this.center = this.storeService.fpConfig.zoom_center;
     this.zoom = this.storeService.fpConfig.zoom;
 
-    this.filterForm = this.formBuilder.group({
+    this.intializeFiltersForm();
+    this.setListenerOnYearFilter();
+    this.setListenerOnOrganismFilter();
+    this.setListenerOnMunicipalityFilter();
+  }
+
+  private intializeFiltersForm() {
+    this.filtersForm = this.formBuilder.group({
       filterYear: null,
       filterOrga: null,
       filterCom: null,
       filterTaxon: null,
       idZp: null
     });
+  }
 
-    this.filterForm.controls.filterYear.valueChanges.subscribe(year => {
+  private setListenerOnYearFilter() {
+    this.filtersForm.controls.filterYear.valueChanges.subscribe(year => {
       if (year && year.toString().length === 4) {
         this.setQueryString('year', year.toString());
         this.loadData();
       }
       if (!year) {
-        this.deleteParams('year');
+        this.deleteQueryString('year');
         this.loadData();
       }
     });
+  }
 
-    this.filterForm.controls.filterOrga.valueChanges.subscribe(org => {
+  private setListenerOnOrganismFilter() {
+    this.filtersForm.controls.filterOrga.valueChanges.subscribe(org => {
       if (org) {
         this.setQueryString('id_organism', org);
         this.loadData();
       } else {
-        this.deleteParams('id_organism');
-        this.loadData();
-      }
-    });
-
-    this.filterForm.controls.filterCom.valueChanges.subscribe(id_area => {
-      if (id_area) {
-        this.setQueryString('id_area', id_area);
-        this.loadData();
-      } else {
-        this.deleteParams('id_area');
+        this.deleteQueryString('id_organism');
         this.loadData();
       }
     });
   }
 
-  onChangePage(event) {
-    this.storeService.queryString = this.storeService.queryString.set(
-      'page',
-      event.offset.toString()
+  private setListenerOnMunicipalityFilter() {
+    this.filtersForm.controls.filterCom.valueChanges.subscribe(
+      id_area => {
+        if (id_area) {
+          this.setQueryString('id_area', id_area);
+          this.loadData();
+        } else {
+          this.deleteQueryString('id_area');
+          this.loadData();
+        }
+      }
     );
-    this.loadData();
   }
 
-  loadData() {
-    this.api.getZProspects(this.storeService.queryString).subscribe(data => {
-      this.nbZp = data.total;
-      this.myGeoJSON = data.items;
-      this.mapListService.loadTableData(data.items);
-      this.filteredData = this.mapListService.tableData;
-      this.dataLoaded = true;
-    });
-  }
-  onAddZp() {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/post_zp`]);
+  private loadData() {
+    this.api
+      .getProspectZones(this.storeService.queryString)
+      .subscribe(data => {
+        this.nbZp = data.total;
+        this.geojson = data.items;
+        this.mapListService.loadTableData(data.items);
+        this.filteredData = this.mapListService.tableData;
+      });
   }
 
-  onEditZp(idZp) {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/post_zp`, idZp]);
+  private setQueryString(param: string, value) {
+    this.storeService.queryString = this.storeService.queryString.set(
+      param,
+      value
+    );
   }
 
-  onInfo(idZp) {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/zp`, idZp, 'details']);
-  }
-
-  onDeleteZp(idZp) {
-    const msg = `Êtes vous sûr de vouloir supprimer la ZP ${idZp} ?`;
-    const dialogRef = this.dialog.open(ConfirmationDialog, {
-      width: '350px',
-      position: { top: '5%' },
-      data: { message: msg }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.api.deleteZp(idZp).subscribe(
-          data => {
-            this.filteredData = this.filteredData.filter(item => {
-              return idZp !== item.id_zp;
-            });
-            const filterFeature = this.myGeoJSON.features.filter(feature => {
-              return idZp !== feature.properties.id_zp;
-            });
-            this.myGeoJSON['features'] = filterFeature;
-            this.myGeoJSON = Object.assign({}, this.myGeoJSON);
-            this.commonService.translateToaster(
-              'success',
-              'Releve.DeleteSuccessfully'
-            );
-          },
-          error => {
-            if (error.status === 403) {
-              this.commonService.translateToaster('error', 'NotAllowed');
-            } else {
-              this.commonService.translateToaster('error', 'ErrorMessage');
-            }
-          }
-        );
-      }
-    });
+  private deleteQueryString(param: string) {
+    this.storeService.queryString = this.storeService.queryString.delete(param);
   }
 
   ngAfterViewInit() {
     // event from the list
     this.mapListService.enableMapListConnexion(this.mapService.getMap());
 
-    this._map = this.mapService.getMap();
+    this.map = this.mapService.getMap();
     this.addCustomControl();
 
-    this.api.getOrganisme().subscribe(orgs => {
-      this.tabOrganism = orgs;
+    this.api.getOrganisms().subscribe(orgs => {
+      this.organisms = orgs;
     });
 
-    this.api.getCommune().subscribe(municipalities => {
+    this.api.getMunicipalities().subscribe(municipalities => {
       this.municipalities = municipalities;
     });
   }
 
-  getGeojson(geojson) {
-    alert(JSON.stringify(geojson));
-  }
-
-  deleteControlValue() {
-    console.log('Suppression');
+  private addCustomControl() {
+    let initzoomcontrol = new L.Control();
+    initzoomcontrol.setPosition('topleft');
+    initzoomcontrol.onAdd = () => {
+      var container = L.DomUtil.create(
+        'button',
+        ' btn btn-sm btn-outline-shadow leaflet-bar leaflet-control leaflet-control-custom'
+      );
+      container.innerHTML =
+        '<i class="material-icons" style="line-height:normal;">crop_free</i>';
+      container.style.padding = '4px 4px 1px';
+      container.title = "Réinitialiser l'emprise de la carte";
+      container.onclick = () => {
+        this.map.setView(this.center, this.zoom);
+      };
+      return container;
+    };
+    initzoomcontrol.addTo(this.map);
   }
 
   onEachFeature(feature, layer) {
@@ -211,39 +181,73 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  addCustomControl() {
-    let initzoomcontrol = new L.Control();
-    initzoomcontrol.setPosition('topleft');
-    initzoomcontrol.onAdd = () => {
-      var container = L.DomUtil.create(
-        'button',
-        ' btn btn-sm btn-outline-shadow leaflet-bar leaflet-control leaflet-control-custom'
-      );
-      container.innerHTML =
-        '<i class="material-icons" style="line-height:normal;">crop_free</i>';
-      container.style.padding = '1px 4px';
-      container.title = "Réinitialiser l'emprise de la carte";
-      container.onclick = () => {
-        this._map.setView(this.center, this.zoom);
-      };
-      return container;
-    };
-    initzoomcontrol.addTo(this._map);
-  }
-
-  setQueryString(param: string, value) {
+  onChangePage(event) {
     this.storeService.queryString = this.storeService.queryString.set(
-      param,
-      value
+      'page',
+      event.offset.toString()
     );
+    this.loadData();
   }
 
-  deleteParams(param: string) {
-    this.storeService.queryString = this.storeService.queryString.delete(param);
+  onAddZp() {
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/zps`, 'add']);
   }
 
-  removeCdNom() {
-    this.deleteParams('cd_nom');
+  onEditZp(idZp) {
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/zps`, idZp, 'edit']);
+  }
+
+  onInfo(idZp) {
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/zps`, idZp, 'details']);
+  }
+
+  onDeleteZp(idZp) {
+    const msg = `Êtes vous sûr de vouloir supprimer la ZP ${idZp} ?`;
+    const dialogRef = this.dialog.open(ConfirmationDialog, {
+      width: '350px',
+      position: { top: '5%' },
+      data: { message: msg }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.api.deleteProspectZone(idZp).subscribe(
+          data => {
+            this.filteredData = this.filteredData.filter(item => {
+              return idZp !== item.id_zp;
+            });
+            const filterFeature = this.geojson.features.filter(
+              feature => {
+                return idZp !== feature.properties.id_zp;
+              }
+            );
+            this.geojson['features'] = filterFeature;
+            this.geojson = Object.assign({}, this.geojson);
+            this.commonService.translateToaster(
+              'success',
+              'Releve.DeleteSuccessfully'
+            );
+          },
+          error => {
+            if (error.status === 403) {
+              this.commonService.translateToaster(
+                'error',
+                'NotAllowed'
+              );
+            } else {
+              this.commonService.translateToaster(
+                'error',
+                'ErrorMessage'
+              );
+            }
+          }
+        );
+      }
+    });
+  }
+
+  onRemoveTaxon() {
+    this.deleteQueryString('cd_nom');
     this.loadData();
   }
 

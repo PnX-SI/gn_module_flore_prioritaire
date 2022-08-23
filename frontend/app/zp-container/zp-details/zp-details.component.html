@@ -20,7 +20,7 @@
       <button
         type="button"
         class="btn btn-link btn-sm back-button"
-        (click)="backToZp()"
+        (click)="backToZpsList()"
       >
         <i class="fa fa-arrow-left" aria-hidden="true"> </i>
         Retour à la liste des zones de prospection
@@ -46,7 +46,7 @@
               Informations Générales
             </a>
           </li>
-          <li class="nav-item" *ngIf="show">
+          <li class="nav-item">
             <a
               id="nav-infos-details-tab"
               class="nav-link"
@@ -86,9 +86,9 @@
               <span>
                 <b>Observateur(s) : </b>
                 <ul class="comma-list">
-                  <li *ngFor="let obs of storeService.zpProperties?.observers">
-                    {{ obs.nom_complet }}
-                  </li>
+                  <li
+                    *ngFor="let obs of storeService.zpProperties?.observers"
+                  >{{ obs.nom_complet }}</li>
                 </ul>
               </span>
             </p>
@@ -117,9 +117,9 @@
               <span>
                 <b>Commune(s) : </b>
                 <ul class="comma-list">
-                  <li *ngFor="let area of storeService.zpProperties?.areas">
-                    {{ area.area_name }}
-                  </li>
+                  <li
+                    *ngFor="let area of storeService.zpProperties?.areas"
+                  >{{ area.area_name }}</li>
                 </ul>
               </span>
             </p>
@@ -191,9 +191,7 @@
                       <li
                         *ngFor="let perturbation of row.cor_ap_perturbation"
                         [matTooltip]="perturbation.definition_default"
-                      >
-                        {{ perturbation.label_default }}
-                      </li>
+                      >{{ perturbation.label_default }}</li>
                     </ul>
                     &nbsp;
                   </dd>
