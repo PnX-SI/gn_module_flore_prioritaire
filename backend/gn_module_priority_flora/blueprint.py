@@ -1,27 +1,23 @@
 import datetime
 import json
-from logging import info
 from operator import or_
 
-from flask import Blueprint, request, send_from_directory, jsonify
-from geoalchemy2.shape import from_shape, to_shape
+from flask import Blueprint, request, jsonify
+from geoalchemy2.shape import from_shape
 from geojson import FeatureCollection
-from geojson.feature import Feature
 from shapely.geometry import asShape
 from sqlalchemy.sql.expression import func, select
 from sqlalchemy.sql.functions import user
-from werkzeug.exceptions import BadRequest, Forbidden
+from werkzeug.exceptions import Forbidden
 
 from geonature.core.taxonomie.models import Taxref
 from geonature.core.gn_permissions import decorators as permissions
-from geonature.core.gn_permissions.tools import cruved_scope_for_user_in_module, get_or_fetch_user_cruved
-from geonature.utils.env import DB, ROOT_DIR
-from geonature.utils.errors import GeonatureApiError
+from geonature.core.gn_permissions.tools import cruved_scope_for_user_in_module
+from geonature.utils.env import db, ROOT_DIR
 from pypnnomenclature.models import TNomenclatures
 from pypnusershub.db.models import User
 from pypnusershub.db.models import Organisme
 from utils_flask_sqla.response import json_resp, to_json_resp, to_csv_resp
-from utils_flask_sqla_geo.utilsgeometry import export_geodata_as_file
 
 from .models import (
     TZprospect,
@@ -111,15 +107,25 @@ def get_presence_areas():
     Retourne toutes les aires de présence d'une zone de prospection
     """
     parameters = request.args
+    page = int(parameters.get("page", 0))
+    limit = int(parameters.get("limit", 100))
 
-    query = TApresence.query
+    query = db.session.query(TApresence)
+
     if "id_zp" in parameters:
         query = query.filter(TApresence.id_zp == parameters["id_zp"])
-    data = query.all()
+
+    data = (
+        query
+        .order_by(TApresence.meta_create_date.desc())
+        .limit(limit)
+        .offset(page * limit)
+        .all()
+    )
 
     features = []
     for d in data:
-        feature = d[0].get_geofeature()
+        feature = d.get_geofeature()
         features.append(feature)
     return FeatureCollection(features)
 
@@ -134,24 +140,37 @@ def edit_prospect_zone(info_role, id_zp=None):
     Poste une nouvelle zone de prospection
     """
     data = dict(request.get_json())
+
+    if id_zp is not None:
+        data["id_zp"] = id_zp
     if data["id_zp"] is None:
         data.pop("id_zp")
 
-    observers = []
+    # TODO if no geom 4326 with POST send 400 BAD REQUEST
+    shape = None
+    if "geom_4326" in data:
+        shape = asShape(data.pop("geom_4326"))
+
+    observers = None
     if "cor_zp_observer" in data:
         observers = data.pop("cor_zp_observer")
+        observers = db.session.query(User).filter(User.id_role.in_(observers)).all()
 
-    shape = asShape(data["geom_4326"])
-    zp = TZprospect(**data)
-    zp.geom_4326 = from_shape(shape, srid=4326)
+    if id_zp is not None:
+        zp = db.session.query(TZprospect).filter_by(id_zp=id_zp).first()
+    else:
+        zp = TZprospect(**data)
 
-    observers = DB.session.query(User).filter(User.id_role.in_(observers)).all()
+    if shape is not None:
+        zp.geom_4326 = from_shape(shape, srid=4326)
 
-    for o in observers:
-        zp.observers.append(o)
+    if observers is not None:
+        for o in observers:
+            zp.observers.append(o)
+
     if "id_zp" in data:
         if info_role.value_filter in ("1", "2"):
-            query = DB.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
+            query = db.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
             if info_role.value_filter == "2":
                 query = query.filter(
                         TZprospect.observers.any(or_(
@@ -165,20 +184,27 @@ def edit_prospect_zone(info_role, id_zp=None):
                             User.id_role == info_role.id_role,
                         )
                 )
-            check_cruved = DB.session.query(query.exists()).scalar()
+            check_cruved = db.session.query(query.exists()).scalar()
             if not check_cruved:
                 raise Forbidden("Vous n'avez pas les droits pour éditer cette ZP")
-        DB.session.merge(zp)
+
+        for key, value in data.items():
+            if hasattr(zp, key):
+                setattr(zp, key, value)
+
+        db.session.merge(zp)
     else:
-        DB.session.add(zp)
-    DB.session.commit()
+        db.session.add(zp)
+
+    db.session.commit()
+    db.session.flush()
 
     return zp.get_geofeature(fields=["observers"])
 
 
 # TODO: handle id_ap when PUT used
 @blueprint.route("/presence-areas", methods=["POST"])
-@blueprint.route("/prospect-areas/<int:id_ap>", methods=["PUT"])
+@blueprint.route("/presence-areas/<int:id_ap>", methods=["PUT"])
 @permissions.check_cruved_scope("C", True, module_code="priority_flora")
 @json_resp
 def add_presence_area(info_role, id_ap=None):
@@ -186,20 +212,32 @@ def add_presence_area(info_role, id_ap=None):
     Poste une nouvelle aire de présence
     """
     data = dict(request.get_json())
-    perturbations = []
+
+    if id_ap is not None:
+        data["id_ap"] = id_ap
     if data["id_ap"] is None:
         data.pop("id_ap")
 
+    # TODO if no geom 4326 with POST send 400 BAD REQUEST
+    shape = None
+    if "geom_4326" in data:
+        shape = asShape(data.pop("geom_4326"))
+
+    perturbations = None
     if "cor_ap_perturbation" in data:
         perturbations = data.pop("cor_ap_perturbation")
 
-    # TODO if no geom 4326 : 400
-    shape = asShape(data.pop("geom_4326"))
-    ap = TApresence(**data)
-    ap.geom_4326 = from_shape(shape, srid=4326)
-    if perturbations:
+    if id_ap is not None:
+        ap = db.session.query(TApresence).filter_by(id_ap=id_ap).first()
+    else:
+        ap = TApresence(**data)
+
+    if shape is not None:
+        ap.geom_4326 = from_shape(shape, srid=4326)
+
+    if perturbations is not None:
         cor_ap_pertubation = (
-            DB.session.query(TNomenclatures)
+            db.session.query(TNomenclatures)
             .filter(
                 TNomenclatures.id_nomenclature.in_(
                     [pert["id_nomenclature"] for pert in perturbations]
@@ -207,13 +245,12 @@ def add_presence_area(info_role, id_ap=None):
             )
             .all()
         )
-
         for o in cor_ap_pertubation:
             ap.cor_ap_perturbation.append(o)
 
     if "id_ap" in data:
         if info_role.value_filter in ("1", "2"):
-            query = DB.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
+            query = db.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
             if info_role.value_filter == "2":
                 query = query.filter(
                         TZprospect.observers.any(or_(
@@ -227,19 +264,26 @@ def add_presence_area(info_role, id_ap=None):
                             User.id_role == info_role.id_role,
                         )
                 )
-            check_cruved = DB.session.query(query.exists()).scalar()
+            check_cruved = db.session.query(query.exists()).scalar()
             if not check_cruved:
                 raise Forbidden("Vous n'avez pas les droits pour éditer cette AP")
 
-        DB.session.merge(ap)
+        for key, value in data.items():
+            if hasattr(ap, key):
+                setattr(ap, key, value)
+
+        db.session.merge(ap)
     else:
-        DB.session.add(ap)
-    DB.session.commit()
+        db.session.add(ap)
+
+    db.session.commit()
+    db.session.flush()
 
     return ap.get_geofeature()
 
 
 @blueprint.route("/organisms", methods=["GET"])
+@json_resp
 def get_organisme():
     """
     Retourne la liste de tous les organismes présents
@@ -253,14 +297,15 @@ def get_organisme():
                 ON c.id_role = r.id_role
         ORDER by b.nom_organisme ASC
     """
-    data = DB.session.execute(query)
+    data = db.session.execute(query)
 
     if data:
-        return jsonify([{"name": o[0], "id_organism": o[1]} for o in data])
-    return None
+        return [{"name": o[0], "id_organism": o[1]} for o in data]
+    return { "message": "An error occured !" }, 500
 
 
 @blueprint.route("/municipalities", methods=["GET"])
+@json_resp
 def get_commune():
     """
     Retourne toutes les communes présentes dans le module
@@ -275,19 +320,20 @@ def get_commune():
         WHERE b.type_code = 'COM'
         ORDER BY area_name ASC
     """
-    data = DB.session.execute(query)
+    data = db.session.execute(query)
 
     if data:
-        return jsonify([{"municipality": c[0], "id_area": c[1]} for c in data])
-    return None
+        return [{"municipality": c[0], "id_area": c[1]} for c in data]
+    return { "message": "An error occured !" }, 500
 
 
 @blueprint.route("/prospect-zones/<id_zp>", methods=["GET"])
 @permissions.check_cruved_scope("R", module_code="priority_flora")
+@json_resp
 def get_prospect_zone(id_zp):
-    zp = DB.session.query(TZprospect).get(id_zp)
+    zp = db.session.query(TZprospect).get(id_zp)
     if zp:
-        return jsonify({
+        return {
             "aps": FeatureCollection([
                 ap.get_geofeature(
                     fields=["cor_ap_perturbation", "incline", "pheno", "habitat", "counting"]
@@ -295,42 +341,44 @@ def get_prospect_zone(id_zp):
                 for ap in zp.ap
             ]),
             "zp": zp.get_geofeature(fields=["observers", "taxonomy", "areas", "areas.area_type"]),
-        })
-    return None
+        }
+    return { "message": f"Prospect zone with ID {id_zp} not found !" }, 404
 
 
 @blueprint.route("/presence-areas/<int:id_ap>", methods=["GET"])
 @permissions.check_cruved_scope("R", module_code="priority_flora")
 @json_resp
 def get_presence_area(id_ap):
-    ap = DB.session.query(TApresence).get(id_ap)
-    return ap.get_geofeature(
-        fields=["cor_ap_perturbation", "incline", "pheno", "habitat", "counting"]
-    )
+    ap = db.session.query(TApresence).get(id_ap)
+    if ap:
+        return ap.get_geofeature(
+            fields=["cor_ap_perturbation", "incline", "pheno", "habitat", "counting"]
+        )
+    return { "message": f"Presence area with ID {id_ap} not found !" }, 404
 
 
 @blueprint.route("/prospect-zones/<int:id_zp>", methods=["DELETE"])
 @permissions.check_cruved_scope("D", module_code="priority_flora")
 @json_resp
 def delete_prospect_zone(id_zp):
-    zp = DB.session.query(TZprospect).get(id_zp)
+    zp = db.session.query(TZprospect).get(id_zp)
     if zp:
-        DB.session.delete(zp)
-        DB.session.commit()
-        return {"message": "delete with success"}, 200
-    return None
+        db.session.delete(zp)
+        db.session.commit()
+        return None, 204
+    return {"message": f"Prospect zone with ID {id_zp} not found !"}, 404
 
 
 @blueprint.route("/presence-areas/<int:id_ap>", methods=["DELETE"])
 @permissions.check_cruved_scope("D", module_code="priority_flora")
 @json_resp
 def delete_presence_area(id_ap):
-    ap = DB.session.query(TApresence).get(id_ap)
+    ap = db.session.query(TApresence).get(id_ap)
     if ap:
-        DB.session.delete(ap)
-        DB.session.commit()
-        return {"message": "delete with success"}, 200
-    return None
+        db.session.delete(ap)
+        db.session.commit()
+        return None, 204
+    return {"message": f"Presence area with ID {id_ap} not found !"}, 404
 
 
 @blueprint.route("/presence-areas/export", methods=["GET"])
@@ -346,56 +394,57 @@ def export_presence_areas():
     )
 
     file_name = datetime.datetime.now().strftime("%Y_%m_%d_%Hh%Mm%S")
-    query = DB.session.query(ExportAp)
+    query = db.session.query(ExportAp)
 
     if "id_ap" in parameters:
-        query = DB.session.query(ExportAp).filter(ExportAp.id_ap == parameters["id_ap"])
-    elif "id_zp" in parameters:
-        query = DB.session.query(ExportAp).filter(
-            ExportAp.id_zp == parameters["id_zp"]
+        query = query.filter(ExportAp.id_ap == parameters["id_ap"])
+
+    if "id_zp" in parameters:
+        query = query.filter(ExportAp.id_zp == parameters["id_zp"])
+
+    if "id_organism" in parameters:
+        query = (
+            query
+            .join(Organisme, Organisme.nom_organisme == ExportAp.organisme)
+            .filter(Organisme.id_organisme == parameters["id_organism"])
         )
-    elif "id_organism" in parameters:
-        query = DB.session.query(ExportAp).join(
-            Organisme, Organisme.nom_organisme == ExportAp.organisme
-        ).filter(
-            Organisme.id_organisme == parameters["id_organism"]
+
+    if "id_area" in parameters:
+        query = (
+            query
+            .join(cor_zp_area, cor_zp_area.c.id_zp == ExportAp.id_zp)
+            .filter(cor_zp_area.c.id_area == parameters["id_area"])
         )
-    elif "id_area" in parameters:
-        query = DB.session.query(ExportAp).join(
-            cor_zp_area, cor_zp_area.c.id_zp == ExportAp.id_zp
-        ).filter(
-            cor_zp_area.c.id_area == parameters["id_area"]
+
+    if "year" in parameters:
+        query = query.filter(func.date_part("year", ExportAp.date_min) == parameters["year"])
+
+    if "cd_nom" in parameters:
+        query = (
+            query
+            .join(Taxref, Taxref.nom_valide == ExportAp.taxon)
+            .filter(Taxref.cd_nom == parameters["cd_nom"])
         )
-    elif "year" in parameters:
-        query = DB.session.query(ExportAp).filter(
-            func.date_part("year", ExportAp.date_min) == parameters["year"]
-        )
-    elif "cd_nom" in parameters:
-        query = DB.session.query(ExportAp).join(
-            Taxref, Taxref.nom_valide == ExportAp.taxon
-        ).filter(Taxref.cd_nom == parameters["cd_nom"])
 
     data = query.all()
 
     if export_format == "csv":
-        tab_ap = []
-
+        ap_list = []
         for d in data:
             ap = d.as_dict()
-            tab_ap.append(ap)
-
-        return to_csv_resp(file_name, tab_ap, tab_ap[0].keys(), ";")
+            ap_list.append(ap)
+        return to_csv_resp(file_name, ap_list, ap_list[0].keys(), ";")
     else:
         features = []
         for d in data:
-            feature = d.as_geofeature("ap_geom_local", "id_ap", False)
+            feature = d.get_geofeature()
             features.append(feature)
         result = FeatureCollection(features)
-
         return to_json_resp(result, as_file=True, filename=file_name, indent=4)
 
 
 @blueprint.route("/area-contain", methods=["POST"])
+@json_resp
 def check_presence_area_in_prospect_zone():
     data = request.get_json()
 
@@ -404,14 +453,13 @@ def check_presence_area_in_prospect_zone():
         assert "geom_a" in data
         assert "geom_b" in data
     except AssertionError:
-        raise BadRequest("missing geom_a or geom_b in posted JSON")
+        return {"message": "Missing geom_a or geom_b in posted JSON."}, 400
 
-    query = DB.session.execute(select([
+    query = db.session.execute(select([
             func.st_contains(
                func.ST_GeomFromGeoJSON(json.dumps(data["geom_a"])),
                 func.ST_GeomFromGeoJSON(json.dumps(data["geom_b"])),
             )]
         )
     )
-    result = query.scalar()
-    return jsonify(result)
+    return query.scalar()
