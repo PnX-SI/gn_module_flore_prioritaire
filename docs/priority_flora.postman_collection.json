@@ -1,0 +1,568 @@
+{
+	"info": {
+		"_postman_id": "e5ba6584-4a67-450c-9d31-d5232336c072",
+		"name": "Priority Flora",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "7787864"
+	},
+	"item": [
+		{
+			"name": "/priority_flora/prospect-zones",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://0.0.0.0:8000/priority_flora/prospect-zones?id_organism=1&year=2020&page=0&limit=10",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8000",
+					"path": [
+						"priority_flora",
+						"prospect-zones"
+					],
+					"query": [
+						{
+							"key": "id_zp",
+							"value": "6993",
+							"description": "Identifiant de la zone de prospection.",
+							"disabled": true
+						},
+						{
+							"key": "cd_nom",
+							"value": "96111",
+							"description": "Code de nom scientifique dans Taxref du taxon prospecté.",
+							"disabled": true
+						},
+						{
+							"key": "id_area",
+							"value": "11895",
+							"description": "Identifiant d'une zone géo dans laquelle les zones de prospection sont présentes.",
+							"disabled": true
+						},
+						{
+							"key": "id_organism",
+							"value": "1",
+							"description": "Identifiant de l'organisme des observateurs de la zone de prospection."
+						},
+						{
+							"key": "year",
+							"value": "2020",
+							"description": "Année des prospections"
+						},
+						{
+							"key": "page",
+							"value": "0",
+							"description": "Page à partir de laquelle retourner les résultats. Défaut : 0."
+						},
+						{
+							"key": "limit",
+							"value": "10",
+							"description": "Nombre maximum d'enregistrement à retourner. Défaut : 100."
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/priority_flora/prospect-zones/<id_zp>",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://0.0.0.0:8000/priority_flora/prospect-zones/1",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8000",
+					"path": [
+						"priority_flora",
+						"prospect-zones",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/priority_flora/prospect-zones",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id_zp\": null,\n    \"cd_nom\": 611363,\n    \"date_min\": \"2022-08-11\",\n    \"cor_zp_observer\": [\n        1408\n    ],\n    \"geom_4326\": {\n        \"type\": \"Polygon\",\n        \"coordinates\": [\n            [\n                [\n                    6.156644,\n                    44.664689\n                ],\n                [\n                    6.155828,\n                    44.662462\n                ],\n                [\n                    6.157804,\n                    44.659258\n                ],\n                [\n                    6.162143,\n                    44.660662\n                ],\n                [\n                    6.160253,\n                    44.66472\n                ],\n                [\n                    6.156644,\n                    44.664689\n                ]\n            ]\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://0.0.0.0:8000/priority_flora/prospect-zones",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8000",
+					"path": [
+						"priority_flora",
+						"prospect-zones"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/priority_flora/prospect-zones/<id_zp>",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"date_min\": \"2022-08-11\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://0.0.0.0:8000/priority_flora/prospect-zones/7114",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8000",
+					"path": [
+						"priority_flora",
+						"prospect-zones",
+						"7114"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/priority_flora/prospect-zones/<id_zp>",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://0.0.0.0:8000/priority_flora/prospect-zones/7114",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8000",
+					"path": [
+						"priority_flora",
+						"prospect-zones",
+						"7114"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/priority_flora/presence-areas",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://0.0.0.0:8000/priority_flora/presence-areas?limit=10&page=0",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8000",
+					"path": [
+						"priority_flora",
+						"presence-areas"
+					],
+					"query": [
+						{
+							"key": "id_zp",
+							"value": "6993",
+							"description": "Identifiant de la zone de prospection des aires de présence.",
+							"disabled": true
+						},
+						{
+							"key": "limit",
+							"value": "10",
+							"description": "Nombre maximum d'enregistrement à retourner. Défaut : 100."
+						},
+						{
+							"key": "page",
+							"value": "0",
+							"description": "Page à partir de laquelle retourner les résultats. Défaut : 0."
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/priority_flora/presence-areas/<id_ap>",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://0.0.0.0:8000/priority_flora/presence-areas/1",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8000",
+					"path": [
+						"priority_flora",
+						"presence-areas",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/priority_flora/presence-areas",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id_ap\": null,\n    \"id_zp\": \"7115\",\n    \"cor_ap_perturbation\": [\n        {\n            \"id_nomenclature\": 1209,\n            \"id_type\": 189,\n            \"cd_nomenclature\": \"Acl\",\n            \"mnemonique\": \"Abroutissement et écorçage \",\n            \"label_default\": \"Abroutissement et écorçage \",\n            \"definition_default\": \"Comportement des animaux: Abroutissement et écorçage (sur ligneux)\",\n            \"label_fr\": \"Abroutissement et écorçage \",\n            \"definition_fr\": \"Comportement des animaux: Abroutissement et écorçage (sur ligneux)\",\n            \"source\": null,\n            \"statut\": null,\n            \"id_broader\": null,\n            \"hierarchy\": \".006.006\",\n            \"active\": true\n        }\n    ],\n    \"altitude_min\": 1000,\n    \"altitude_max\": 1020,\n    \"frequency\": 50,\n    \"id_nomenclature_counting\": 1510,\n    \"id_nomenclature_habitat\": 1489,\n    \"id_nomenclature_incline\": 1492,\n    \"id_nomenclature_phenology\": 1506,\n    \"total_min\": 1,\n    \"total_max\": 5,\n    \"comment\": \"TEST\",\n    \"geom_4326\": {\n        \"type\": \"Polygon\",\n        \"coordinates\": [\n            [\n                [\n                    6.159408,\n                    44.661558\n                ],\n                [\n                    6.159408,\n                    44.661955\n                ],\n                [\n                    6.160181,\n                    44.661955\n                ],\n                [\n                    6.160181,\n                    44.661558\n                ],\n                [\n                    6.159408,\n                    44.661558\n                ]\n            ]\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://0.0.0.0:8000/priority_flora/presence-areas",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8000",
+					"path": [
+						"priority_flora",
+						"presence-areas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/priority_flora/presence-areas/<id_ap>",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"altitude_max\": 1100,\n    \"frequency\": 25\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://0.0.0.0:8000/priority_flora/presence-areas/10402",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8000",
+					"path": [
+						"priority_flora",
+						"presence-areas",
+						"10402"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/priority_flora/presence-areas/<id_ap>",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://0.0.0.0:8000/priority_flora/presence-areas/10401",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8000",
+					"path": [
+						"priority_flora",
+						"presence-areas",
+						"10401"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/priority_flora/presence-areas/export",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://0.0.0.0:8000/priority_flora/presence-areas/export?id_ap=10396&export_format=geojson",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8000",
+					"path": [
+						"priority_flora",
+						"presence-areas",
+						"export"
+					],
+					"query": [
+						{
+							"key": "id_ap",
+							"value": "10396",
+							"description": "Exporte une aire de présence par son id."
+						},
+						{
+							"key": "id_zp",
+							"value": "7110",
+							"description": "Export les aires de présence correspondant à l'identifiant d'une zone de prospection.",
+							"disabled": true
+						},
+						{
+							"key": "id_organism",
+							"value": "1",
+							"description": "Identifiant de l'organisme des observateurs de la zone de prospection.",
+							"disabled": true
+						},
+						{
+							"key": "id_area",
+							"value": "11895",
+							"description": "Identifiant d'une zone géo dans laquelle les zones de prospection sont présentes.",
+							"disabled": true
+						},
+						{
+							"key": "year",
+							"value": "2020",
+							"description": "Année des prospections",
+							"disabled": true
+						},
+						{
+							"key": "cd_nom",
+							"value": "96111",
+							"description": "Code de nom scientifique dans Taxref du taxon prospecté.",
+							"disabled": true
+						},
+						{
+							"key": "export_format",
+							"value": "geojson",
+							"description": "Format d'export. Valeurs : csv, geoson."
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/priority_flora/organisms",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://0.0.0.0:8000/priority_flora/organisms",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8000",
+					"path": [
+						"priority_flora",
+						"organisms"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/priority_flora/municipalities",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://0.0.0.0:8000/priority_flora/municipalities",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8000",
+					"path": [
+						"priority_flora",
+						"municipalities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/priority_flora/area-contain",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"geom_a\": {\n        \"coordinates\": [\n            [\n                [\n                    5.973494,\n                    44.855499\n                ],\n                [\n                    5.973494,\n                    44.856837\n                ],\n                [\n                    5.979074,\n                    44.858455\n                ],\n                [\n                    5.980083,\n                    44.852963\n                ],\n                [\n                    5.973494,\n                    44.855499\n                ]\n            ]\n        ],\n        \"type\": \"Polygon\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://0.0.0.0:8000/priority_flora/area-contain",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8000",
+					"path": [
+						"priority_flora",
+						"area-contain"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
