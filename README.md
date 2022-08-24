@@ -1,11 +1,11 @@
 # Bilan Stationnel
 
 
-Refonte du module GeoNature du protocole Flore Prioritaire renommé "Bilan Stationnel Flore" du réseau Flore Sentinelle, piloté par le PNE et le CBNA. Développé par @richardvergely (https://geonature.fr/documents/2019-09-Richard-Vergely-veille-technologique-GeoNature.pdf).
+Refonte du module GeoNature du protocole Flore Prioritaire renommé "Bilan Stationnel Flore" du réseau Flore Sentinelle, piloté par le PNE et le CBNA. Développé à l'origine par @richardvergely (https://geonature.fr/documents/2019-09-Richard-Vergely-veille-technologique-GeoNature.pdf).
 
 Une liste d'espèces prioritaires est définie. Ces espèces sont prospectées sur le territoire.
 
-Pour chaque prospection d'une espèce, on note la zone de prospection (ZP) et les éventuelles Aires de présence (AP).
+Pour chaque prospection d'une espèce, on note la *zone de prospection* (`ZP`) et les éventuelles *aires de présence* (`AP`).
 
 ## Installation
 
