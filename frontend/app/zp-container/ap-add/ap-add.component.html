@@ -36,7 +36,10 @@
       <form>
         <fieldset>
           <legend>
-            <h4>Situation</h4>
+            <h4>
+              <mat-icon>map</mat-icon>
+              Situation
+            </h4>
           </legend>
 
           <div class="row form-group">
@@ -90,9 +93,14 @@
               </div>
             </div>
 
-            <div class="col-xs-12 col-sm-6 pl-2">
+            <div
+              class="col-xs-12 col-sm-6 pl-2"
+              matTooltip="La surface est calculée automatiquement
+                en fonction de l'aire de présence tracée sur la carte."
+            >
               <label for="area">Surface (m²)</label>
               <input
+
                 class="form-control"
                 type="number"
                 [formControl]="apForm.controls.area"
@@ -168,7 +176,10 @@
 
         <fieldset>
           <legend>
-            <h4>Dénombrement</h4>
+            <h4>
+              <mat-icon>pin</mat-icon>
+              Dénombrement
+            </h4>
           </legend>
 
           <div class="row row-0 form-group">
@@ -226,7 +237,10 @@
 
         <fieldset>
           <legend>
-            <h4>Commentaires</h4>
+            <h4>
+              <mat-icon>comment</mat-icon>
+              Commentaires
+            </h4>
           </legend>
           <div
             class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm"

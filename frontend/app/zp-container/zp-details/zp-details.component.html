@@ -42,7 +42,7 @@
               href="#infos-general"
               role="tab"
             >
-              <i class="fa fa-info-circle"> </i>
+              <mat-icon>info</mat-icon>
               Informations Générales
             </a>
           </li>
@@ -54,7 +54,7 @@
               href="#infos-details"
               role="tab"
             >
-              <i class="fa fa-search police"> </i>
+              <mat-icon>search</mat-icon>
               Détails
             </a>
           </li>
@@ -67,38 +67,36 @@
             role="tabpanel"
             aria-labelledby="nav-infos-general-tab"
           >
-            <p>
-              <span>
-                <b>Identifiant Zone de prospection : </b>
-                {{ storeService.zpProperties.id_zp }}
-              </span>
-            </p>
-            <p>
-              <span>
-                <b> Date : </b>
-                {{
-                  storeService.zpProperties.date_min
-                    | date: 'longDate':null:'fr'
-                }}
-              </span>
-            </p>
-            <p>
-              <span>
-                <b>Observateur(s) : </b>
-                <ul class="comma-list">
-                  <li
-                    *ngFor="let obs of storeService.zpProperties?.observers"
-                  >{{ obs.nom_complet }}</li>
-                </ul>
-              </span>
-            </p>
+            <div class="mb-2">
+              <mat-icon class="h5">tag</mat-icon>
+              <b>Identifiant : </b>
+              {{ storeService.zpProperties.id_zp }}
+            </div>
 
-            <p>
-              <span>
-                <b> Taxon : </b>
-                {{ storeService.zpProperties?.taxonomy?.nom_complet }}
-              </span>
-            </p>
+            <div class="mb-2">
+              <mat-icon class="h5">local_florist</mat-icon>
+              <b> Taxon : </b>
+              {{ storeService.zpProperties?.taxonomy?.nom_complet }}
+            </div>
+
+            <div class="mb-2">
+              <mat-icon class="h5">event</mat-icon>
+              <b> Date : </b>
+              {{
+                storeService.zpProperties.date_min
+                  | date: 'longDate':null:'fr'
+              }}
+            </div>
+
+            <div class="mb-2">
+              <mat-icon class="h5">group_add</mat-icon>
+              <b>Observateur(s) : </b>
+              <ul class="comma-list">
+                <li
+                  *ngFor="let obs of storeService.zpProperties?.observers"
+                >{{ obs.nom_complet }}</li>
+              </ul>
+            </div>
           </div>
 
           <div
@@ -107,22 +105,21 @@
             role="tabpanel"
             aria-labelledby="nav-infos-details-tab"
           >
-            <p>
-              <span>
-                <b> Nom du site : </b>
-                {{ storeService.zpProperties.id_zp }}
-              </span>
-            </p>
-            <p>
-              <span>
-                <b>Commune(s) : </b>
-                <ul class="comma-list">
-                  <li
-                    *ngFor="let area of storeService.zpProperties?.areas"
-                  >{{ area.area_name }}</li>
-                </ul>
-              </span>
-            </p>
+            <div class="mb-2">
+              <mat-icon class="h5">signpost</mat-icon>
+              <b> Nom du site : </b>
+              {{ storeService.zpProperties.id_zp }}
+            </div>
+
+            <div class="mb-2">
+              <mat-icon class="h5">map</mat-icon>
+              <b>Commune(s) : </b>
+              <ul class="comma-list">
+                <li
+                  *ngFor="let area of storeService.zpProperties?.areas"
+                >{{ area.area_name }}</li>
+              </ul>
+            </div>
           </div>
         </div>
 

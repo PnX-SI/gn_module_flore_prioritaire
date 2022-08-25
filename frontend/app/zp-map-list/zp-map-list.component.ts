@@ -23,6 +23,7 @@ import { ModuleConfig } from '../module.config';
   providers: [MapListService]
 })
 export class ZpMapListComponent implements OnInit, AfterViewInit {
+  public currentYear: number = new Date().getFullYear();
   public leafletDrawOptions = leafletDrawOption;
   public geojson;
   public filteredData = [];

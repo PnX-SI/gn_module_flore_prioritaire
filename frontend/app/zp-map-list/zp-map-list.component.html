@@ -16,20 +16,34 @@
     <div class="card-body overflow-auto px-2">
       <form>
         <fieldset>
-          <legend>
+          <legend class="px-2">
+            <mat-icon>tune</mat-icon>
             Filtres
           </legend>
           <div class="row">
             <div class="searchSite col">
-              <small> Année de visite </small>
+              <label for="filterYear" class="mt-2 mb-0">
+                <small>
+                  <mat-icon inline>calendar_month</mat-icon>
+                  Année de visite
+                </small>
+              </label>
               <input
                 type="number"
                 class="form-control form-control-sm"
                 [formControl]="filtersForm.controls.filterYear"
+                min="1991"
+                [max]="currentYear"
+                placeholder="Saisissez une année (Ex.: 2013)"
               />
             </div>
             <div class="searchSite col">
-              <small> Taxon </small>
+              <label for="filterTaxon" class="mt-2 mb-0">
+                <small>
+                  <mat-icon inline>local_florist</mat-icon>
+                  Taxon
+                </small>
+              </label>
               <pnx-taxonomy
                 #taxon
                 [parentFormControl]="filtersForm.controls.filterTaxon"
@@ -38,13 +52,20 @@
                 [listLength]="20"
                 (onChange)="onSearchTaxon($event)"
                 (onDelete)="onRemoveTaxon()"
+                matTooltip="Commencez à saisir les 3 premiers caractères
+                  d'un nom de taxon présent dans la liste pré-définie du module."
               >
               </pnx-taxonomy>
             </div>
           </div>
           <div class="row">
             <div class="searchSite col">
-              <small> Organisme </small>
+              <label for="filterOrga" class="mt-2 mb-0">
+                <small>
+                  <mat-icon inline>domain</mat-icon>
+                  Organisme
+                </small>
+              </label>
               <select
                 class="form-control form-control-sm"
                 name="selectOrg"
@@ -62,7 +83,12 @@
               </select>
             </div>
             <div class="searchSite col">
-              <small> Commune </small>
+              <label for="filterCom" class="mt-2 mb-0">
+                <small>
+                  <mat-icon inline>map</mat-icon>
+                  Commune
+                </small>
+              </label>
               <select
                 class="form-control form-control-sm"
                 name="selectCom"
