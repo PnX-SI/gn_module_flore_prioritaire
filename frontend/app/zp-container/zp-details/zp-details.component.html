@@ -134,7 +134,7 @@
             [footerHeight]="40"
             [rowHeight]="40"
             [rowHeight]="'auto'"
-            [messages]="storeService.fpConfig.list_ap_message"
+            [messages]="storeService.fpConfig.datatable_ap_messages"
             [selected]="mapListService.selectedRow"
             [selectionType]="'single'"
             (select)="mapListService.onRowSelect($event)"
@@ -243,7 +243,7 @@
             </ngx-datatable-column>
 
             <ngx-datatable-column
-              *ngFor="let col of storeService.fpConfig.default_ap_columns"
+              *ngFor="let col of storeService.fpConfig.datatable_ap_columns"
               [name]="col.name"
               [prop]="col.prop"
               maxWidth="col.maxWidth"

@@ -76,20 +76,12 @@ class CorApPerturb(db.Model):
     __table_args__ = {"schema": "pr_priority_flora"}
 
     id_ap = db.Column(
-        db.ForeignKey(
-            "pr_priority_flora.t_apresence.id_ap",
-            onupdate="CASCADE",
-        ),
+        db.ForeignKey("pr_priority_flora.t_apresence.id_ap"),
         primary_key=True,
-        nullable=False,
     )
     id_nomenclature = db.Column(
-        db.ForeignKey(
-            "ref_nomenclatures.t_nomenclatures.id_nomenclature",
-            onupdate="CASCADE",
-        ),
+        db.ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"),
         primary_key=True,
-        nullable=False,
     )
     effective_presence = db.Column(db.Boolean)
 

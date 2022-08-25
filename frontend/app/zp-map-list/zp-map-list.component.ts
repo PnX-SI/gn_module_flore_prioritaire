@@ -48,7 +48,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    this.displayColumns = ModuleConfig.default_zp_columns;
+    this.displayColumns = ModuleConfig.datatable_zp_columns;
     this.storeService.queryString = new HttpParams();
     this.storeService.queryString = this.storeService.queryString.set(
       'limit',

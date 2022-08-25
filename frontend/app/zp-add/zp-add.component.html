@@ -39,9 +39,11 @@
               <pnx-taxonomy
                 #taxon
                 [parentFormControl]="zpForm.controls.cd_nom"
-                [idList]="storeService.fpConfig.code_liste_taxon"
+                [idList]="storeService.fpConfig.taxons_list_code"
                 [charNumber]="3"
                 [listLength]="20"
+                matTooltip="Commencez à saisir les 3 premiers caractères
+                  d'un nom de taxon présent dans la liste pré-définie du module."
               >
               </pnx-taxonomy>
             </div>
@@ -93,7 +95,7 @@
               </label>
               <pnx-observers
                 [parentFormControl]="zpForm.controls.cor_zp_observer"
-                [idMenu]="storeService.fpConfig.id_menu_list_user"
+                [codeList]="storeService.fpConfig.observers_list_code"
               >
               </pnx-observers>
             </div>

@@ -1,20 +1,43 @@
-# Paramètres du module
+# Module parameters example with doc
+
+# Prospect zones Datatable column names, attributs linked and width
+datatable_zp_columns = [
+    {"name": "Id", "prop": "id_zp", "width": 70},
+    {"name": "Taxon", "prop": "taxonomy.nom_valide", "width": 350},
+    {"name": "Date", "prop": "date_min", "width": 120},
+    {"name": "Organisme", "prop": "organisms_list", "width": 400},
+]
+
+# Prospect zones Datatable messages
+datatable_zp_messages = {
+    "emptyMessage": "Aucune zone de prospection à afficher ",
+    "totalMessage": "zone(s) de prospection",
+}
+
+# Presence areas Datatable column names, attributs linked and width
+datatable_ap_columns = [
+    {"name": "Fréquence", "prop": "frequency"},
+    {"name": "Altitude min", "prop": "altitude_min"},
+    {"name": "Altitude max", "prop": "altitude_max"},
+]
+
+# Presence areas Datatable messages
+datatable_ap_messages = {
+    "emptyMessage": "Aucune aire de présence sur cette zone de prospection ",
+    "totalMessage": "aire(s) de présence",
+}
+
+# Export format available in Export modal
+export_available_format = ["csv", "geojson"]
+
+# Code of observers list used in the module
+observers_list_code = "PRIORITY_FLORA"
+
+# Code of taxons list used in the module
+taxons_list_code = "PRIORITY_FLORA"
+
+# Coordinates of center used for all maps displayed in the module
 zoom_center = [44.982667966765845, 6.062455200884894]
+
+# Initial zoom used for all maps displayed in the module
 zoom = 12
-export_srid = 2154
-
-site_message = {emptyMessage = "Aucun site à afficher ", totalMessage = "sites(s) au total"}
-list_visit_message = {emptyMessage = "Aucune visite sur ce site ", totalMessage = "visites au total"}
-detail_list_visit_message = {emptyMessage = "Aucune autre visite sur ce site ", totalMessage = "visites au total"}
-
-default_site_columns = [
-    { name = "Identifiant", prop = "id_zp", width = "90"},
-    { name = "Taxon", prop = "cd_nom", width = "350"},
-    { name = "Date Min", prop = "date_min", width = "120"},
-    { name = "Date Max", prop = "date_max", width = "160"},
-]
-
-default_list_visit_columns = [
-    { name = "Date", prop = "visit_date_min"},
-    { name = "Observateur(s)", prop = "observers"}
-]

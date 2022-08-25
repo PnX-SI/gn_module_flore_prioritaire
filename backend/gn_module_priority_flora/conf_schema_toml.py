@@ -4,51 +4,47 @@
 
 from marshmallow import Schema, fields
 
-available_export_format = ["csv", "geojson"]
-
-zp_message = {
-    "emptyMessage": "Aucune zone à afficher ",
-    "totalMessage": "zone(s) de prospection",
-}
-list_ap_message = {
-    "emptyMessage": "Aucune aire de présence sur cette zone de prospection ",
-    "totalMessage": "aire(s) de présence",
-}
-detail_list_ap_message = {
-    "emptyMessage": "Aucune autre visite sur ce site ",
-    "totalMessage": "visites",
-}
-
-default_zp_columns = [
+datatable_zp_columns = [
     {"name": "Id", "prop": "id_zp", "width": 70},
     {"name": "Taxon", "prop": "taxonomy.nom_valide", "width": 350},
-    {"name": "Date min", "prop": "date_min", "width": 120},
+    {"name": "Date", "prop": "date_min", "width": 120},
     {"name": "Organisme", "prop": "organisms_list", "width": 400},
 ]
-
-default_ap_columns = [
+datatable_zp_messages = {
+    "emptyMessage": "Aucune zone de prospection à afficher !",
+    "totalMessage": "zone(s) de prospection",
+}
+datatable_ap_columns = [
     {"name": "Fréquence", "prop": "frequency"},
     {"name": "Altitude min", "prop": "altitude_min"},
     {"name": "Altitude max", "prop": "altitude_max"},
 ]
-
-coor_zoom_center = [44.982667966765845, 6.062455200884894]
-zoom = 10
+datatable_ap_messages = {
+    "emptyMessage": "Aucune aire de présence sur cette zone de prospection !",
+    "totalMessage": "aire(s) de présence",
+}
+export_available_format = ["csv", "geojson"]
 
 
 class GnModuleSchemaConf(Schema):
-    zp_message = fields.Dict(load_default=zp_message)
-    list_ap_message = fields.Dict(load_default=list_ap_message)
-    detail_list_ap_message = fields.Dict(load_default=detail_list_ap_message)
-    export_available_format = fields.List(
-        fields.String(), load_default=available_export_format
+    datatable_zp_columns = fields.List(
+        fields.Dict(),
+        load_default=datatable_zp_columns,
     )
-    default_zp_columns = fields.List(fields.Dict(), load_default=default_zp_columns)
-    default_ap_columns = fields.List(fields.Dict(), load_default=default_ap_columns)
-    id_type_maille = fields.Integer(load_default=32)
-    id_type_commune = fields.Integer(load_default=25)
-    id_menu_list_user = fields.Integer(load_default=1)
-    code_liste_taxon = fields.String(load_default="PRIORITY_FLORA")
-    export_srid = fields.Integer(load_default=2154)
-    zoom_center = fields.List(fields.Float(), load_default=coor_zoom_center)
+    datatable_zp_messages = fields.Dict(load_default=datatable_zp_messages)
+    datatable_ap_columns = fields.List(
+        fields.Dict(),
+        load_default=datatable_ap_columns,
+    )
+    datatable_ap_messages = fields.Dict(load_default=datatable_ap_messages)
+    export_available_format = fields.List(
+        fields.String(),
+        load_default=export_available_format,
+    )
+    observers_list_code = fields.String(load_default="PRIORITY_FLORA")
+    taxons_list_code = fields.String(load_default="PRIORITY_FLORA")
+    zoom_center = fields.List(
+        fields.Float(),
+        load_default=[44.982667966765845, 6.062455200884894],
+    )
     zoom = fields.Integer(load_default=10)

@@ -71,8 +71,10 @@ def get_prospect_zones(info_role):
 
     if "year" in parameters:
         query = query.filter(func.date_part("year", TZprospect.date_min) == parameters["year"])
+
     filtered_number = query.count()
     data = query.order_by(TZprospect.date_min.desc()).limit(limit).offset(page * limit)
+
     features = []
     for d in data:
         feature = d.get_geofeature(
@@ -141,6 +143,7 @@ def edit_prospect_zone(info_role, id_zp=None):
     """
     data = dict(request.get_json())
 
+    # Prepare data
     if id_zp is not None:
         data["id_zp"] = id_zp
     if data["id_zp"] is None:
@@ -156,6 +159,13 @@ def edit_prospect_zone(info_role, id_zp=None):
         observers = data.pop("cor_zp_observer")
         observers = db.session.query(User).filter(User.id_role.in_(observers)).all()
 
+    if "initial_insert" not in data:
+        data["initial_insert"] = "web"
+
+    if "date_max" not in data and "date_min" in data:
+        data["date_max"] = data["date_min"]
+
+    # Create prospect zone object
     if id_zp is not None:
         zp = db.session.query(TZprospect).filter_by(id_zp=id_zp).first()
     else:
@@ -168,6 +178,7 @@ def edit_prospect_zone(info_role, id_zp=None):
         for o in observers:
             zp.observers.append(o)
 
+    # Update or add prospect zone
     if "id_zp" in data:
         if info_role.value_filter in ("1", "2"):
             query = db.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
@@ -207,7 +218,7 @@ def edit_prospect_zone(info_role, id_zp=None):
 @blueprint.route("/presence-areas/<int:id_ap>", methods=["PUT"])
 @permissions.check_cruved_scope("C", True, module_code="priority_flora")
 @json_resp
-def add_presence_area(info_role, id_ap=None):
+def edit_presence_area(info_role, id_ap=None):
     """
     Poste une nouvelle aire de présence
     """
@@ -284,7 +295,7 @@ def add_presence_area(info_role, id_ap=None):
 
 @blueprint.route("/organisms", methods=["GET"])
 @json_resp
-def get_organisme():
+def get_organisms():
     """
     Retourne la liste de tous les organismes présents
     """
@@ -306,7 +317,7 @@ def get_organisme():
 
 @blueprint.route("/municipalities", methods=["GET"])
 @json_resp
-def get_commune():
+def get_municipalities():
     """
     Retourne toutes les communes présentes dans le module
     """
@@ -445,7 +456,7 @@ def export_presence_areas():
 
 @blueprint.route("/area-contain", methods=["POST"])
 @json_resp
-def check_presence_area_in_prospect_zone():
+def check_geom_a_contain_geom_b():
     data = request.get_json()
 
     ["geom_a", "geom_b"]

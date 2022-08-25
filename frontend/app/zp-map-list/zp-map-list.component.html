@@ -47,7 +47,7 @@
               <pnx-taxonomy
                 #taxon
                 [parentFormControl]="filtersForm.controls.filterTaxon"
-                [idList]="storeService.fpConfig.code_liste_taxon"
+                [idList]="storeService.fpConfig.taxons_list_code"
                 [charNumber]="3"
                 [listLength]="20"
                 (onChange)="onSearchTaxon($event)"
@@ -124,7 +124,7 @@
           [externalPaging]="true"
           [count]="nbZp"
           (page)="onChangePage($event)"
-          [messages]="storeService.fpConfig.zp_message"
+          [messages]="storeService.fpConfig.datatable_zp_messages"
           [offset]="mapListService.page.pageNumber"
           [limit]="10"
         >
