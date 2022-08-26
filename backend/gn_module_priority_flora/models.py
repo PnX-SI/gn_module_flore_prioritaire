@@ -11,7 +11,6 @@ from utils_flask_sqla_geo.serializers import geoserializable, geofileserializabl
 
 from geonature.core.gn_meta.models import TDatasets
 from geonature.core.ref_geo.models import LAreas
-from geonature.utils.config import config
 from geonature.utils.env import db
 
 class ZpCruvedAuth(db.Model):
@@ -135,7 +134,7 @@ class TApresence(db.Model):
     total_max = db.Column(db.Integer)
     uuid_ap = db.Column(UUID(as_uuid=True))
     additional_data = db.Column(JSONB)
-    geom_local = db.Column(Geometry("GEOMETRY", 2154))
+    geom_local = db.Column(Geometry("GEOMETRY"))
     geom_4326 = db.Column(Geometry("GEOMETRY", 4326))
     geom_point_4326 = db.Column(Geometry("POINT", 4326))
     meta_create_date = db.Column(db.DateTime)
@@ -212,7 +211,7 @@ class TZprospect(ZpCruvedAuth):
     )
     uuid_zp = db.Column(UUID(as_uuid=True))
     additional_data = db.Column(JSONB)
-    geom_local = db.Column(Geometry("GEOMETRY", 2154))
+    geom_local = db.Column(Geometry("GEOMETRY"))
     geom_4326 = db.Column(Geometry("GEOMETRY", 4326))
     geom_point_4326 = db.Column(Geometry("POINT", 4326))
     meta_create_date = db.Column(db.DateTime)
@@ -281,8 +280,8 @@ class ExportAp(db.Model):
     altitude_max = db.Column(db.Integer)
     surface_ap = db.Column(db.Integer)
     surface_zp = db.Column(db.Integer)
-    ap_geom_local = db.Column(Geometry("GEOMETRY", config["LOCAL_SRID"]))
-    zp_geom_local = db.Column(Geometry("GEOMETRY", config["LOCAL_SRID"]))
+    ap_geom_local = db.Column(Geometry("GEOMETRY"))
+    zp_geom_local = db.Column(Geometry("GEOMETRY"))
 
     def get_geofeature(self, fields=[]):
         return self.as_geofeature(
