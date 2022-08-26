@@ -27,6 +27,8 @@ export_available_format = ["csv", "geojson"]
 
 
 class GnModuleSchemaConf(Schema):
+    metadata_name = fields.String(load_default="Bilan Stationnel")
+    metadata_code = fields.String(load_default="PRIORITY_FLORA")
     datatable_zp_columns = fields.List(
         fields.Dict(),
         load_default=datatable_zp_columns,
