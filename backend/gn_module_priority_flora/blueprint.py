@@ -2,7 +2,7 @@ import datetime
 import json
 from operator import or_
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 from geoalchemy2.shape import from_shape
 from geojson import FeatureCollection
 from shapely.geometry import asShape
@@ -31,17 +31,18 @@ blueprint = Blueprint("priority_flora", __name__)
 
 
 @blueprint.route("/prospect-zones", methods=["GET"])
-@permissions.check_cruved_scope("R", True, module_code="priority_flora")
+@permissions.check_cruved_scope("R", True, module_code="PRIORITY_FLORA")
 @json_resp
 def get_prospect_zones(info_role):
     """
     Retourne toutes les zones de prospection du module
     """
+    MODULE_CODE = blueprint.config["MODULE_CODE"]
     parameters = request.args
     page = int(parameters.get("page", 0))
     limit = int(parameters.get("limit", 100))
     user_cruved = cruved_scope_for_user_in_module(
-        id_role=info_role.id_role, module_code="priority_flora"
+        id_role=info_role.id_role, module_code=MODULE_CODE
     )
     query = TZprospect.query
     if info_role.value_filter == "2":
@@ -102,7 +103,7 @@ def get_prospect_zones(info_role):
 
 
 @blueprint.route("/presence-areas", methods=["GET"])
-@permissions.check_cruved_scope("R", module_code="priority_flora")
+@permissions.check_cruved_scope("R", module_code="PRIORITY_FLORA")
 @json_resp
 def get_presence_areas():
     """
@@ -135,7 +136,7 @@ def get_presence_areas():
 # TODO: handle id_zp when PUT used
 @blueprint.route("/prospect-zones", methods=["POST"])
 @blueprint.route("/prospect-zones/<int:id_zp>", methods=["PUT"])
-@permissions.check_cruved_scope("C", True, module_code="priority_flora")
+@permissions.check_cruved_scope("C", True, module_code="PRIORITY_FLORA")
 @json_resp
 def edit_prospect_zone(info_role, id_zp=None):
     """
@@ -216,7 +217,7 @@ def edit_prospect_zone(info_role, id_zp=None):
 # TODO: handle id_ap when PUT used
 @blueprint.route("/presence-areas", methods=["POST"])
 @blueprint.route("/presence-areas/<int:id_ap>", methods=["PUT"])
-@permissions.check_cruved_scope("C", True, module_code="priority_flora")
+@permissions.check_cruved_scope("C", True, module_code="PRIORITY_FLORA")
 @json_resp
 def edit_presence_area(info_role, id_ap=None):
     """
@@ -339,7 +340,7 @@ def get_municipalities():
 
 
 @blueprint.route("/prospect-zones/<id_zp>", methods=["GET"])
-@permissions.check_cruved_scope("R", module_code="priority_flora")
+@permissions.check_cruved_scope("R", module_code="PRIORITY_FLORA")
 @json_resp
 def get_prospect_zone(id_zp):
     zp = db.session.query(TZprospect).get(id_zp)
@@ -357,7 +358,7 @@ def get_prospect_zone(id_zp):
 
 
 @blueprint.route("/presence-areas/<int:id_ap>", methods=["GET"])
-@permissions.check_cruved_scope("R", module_code="priority_flora")
+@permissions.check_cruved_scope("R", module_code="PRIORITY_FLORA")
 @json_resp
 def get_presence_area(id_ap):
     ap = db.session.query(TApresence).get(id_ap)
@@ -369,7 +370,7 @@ def get_presence_area(id_ap):
 
 
 @blueprint.route("/prospect-zones/<int:id_zp>", methods=["DELETE"])
-@permissions.check_cruved_scope("D", module_code="priority_flora")
+@permissions.check_cruved_scope("D", module_code="PRIORITY_FLORA")
 @json_resp
 def delete_prospect_zone(id_zp):
     zp = db.session.query(TZprospect).get(id_zp)
@@ -381,7 +382,7 @@ def delete_prospect_zone(id_zp):
 
 
 @blueprint.route("/presence-areas/<int:id_ap>", methods=["DELETE"])
-@permissions.check_cruved_scope("D", module_code="priority_flora")
+@permissions.check_cruved_scope("D", module_code="PRIORITY_FLORA")
 @json_resp
 def delete_presence_area(id_ap):
     ap = db.session.query(TApresence).get(id_ap)
@@ -393,7 +394,7 @@ def delete_presence_area(id_ap):
 
 
 @blueprint.route("/presence-areas/export", methods=["GET"])
-@permissions.check_cruved_scope("E", module_code="priority_flora")
+@permissions.check_cruved_scope("E", module_code="PRIORITY_FLORA")
 def export_presence_areas():
     """
     Télécharge les données d'une aire de présence
