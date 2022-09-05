@@ -4,6 +4,7 @@
 
 from marshmallow import Schema, fields
 
+
 datatable_zp_columns = [
     {"name": "Id", "prop": "id_zp", "width": 70},
     {"name": "Taxon", "prop": "taxonomy.nom_valide", "width": 350},
@@ -27,8 +28,6 @@ export_available_format = ["csv", "geojson"]
 
 
 class GnModuleSchemaConf(Schema):
-    metadata_name = fields.String(load_default="Bilan Stationnel")
-    metadata_code = fields.String(load_default="PRIORITY_FLORA")
     datatable_zp_columns = fields.List(
         fields.Dict(),
         load_default=datatable_zp_columns,

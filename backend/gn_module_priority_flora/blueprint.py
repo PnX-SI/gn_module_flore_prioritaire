@@ -10,15 +10,17 @@ from sqlalchemy.sql.expression import func, select
 from sqlalchemy.sql.functions import user
 from werkzeug.exceptions import Forbidden
 
-from geonature.core.taxonomie.models import Taxref
+from geonature.core.gn_meta.models import TDatasets
 from geonature.core.gn_permissions import decorators as permissions
 from geonature.core.gn_permissions.tools import cruved_scope_for_user_in_module
+from geonature.core.taxonomie.models import Taxref
 from geonature.utils.env import db, ROOT_DIR
 from pypnnomenclature.models import TNomenclatures
 from pypnusershub.db.models import User
 from pypnusershub.db.models import Organisme
 from utils_flask_sqla.response import json_resp, to_json_resp, to_csv_resp
 
+from gn_module_priority_flora import METADATA_CODE
 from .models import (
     TZprospect,
     TApresence,
@@ -165,6 +167,18 @@ def edit_prospect_zone(info_role, id_zp=None):
 
     if "date_max" not in data and "date_min" in data:
         data["date_max"] = data["date_min"]
+
+    if "id_dataset" not in data or data["id_dataset"] == "":
+        dataset_code = METADATA_CODE
+        Dataset = (db.session
+            .query(TDatasets)
+            .filter(TDatasets.dataset_shortname == dataset_code)
+            .first()
+        )
+        if Dataset:
+            data["id_dataset"] = Dataset.id_dataset
+        else:
+            return { "message": f"Module dataset shortname '{dataset_code}' was not found !" }, 400
 
     # Create prospect zone object
     if id_zp is not None:
