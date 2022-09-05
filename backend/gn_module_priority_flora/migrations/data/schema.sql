@@ -63,7 +63,6 @@ CREATE TABLE pr_priority_flora.t_apresence(
     id_nomenclature_counting INT,
     id_nomenclature_habitat INT,
     id_nomenclature_phenology INT,
-    id_history_action INT,
     total_min INT,
     total_max INT,
     uuid_ap UUID DEFAULT public.uuid_generate_v4(),
@@ -79,8 +78,7 @@ CREATE TABLE pr_priority_flora.t_apresence(
     CONSTRAINT fk_t_apresence_t_nomenclature_id_incline FOREIGN KEY (id_nomenclature_incline) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature) ON UPDATE CASCADE ON DELETE NO ACTION,
     CONSTRAINT fk_t_apresence_t_nomenclature_id_counting FOREIGN KEY (id_nomenclature_counting) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature) ON UPDATE CASCADE ON DELETE NO ACTION,
     CONSTRAINT fk_t_apresence_t_nomenclature_id_habitat FOREIGN KEY (id_nomenclature_habitat) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature) ON UPDATE CASCADE ON DELETE NO ACTION,
-    CONSTRAINT fk_t_apresence_t_nomenclature_id_phenology FOREIGN KEY (id_nomenclature_phenology) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature) ON UPDATE CASCADE ON DELETE NO ACTION,
-    CONSTRAINT fk_t_apresence_t_history_actions FOREIGN KEY (id_history_action) REFERENCES gn_commons.t_history_actions(id_history_action) ON UPDATE CASCADE ON DELETE NO ACTION
+    CONSTRAINT fk_t_apresence_t_nomenclature_id_phenology FOREIGN KEY (id_nomenclature_phenology) REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature) ON UPDATE CASCADE ON DELETE NO ACTION
 );
 
 ------------------------------------------------------------
@@ -262,7 +260,7 @@ AS
         ta.total_min,
         ta.total_max,
         string_agg(DISTINCT tn.label_default, ', ') AS type_perturbation,
-        ta.frequency AS frequence
+        ta.frequency AS frequence,
         ta."comment"  AS remarques,
         string_agg(DISTINCT la.area_name, ', ') AS secteur,
         tz.date_min AS date_min,

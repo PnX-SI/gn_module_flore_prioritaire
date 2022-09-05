@@ -25,6 +25,7 @@ INSERT INTO pr_priority_flora.t_zprospect (
     topo_valid,
     initial_insert,
     cd_nom,
+    id_dataset,
     additional_data,
     geom_local,
     geom_4326,
@@ -38,6 +39,7 @@ INSERT INTO pr_priority_flora.t_zprospect (
         topo_valid,
         saisie_initiale,
         cd_nom,
+        pr_priority_flora.get_dataset_id(),
         json_build_object(
             'migrateOriginalInfos',
             json_build_object(
@@ -118,7 +120,6 @@ INSERT INTO pr_priority_flora.t_apresence(
     id_nomenclature_counting,
     id_nomenclature_habitat,
     id_nomenclature_phenology,
-    id_history_action,
     total_min,
     total_max,
     additional_data,
@@ -134,13 +135,12 @@ INSERT INTO pr_priority_flora.t_apresence(
         mta.altitude_retenue,
         mta.altitude_retenue,
         mta.frequenceap,
-        mta.remarques,
+        NULLIF(mta.remarques, ''),
         tz.id_zp,
         NULL, -- Pas de notion de pente.
         ref_nomenclatures.get_id_nomenclature('TYPE_COMPTAGE', mta.id_comptage_methodo::text),
         NULL, -- Pas de notion d'habitat.
         ref_nomenclatures.get_id_nomenclature('TYPE_PHENOLOGIE', mta.codepheno::text),
-        NULL, -- Pas de notion d'historique des actions.
         total_steriles + total_fertiles , --total_min
         total_steriles + total_fertiles, -- total max
         json_build_object(

@@ -1,3 +1,4 @@
+import sqlalchemy as sa
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID, JSONB
@@ -129,10 +130,12 @@ class TApresence(db.Model):
     id_nomenclature_counting = db.Column(db.Integer)
     id_nomenclature_habitat = db.Column(db.Integer)
     id_nomenclature_phenology = db.Column(db.Integer)
-    id_history_action = db.Column(db.Integer)
     total_min = db.Column(db.Integer)
     total_max = db.Column(db.Integer)
-    uuid_ap = db.Column(UUID(as_uuid=True))
+    uuid_ap = db.Column(
+        UUID(as_uuid=True),
+        server_default=sa.text("uuid_generate_v4()"),
+    )
     additional_data = db.Column(JSONB)
     geom_local = db.Column(Geometry("GEOMETRY"))
     geom_4326 = db.Column(Geometry("GEOMETRY", 4326))
@@ -209,7 +212,10 @@ class TZprospect(ZpCruvedAuth):
     id_dataset = db.Column(
         db.ForeignKey(TDatasets.id_dataset, onupdate="CASCADE"),
     )
-    uuid_zp = db.Column(UUID(as_uuid=True))
+    uuid_zp = db.Column(
+        UUID(as_uuid=True),
+        server_default=sa.text("uuid_generate_v4()"),
+    )
     additional_data = db.Column(JSONB)
     geom_local = db.Column(Geometry("GEOMETRY"))
     geom_4326 = db.Column(Geometry("GEOMETRY", 4326))
