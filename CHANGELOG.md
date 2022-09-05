@@ -8,6 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased
 
+### Added
+
+- Add icons to form controls and detail pages
+- Add helper tooltips on form controls
+- Add triggers to insert, update or delete observations in Synthese module database tables.
+- Add triggers to history insert, update or delete actions on t_zprospect and t_apresence database tables.
+
+### Changed
+
+- Improve the names of web services functions
+- Improve the naming of configuration parameters
+- Automatically add default values for date_max and initial_insert of prospect zone.
+- SRID for module local geometry fields will be read from the data returned by the database.
+
+### Fixed
+
+- Fix insert_zp(), insert_ap() database function : generate geom_point_4326 value.
+- Fix module code letters case in web services permissions checks
+###
 
 ## [1.0.0] - 2022-08-24
 
