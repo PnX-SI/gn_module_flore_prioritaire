@@ -1,4 +1,4 @@
-"""Create schema
+"""Create module schema
 
 Revision ID: acf3b4dbdbdc
 Revises:

@@ -1,4 +1,4 @@
-"""Add specific data
+"""Add specific data (nomenclatures, taxonomy list, module infos)
 
 Revision ID: 955c298bac7b
 Revises: acf3b4dbdbdc
