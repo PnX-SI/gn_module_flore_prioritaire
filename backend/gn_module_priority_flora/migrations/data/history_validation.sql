@@ -216,11 +216,11 @@ CREATE TRIGGER tri_log_update_t_zprospect
 
 
 ------------------------------------------------------------------------------------
--- Trigger: update t_validations after insert new prospect zone
+-- Trigger: update t_validations after insert new presence area
 ------------------------------------------------------------------------------------
 
 CREATE TRIGGER tri_insert_default_validation_status
   AFTER INSERT
-  ON pr_priority_flora.t_zprospect
+  ON pr_priority_flora.t_apresence
   FOR EACH ROW
   EXECUTE PROCEDURE gn_commons.fct_trg_add_default_validation_status();
