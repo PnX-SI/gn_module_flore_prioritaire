@@ -45,8 +45,10 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   }
 
   private initializeLeafletDrawOptions() {
-    this.leafletDrawOptions.draw.rectangle = true;
+    this.leafletDrawOptions.draw.rectangle = false;
     this.leafletDrawOptions.draw.marker = false;
+    this.leafletDrawOptions.draw.circle = false;
+    this.leafletDrawOptions.draw.circlemarker = false;
     this.leafletDrawOptions.draw.polyline = false;
     this.leafletDrawOptions.edit.remove = true;
   }
