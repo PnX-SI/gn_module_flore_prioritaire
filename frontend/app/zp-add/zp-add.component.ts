@@ -58,7 +58,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
       id_zp: null,
       cd_nom: [null, Validators.required],
       date_min: [null, Validators.required],
-      cor_zp_observer: [],
+      cor_zp_observer: [[], Validators.required],
       geom_4326: [null, Validators.required]
     });
   }

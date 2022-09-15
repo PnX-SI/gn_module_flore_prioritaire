@@ -42,6 +42,7 @@
                 [idList]="storeService.fpConfig.taxons_list_code"
                 [charNumber]="3"
                 [listLength]="20"
+                matTooltipPosition="above"
                 matTooltip="Commencez à saisir les 3 premiers caractères
                   d'un nom de taxon présent dans la liste pré-définie du module."
               >
@@ -62,7 +63,7 @@
           </div>
 
           <div class="row mt-3">
-            <div class="col-sm-12 col-md-6 col-lg-6">
+            <div class="col-sm-12 col-md-5 col-lg-5">
               <label for="date_min" class="required">
                 <mat-icon class="h5">event</mat-icon>
                 Dates :
@@ -74,7 +75,7 @@
               </pnx-date>
             </div>
             <div
-              class="col-md-12 col-lg-6 mt-2"
+              class="col-sm-12 col-md-6 col-lg-6 mt-2 ml-3"
               *ngIf="
                 (zpForm.controls.date_min.touched || submitted)
                 && zpForm.controls.date_min.errors?.required
@@ -88,7 +89,7 @@
           </div>
 
           <div class="row mt-3">
-            <div class="col">
+            <div class="col-lg-12">
               <label for="cor_zp_observer">
                 <mat-icon class="h5">group_add</mat-icon>
                 Observateur(s) :
@@ -96,8 +97,23 @@
               <pnx-observers
                 [parentFormControl]="zpForm.controls.cor_zp_observer"
                 [codeList]="storeService.fpConfig.observers_list_code"
+                matTooltipPosition="above"
+                matTooltip="Pour pouvoir modifier cette ZP une fois créée,
+                  il vous faut faire partie des observateurs."
               >
               </pnx-observers>
+            </div>
+            <div
+              class="col-lg-12 mt-2"
+              *ngIf="
+                (zpForm.controls.cor_zp_observer.touched || submitted)
+                && zpForm.controls.cor_zp_observer.errors?.required
+              "
+            >
+              <p class="alert alert-warning" role="alert">
+                <mat-icon>warning</mat-icon>
+                Veuillez saisir au moins un observateur.
+              </p>
             </div>
           </div>
         </fieldset>
