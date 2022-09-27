@@ -54,3 +54,6 @@ zoom_center = [44.982667966765845, 6.062455200884894]
 
 # Initial zoom used for all maps displayed in the module
 zoom = 12
+
+# Color of tracks and GPX points loaded on the map
+map_gpx_color = "green"

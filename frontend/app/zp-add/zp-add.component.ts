@@ -6,6 +6,7 @@ import { NgbDateParserFormatter } from '@ng-bootstrap/ng-bootstrap';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 
+import { CommonService } from '@geonature_common/service/common.service';
 import { DataFormService } from '@geonature_common/form/data-form.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { MapService } from '@geonature_common/map/map.service';
@@ -19,16 +20,19 @@ import { ModuleConfigInterface, MODULE_CONFIG_TOKEN } from '../gnModule.config';
   selector: 'gn-pf-zp-add',
   templateUrl: 'zp-add.component.html',
   styleUrls: ['zp-add.component.scss'],
-  providers: [MapListService, MapService]
+  providers: [MapListService, MapService],
 })
 export class ZpAddComponent implements OnInit, AfterViewInit {
   public leafletDrawOptions = leafletDrawOption;
   public zpForm: FormGroup;
   public idZp: string;
+  public firstFileLayerMessage: boolean = true;
+  public mapGpxColor: string;
 
   constructor(
     @Inject(MODULE_CONFIG_TOKEN) private config: ModuleConfigInterface,
     public activatedRoute: ActivatedRoute,
+    private commonService: CommonService,
     private formBuilder: FormBuilder,
     public router: Router,
     public dataFormService: DataFormService,
@@ -40,6 +44,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
+    this.mapGpxColor = this.config.map_gpx_color;
     this.idZp = this.activatedRoute.snapshot.params['idZp'];
     this.initializeLeafletDrawOptions();
     this.initializeZpForm();
@@ -129,5 +134,12 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   deleteGeoInfo() {
     this.zpForm.patchValue({ geom_4326: null });
     this.zpForm.markAsDirty();
+  }
+
+  displayFileLayerInfoMessage() {
+    if (this.firstFileLayerMessage) {
+      this.commonService.translateToaster('info', 'Map.FileLayerInfoSynthese');
+    }
+    this.firstFileLayerMessage = false;
   }
 }
