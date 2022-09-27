@@ -24,7 +24,7 @@ import { ModuleConfig } from '../module.config';
 export class ZpAddComponent implements OnInit, AfterViewInit {
   public leafletDrawOptions = leafletDrawOption;
   public zpForm: FormGroup;
-  public idZp;
+  public idZp: string;
 
   constructor(
     public activatedRoute: ActivatedRoute,
@@ -58,22 +58,22 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
       id_zp: null,
       cd_nom: [null, Validators.required],
       date_min: [null, Validators.required],
-      cor_zp_observer: [[], Validators.required],
-      geom_4326: [null, Validators.required]
+      observers: [[], Validators.required],
+      geom_4326: [null, Validators.required],
     });
   }
 
   ngAfterViewInit() {
     // Update mode
     if (this.idZp !== undefined) {
-      this.api.getOneProspectZone(this.idZp).subscribe(element => {
+      this.api.getOneProspectZone(this.idZp).subscribe((element) => {
         const zp = element.zp.properties;
         this.zpForm.patchValue({
           id_zp: zp.id_zp,
           cd_nom: zp.taxonomy,
           date_min: this.dateParser.parse(zp.date_min),
-          cor_zp_observer: zp.observers,
-          geom_4326: element.zp.geometry
+          observers: zp.observers,
+          geom_4326: element.zp.geometry,
         });
       });
     }
@@ -86,15 +86,15 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   onSubmit() {
     let finalForm = this.formatDataFormZp();
 
-    this.api.addProspectZone(finalForm).subscribe(data => {
+    this.api.addProspectZone(finalForm).subscribe((data) => {
       this.toastrService.success('Zone de prospection enregistrée', '', {
-        positionClass: 'toast-top-center'
+        positionClass: 'toast-top-center',
       });
 
       this.router.navigate([
         `${ModuleConfig.MODULE_URL}/zps`,
         data.id,
-        'details'
+        'details',
       ]);
     });
   }
@@ -109,12 +109,12 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     finalForm.date_min = this.dateParser.format(finalForm.date_min);
 
     // Observers
-    if (finalForm['cor_zp_observer']) {
-      finalForm['cor_zp_observer'] = finalForm['cor_zp_observer'].map(obs => {
+    if (finalForm['observers']) {
+      finalForm['observers'] = finalForm['observers'].map((obs) => {
         return obs.id_role;
       });
     } else {
-      finalForm['cor_zp_observer'] = [];
+      finalForm['observers'] = [];
     }
 
     return finalForm;

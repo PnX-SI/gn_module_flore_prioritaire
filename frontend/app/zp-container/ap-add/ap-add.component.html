@@ -87,7 +87,7 @@
                   "
                   [multiSelect]="false"
                   keyValue="id_nomenclature"
-                  codeNomenclatureType="TYPE_PENTE"
+                  codeNomenclatureType="INCLINE_TYPE"
                 >
                 </pnx-nomenclature>
               </div>
@@ -125,7 +125,7 @@
               "
               [multiSelect]="false"
               keyValue="id_nomenclature"
-              codeNomenclatureType="TYPE_PHENOLOGIE"
+              codeNomenclatureType="PHENOLOGY_TYPE"
             >
             </pnx-nomenclature>
           </div>
@@ -133,10 +133,10 @@
 
         <div class="row form-group">
           <div class="col-sm-12 col-md-8">
-            <label for="cor_ap_perturbation">Perturbation(s)</label>
+            <label for="perturbations">Perturbation(s)</label>
             <pnx-nomenclature
               [bindAllItem]="true"
-              [parentFormControl]="apForm.controls.cor_ap_perturbation"
+              [parentFormControl]="apForm.controls.perturbations"
               [multiSelect]="true"
               keyValue="id_nomenclature"
               codeNomenclatureType="TYPE_PERTURBATION"
@@ -154,7 +154,7 @@
               "
               [multiSelect]="false"
               keyValue="id_nomenclature"
-              codeNomenclatureType="ETAT_HABITAT"
+              codeNomenclatureType="HABITAT_STATUS"
             >
             </pnx-nomenclature>
           </div>
@@ -192,7 +192,7 @@
                   "
                   [multiSelect]="false"
                   keyValue="id_nomenclature"
-                  codeNomenclatureType="TYPE_COMPTAGE"
+                  codeNomenclatureType="COUNTING_TYPE"
                 >
                 </pnx-nomenclature>
               </div>

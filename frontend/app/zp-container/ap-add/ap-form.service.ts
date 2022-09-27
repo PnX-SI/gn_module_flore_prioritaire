@@ -18,7 +18,7 @@ export class ApFormService {
       {
         id_ap: null,
         id_zp: null,
-        cor_ap_perturbation: new Array(),
+        perturbations: new Array(),
         altitude_min: null,
         altitude_max: null,
         area: [{ value: null, disabled: true }],

@@ -179,8 +179,8 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
             : null,
           geom_4326: element.geometry,
           area: Math.round(ap.area),
-          cor_ap_perturbation:
-            ap.cor_ap_perturbation === null ? [] : ap.cor_ap_perturbation
+          perturbations:
+            ap.perturbations === null ? [] : ap.perturbations
         });
         this.geojson = element.geometry;
       },
