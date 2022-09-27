@@ -71,8 +71,8 @@ class ZpCruvedAuth(db.Model):
 
 
 @serializable
-class CorApPerturb(db.Model):
-    __tablename__ = "cor_ap_perturb"
+class CorApPerturbation(db.Model):
+    __tablename__ = "cor_ap_perturbation"
     __table_args__ = {"schema": "pr_priority_flora"}
 
     id_ap = db.Column(
@@ -109,6 +109,14 @@ class CorApArea(db.Model):
     )
 
 
+cor_ap_physiognomy = db.Table(
+    "cor_ap_physiognomy",
+    db.Column("id_ap"),
+    db.Column("id_nomenclature", ForeignKey(TNomenclatures.id_nomenclature), primary_key=True),
+    schema="pr_priority_flora",
+)
+
+
 @serializable
 @geoserializable
 class TApresence(db.Model):
@@ -116,59 +124,81 @@ class TApresence(db.Model):
     __table_args__ = {"schema": "pr_priority_flora"}
 
     id_ap = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    area = db.Column(db.Integer)
-    topo_valid = db.Column(db.Boolean)
-    altitude_min = db.Column(db.Integer)
-    altitude_max = db.Column(db.Integer)
-    frequency = db.Column(db.Integer)
-    comment = db.Column(db.String(4000))
     id_zp = db.Column(
         db.ForeignKey("pr_priority_flora.t_zprospect.id_zp"),
         nullable=False,
     )
-    id_nomenclature_incline = db.Column(db.Integer)
-    id_nomenclature_counting = db.Column(db.Integer)
-    id_nomenclature_habitat = db.Column(db.Integer)
-    id_nomenclature_phenology = db.Column(db.Integer)
-    total_min = db.Column(db.Integer)
-    total_max = db.Column(db.Integer)
     uuid_ap = db.Column(
         UUID(as_uuid=True),
         server_default=sa.text("uuid_generate_v4()"),
     )
-    additional_data = db.Column(JSONB)
     geom_local = db.Column(Geometry("GEOMETRY"))
     geom_4326 = db.Column(Geometry("GEOMETRY", 4326))
     geom_point_4326 = db.Column(Geometry("POINT", 4326))
+    area = db.Column(db.Integer)
+    altitude_min = db.Column(db.Integer)
+    altitude_max = db.Column(db.Integer)
+    id_nomenclature_incline = db.Column(db.Integer)
+    id_nomenclature_habitat = db.Column(db.Integer)
+    favorable_status_percent = db.Column(db.Integer)
+    id_nomenclature_threat_level = db.Column(db.Integer)
+    id_nomenclature_phenology = db.Column(db.Integer)
+    id_nomenclature_frequency_method = db.Column(db.Integer)
+    frequency = db.Column(db.Integer)
+    id_nomenclature_counting = db.Column(db.Integer)
+    total_min = db.Column(db.Integer)
+    total_max = db.Column(db.Integer)
+    comment = db.Column(db.String(4000))
+    topo_valid = db.Column(db.Boolean)
+    additional_data = db.Column(JSONB)
     meta_create_date = db.Column(db.DateTime)
     meta_update_date = db.Column(db.DateTime)
 
-    cor_ap_perturbation = db.relationship(
-        TNomenclatures,
-        secondary=CorApPerturb.__table__,
-        primaryjoin=(CorApPerturb.id_ap == id_ap),
-        secondaryjoin=(CorApPerturb.id_nomenclature == TNomenclatures.id_nomenclature),
-        foreign_keys=[CorApPerturb.id_ap, CorApPerturb.id_nomenclature],
-    )
     incline = db.relationship(
         TNomenclatures,
         primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclature_incline),
         foreign_keys=[id_nomenclature_incline],
-    )
-    pheno = db.relationship(
-        TNomenclatures,
-        primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclature_phenology),
-        foreign_keys=[id_nomenclature_phenology],
     )
     habitat = db.relationship(
         TNomenclatures,
         primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclature_habitat),
         foreign_keys=[id_nomenclature_habitat],
     )
+    threat_level = db.relationship(
+        TNomenclatures,
+        primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclature_threat_level),
+        foreign_keys=[id_nomenclature_threat_level],
+    )
+    pheno = db.relationship(
+        TNomenclatures,
+        primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclature_phenology),
+        foreign_keys=[id_nomenclature_phenology],
+    )
+    frequency_method = db.relationship(
+        TNomenclatures,
+        primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclature_frequency_method),
+        foreign_keys=[id_nomenclature_frequency_method],
+    )
     counting = db.relationship(
         TNomenclatures,
         primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclature_counting),
         foreign_keys=[id_nomenclature_counting],
+    )
+
+    perturbations = db.relationship(
+        TNomenclatures,
+        secondary=CorApPerturbation.__table__,
+        primaryjoin=(CorApPerturbation.id_ap == id_ap),
+        secondaryjoin=(CorApPerturbation.id_nomenclature == TNomenclatures.id_nomenclature),
+        foreign_keys=[CorApPerturbation.id_ap, CorApPerturbation.id_nomenclature],
+    )
+
+    physiognomies = db.relationship(
+        TNomenclatures,
+        secondary=cor_ap_physiognomy,
+        primaryjoin=(cor_ap_physiognomy.c.id_ap == id_ap),
+        secondaryjoin=(cor_ap_physiognomy.c.id_nomenclature == TNomenclatures.id_nomenclature),
+        foreign_keys=[cor_ap_physiognomy.c.id_ap, cor_ap_physiognomy.c.id_nomenclature],
     )
 
     def get_geofeature(self, fields=[]):
@@ -186,6 +216,7 @@ cor_zp_observer = db.Table(
     schema="pr_priority_flora",
 )
 
+
 cor_zp_area = db.Table(
     "cor_zp_area",
     db.Column("id_area", ForeignKey(LAreas.id_area), primary_key=True),
@@ -201,14 +232,6 @@ class TZprospect(ZpCruvedAuth):
     __table_args__ = {"schema": "pr_priority_flora"}
 
     id_zp = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    date_min = db.Column(db.DateTime)
-    date_max = db.Column(db.DateTime)
-    topo_valid = db.Column(db.Unicode)
-    initial_insert = db.Column(db.Unicode)
-    cd_nom = db.Column(
-        db.ForeignKey(Taxref.cd_nom, onupdate="CASCADE"),
-        nullable=False,
-    )
     id_dataset = db.Column(
         db.ForeignKey(TDatasets.id_dataset, onupdate="CASCADE"),
     )
@@ -216,10 +239,19 @@ class TZprospect(ZpCruvedAuth):
         UUID(as_uuid=True),
         server_default=sa.text("uuid_generate_v4()"),
     )
-    additional_data = db.Column(JSONB)
+    cd_nom = db.Column(
+        db.ForeignKey(Taxref.cd_nom, onupdate="CASCADE"),
+        nullable=False,
+    )
+    date_min = db.Column(db.DateTime)
+    date_max = db.Column(db.DateTime)
     geom_local = db.Column(Geometry("GEOMETRY"))
     geom_4326 = db.Column(Geometry("GEOMETRY", 4326))
     geom_point_4326 = db.Column(Geometry("POINT", 4326))
+    area = db.Column(db.Integer)
+    initial_insert = db.Column(db.Unicode)
+    topo_valid = db.Column(db.Unicode)
+    additional_data = db.Column(JSONB)
     meta_create_date = db.Column(db.DateTime)
     meta_update_date = db.Column(db.DateTime)
 
@@ -267,27 +299,37 @@ class ExportAp(db.Model):
     __table_args__ = {"schema": "pr_priority_flora"}
 
     id_zp = db.Column(db.Integer, primary_key=True)
-    id_ap = db.Column(db.Integer, primary_key=True)
     taxon = db.Column(db.Unicode)
-    observateurs = db.Column(db.Unicode)
-    habitat = db.Column(db.Unicode)
-    pheno = db.Column(db.Unicode)
-    pente = db.Column(db.Unicode)
-    comptage = db.Column(db.Unicode)
-    total_min = db.Column(db.Integer)
-    total_max = db.Column(db.Integer)
-    type_perturbation = db.Column(db.Unicode)
-    frequence = db.Column(db.Integer)
-    remarques = db.Column(db.Unicode)
-    secteur = db.Column(db.Unicode)
     date_min = db.Column(db.DateTime)
     date_max = db.Column(db.DateTime)
+    observateurs = db.Column(db.Unicode)
+    zp_geom_local = db.Column(Geometry("GEOMETRY"))
+    zp_surface = db.Column(db.Integer)
+
+    id_ap = db.Column(db.Integer, primary_key=True)
+    secteur = db.Column(db.Unicode)
+    ap_geom_local = db.Column(Geometry("GEOMETRY"))
+    ap_surface = db.Column(db.Integer)
     altitude_min = db.Column(db.Integer)
     altitude_max = db.Column(db.Integer)
-    surface_ap = db.Column(db.Integer)
-    surface_zp = db.Column(db.Integer)
-    ap_geom_local = db.Column(Geometry("GEOMETRY"))
-    zp_geom_local = db.Column(Geometry("GEOMETRY"))
+    pente = db.Column(db.Unicode)
+    physionomie = db.Column(db.Unicode)
+
+    etat_dominant_habitat = db.Column(db.Unicode)
+    pourcentage_statut_favorable = db.Column(db.Integer)
+    menaces = db.Column(db.Unicode)
+    perturbations = db.Column(db.Unicode)
+
+    phenologie = db.Column(db.Unicode)
+
+    methode_frequence = db.Column(db.Unicode)
+    frequence = db.Column(db.Integer)
+
+    methode_comptage = db.Column(db.Unicode)
+    total_min = db.Column(db.Integer)
+    total_max = db.Column(db.Integer)
+
+    remarques = db.Column(db.Unicode)
 
     def get_geofeature(self, fields=[]):
         return self.as_geofeature(

@@ -83,13 +83,13 @@ def get_prospect_zones(info_role):
         feature = d.get_geofeature(
             fields=[
                 "id_zp",
-                "date_min",
-                "date_max",
                 "cd_nom",
                 "taxonomy.nom_valide",
-                "areas.area_name",
+                "date_min",
+                "date_max",
                 "observers",
                 "observers.organisme",
+                "areas.area_name",
             ],
         )
         cruved_auth = d.get_model_cruved(info_role, user_cruved[0])
@@ -158,8 +158,8 @@ def edit_prospect_zone(info_role, id_zp=None):
         shape = asShape(data.pop("geom_4326"))
 
     observers = None
-    if "cor_zp_observer" in data:
-        observers = data.pop("cor_zp_observer")
+    if "observers" in data:
+        observers = data.pop("observers")
         observers = db.session.query(User).filter(User.id_role.in_(observers)).all()
 
     if "initial_insert" not in data:
@@ -250,8 +250,12 @@ def edit_presence_area(info_role, id_ap=None):
         shape = asShape(data.pop("geom_4326"))
 
     perturbations = None
-    if "cor_ap_perturbation" in data:
-        perturbations = data.pop("cor_ap_perturbation")
+    if "perturbations" in data:
+        perturbations = data.pop("perturbations")
+
+    physiognomies = None
+    if "physiognomies" in data:
+        physiognomies = data.pop("physiognomies")
 
     if id_ap is not None:
         ap = db.session.query(TApresence).filter_by(id_ap=id_ap).first()
@@ -262,7 +266,7 @@ def edit_presence_area(info_role, id_ap=None):
         ap.geom_4326 = from_shape(shape, srid=4326)
 
     if perturbations is not None:
-        cor_ap_pertubation = (
+        ap_pertubations = (
             db.session.query(TNomenclatures)
             .filter(
                 TNomenclatures.id_nomenclature.in_(
@@ -271,8 +275,21 @@ def edit_presence_area(info_role, id_ap=None):
             )
             .all()
         )
-        for o in cor_ap_pertubation:
-            ap.cor_ap_perturbation.append(o)
+        for item in ap_pertubations:
+            ap.perturbations.append(item)
+
+    if physiognomies is not None:
+        ap_physiognomies = (
+            db.session.query(TNomenclatures)
+            .filter(
+                TNomenclatures.id_nomenclature.in_(
+                    [pĥysio["id_nomenclature"] for pĥysio in physiognomies]
+                )
+            )
+            .all()
+        )
+        for item in ap_physiognomies:
+            ap.physiognomies.append(item)
 
     if "id_ap" in data:
         if info_role.value_filter in ("1", "2"):
@@ -362,7 +379,10 @@ def get_prospect_zone(id_zp):
         return {
             "aps": FeatureCollection([
                 ap.get_geofeature(
-                    fields=["cor_ap_perturbation", "incline", "pheno", "habitat", "counting"]
+                    fields=[
+                        "incline", "habitat", "threat_level", "pheno", "frequency_method",
+                        "counting", "perturbations", "physiognomies",
+                    ]
                 )
                 for ap in zp.ap
             ]),
@@ -378,7 +398,10 @@ def get_presence_area(id_ap):
     ap = db.session.query(TApresence).get(id_ap)
     if ap:
         return ap.get_geofeature(
-            fields=["cor_ap_perturbation", "incline", "pheno", "habitat", "counting"]
+            fields=[
+                "incline", "habitat", "threat_level", "pheno", "frequency_method", "counting",
+                "perturbations", "physiognomies",
+            ]
         )
     return { "message": f"Presence area with ID {id_ap} not found !" }, 404
 

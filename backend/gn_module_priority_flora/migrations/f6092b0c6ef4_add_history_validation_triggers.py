@@ -33,23 +33,43 @@ def downgrade():
     remove_history_functions()
     delete_history_data()
     remove_history_locations()
+    delete_validations()
 
 
 def remove_validation_triggers():
-    op.execute("DROP TRIGGER tri_insert_default_validation_status ON pr_priority_flora.t_zprospect")
+    op.execute("DROP TRIGGER tri_insert_default_validation_status ON pr_priority_flora.t_apresence")
 
 
 def remove_history_triggers():
-    op.execute("DROP TRIGGER tri_insert_prospect_zone_observer ON pr_priority_flora.cor_zp_obs")
-    op.execute("DROP TRIGGER tri_delete_prospect_zone_observer ON pr_priority_flora.cor_zp_obs")
-    op.execute("DROP TRIGGER tri_log_changes_t_apresence ON pr_priority_flora.t_apresence")
     op.execute("DROP TRIGGER tri_log_insert_delete_t_zprospect ON pr_priority_flora.t_zprospect")
     op.execute("DROP TRIGGER tri_log_update_t_zprospect ON pr_priority_flora.t_zprospect")
 
+    op.execute("DROP TRIGGER tri_insert_prospect_zone_observer ON pr_priority_flora.cor_zp_obs")
+    op.execute("DROP TRIGGER tri_delete_prospect_zone_observer ON pr_priority_flora.cor_zp_obs")
+
+    op.execute("DROP TRIGGER tri_log_update_t_apresence ON pr_priority_flora.t_apresence")
+    op.execute("DROP TRIGGER tri_log_insert_delete_t_apresence ON pr_priority_flora.t_apresence")
+
+    op.execute("DROP TRIGGER tri_delete_presence_area_perturbation ON pr_priority_flora.cor_ap_perturbation")
+    op.execute("DROP TRIGGER tri_insert_presence_area_perturbation ON pr_priority_flora.cor_ap_perturbation")
+
+    op.execute("DROP TRIGGER tri_delete_presence_area_physiognomy ON pr_priority_flora.cor_ap_physiognomy")
+    op.execute("DROP TRIGGER tri_insert_presence_area_physiognomy ON pr_priority_flora.cor_ap_physiognomy")
+
 
 def remove_history_functions():
-    op.execute("DROP FUNCTION pr_priority_flora.add_prospect_zone_observers()")
-    op.execute("DROP FUNCTION pr_priority_flora.delete_prospect_zone_observers()")
+    op.execute("DROP FUNCTION pr_priority_flora.add_prospect_zone_observers")
+    op.execute("DROP FUNCTION pr_priority_flora.delete_prospect_zone_observers")
+
+    op.execute("DROP FUNCTION pr_priority_flora.get_perturbations_ids")
+    op.execute("DROP FUNCTION pr_priority_flora.build_perturbations")
+    op.execute("DROP FUNCTION pr_priority_flora.add_presence_area_perturbation")
+    op.execute("DROP FUNCTION pr_priority_flora.delete_presence_area_perturbation")
+
+    op.execute("DROP FUNCTION pr_priority_flora.get_physiognomies_ids")
+    op.execute("DROP FUNCTION pr_priority_flora.build_physiognomies")
+    op.execute("DROP FUNCTION pr_priority_flora.add_presence_area_physiognomy")
+    op.execute("DROP FUNCTION pr_priority_flora.delete_presence_area_physiognomy")
 
 
 def delete_history_data():
@@ -68,4 +88,13 @@ def remove_history_locations():
         DELETE FROM gn_commons.bib_tables_location
         WHERE "schema_name" = 'pr_priority_flora'
             AND table_name IN ('t_zprospect', 't_apresence')
+    """)
+
+def delete_validations():
+    op.execute("""
+        DELETE FROM gn_commons.t_validations
+        WHERE uuid_attached_row IN (
+            SELECT uuid_ap
+            FROM pr_priority_flora.t_apresence
+        )
     """)

@@ -10,7 +10,7 @@ import importlib
 from alembic import op
 from sqlalchemy.sql import text
 
-from gn_module_priority_flora import METADATA_CODE, METADATA_NAME, MODULE_CODE
+from gn_module_priority_flora import METADATA_CODE, METADATA_NAME
 
 
 # revision identifiers, used by Alembic.
