@@ -15,6 +15,7 @@ import { distinctUntilChanged } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 import { DataFormService } from '@geonature_common/form/data-form.service';
+import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
 import { CommonService } from '@geonature_common/service/common.service';
@@ -34,6 +35,7 @@ import {
   providers: [MapListService],
 })
 export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
+  public leafletDrawOptions = leafletDrawOption;
   private apForm: FormGroup;
   public geojson: any;
   public idAp;
@@ -64,6 +66,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     this.extractUrlParams();
     this.apForm = this.formService.initFormAp();
     this.storeService.setLeafletDraw();
+    this.initializeLeafletDrawOptions();
     this.initializeOnLeafletDrawAddGeom();
     this.initializeTotalMaxAutocomplete();
   }
@@ -73,6 +76,15 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     this.activatedRoute.parent.params.subscribe((params) => {
       this.storeService.idSite = params['idZp'];
     });
+  }
+
+  private initializeLeafletDrawOptions() {
+    this.leafletDrawOptions.draw.rectangle = false;
+    this.leafletDrawOptions.draw.marker = true;
+    this.leafletDrawOptions.draw.circle = false;
+    this.leafletDrawOptions.draw.circlemarker = false;
+    this.leafletDrawOptions.draw.polyline = false;
+    this.leafletDrawOptions.edit.remove = true;
   }
 
   private initializeOnLeafletDrawAddGeom() {
