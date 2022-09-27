@@ -12,13 +12,14 @@ insert_final_newline = true
 
 # 4 space indentation
 [*.py]
-indent_style = space
 indent_size = 4
-
-# Tab indentation (no size specified)
-[Makefile]
-indent_style = tab
+trim_trailing_whitespace = true
 
 # Indentation override for all JS under lib directory
-[*.js, *ts, *scss, *.css, *.html]
+[*.{js,ts,scss,css,html,sql}]
 indent_size = 2
+trim_trailing_whitespace = true
+
+[*.{md,rst}]
+indent_size = 4
+trim_trailing_whitespace = false
