@@ -3,7 +3,8 @@
 -- Usage:
 --  1. go to sql directory: cd backend/gn_module_priority_flora/migrations/data/migrate_v1_to_v2
 --  2. migrate data with scripts #3 :
---    export PGPASSWORD="<db_pass>"; psql -h "<db_host>" -U "<db_user>" -d "<db_name>" -f "03_add_users.sql"
+--    export PGPASSWORD="<db_pass>"; \
+--      psql -h "<db_host>" -U "<db_user>" -d "<db_name>" -f "03_migrate_users.sql"
 --
 -- where:
 -- - <db_pass>: GeoNature v2 database user password.
@@ -127,7 +128,7 @@ INSERT INTO utilisateurs.t_roles (
 \echo 'Create users UUID if not set'
 UPDATE utilisateurs.t_roles
 SET uuid_role = uuid_generate_v4()
-WHERE uuid_role IS NULL 
+WHERE uuid_role IS NULL
     AND remarques = 'Imported from GeoNature v1.';
 
 
