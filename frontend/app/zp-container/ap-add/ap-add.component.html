@@ -13,6 +13,11 @@
         (layerDeleted)="deleteApGeom()"
       >
       </pnx-leaflet-draw>
+      <pnx-leaflet-filelayer
+        [editMode]="false"
+        (onLoad)="displayFileLayerInfoMessage()"
+        [style]="{'color': mapGpxColor}">
+      </pnx-leaflet-filelayer>
     </pnx-map>
   </div>
 
