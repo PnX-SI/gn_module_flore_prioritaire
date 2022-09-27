@@ -13,6 +13,9 @@ import { ApAddComponent } from './zp-container/ap-add/ap-add.component';
 import { ZpDetailsComponent } from './zp-container/zp-details/zp-details.component';
 import { ZpContainerComponent } from './zp-container/zp-container.component';
 import { routes } from './gnModule.routes';
+import { ModuleConfig } from './module.config';
+import { MODULE_CONFIG_TOKEN } from './gnModule.config';
+
 
 @NgModule({
   imports: [CommonModule, GN2CommonModule, RouterModule.forChild(routes)],
@@ -21,8 +24,13 @@ import { routes } from './gnModule.routes';
     ZpAddComponent,
     ZpDetailsComponent,
     ApAddComponent,
-    ZpContainerComponent
+    ZpContainerComponent,
   ],
-  providers: [DataService, StoreService, ApFormService]
+  providers: [
+    DataService,
+    StoreService,
+    ApFormService,
+    { provide: MODULE_CONFIG_TOKEN, useValue: ModuleConfig },
+  ],
 })
 export class GeonatureModule {}

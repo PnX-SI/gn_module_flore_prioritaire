@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
@@ -13,7 +13,7 @@ import { MapListService } from '@geonature_common/map-list/map-list.service';
 
 import { DataService } from '../services/data.service';
 import { StoreService } from '../services/store.service';
-import { ModuleConfig } from '../module.config';
+import { ModuleConfigInterface, MODULE_CONFIG_TOKEN } from '../gnModule.config';
 
 @Component({
   selector: 'gn-pf-zp-add',
@@ -27,6 +27,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   public idZp: string;
 
   constructor(
+    @Inject(MODULE_CONFIG_TOKEN) private config: ModuleConfigInterface,
     public activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     public router: Router,
@@ -80,7 +81,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   }
 
   onCancel() {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}`]);
+    this.router.navigate([`${this.config.MODULE_URL}`]);
   }
 
   onSubmit() {
@@ -92,7 +93,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
       });
 
       this.router.navigate([
-        `${ModuleConfig.MODULE_URL}/zps`,
+        `${this.config.MODULE_URL}/zps`,
         data.id,
         'details',
       ]);
