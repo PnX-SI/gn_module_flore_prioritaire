@@ -21,7 +21,7 @@ export class ApFormService {
         perturbations: new Array(),
         altitude_min: null,
         altitude_max: null,
-        area: [{ value: null, disabled: true }],
+        area: [{ value: null, disabled: true }, Validators.required],
         frequency: null,
         id_nomenclature_counting: null,
         id_nomenclature_habitat: null,
@@ -30,10 +30,10 @@ export class ApFormService {
         total_min: null,
         total_max: null,
         comment: null,
-        geom_4326: [null, Validators.required]
+        geom_4326: [null, Validators.required],
       },
       {
-        validators: [this.countingValidator, this.invalidAltitudeValidator]
+        validators: [this.countingValidator, this.invalidAltitudeValidator],
       }
     );
   }
