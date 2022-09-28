@@ -5,7 +5,7 @@ HABITAT_STATUS,3,Défavorable,Défavorable,État de l'habitat défavorable,Défa
 INCLINE_TYPE,0,0,0° - Plat,Plat (0),Plat (0),Plat (0),0,.001
 INCLINE_TYPE,1,2.5,0+-5° - Labourable,Labourable (>0-5°),Labourable (>0-5°),Labourable (>0-5°),0,.002
 INCLINE_TYPE,2,7.5,05-10° - Fauchable,Fauchable (5-10°),Fauchable (5-10°),Fauchable (5-10°),0,.003
-INCLINE_TYPE,3,12.5,10-15° - Haut d'un cône de déjection torrentiel,Fauchable (5-10°)Haut d'un cône de déjection torrentiel (10-15°),Fauchable (5-10°)Haut d'un cône de déjection torrentiel (10-15°),Fauchable (5-10°)Haut d'un cône de déjection torrentiel (10-15°),0,.004
+INCLINE_TYPE,3,12.5,10-15° - Haut d'un cône de déjection torrentiel,Haut d'un cône de déjection torrentiel (10-15°),Haut d'un cône de déjection torrentiel (10-15°),Haut d'un cône de déjection torrentiel (10-15°),0,.004
 INCLINE_TYPE,4,17.5,15-20° - Haut d'un cône d'avalanche,Haut d'un cône d'avalanche (15-20°),Haut d'un cône d'avalanche (15-20°),Haut d'un cône d'avalanche (15-20°),0,.005
 INCLINE_TYPE,5,22.5,20-25° - Pied d'éboulis,Pied d'éboulis (20-25°),Pied d'éboulis (20-25°),Pied d'éboulis (20-25°),0,.006
 INCLINE_TYPE,6,30,25-35° - Tablier d'éboulis,Tablier d'éboulis (25-35°),Tablier d'éboulis (25-35°),Tablier d'éboulis (25-35°),0,.007
