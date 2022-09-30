@@ -2,8 +2,8 @@ type_nomenclature_code,cd_nomenclature,mnemonique,label_default,definition_defau
 HABITAT_STATUS,1,Favorable,Favorable,État de l'habitat favorable,Favorable,État de l'habitat favorable,0,.001
 HABITAT_STATUS,2,Défavorable inadéquat,Défavorable inadéquat,État de l'habitat défavorable inadéquat,Défavorable inadéquat,État de l'habitat défavorable inadéquat,0,.002
 HABITAT_STATUS,3,Défavorable,Défavorable,État de l'habitat défavorable,Défavorable,État de l'habitat défavorable,0,.003
-INCLINE_TYPE,0,0,0° - Plat,Plat (0),Plat (0),Plat (0),0,.001
-INCLINE_TYPE,1,2.5,0+-5° - Labourable,Labourable (>0-5°),Labourable (>0-5°),Labourable (>0-5°),0,.002
+INCLINE_TYPE,0,0,00° - Plat,Plat (0),Plat (0),Plat (0),0,.001
+INCLINE_TYPE,1,2.5,01-05° - Labourable,Labourable (>0-5°),Labourable (>0-5°),Labourable (>0-5°),0,.002
 INCLINE_TYPE,2,7.5,05-10° - Fauchable,Fauchable (5-10°),Fauchable (5-10°),Fauchable (5-10°),0,.003
 INCLINE_TYPE,3,12.5,10-15° - Haut d'un cône de déjection torrentiel,Haut d'un cône de déjection torrentiel (10-15°),Haut d'un cône de déjection torrentiel (10-15°),Haut d'un cône de déjection torrentiel (10-15°),0,.004
 INCLINE_TYPE,4,17.5,15-20° - Haut d'un cône d'avalanche,Haut d'un cône d'avalanche (15-20°),Haut d'un cône d'avalanche (15-20°),Haut d'un cône d'avalanche (15-20°),0,.005
