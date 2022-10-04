@@ -3,7 +3,7 @@
     <!-- MAP -->
     <pnx-map height="92vh">
       <pnx-leaflet-draw
-        [geojson]="zpForm.value.geom_4326"
+        [geojson]="mapZpGeometry"
         [options]="leafletDrawOptions"
         [zoomLevel]="1"
         (layerDrawed)="addGeoInfo($event)"

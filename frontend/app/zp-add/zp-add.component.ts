@@ -26,6 +26,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   public leafletDrawOptions = leafletDrawOption;
   public zpForm: FormGroup;
   public idZp: string;
+  public mapZpGeometry: string;
   public firstFileLayerMessage: boolean = true;
   public mapGpxColor: string;
 
@@ -81,6 +82,8 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
           observers: zp.observers,
           geom_4326: element.zp.geometry,
         });
+        // Define geometry for map
+        this.mapZpGeometry = element.zp.geometry;
       });
     }
   }
@@ -92,17 +95,23 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   onSubmit() {
     let finalForm = this.formatDataFormZp();
 
-    this.api.addProspectZone(finalForm).subscribe((data) => {
-      this.toastrService.success('Zone de prospection enregistrée', '', {
-        positionClass: 'toast-top-center',
-      });
+    if (this.idZp) {
+      this.api
+        .updateProspectZone(finalForm, this.idZp)
+        .subscribe(data => {
+          this.onFormSaved(data);
+        });
+    } else {
+      this.api.addProspectZone(finalForm).subscribe(data => { this.onFormSaved(data) });
+    }
+  }
 
-      this.router.navigate([
-        `${this.config.MODULE_URL}/zps`,
-        data.id,
-        'details',
-      ]);
+  private onFormSaved(data) {
+    this.toastrService.success('Zone de prospection enregistrée', '', {
+      positionClass: 'toast-top-center'
     });
+
+    this.router.navigate([`${this.config.MODULE_URL}/zps`, data.id, 'details']);
   }
 
   private formatDataFormZp() {
