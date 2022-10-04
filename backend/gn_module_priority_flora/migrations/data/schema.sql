@@ -208,14 +208,10 @@ CREATE OR REPLACE FUNCTION pr_priority_flora.edit_zp()
   RETURNS trigger AS
 $BODY$
 BEGIN
-  IF NEW.id_zp IN (SELECT id_zp FROM pr_priority_flora.t_zprospect) THEN
-    RETURN NULL;
-  ELSE
-    NEW.geom_local = public.st_transform(NEW.geom_4326, :localSrid);
-    NEW.geom_point_4326 = public.st_pointonsurface(NEW.geom_4326);
-    NEW.area = public.st_area(NEW.geom_local);
-    RETURN NEW;
-  END IF;
+  NEW.geom_local = public.st_transform(NEW.geom_4326, :localSrid);
+  NEW.geom_point_4326 = public.st_pointonsurface(NEW.geom_4326);
+  NEW."area" = public.st_area(NEW.geom_local);
+  RETURN NEW;
 END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
@@ -229,14 +225,10 @@ CREATE OR REPLACE FUNCTION pr_priority_flora.edit_ap()
   RETURNS trigger AS
 $BODY$
 BEGIN
-  IF NEW.id_ap IN (SELECT id_ap FROM pr_priority_flora.t_apresence) THEN
-    RETURN NULL;
-  ELSE
-    NEW.geom_local = public.st_transform(NEW.geom_4326, :localSrid);
-    NEW.geom_point_4326 = public.st_pointonsurface(NEW.geom_4326);
-    NEW.area = public.st_area(NEW.geom_local);
-    RETURN NEW;
-  END IF;
+  NEW.geom_local = public.st_transform(NEW.geom_4326, :localSrid);
+  NEW.geom_point_4326 = public.st_pointonsurface(NEW.geom_4326);
+  NEW."area" = public.st_area(NEW.geom_local);
+  RETURN NEW;
 END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
