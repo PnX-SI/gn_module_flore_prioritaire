@@ -104,13 +104,23 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
               this.apForm.markAsDirty();
 
               // Get area size
-              this.dataFormService
-                .getAreaSize(geojson)
-                .subscribe((areaSize) => {
-                  this.apForm.patchValue({
-                    area: Math.round(areaSize),
+              if (geojson.geometry.type == 'Point') {
+                this.apForm.controls['area'].enable();
+                this.apForm.patchValue({ area: null });
+                this.commonService.regularToaster(
+                  'info',
+                  "Veuillez saisir la surface en m² de l'aire de présence."
+                );
+              } else {
+                this.apForm.controls['area'].disable();
+                this.dataFormService
+                  .getAreaSize(geojson)
+                  .subscribe(areaSize => {
+                    this.apForm.patchValue({
+                      area: Math.round(areaSize)
+                    });
                   });
-                });
+              }
 
               // Get to geo info from API
               this.dataFormService.getGeoInfo(geojson).subscribe((res) => {
@@ -289,6 +299,8 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   deleteApGeom() {
+    this.apForm.controls['area'].disable();
+
     this.apForm.patchValue({
       geom_4326: null,
       area: null,
