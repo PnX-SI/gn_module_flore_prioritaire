@@ -73,10 +73,15 @@ des aires de présence.
 Vous pouvez vérifier la présence du MNT dans la table : `ref_geo.dem`
 Si la table est vide, cela signifie que le MNT n'est pas installé.
 
-Pour ajouter le MNT à la base GeoNature utiliser la commande GeoNature suivante :
+Pour ajouter le MNT *raster* à la base GeoNature utiliser la commande GeoNature suivante :
 ```
 geonature db upgrade ign_bd_alti@head -x local-srid=<local-srid>
 ```
 Remplacer `<local-srid>` par la valeur de votre SRID (généralement `2154`).
 Si vous ne le connaissez pas, regarder sa valeur au niveau du champ
 `ref_geo.l_areas.geom` de votre base de données.
+
+Si vous souhaiter augementer les performatnces du MNT, vous pouvez le vectoriser avec la commande :
+```
+geonature db upgrade ign_bd_alti_vector@head
+```
