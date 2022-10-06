@@ -151,7 +151,7 @@ INSERT INTO pr_priority_flora.t_apresence(
     mta.altitude_retenue,
     mta.altitude_retenue,
     NULL, -- Pas de notion de pente.
-    NULL, -- Pas de notion d'habitat.
+    ref_nomenclatures.get_id_nomenclature('HABITAT_STATUS', mta.idetatconservation::text),
     mta.pourcentage_ap_conservation_favorable,
     ref_nomenclatures.get_id_nomenclature('THREAT_LEVEL', mta.idmenace::text),
     ref_nomenclatures.get_id_nomenclature('PHENOLOGY_TYPE', mta.codepheno::text),
@@ -177,7 +177,6 @@ INSERT INTO pr_priority_flora.t_apresence(
         'effectifPlacettesFertiles', mta.effectif_placettes_fertiles,
         'totalSteriles', mta.total_steriles,
         'totalFertiles', mta.total_fertiles,
-        'etatConservation', bec.libelle,
         'conservationCommentaire', mta.conservation_commentaire,
         'pourcentageApNonMenacee', mta.pourcentage_ap_non_menacee,
         'pourcentageApEspaceProtegeF', mta.pourcentage_ap_espace_protege_f,
@@ -191,8 +190,6 @@ INSERT INTO pr_priority_flora.t_apresence(
   FROM migrate_v1_florepatri.t_apresence AS mta
     INNER JOIN pr_priority_flora.t_zprospect AS tz
       ON CAST(tz.additional_data-> 'migrateOriginalInfos' ->> 'indexZp' AS BIGINT) = mta.indexzp
-    LEFT JOIN migrate_v1_florepatri.bib_etats_conservation AS bec
-      ON bec.idetatconservation = mta.idetatconservation
   WHERE mta.supprime = FALSE
     AND mta.the_geom_2154 IS NOT NULL
     AND NOT EXISTS (
