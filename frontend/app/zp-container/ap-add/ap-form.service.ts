@@ -18,22 +18,30 @@ export class ApFormService {
       {
         id_ap: null,
         id_zp: null,
-        perturbations: new Array(),
         altitude_min: null,
         altitude_max: null,
         area: [{ value: null, disabled: true }, Validators.required],
-        frequency: null,
-        id_nomenclature_counting: null,
-        id_nomenclature_habitat: null,
         id_nomenclature_incline: null,
+        physiognomies: new Array(),
+        id_nomenclature_habitat: null,
+        favorable_status_percent: [
+          null,
+          [Validators.min(0), Validators.max(100)]
+        ],
+        id_nomenclature_threat_level: null,
+        perturbations: new Array(),
         id_nomenclature_phenology: null,
-        total_min: null,
-        total_max: null,
+        id_nomenclature_frequency_method: null,
+        frequency: [null, [Validators.min(0), Validators.max(100)]],
+        id_nomenclature_counting: null,
+        total: [null, Validators.min(0)],
+        total_min: [null, Validators.min(0)],
+        total_max: [null, Validators.min(0)],
         comment: null,
-        geom_4326: [null, Validators.required],
+        geom_4326: [null, Validators.required]
       },
       {
-        validators: [this.countingValidator, this.invalidAltitudeValidator],
+        validators: [this.countingValidator, this.invalidAltitudeValidator]
       }
     );
   }

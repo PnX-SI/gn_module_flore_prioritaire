@@ -43,7 +43,7 @@
           <legend>
             <h4>
               <mat-icon>map</mat-icon>
-              Situation
+              1. Situation
             </h4>
           </legend>
 
@@ -113,6 +113,20 @@
             </div>
           </div>
 
+          <div class="row form-group">
+            <div class="col-sm-12 col-md-8">
+              <label for="physiognomies">Physionomies</label>
+              <pnx-nomenclature
+                [bindAllItem]="true"
+                [parentFormControl]="apForm.controls.physiognomies"
+                [multiSelect]="true"
+                keyValue="id_nomenclature"
+                codeNomenclatureType="PHYSIOGNOMY_TYPE"
+              >
+              </pnx-nomenclature>
+            </div>
+          </div>
+
           <div *ngIf="!apForm?.value?.geom_4326">
             <p class="alert alert-warning" role="alert">
               <mat-icon>warning</mat-icon>
@@ -121,69 +135,198 @@
           </div>
         </fieldset>
 
-        <div class="row form-group">
-          <div class="col-sm-12 col-md-8">
-            <label for="id_nomenclature_phenology">Phénologie</label>
-            <pnx-nomenclature
-              [parentFormControl]="
-                apForm.controls.id_nomenclature_phenology
-              "
-              [multiSelect]="false"
-              keyValue="id_nomenclature"
-              codeNomenclatureType="PHENOLOGY_TYPE"
-            >
-            </pnx-nomenclature>
-          </div>
-        </div>
+        <fieldset>
+          <legend>
+            <h4>
+              <mat-icon>landscape</mat-icon>
+              2. Habitat
+            </h4>
+          </legend>
 
-        <div class="row form-group">
-          <div class="col-sm-12 col-md-8">
-            <label for="perturbations">Perturbation(s)</label>
-            <pnx-nomenclature
-              [bindAllItem]="true"
-              [parentFormControl]="apForm.controls.perturbations"
-              [multiSelect]="true"
-              keyValue="id_nomenclature"
-              codeNomenclatureType="TYPE_PERTURBATION"
-            >
-            </pnx-nomenclature>
+          <div class="row form-group">
+            <div class="col-sm-12 col-md-8">
+              <label for="id_nomenclature_habitat">État de conservation dominant de l'habitat</label>
+              <pnx-nomenclature
+                [parentFormControl]="
+                  apForm.controls.id_nomenclature_habitat
+                "
+                [multiSelect]="false"
+                keyValue="id_nomenclature"
+                codeNomenclatureType="HABITAT_STATUS"
+              >
+              </pnx-nomenclature>
+            </div>
           </div>
-        </div>
 
-        <div class="row form-group">
-          <div class="col-sm-12 col-md-8">
-            <label for="id_nomenclature_habitat">Habitat</label>
-            <pnx-nomenclature
-              [parentFormControl]="
-                apForm.controls.id_nomenclature_habitat
-              "
-              [multiSelect]="false"
-              keyValue="id_nomenclature"
-              codeNomenclatureType="HABITAT_STATUS"
-            >
-            </pnx-nomenclature>
-          </div>
-        </div>
 
-        <div class="row form-group">
-          <div class="col-xs-3">
-            <label for="frequency">Fréquence estimée en %</label>
-            <input
-              type="number"
-              class="form-control"
-              id="frequency"
-              min="0"
-              max="100"
-              [formControl]="apForm.controls.frequency"
-            />
+          <div class="row form-group">
+            <div class="col-xs-3">
+              <label for="favorable_status_percent">
+                Estimation % AP en état de conservation favorable
+              </label>
+              <div class="input-group">
+                <input
+                  type="range"
+                  class="form-control"
+                  id="favorable_status_percent"
+                  min="0"
+                  max="100"
+                  [formControl]="apForm.controls.favorable_status_percent"
+                />
+                <div class="input-group-append ml-3">
+                  <span class="input-group-text">
+                    <ng-container
+                      *ngIf="
+                        apForm.controls.favorable_status_percent.value != undefined ;
+                        else undefinedFavorableStatusPercent
+                      "
+                    >
+                      {{ apForm.controls.favorable_status_percent.value }}%
+                    </ng-container>
+                    <ng-template #undefinedFavorableStatusPercent class="input-group-text">?</ng-template>
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+          <div
+            *ngIf="apForm.controls.favorable_status_percent.errors?.max"
+            class="alert alert-warning row"
+            role="alert"
+          >
+            <mat-icon>warning</mat-icon>
+            L'estimation ne peux dépasser 100%.
+          </div>
+          <div
+            *ngIf="apForm.controls.favorable_status_percent.errors?.min"
+            class="alert alert-warning row"
+            role="alert"
+          >
+            <mat-icon>warning</mat-icon>
+            L'estimation ne peux être inférieure à 0%.
+          </div>
+
+          <div class="row form-group">
+            <div class="col-sm-12 col-md-8">
+              <label for="id_nomenclature_threat_level">Niveau de menace/perturbation</label>
+              <pnx-nomenclature
+                [parentFormControl]="apForm.controls.id_nomenclature_threat_level"
+                [multiSelect]="false"
+                keyValue="id_nomenclature"
+                codeNomenclatureType="THREAT_LEVEL"
+              >
+              </pnx-nomenclature>
+            </div>
+          </div>
+
+          <div class="row form-group">
+            <div class="col-sm-12 col-md-8">
+              <label for="perturbations">Perturbations</label>
+              <pnx-nomenclature
+                [bindAllItem]="true"
+                [parentFormControl]="apForm.controls.perturbations"
+                [multiSelect]="true"
+                keyValue="id_nomenclature"
+                codeNomenclatureType="TYPE_PERTURBATION"
+              >
+              </pnx-nomenclature>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>
+            <h4>
+              <mat-icon>update</mat-icon>
+              3. Phénologie
+            </h4>
+          </legend>
+
+          <div class="row form-group">
+            <div class="col-sm-12 col-md-8">
+              <pnx-nomenclature
+                [parentFormControl]="
+                  apForm.controls.id_nomenclature_phenology
+                "
+                [multiSelect]="false"
+                keyValue="id_nomenclature"
+                codeNomenclatureType="PHENOLOGY_TYPE"
+              >
+              </pnx-nomenclature>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>
+            <h4>
+              <mat-icon>bar_chart</mat-icon>
+              4. Fréquence
+            </h4>
+          </legend>
+
+          <div class="row form-group">
+            <div class="col-sm-12 col-md-8">
+              <label for="id_nomenclature_frequency_method">Méthode</label>
+              <pnx-nomenclature
+                [parentFormControl]="apForm.controls.id_nomenclature_frequency_method"
+                [multiSelect]="false"
+                keyValue="id_nomenclature"
+                codeNomenclatureType="FREQUENCY_METHOD"
+              >
+              </pnx-nomenclature>
+            </div>
+          </div>
+
+          <div class="row form-group">
+            <div class="col-xs-3">
+              <label for="frequency">Fréquence estimée en %</label>
+              <div class="input-group">
+                <input
+                  type="range"
+                  class="form-control"
+                  id="frequency"
+                  min="0"
+                  max="100"
+                  [formControl]="apForm.controls.frequency"
+                />
+                <div class="input-group-append ml-3">
+                  <ng-container
+                      *ngIf="
+                        apForm.controls.frequency.value != undefined ;
+                        else undefinedFrequency
+                      "
+                    >
+                      {{ apForm.controls.frequency.value }}%
+                    </ng-container>
+                    <ng-template #undefinedFrequency class="input-group-text">?</ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            *ngIf="apForm.controls.frequency.errors?.max"
+            class="alert alert-warning row"
+            role="alert"
+          >
+            <mat-icon>warning</mat-icon>
+            La fréquence ne peux dépasser 100%.
+          </div>
+          <div
+            *ngIf="apForm.controls.frequency.errors?.min"
+            class="alert alert-warning row"
+            role="alert"
+          >
+            <mat-icon>warning</mat-icon>
+            La fréquence ne peux être inférieure à 0%.
+          </div>
+        </fieldset>
 
         <fieldset>
           <legend>
             <h4>
               <mat-icon>pin</mat-icon>
-              Dénombrement
+              5. Dénombrement
             </h4>
           </legend>
 
@@ -192,18 +335,36 @@
               <small> Objet dénombrement </small>
               <div id="newCounting">
                 <pnx-nomenclature
+                  #countingMethod
                   [parentFormControl]="
                     apForm.controls.id_nomenclature_counting
                   "
                   [multiSelect]="false"
                   keyValue="id_nomenclature"
                   codeNomenclatureType="COUNTING_TYPE"
+                  (onChange)="onCountingChange($event)"
                 >
                 </pnx-nomenclature>
               </div>
             </div>
 
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 padding-sm">
+            <div
+              *ngIf="countingMethod.getCdNomenclature() == COUNTING_TYPES.census"
+              class="col-xs-6 col-sm-6 col-md-4 col-lg-4 padding-sm"
+            >
+              <small> Nombre </small>
+              <input
+                class="form-control"
+                type="number"
+                min="0"
+                [formControl]="apForm.controls.total"
+              />
+            </div>
+
+            <div
+              *ngIf="countingMethod.getCdNomenclature() == COUNTING_TYPES.sampling"
+              class="col-xs-6 col-sm-6 col-md-2 col-lg-2 padding-sm"
+            >
               <small> Min </small>
               <input
                 [ngClass]="{
@@ -216,7 +377,10 @@
               />
             </div>
 
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 padding-sm">
+            <div
+              *ngIf="countingMethod.getCdNomenclature() == COUNTING_TYPES.sampling"
+              class="col-xs-6 col-sm-6 col-md-2 col-lg-2 padding-sm"
+            >
               <small> Max </small>
               <input
                 [ngClass]="{
@@ -228,6 +392,34 @@
                 [formControl]="apForm.controls.total_max"
               />
             </div>
+
+          </div>
+
+          <div
+            *ngIf="apForm.controls.total.errors?.min"
+            class="alert alert-warning row"
+            role="alert"
+          >
+            <mat-icon>warning</mat-icon>
+            La dénombrement ne peux être inférieure à 0.
+          </div>
+
+          <div
+            *ngIf="apForm.controls.total_min.errors?.min"
+            class="alert alert-warning row"
+            role="alert"
+          >
+            <mat-icon>warning</mat-icon>
+            La dénombrement minimum ne peux être inférieure à 0.
+          </div>
+
+          <div
+            *ngIf="apForm.controls.total_max.errors?.min"
+            class="alert alert-warning row"
+            role="alert"
+          >
+            <mat-icon>warning</mat-icon>
+            La dénombrement maximum ne peux être inférieure à 0.
           </div>
 
           <div
@@ -244,7 +436,7 @@
           <legend>
             <h4>
               <mat-icon>comment</mat-icon>
-              Commentaires
+              6. Commentaires
             </h4>
           </legend>
           <div

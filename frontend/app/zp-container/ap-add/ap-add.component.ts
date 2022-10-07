@@ -4,6 +4,7 @@ import {
   AfterViewInit,
   OnDestroy,
   Inject,
+  ViewChild
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -14,37 +15,47 @@ import { ToastrService } from 'ngx-toastr';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
+import { CommonService } from '@geonature_common/service/common.service';
 import { DataFormService } from '@geonature_common/form/data-form.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
-import { CommonService } from '@geonature_common/service/common.service';
+import { NomenclatureComponent } from '@geonature_common/form/nomenclature/nomenclature.component';
 
 import { DataService } from '../../services/data.service';
 import { ApFormService } from './ap-form.service';
 import { StoreService } from '../../services/store.service';
 import {
   ModuleConfigInterface,
-  MODULE_CONFIG_TOKEN,
+  MODULE_CONFIG_TOKEN
 } from '../../gnModule.config';
+
+
+enum COUNTING_TYPES {
+  census = '1',
+  sampling = '2',
+  NoCounting = '9'
+}
 
 @Component({
   selector: 'gn-pf-ap-add',
   templateUrl: 'ap-add.component.html',
   styleUrls: ['ap-add.component.scss'],
-  providers: [MapListService],
+  providers: [MapListService]
 })
 export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
-  public leafletDrawOptions = leafletDrawOption;
+  leafletDrawOptions = leafletDrawOption;
   private apForm: FormGroup;
-  public geojson: any;
-  public idAp;
-  public areasIntersected = new Array();
+  geojson: any;
+  idAp;
+  areasIntersected = new Array();
   private geojsonSubscription$: Subscription;
-  public myGeoJSON: GeoJSON;
-  public filteredData = [];
-  public firstFileLayerMessage: boolean = true;
-  public mapGpxColor: string;
+  myGeoJSON: GeoJSON;
+  filteredData = [];
+  firstFileLayerMessage: boolean = true;
+  mapGpxColor: string;
+  COUNTING_TYPES = COUNTING_TYPES;
+  @ViewChild('countingMethod') countingMethod: NomenclatureComponent;
 
   constructor(
     @Inject(MODULE_CONFIG_TOKEN) private config: ModuleConfigInterface,
@@ -73,7 +84,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private extractUrlParams() {
     this.idAp = this.activatedRoute.snapshot.params['idAp'];
-    this.activatedRoute.parent.params.subscribe((params) => {
+    this.activatedRoute.parent.params.subscribe(params => {
       this.storeService.idSite = params['idZp'];
     });
   }
@@ -91,15 +102,15 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     // Subscription to the geojson observable. Used when new geom add on map by Leaflet Draw
     this.geojsonSubscription$ = this.mapService.gettingGeojson$
       .pipe(distinctUntilChanged())
-      .subscribe((geojson) => {
+      .subscribe(geojson => {
         // check if ap is in zp
         this.api
           .containArea(this.storeService.zp.geometry, geojson.geometry)
-          .subscribe((contain) => {
+          .subscribe(contain => {
             if (contain) {
               // Update geom control in form
               this.apForm.patchValue({
-                geom_4326: geojson.geometry,
+                geom_4326: geojson.geometry
               });
               this.apForm.markAsDirty();
 
@@ -123,11 +134,11 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
               }
 
               // Get to geo info from API
-              this.dataFormService.getGeoInfo(geojson).subscribe((res) => {
+              this.dataFormService.getGeoInfo(geojson).subscribe(res => {
                 if (res.altitude.altitude_min && res.altitude.altitude_max) {
                   this.apForm.patchValue({
                     altitude_min: res.altitude.altitude_min,
-                    altitude_max: res.altitude.altitude_max,
+                    altitude_max: res.altitude.altitude_max
                   });
                 } else {
                   this.commonService.regularToaster(
@@ -141,13 +152,13 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
               // Get intersected geometry
               this.dataFormService
                 .getFormatedGeoIntersection(geojson)
-                .subscribe((res) => {
+                .subscribe(res => {
                   this.areasIntersected = res;
                 });
             } else {
               this.geojson = null;
               this.apForm.patchValue({
-                geom_4326: null,
+                geom_4326: null
               });
               this.commonService.regularToaster(
                 'warning',
@@ -161,13 +172,13 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   private initializeTotalMaxAutocomplete() {
     this.apForm.controls.total_min.valueChanges
       .distinctUntilChanged()
-      .subscribe((value) => {
+      .subscribe(value => {
         if (
           this.apForm.controls.total_max === null ||
           this.apForm.controls.total_max.pristine
         ) {
           this.apForm.patchValue({
-            total_max: value,
+            total_max: value
           });
         }
       });
@@ -184,40 +195,52 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadApData() {
     this.api.getOnePresenceArea(this.idAp).subscribe(
-      (element) => {
+      element => {
         const ap = element.properties;
         this.apForm.patchValue({
           id_ap: this.idAp,
           id_zp: ap.id_zp,
+          geom_4326: element.geometry,
           altitude_min: ap.altitude_min,
           altitude_max: ap.altitude_max,
-          comment: ap.comment,
-          frequency: ap.frequency,
-          total_min: ap.total_min,
-          total_max: ap.total_max,
-          id_nomenclature_phenology: ap.pheno ? ap.pheno.id_nomenclature : null,
-          id_nomenclature_habitat: ap.habitat
-            ? ap.habitat.id_nomenclature
-            : null,
+          area: Math.round(ap.area),
           id_nomenclature_incline: ap.incline
             ? ap.incline.id_nomenclature
             : null,
+          physiognomies: ap.physiognomies === null ? [] : ap.physiognomies,
+          id_nomenclature_habitat: ap.habitat
+            ? ap.habitat.id_nomenclature
+            : null,
+          favorable_status_percent: ap.favorable_status_percent,
+          id_nomenclature_threat_level: ap.threat_level
+            ? ap.threat_level.id_nomenclature
+            : null,
+          perturbations: ap.perturbations === null ? [] : ap.perturbations,
+          id_nomenclature_phenology: ap.pheno ? ap.pheno.id_nomenclature : null,
+          id_nomenclature_frequency_method: ap.frequency_method
+            ? ap.frequency_method.id_nomenclature
+            : null,
+          frequency: ap.frequency,
           id_nomenclature_counting: ap.counting
             ? ap.counting.id_nomenclature
             : null,
-          geom_4326: element.geometry,
-          area: Math.round(ap.area),
-          perturbations: ap.perturbations === null ? [] : ap.perturbations,
+          total:
+            ap.counting && ap.counting.cd_nomenclature == COUNTING_TYPES.census
+              ? ap.total_min
+              : 0,
+          total_min: ap.total_min,
+          total_max: ap.total_max,
+          comment: ap.comment
         });
         this.geojson = element.geometry;
       },
-      (error) => {
+      error => {
         if (error.status != 404) {
           this.toastrService.error(
             "Une erreur est survenue lors de la récupération des informations de l'AP sur le serveur",
             '',
             {
-              positionClass: 'toast-top-right',
+              positionClass: 'toast-top-right'
             }
           );
           console.log('error: ', error);
@@ -228,23 +251,24 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadZpData() {
     this.api.getOneProspectZone(this.storeService.idSite).subscribe(
-      (data) => {
+      data => {
         this.storeService.zp = data['zp'];
         this.storeService.zpProperties = data['zp']['properties'];
-        this.storeService.zpProperties['areas'] =
-          this.storeService.zpProperties['areas'].filter(
-            (area) => area.area_type.type_code == 'COM'
-          );
+        this.storeService.zpProperties[
+          'areas'
+        ] = this.storeService.zpProperties['areas'].filter(
+          area => area.area_type.type_code == 'COM'
+        );
 
         //this.storeService.sites = data['aps'];
       },
-      (error) => {
+      error => {
         if (error.status != 404) {
           this.toastrService.error(
             'Une erreur est survenue lors de la récupération des informations sur le serveur',
             '',
             {
-              positionClass: 'toast-top-right',
+              positionClass: 'toast-top-right'
             }
           );
           console.log('error: ', error);
@@ -264,28 +288,37 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   onSubmit() {
     if (this.apForm.valid) {
       const apForm = JSON.parse(JSON.stringify(this.apForm.value));
-      // set indexZP
+
+      // Set indexZP
       apForm['id_zp'] = this.storeService.zp.id;
-      this.api.addPresenceArea(apForm).subscribe((data) => {
+
+      // Store total input form value in total_min and total_max DB fields.
+      if (apForm['total'] != null) {
+        apForm['total_min'] = apForm['total'];
+        apForm['total_max'] = apForm['total'];
+      }
+      delete apForm['total'];
+
+      // Send presence area data
+      this.api.addPresenceArea(apForm).subscribe(data => {
         this.toastrService.success('Aire de présence enregistrée', '', {
-          positionClass: 'toast-top-center',
+          positionClass: 'toast-top-center'
         });
         this.router.navigate([
           `${this.config.MODULE_URL}/zps`,
           this.storeService.zp.id,
-          'details',
+          'details'
         ]);
         // push ap maplist data
         if (apForm['id_ap']) {
           // remove from list
           this.mapListService.tableData = this.mapListService.tableData.filter(
-            (ap) => ap.id_ap != apForm['id_ap']
+            ap => ap.id_ap != apForm['id_ap']
           );
           // remove from map
-          this.storeService.sites.features =
-            this.storeService.sites.features.filter(
-              (ap) => ap.id != apForm['id_ap']
-            );
+          this.storeService.sites.features = this.storeService.sites.features.filter(
+            ap => ap.id != apForm['id_ap']
+          );
         }
 
         this.mapListService.tableData.push(data.properties);
@@ -298,12 +331,32 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  onCountingChange(nomenclatureId) {
+    let countingCode = this.countingMethod.getCdNomenclature();
+    if (countingCode == COUNTING_TYPES.census) {
+      this.apForm.patchValue({
+        total_min: null,
+        total_max: null,
+      });
+    } else if (countingCode == COUNTING_TYPES.sampling) {
+      this.apForm.patchValue({
+        total: null,
+      });
+    } else {
+      this.apForm.patchValue({
+        total_min: null,
+        total_max: null,
+        total: null
+      });
+    }
+  }
+
   deleteApGeom() {
     this.apForm.controls['area'].disable();
 
     this.apForm.patchValue({
       geom_4326: null,
-      area: null,
+      area: null
     });
     this.apForm.markAsDirty();
     this.geojson = null;
