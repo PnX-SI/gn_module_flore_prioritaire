@@ -90,6 +90,8 @@ def get_prospect_zones(info_role):
                 "observers",
                 "observers.organisme",
                 "areas.area_name",
+                "area",
+                "ap.id_ap",
             ],
         )
         cruved_auth = d.get_model_cruved(info_role, user_cruved[0])
@@ -100,6 +102,7 @@ def get_prospect_zones(info_role):
                 feature["properties"]["observers"],
             )
         )
+        feature["properties"]["ap_number"] = len(feature["properties"]["ap"])
         features.append(feature)
     return {"total": filtered_number, "items": FeatureCollection(features)}
 

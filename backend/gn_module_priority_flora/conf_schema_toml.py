@@ -6,9 +6,10 @@ from marshmallow import Schema, fields
 
 
 datatable_zp_columns = [
-    {"name": "Id", "prop": "id_zp", "width": 70},
     {"name": "Taxon", "prop": "taxonomy.nom_valide", "width": 350},
-    {"name": "Date", "prop": "date_min", "width": 120},
+    {"name": "Date", "prop": "date_min", "width": 110},
+    {"name": "Surface (m²)", "prop": "area", "width": 90},
+    {"name": "AP", "prop": "ap_number", "width": 50},
     {"name": "Organisme", "prop": "organisms_list", "width": 400},
 ]
 datatable_zp_messages = {
