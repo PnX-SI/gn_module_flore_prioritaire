@@ -160,7 +160,7 @@ INSERT INTO pr_priority_flora.t_apresence(
     ref_nomenclatures.get_id_nomenclature('COUNTING_TYPE', mta.id_comptage_methodo::text),
     mta.total_steriles + mta.total_fertiles , --total_min
     mta.total_steriles + mta.total_fertiles, -- total max
-    NULLIF(mta.remarques, ''),
+    NULLIF(CONCAT(mta.conservation_commentaire, ' ', mta.remarques), ''),
     mta.topo_valid,
     json_build_object(
       'migrateOriginalInfos',
@@ -177,7 +177,6 @@ INSERT INTO pr_priority_flora.t_apresence(
         'effectifPlacettesFertiles', mta.effectif_placettes_fertiles,
         'totalSteriles', mta.total_steriles,
         'totalFertiles', mta.total_fertiles,
-        'conservationCommentaire', mta.conservation_commentaire,
         'pourcentageApNonMenacee', mta.pourcentage_ap_non_menacee,
         'pourcentageApEspaceProtegeF', mta.pourcentage_ap_espace_protege_f,
         'surfaceApMaitriseeFoncierement', mta.surface_ap_maitrisee_foncierement,
