@@ -8,7 +8,7 @@ from marshmallow import Schema, fields
 datatable_zp_columns = [
     {"name": "Taxon", "prop": "taxonomy.nom_valide", "width": 350},
     {"name": "Date", "prop": "date_min", "width": 110},
-    {"name": "Surface (m²)", "prop": "area", "width": 90},
+    {"name": "Surface (m²)", "prop": "area", "width": 95},
     {"name": "AP", "prop": "ap_number", "width": 50},
     {"name": "Organisme", "prop": "organisms_list", "width": 400},
 ]
@@ -17,9 +17,9 @@ datatable_zp_messages = {
     "totalMessage": "zone(s) de prospection",
 }
 datatable_ap_columns = [
-    {"name": "Fréquence", "prop": "frequency"},
-    {"name": "Altitude min", "prop": "altitude_min"},
-    {"name": "Altitude max", "prop": "altitude_max"},
+    {"name": "Fréquence", "prop": "frequency", "width": 50},
+    {"name": "Statut favorable (%)", "prop": "favorable_status_percent", "width": 50},
+    {"name": "Surface (m²)", "prop": "area", "width": 50},
 ]
 datatable_ap_messages = {
     "emptyMessage": "Aucune aire de présence sur cette zone de prospection !",

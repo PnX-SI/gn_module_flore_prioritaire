@@ -243,17 +243,35 @@
             </ngx-datatable-column>
 
             <ngx-datatable-column
-              *ngFor="let col of storeService.fpConfig.datatable_ap_columns"
+              *ngFor="let col of displayColumns"
               [name]="col.name"
               [prop]="col.prop"
               maxWidth="col.maxWidth"
+              [cellClass]="col.prop == 'area' ? 'text-right' : ''"
             >
               <ng-template
                 *ngIf="col.prop == 'frequency'"
                 let-value="value"
                 ngx-datatable-cell-template
               >
-                {{ value | number: '1.0-2' }}
+                {{ value | number:'1.0-2':'fr'}}
+              </ng-template>
+
+              <ng-template
+                *ngIf="col.prop == 'favorable_status_percent'"
+                let-value="value"
+                ngx-datatable-cell-template
+              >
+                {{ value | number:'1.0-2':'fr' }}%
+              </ng-template>
+
+              <ng-template
+                *ngIf="col.prop == 'area'"
+                let-value="value"
+                ngx-datatable-cell-template
+                style="text-align: right;"
+              >
+                {{ value | number:'1.0-0':'fr' }}
               </ng-template>
             </ngx-datatable-column>
           </ngx-datatable>

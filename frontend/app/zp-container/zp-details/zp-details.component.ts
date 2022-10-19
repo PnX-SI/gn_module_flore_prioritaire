@@ -22,8 +22,9 @@ import { ModuleConfig } from '../../module.config';
 export class ZpDetailsComponent implements OnInit {
   public idZp: string;
   public currentAp;
-  @ViewChild('table') table: any;
   public filteredData = [];
+  @ViewChild('table') table: any;
+  public displayColumns: Array<any>;
 
   constructor(
     public dialog: MatDialog,
@@ -38,6 +39,7 @@ export class ZpDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.displayColumns = this.storeService.fpConfig.datatable_ap_columns;
     this.activatedRoute.parent.params.subscribe(params => {
       this.idZp = params['idZp'];
       this.storeService.queryString = this.storeService.queryString.set(
@@ -82,11 +84,22 @@ export class ZpDetailsComponent implements OnInit {
   }
 
   onAddAp(idZp) {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/zps`, idZp, 'aps', 'add']);
+    this.router.navigate([
+      `${ModuleConfig.MODULE_URL}/zps`,
+      idZp,
+      'aps',
+      'add'
+    ]);
   }
 
   onEditAp(idZp, idAp) {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/zps`, idZp, 'aps', idAp, 'edit']);
+    this.router.navigate([
+      `${ModuleConfig.MODULE_URL}/zps`,
+      idZp,
+      'aps',
+      idAp,
+      'edit'
+    ]);
   }
 
   onDeleteAp(idAp) {
@@ -124,15 +137,9 @@ export class ZpDetailsComponent implements OnInit {
           },
           error => {
             if (error.status === 403) {
-              this.commonService.translateToaster(
-                'error',
-                'NotAllowed'
-              );
+              this.commonService.translateToaster('error', 'NotAllowed');
             } else {
-              this.commonService.translateToaster(
-                'error',
-                'ErrorMessage'
-              );
+              this.commonService.translateToaster('error', 'ErrorMessage');
             }
           }
         );

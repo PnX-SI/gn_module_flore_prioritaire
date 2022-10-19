@@ -373,7 +373,7 @@ def get_municipalities():
     return { "message": "An error occured !" }, 500
 
 
-@blueprint.route("/prospect-zones/<id_zp>", methods=["GET"])
+@blueprint.route("/prospect-zones/<int:id_zp>", methods=["GET"])
 @permissions.check_cruved_scope("R", module_code="PRIORITY_FLORA")
 @json_resp
 def get_prospect_zone(id_zp):
