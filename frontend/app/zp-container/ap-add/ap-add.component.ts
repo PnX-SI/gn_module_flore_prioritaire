@@ -186,8 +186,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     this.mapService.map.doubleClickZoom.disable();
-    // Update mode
-    if (this.idAp !== undefined) {
+    if (this.isUpdateMode()) {
       this.loadApData();
     }
     this.loadZpData();
@@ -197,6 +196,15 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     this.api.getOnePresenceArea(this.idAp).subscribe(
       element => {
         const ap = element.properties;
+
+        // Manage area field activation
+        if (element.geometry.type == 'Point') {
+          this.apForm.controls['area'].enable();
+        } else {
+          this.apForm.controls['area'].disable();
+        }
+
+        // Manage form fields values initialiazation
         this.apForm.patchValue({
           id_ap: this.idAp,
           id_zp: ap.id_zp,
@@ -300,35 +308,80 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
       delete apForm['total'];
 
       // Send presence area data
-      this.api.addPresenceArea(apForm).subscribe(data => {
-        this.toastrService.success('Aire de présence enregistrée', '', {
-          positionClass: 'toast-top-center'
-        });
-        this.router.navigate([
-          `${this.config.MODULE_URL}/zps`,
-          this.storeService.zp.id,
-          'details'
-        ]);
-        // push ap maplist data
-        if (apForm['id_ap']) {
-          // remove from list
-          this.mapListService.tableData = this.mapListService.tableData.filter(
-            ap => ap.id_ap != apForm['id_ap']
-          );
-          // remove from map
-          this.storeService.sites.features = this.storeService.sites.features.filter(
-            ap => ap.id != apForm['id_ap']
-          );
-        }
-
-        this.mapListService.tableData.push(data.properties);
-        this.storeService.sites.features.push(data);
-        // TODO: see if the code below is really necessary
-        const savedGeojsn = Object.assign({}, this.storeService.sites);
-        this.storeService.sites = null;
-        this.storeService.sites = savedGeojsn;
-      });
+      if (this.isUpdateMode()) {
+        this.api.updatePresenceArea(apForm, this.idAp).subscribe(
+          data => {
+            this.onPresenceAreaSavedSuccess(data);
+          },
+          error => {
+            this.onPresenceAreaSavedError(error);
+          }
+        );
+      } else {
+        this.api.addPresenceArea(apForm).subscribe(
+          data => {
+            this.onPresenceAreaSavedSuccess(data);
+          },
+          error => {
+            this.onPresenceAreaSavedError(error);
+          }
+        );
+      }
     }
+  }
+
+  private onPresenceAreaSavedSuccess(apData) {
+    this.toastrService.success('Aire de présence enregistrée', '', {
+      positionClass: 'toast-top-center'
+    });
+
+    this.router.navigate([
+      `${this.config.MODULE_URL}/zps`,
+      this.storeService.zp.id,
+      'details'
+    ]);
+
+    // TODO: try to simplify the code below
+    // Push ap maplist data
+    if (this.isUpdateMode()) {
+      // remove from list
+      this.mapListService.tableData = this.mapListService.tableData.filter(
+        ap => ap.id_ap != apData.id
+      );
+      // remove from map
+      this.storeService.sites.features = this.storeService.sites.features.filter(
+        ap => ap.id != apData.id
+      );
+    }
+
+    this.mapListService.tableData.push(apData.properties);
+    this.storeService.sites.features.push(apData);
+    // TODO: see if the code below is really necessary
+    const savedGeojsn = Object.assign({}, this.storeService.sites);
+    this.storeService.sites = null;
+    this.storeService.sites = savedGeojsn;
+  }
+
+  private onPresenceAreaSavedError(error) {
+    const title = this.isUpdateMode()
+      ? 'Problème de mise à jour'
+      : "Problème d'ajout";
+    const genericMsg = this.isUpdateMode()
+      ? `Une erreur ${error.status} est survenue lors de la mise à jour des informations sur le serveur.`
+      : `Une erreur ${error.status} est survenue lors de l'ajout des informations sur le serveur.`;
+    const msg =
+      error.error && error.error.description
+        ? `${error.status} ${error.statusText} - ${error.error.description}`
+        : genericMsg;
+    const options = {
+      positionClass: 'toast-top-right'
+    };
+    this.toastrService.error(msg, title, options);
+    console.log(`Error ${error.status} ${error.statusText}:`, error);
+  }
+
+  private isUpdateMode() {
+    return this.idAp !== undefined;
   }
 
   onCountingChange(nomenclatureId) {
@@ -336,11 +389,11 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     if (countingCode == COUNTING_TYPES.census) {
       this.apForm.patchValue({
         total_min: null,
-        total_max: null,
+        total_max: null
       });
     } else if (countingCode == COUNTING_TYPES.sampling) {
       this.apForm.patchValue({
-        total: null,
+        total: null
       });
     } else {
       this.apForm.patchValue({

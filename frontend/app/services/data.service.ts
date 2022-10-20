@@ -52,7 +52,6 @@ export class DataService {
     return this.api.post<any>(`${this.moduleBaseUrl}/prospect-zones`, data);
   }
 
-  // INFO: NOT USED YET !
   updateProspectZone(data: any, idZp) {
     return this.api.put<any>(
       `${this.moduleBaseUrl}/prospect-zones/${idZp}`,
@@ -64,7 +63,6 @@ export class DataService {
     return this.api.post<any>(`${this.moduleBaseUrl}/presence-areas`, data);
   }
 
-  // INFO: NOT USED YET !
   updatePresenceArea(data: any, idAp) {
     return this.api.put<any>(
       `${this.moduleBaseUrl}/presence-areas/${idAp}`,
