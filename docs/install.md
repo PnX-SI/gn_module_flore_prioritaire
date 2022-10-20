@@ -85,3 +85,17 @@ Si vous souhaiter augementer les performatnces du MNT, vous pouvez le vectoriser
 ```
 geonature db upgrade ign_bd_alti_vector@head
 ```
+
+## Réglage des droits
+
+Une fois le module installé, vous pouvez régler les droits du module pour votre groupe d'utilisateur :
+- Via le module *Admin* de GeoNature, accéder à l'interface d'administration des permissions (CRUVED).
+- Cliquer sur le bouton "*Éditer le CRUVED*" de votre groupe d'utilisateur.
+- Au niveau du module "*PRIORITY_FLORA*" cliquer sur le bouton "*Edit*".
+- Définissez les permissions suivant votre besoin. Voici un exemple :
+  - `C` (Créer) à `3` (Toutes les données)
+  - `R` (Lire) à `3` (Toutes les données)
+  - `U` (Mise à jour) à `2` (Les données de mon organisme)
+  - `V` (Valider) à `0` (Aucune donnée) : cette action n'est pas utilisée dans le module.
+  - `E` (Export) à `3` (Toutes les données)
+  - `D` (Supprimer) à `1` (Mes données)
