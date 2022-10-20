@@ -210,7 +210,9 @@ $BODY$
 BEGIN
   NEW.geom_local = public.st_transform(NEW.geom_4326, :localSrid);
   NEW.geom_point_4326 = public.st_pointonsurface(NEW.geom_4326);
-  NEW."area" = public.st_area(NEW.geom_local);
+  IF (NEW."area" IS NULL) THEN
+    NEW."area" = public.st_area(NEW.geom_local);
+  END IF ;
   RETURN NEW;
 END;
 $BODY$
@@ -227,7 +229,9 @@ $BODY$
 BEGIN
   NEW.geom_local = public.st_transform(NEW.geom_4326, :localSrid);
   NEW.geom_point_4326 = public.st_pointonsurface(NEW.geom_4326);
-  NEW."area" = public.st_area(NEW.geom_local);
+  IF (NEW."area" IS NULL) THEN
+    NEW."area" = public.st_area(NEW.geom_local);
+  END IF ;
   RETURN NEW;
 END;
 $BODY$
