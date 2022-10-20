@@ -49,80 +49,114 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.displayColumns = ModuleConfig.datatable_zp_columns;
-    this.storeService.queryString = new HttpParams();
-    this.storeService.queryString = this.storeService.queryString.set(
-      'limit',
-      '10'
-    );
     this.mapListService.idName = 'id_zp';
-    this.loadData();
     this.center = this.storeService.fpConfig.zoom_center;
     this.zoom = this.storeService.fpConfig.zoom;
 
+    this.loadInitialData();
     this.intializeFiltersForm();
     this.setListenerOnYearFilter();
     this.setListenerOnOrganismFilter();
     this.setListenerOnMunicipalityFilter();
   }
 
+  private loadInitialData() {
+    this.storeService.loadQueryString();
+    this.deleteQueryString('cd_nom');// WARNING: pnx-taxonomy component can't be initialized !
+    this.deleteQueryString('page');
+    this.setQueryString('limit', '10');
+    this.loadData();
+  }
+
   private intializeFiltersForm() {
     this.filtersForm = this.formBuilder.group({
-      filterYear: null,
-      filterOrga: null,
-      filterCom: null,
-      filterTaxon: null,
+      filterYear: this.getInitialFilterValue('year'),
+      filterOrga: this.getInitialFilterValue('id_organism'),
+      filterCom: this.getInitialFilterValue('id_area'),
+      filterTaxon: this.getInitialFilterValue('cd_nom'),
       idZp: null
     });
   }
 
+  private getInitialFilterValue(filterName) {
+    let value = null;
+    if (this.storeService.queryString.has(filterName)) {
+      value = this.storeService.queryString.get(filterName);
+    }
+    return value;
+  }
+
   private setListenerOnYearFilter() {
-    this.filtersForm.controls.filterYear.valueChanges.subscribe(year => {
-      if (year && year.toString().length === 4) {
+    this.filtersForm.controls.filterYear.valueChanges
+      .filter(input => {
+        return input != null && input.toString().length === 4;
+      })
+      .subscribe(year => {
         this.setQueryString('year', year.toString());
-        this.loadData();
-      }
-      if (!year) {
+      });
+
+    this.filtersForm.controls.filterYear.valueChanges
+      .filter(input => {
+        return input === null;
+      })
+      .subscribe(year => {
         this.deleteQueryString('year');
-        this.loadData();
-      }
-    });
+      });
   }
 
   private setListenerOnOrganismFilter() {
-    this.filtersForm.controls.filterOrga.valueChanges.subscribe(org => {
-      if (org) {
-        this.setQueryString('id_organism', org);
-        this.loadData();
-      } else {
+    this.filtersForm.controls.filterOrga.valueChanges
+      .filter(select => {
+        return select !== null;
+      })
+      .subscribe(id_organism => {
+        this.setQueryString('id_organism', id_organism);
+      });
+
+    this.filtersForm.controls.filterOrga.valueChanges
+      .filter(input => {
+        return input === null;
+      })
+      .subscribe(id_organism => {
         this.deleteQueryString('id_organism');
-        this.loadData();
-      }
-    });
+      });
   }
 
   private setListenerOnMunicipalityFilter() {
-    this.filtersForm.controls.filterCom.valueChanges.subscribe(
-      id_area => {
-        if (id_area) {
-          this.setQueryString('id_area', id_area);
-          this.loadData();
-        } else {
-          this.deleteQueryString('id_area');
-          this.loadData();
-        }
-      }
-    );
+    this.filtersForm.controls.filterCom.valueChanges
+      .filter(select => {
+        return select !== null;
+      })
+      .subscribe(id_area => {
+        this.setQueryString('id_area', id_area);
+      });
+
+    this.filtersForm.controls.filterCom.valueChanges
+      .filter(input => {
+        return input === null;
+      })
+      .subscribe(id_area => {
+        this.deleteQueryString('id_area');
+      });
+  }
+
+  onRemoveTaxon() {
+    this.deleteQueryString('cd_nom');
+    this.loadData();
+  }
+
+  onSearchTaxon(event) {
+    this.setQueryString('cd_nom', event.item.cd_nom);
+    this.loadData();
   }
 
   private loadData() {
-    this.api
-      .getProspectZones(this.storeService.queryString)
-      .subscribe(data => {
-        this.nbZp = data.total;
-        this.geojson = data.items;
-        this.mapListService.loadTableData(data.items);
-        this.filteredData = this.mapListService.tableData;
-      });
+    this.api.getProspectZones(this.storeService.queryString).subscribe(data => {
+      this.nbZp = data.total;
+      this.geojson = data.items;
+      this.mapListService.loadTableData(data.items);
+      this.filteredData = this.mapListService.tableData;
+    });
   }
 
   private setQueryString(param: string, value) {
@@ -130,10 +164,26 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       param,
       value
     );
+    if (param != 'page') {
+      this.storeService.queryString = this.storeService.queryString.delete(
+        'page'
+      );
+      this.mapListService.page.pageNumber = 0;
+    }
+    this.storeService.saveQueryString();
+    this.loadData();
   }
 
   private deleteQueryString(param: string) {
     this.storeService.queryString = this.storeService.queryString.delete(param);
+    if (param != 'page') {
+      this.storeService.queryString = this.storeService.queryString.delete(
+        'page'
+      );
+      this.mapListService.page.pageNumber = 0;
+    }
+    this.storeService.saveQueryString();
+    this.loadData();
   }
 
   ngAfterViewInit() {
@@ -183,10 +233,8 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   }
 
   onChangePage(event) {
-    this.storeService.queryString = this.storeService.queryString.set(
-      'page',
-      event.offset.toString()
-    );
+    this.mapListService.page.pageNumber = event.offset;
+    this.setQueryString('page', event.offset.toString());
     this.loadData();
   }
 
@@ -217,11 +265,9 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
             this.filteredData = this.filteredData.filter(item => {
               return idZp !== item.id_zp;
             });
-            const filterFeature = this.geojson.features.filter(
-              feature => {
-                return idZp !== feature.properties.id_zp;
-              }
-            );
+            const filterFeature = this.geojson.features.filter(feature => {
+              return idZp !== feature.properties.id_zp;
+            });
             this.geojson['features'] = filterFeature;
             this.geojson = Object.assign({}, this.geojson);
             this.commonService.translateToaster(
@@ -231,15 +277,9 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
           },
           error => {
             if (error.status === 403) {
-              this.commonService.translateToaster(
-                'error',
-                'NotAllowed'
-              );
+              this.commonService.translateToaster('error', 'NotAllowed');
             } else {
-              this.commonService.translateToaster(
-                'error',
-                'ErrorMessage'
-              );
+              this.commonService.translateToaster('error', 'ErrorMessage');
             }
           }
         );
@@ -247,20 +287,8 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onRemoveTaxon() {
-    this.deleteQueryString('cd_nom');
-    this.loadData();
-  }
-
-  onSearchTaxon(event) {
-    this.setQueryString('cd_nom', event.item.cd_nom);
-    this.loadData();
-  }
-
   ngOnDestroy() {
-    let filterkey = this.storeService.queryString.keys();
-    filterkey.forEach(key => {
-      this.storeService.queryString = this.storeService.queryString.delete(key);
-    });
+    this.storeService.saveQueryString();
+    this.storeService.clearQueryString();
   }
 }

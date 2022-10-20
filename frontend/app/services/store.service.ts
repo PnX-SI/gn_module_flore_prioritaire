@@ -28,4 +28,24 @@ export class StoreService {
     this.leafletDrawOptions.edit.remove = true;
     this.leafletDrawOptions.edit.edit = true;
   }
+
+  loadQueryString() {
+    this.queryString = new HttpParams({
+      fromString: localStorage.getItem('priority-flora-filters-querystring')
+    });
+  }
+
+  saveQueryString() {
+    localStorage.setItem(
+      'priority-flora-filters-querystring',
+      this.queryString.toString()
+    );
+  }
+
+  clearQueryString() {
+    let filterkey = this.queryString.keys();
+    filterkey.forEach(key => {
+      this.queryString = this.queryString.delete(key);
+    });
+  }
 }

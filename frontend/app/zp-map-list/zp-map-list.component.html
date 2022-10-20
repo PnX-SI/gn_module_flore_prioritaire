@@ -75,7 +75,7 @@
                   -- Sélectionnez un organisme --
                 </option>
                 <option
-                  [ngValue]="org.id_organism"
+                  [value]="org.id_organism"
                   *ngFor="let org of organisms"
                 >
                   {{ org.name }}
@@ -97,7 +97,7 @@
                 <option [ngValue]="null">
                   -- Sélectionnez une commune --
                 </option>
-                <option [ngValue]="m.id_area" *ngFor="let m of municipalities">
+                <option *ngFor="let m of municipalities" [value]="m.id_area">
                   {{ m.municipality }}
                 </option>
               </select>
