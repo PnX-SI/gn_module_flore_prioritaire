@@ -29,7 +29,7 @@ class ZpCruvedAuth(db.Model):
 
     def user_is_in_organism_of_zp(self, user):
         for obs in self.observers:
-            if obs.id_role == user.id_role:
+            if obs.id_organisme == user.id_organism:
                 return True
         return False
 
@@ -65,6 +65,8 @@ class ZpCruvedAuth(db.Model):
             - user : a TRole object
             - user_cruved: object return by cruved_for_user_in_app(user)
         """
+        if not hasattr(user, "id_organism"):
+            raise Exception("Add id_organism to user parameter to use ZpCruvedAuth !")
         return {
             action: self.user_is_allowed_to(user, level) for action, level in user_cruved.items()
         }
@@ -89,23 +91,6 @@ class CorApPerturbation(db.Model):
         TNomenclatures,
         primaryjoin=id_nomenclature == TNomenclatures.id_nomenclature,
         foreign_keys=[id_nomenclature],
-    )
-
-
-@serializable
-class CorApArea(db.Model):
-    __tablename__ = "cor_ap_area"
-    __table_args__ = {"schema": "pr_priority_flora"}
-
-    id_area = db.Column(
-        db.Integer,
-        ForeignKey(LAreas.id_area),
-        primary_key=True,
-    )
-    id_ap = db.Column(
-        db.Integer,
-        ForeignKey("TApresence.id_ap"),
-        primary_key=True,
     )
 
 
@@ -223,6 +208,23 @@ cor_zp_area = db.Table(
     db.Column("id_zp", primary_key=True),
     schema="pr_priority_flora",
 )
+
+
+@serializable
+class CorApArea(db.Model):
+    __tablename__ = "cor_ap_area"
+    __table_args__ = {"schema": "pr_priority_flora"}
+
+    id_area = db.Column(
+        db.Integer,
+        ForeignKey(LAreas.id_area),
+        primary_key=True,
+    )
+    id_ap = db.Column(
+        db.Integer,
+        ForeignKey(TApresence.id_ap),
+        primary_key=True,
+    )
 
 
 @serializable

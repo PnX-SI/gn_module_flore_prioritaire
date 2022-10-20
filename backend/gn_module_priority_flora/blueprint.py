@@ -7,14 +7,14 @@ from geoalchemy2.shape import from_shape
 from geojson import FeatureCollection
 from shapely.geometry import asShape
 from sqlalchemy.sql.expression import func, select
-from sqlalchemy.sql.functions import user
-from werkzeug.exceptions import Forbidden
+from werkzeug.exceptions import BadRequest, Forbidden, InternalServerError, NotFound
 
 from geonature.core.gn_meta.models import TDatasets
 from geonature.core.gn_permissions import decorators as permissions
 from geonature.core.gn_permissions.tools import cruved_scope_for_user_in_module
+from geonature.core.ref_geo.models import LAreas, BibAreasTypes
 from geonature.core.taxonomie.models import Taxref
-from geonature.utils.env import db, ROOT_DIR
+from geonature.utils.env import db
 from pypnnomenclature.models import TNomenclatures
 from pypnusershub.db.models import User
 from pypnusershub.db.models import Organisme
@@ -25,7 +25,9 @@ from .models import (
     TZprospect,
     TApresence,
     ExportAp,
-    cor_zp_area
+    cor_zp_area,
+    cor_zp_observer,
+    CorApArea,
 )
 
 
@@ -37,15 +39,27 @@ blueprint = Blueprint("priority_flora", __name__)
 @json_resp
 def get_prospect_zones(info_role):
     """
-    Retourne toutes les zones de prospection du module
+    Retourne toutes les zones de prospection du module.
     """
     MODULE_CODE = blueprint.config["MODULE_CODE"]
     parameters = request.args
     page = int(parameters.get("page", 0))
     limit = int(parameters.get("limit", 100))
+
+    if info_role.value_filter == "0" :
+        raise Forbidden("Vous n'avez pas les droits permettant de consulter cette ZP.")
+
+    # TODO: use a dedicated web service for transfert this user cruved (?)
     user_cruved = cruved_scope_for_user_in_module(
         id_role=info_role.id_role, module_code=MODULE_CODE
     )
+    info_role.id_organism = (
+        db.session.query(User.id_organisme)
+        .filter(User.id_role == info_role.id_role)
+        .scalar()
+    )
+
+    # Build query
     query = TZprospect.query
     if info_role.value_filter == "2":
         query = query.filter(
@@ -60,6 +74,7 @@ def get_prospect_zones(info_role):
                     User.id_role == info_role.id_role,
                 )
         )
+
     if "id_zp" in parameters:
         query = query.filter(TZprospect.id_zp == parameters["id_zp"])
 
@@ -112,7 +127,7 @@ def get_prospect_zones(info_role):
 @json_resp
 def get_presence_areas():
     """
-    Retourne toutes les aires de présence d'une zone de prospection
+    Retourne toutes les aires de présence d'une zone de prospection.
     """
     parameters = request.args
     page = int(parameters.get("page", 0))
@@ -138,11 +153,6 @@ def get_presence_areas():
     return FeatureCollection(features)
 
 
-# TODO: handle id_zp when PUT used
-@blueprint.route("/prospect-zones", methods=["POST"])
-@blueprint.route("/prospect-zones/<int:id_zp>", methods=["PUT"])
-@permissions.check_cruved_scope("C", True, module_code="PRIORITY_FLORA")
-@json_resp
 def edit_prospect_zone(info_role, id_zp=None):
     """
     Poste une nouvelle zone de prospection
@@ -155,7 +165,7 @@ def edit_prospect_zone(info_role, id_zp=None):
     if data["id_zp"] is None:
         data.pop("id_zp")
 
-    # TODO if no geom 4326 with POST send 400 BAD REQUEST
+    # TODO: if no geom 4326 with POST send 400 BAD REQUEST
     shape = None
     if "geom_4326" in data:
         shape = asShape(data.pop("geom_4326"))
@@ -181,7 +191,7 @@ def edit_prospect_zone(info_role, id_zp=None):
         if Dataset:
             data["id_dataset"] = Dataset.id_dataset
         else:
-            return { "message": f"Module dataset shortname '{dataset_code}' was not found !" }, 400
+            raise BadRequest(f"Module dataset shortname '{dataset_code}' was not found !")
 
     # Create prospect zone object
     if id_zp is not None:
@@ -198,24 +208,28 @@ def edit_prospect_zone(info_role, id_zp=None):
 
     # Update or add prospect zone
     if "id_zp" in data:
-        if info_role.value_filter in ("1", "2"):
-            query = db.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
-            if info_role.value_filter == "2":
-                query = query.filter(
-                        TZprospect.observers.any(or_(
-                            User.id_role == info_role.id_role,
-                            User.id_organisme == info_role.id_organisme,
-                        ))
-                )
-            if info_role.value_filter == "1":
-                query = query.filter(
-                        TZprospect.observers.any(
-                            User.id_role == info_role.id_role,
-                        )
-                )
-            check_cruved = db.session.query(query.exists()).scalar()
+        if info_role.value_filter in ("0", "1", "2"):
+            if info_role.value_filter == "0":
+                check_cruved = False
+            else:
+                query = db.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
+                if info_role.value_filter == "2":
+                    query = query.filter(
+                            TZprospect.observers.any(or_(
+                                User.id_role == info_role.id_role,
+                                User.id_organisme == info_role.id_organisme,
+                            ))
+                    )
+                if info_role.value_filter == "1":
+                    query = query.filter(
+                            TZprospect.observers.any(
+                                User.id_role == info_role.id_role,
+                            )
+                    )
+                check_cruved = db.session.query(query.exists()).scalar()
+
             if not check_cruved:
-                raise Forbidden("Vous n'avez pas les droits pour éditer cette ZP")
+                raise Forbidden("Vous n'avez pas les droits pour éditer cette ZP.")
 
         for key, value in data.items():
             if hasattr(zp, key):
@@ -231,14 +245,23 @@ def edit_prospect_zone(info_role, id_zp=None):
     return zp.get_geofeature(fields=["observers"])
 
 
-# TODO: handle id_ap when PUT used
-@blueprint.route("/presence-areas", methods=["POST"])
-@blueprint.route("/presence-areas/<int:id_ap>", methods=["PUT"])
+@blueprint.route("/prospect-zones", methods=["POST"])
 @permissions.check_cruved_scope("C", True, module_code="PRIORITY_FLORA")
 @json_resp
+def add_prospect_zone(info_role):
+    return edit_prospect_zone(info_role)
+
+
+@blueprint.route("/prospect-zones/<int:id_zp>", methods=["PUT"])
+@permissions.check_cruved_scope("U", True, module_code="PRIORITY_FLORA")
+@json_resp
+def update_prospect_zone(info_role, id_zp):
+    return edit_prospect_zone(info_role, id_zp)
+
+
 def edit_presence_area(info_role, id_ap=None):
     """
-    Poste une nouvelle aire de présence
+    Édition d'une nouvelle aire de présence (ajout ou mise à jour).
     """
     data = dict(request.get_json())
 
@@ -247,7 +270,7 @@ def edit_presence_area(info_role, id_ap=None):
     if data["id_ap"] is None:
         data.pop("id_ap")
 
-    # TODO if no geom 4326 with POST send 400 BAD REQUEST
+    # TODO: if no geom 4326 with POST send 400 BAD REQUEST
     shape = None
     if "geom_4326" in data:
         shape = asShape(data.pop("geom_4326"))
@@ -295,24 +318,28 @@ def edit_presence_area(info_role, id_ap=None):
             ap.physiognomies.append(item)
 
     if "id_ap" in data:
-        if info_role.value_filter in ("1", "2"):
-            query = db.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
-            if info_role.value_filter == "2":
-                query = query.filter(
-                        TZprospect.observers.any(or_(
-                            User.id_role == info_role.id_role,
-                            User.id_organisme == info_role.id_organisme,
-                        ))
-                )
-            if info_role.value_filter == "1":
-                query = query.filter(
-                        TZprospect.observers.any(
-                            User.id_role == info_role.id_role,
-                        )
-                )
-            check_cruved = db.session.query(query.exists()).scalar()
+        if info_role.value_filter in ("0", "1", "2"):
+            if info_role.value_filter == "0":
+                check_cruved = False
+            else:
+                query = db.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
+                if info_role.value_filter == "2":
+                    query = query.filter(
+                            TZprospect.observers.any(or_(
+                                User.id_role == info_role.id_role,
+                                User.id_organisme == info_role.id_organisme,
+                            ))
+                    )
+                elif info_role.value_filter == "1":
+                    query = query.filter(
+                            TZprospect.observers.any(
+                                User.id_role == info_role.id_role,
+                            )
+                    )
+                check_cruved = db.session.query(query.exists()).scalar()
+
             if not check_cruved:
-                raise Forbidden("Vous n'avez pas les droits pour éditer cette AP")
+                raise Forbidden("Vous n'avez pas les droits pour éditer cette AP.")
 
         for key, value in data.items():
             if hasattr(ap, key):
@@ -328,26 +355,41 @@ def edit_presence_area(info_role, id_ap=None):
     return ap.get_geofeature()
 
 
+@blueprint.route("/presence-areas", methods=["POST"])
+@permissions.check_cruved_scope("C", True, module_code="PRIORITY_FLORA")
+@json_resp
+def add_presence_area(info_role):
+    return edit_presence_area(info_role)
+
+
+@blueprint.route("/presence-areas/<int:id_ap>", methods=["PUT"])
+@permissions.check_cruved_scope("U", True, module_code="PRIORITY_FLORA")
+@json_resp
+def update_presence_area(info_role, id_ap):
+    return edit_presence_area(info_role, id_ap)
+
+
 @blueprint.route("/organisms", methods=["GET"])
 @json_resp
 def get_organisms():
     """
     Retourne la liste de tous les organismes présents
     """
-    query = """
-        SELECT DISTINCT b.nom_organisme, b.id_organisme
-        FROM utilisateurs.bib_organismes AS b
-            JOIN utilisateurs.t_roles AS r
-                ON r.id_organisme = b.id_organisme
-            JOIN pr_priority_flora.cor_zp_obs AS c
-                ON c.id_role = r.id_role
-        ORDER by b.nom_organisme ASC
-    """
-    data = db.session.execute(query)
+    query = (
+        db.session.query(
+            Organisme.nom_organisme, Organisme.id_organisme
+        )
+        .distinct()
+        .join(User, Organisme.id_organisme == User.id_organisme)
+        .join(cor_zp_observer, cor_zp_observer.c.id_role == User.id_role)
+        .join(TZprospect, TZprospect.id_zp == cor_zp_observer.c.id_zp)
+        .order_by(Organisme.nom_organisme)
+    )
+    data = query.all()
 
     if data:
-        return [{"name": o[0], "id_organism": o[1]} for o in data]
-    return { "message": "An error occured !" }, 500
+        return [{"name": org[0], "id_organism": org[1]} for org in data]
+    raise NotFound("No organisms found !")
 
 
 @blueprint.route("/municipalities", methods=["GET"])
@@ -356,21 +398,19 @@ def get_municipalities():
     """
     Retourne toutes les communes présentes dans le module
     """
-    query = """
-        SELECT DISTINCT area_name, l.id_area
-        FROM ref_geo.l_areas AS l
-            JOIN pr_priority_flora.cor_ap_area AS ap
-                ON ap.id_area = l.id_area
-            JOIN ref_geo.bib_areas_types AS b
-                ON b.id_type = l.id_type
-        WHERE b.type_code = 'COM'
-        ORDER BY area_name ASC
-    """
-    data = db.session.execute(query)
+    query = (
+        db.session.query(LAreas.area_name, LAreas.id_area)
+        .distinct()
+        .join(CorApArea, CorApArea.id_area == LAreas.id_area)
+        .join(BibAreasTypes, BibAreasTypes.id_type == LAreas.id_type)
+        .filter(BibAreasTypes.type_code == 'COM')
+        .order_by(LAreas.area_name)
+    )
+    data = query.all()
 
     if data:
-        return [{"municipality": c[0], "id_area": c[1]} for c in data]
-    return { "message": "An error occured !" }, 500
+        return [{"municipality": d[0], "id_area": d[1]} for d in data]
+    raise InternalServerError("An error occured !")
 
 
 @blueprint.route("/prospect-zones/<int:id_zp>", methods=["GET"])
@@ -391,7 +431,7 @@ def get_prospect_zone(id_zp):
             ]),
             "zp": zp.get_geofeature(fields=["observers", "taxonomy", "areas", "areas.area_type"]),
         }
-    return { "message": f"Prospect zone with ID {id_zp} not found !" }, 404
+    raise NotFound(f"Prospect zone with ID {id_zp} not found !")
 
 
 @blueprint.route("/presence-areas/<int:id_ap>", methods=["GET"])
@@ -406,7 +446,7 @@ def get_presence_area(id_ap):
                 "perturbations", "physiognomies",
             ]
         )
-    return { "message": f"Presence area with ID {id_ap} not found !" }, 404
+    raise NotFound(f"Presence area with ID {id_ap} not found !")
 
 
 @blueprint.route("/prospect-zones/<int:id_zp>", methods=["DELETE"])
@@ -418,7 +458,7 @@ def delete_prospect_zone(id_zp):
         db.session.delete(zp)
         db.session.commit()
         return None, 204
-    return {"message": f"Prospect zone with ID {id_zp} not found !"}, 404
+    raise NotFound(f"Prospect zone with ID {id_zp} not found !")
 
 
 @blueprint.route("/presence-areas/<int:id_ap>", methods=["DELETE"])
@@ -430,7 +470,7 @@ def delete_presence_area(id_ap):
         db.session.delete(ap)
         db.session.commit()
         return None, 204
-    return {"message": f"Presence area with ID {id_ap} not found !"}, 404
+    raise NotFound(f"Presence area with ID {id_ap} not found !")
 
 
 @blueprint.route("/presence-areas/export", methods=["GET"])
@@ -505,7 +545,7 @@ def check_geom_a_contain_geom_b():
         assert "geom_a" in data
         assert "geom_b" in data
     except AssertionError:
-        return {"message": "Missing geom_a or geom_b in posted JSON."}, 400
+        raise BadRequest("Missing geom_a or geom_b in posted JSON.")
 
     query = db.session.execute(select([
             func.st_contains(
