@@ -25,12 +25,12 @@ Run the v1 to v2 data migration script again.
 
 - Improved the names of web services functions.
 - Improved the naming of configuration parameters.
-- Automatically added default values for date_max and initial_insert of prospecting zone.
+- Automatically added default values for `date_max` and `initial_insert` of prospecting zone.
 - SRID for module local geometry fields will be read from the data returned by the database.
 - Ordered incline nomenclature values.
 - Seted observers field as mandatory on ZP form.
-- Installation guide is now more detailed. The command to install and vectorize the DEM is indicated.
-- Updated module schema to improve compatibility for mogration from v1 of this module.
+- Installation guide is now more detailed. The commands to install and vectorize the DEM are indicated.
+- Updated module schema to improve compatibility for migration from v1 of this module.
 - Improved migration script, added data to new fields (physiognomies, habitat status...).
 - Used injection token for module configuration parameters in views.
 - In AP form, the area field is now required and enabled when Point geometry is used.
