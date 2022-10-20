@@ -111,12 +111,10 @@ def get_prospect_zones(info_role):
         )
         cruved_auth = d.get_model_cruved(info_role, user_cruved[0])
         feature["properties"]["rights"] = cruved_auth
-        feature["properties"]["organisms_list"] = ", ".join(
-            map(
-                lambda obs: obs["organisme"]["nom_organisme"],
-                feature["properties"]["observers"],
-            )
-        )
+        feature["properties"]["organisms_list"] = ", ".join(list(set(map(
+            lambda obs: obs["organisme"]["nom_organisme"],
+            feature["properties"]["observers"],
+        ))))
         feature["properties"]["ap_number"] = len(feature["properties"]["ap"])
         features.append(feature)
     return {"total": filtered_number, "items": FeatureCollection(features)}
