@@ -112,16 +112,17 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
               this.apForm.patchValue({
                 geom_4326: geojson.geometry
               });
-              this.apForm.markAsDirty();
 
               // Get area size
               if (geojson.geometry.type == 'Point') {
                 this.apForm.controls['area'].enable();
-                this.apForm.patchValue({ area: null });
-                this.commonService.regularToaster(
-                  'info',
-                  "Veuillez saisir la surface en m² de l'aire de présence."
-                );
+                if (this.apForm.controls.area.value == null) {
+                  this.apForm.patchValue({ area: 1 });
+                  this.commonService.regularToaster(
+                    'info',
+                    "Veuillez saisir la surface en m² de l'aire de présence."
+                  );
+                }
               } else {
                 this.apForm.controls['area'].disable();
                 this.dataFormService
@@ -165,6 +166,8 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
                 "L'aire de présence n'est pas inclue dans la zone de prospection."
               );
             }
+            // WARNING: markAsDirty() must be call after controls update.
+            this.apForm.markAsDirty();
           });
       });
   }
@@ -295,7 +298,8 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onSubmit() {
     if (this.apForm.valid) {
-      const apForm = JSON.parse(JSON.stringify(this.apForm.value));
+      // WARNING: use getRawValue() to get values from disabled controls !
+      const apForm = JSON.parse(JSON.stringify(this.apForm.getRawValue()));
 
       // Set indexZP
       apForm['id_zp'] = this.storeService.zp.id;

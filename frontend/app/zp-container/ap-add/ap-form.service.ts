@@ -20,7 +20,7 @@ export class ApFormService {
         id_zp: null,
         altitude_min: null,
         altitude_max: null,
-        area: [{ value: null, disabled: true }, Validators.required],
+        area: [{ value: null, disabled: true }, [Validators.required, Validators.min(1)]],
         id_nomenclature_incline: null,
         physiognomies: new Array(),
         id_nomenclature_habitat: null,
