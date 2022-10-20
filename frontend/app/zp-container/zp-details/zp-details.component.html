@@ -147,30 +147,142 @@
                 ngx-datatable-row-detail-template
               >
                 <dl class="def-list-inline small">
-                  <dt>Phénologie</dt>
-                  <dd [matTooltip]="row.pheno?.definition_default">
-                    {{ row.pheno?.label_default }}&nbsp;
+                  <dt>1. Localisation</dt>
+                  <dd>
+                    <dl class="def-list-inline">
+                      <dt> Altitude </dt>
+                      <dd>
+                        <span
+                          matTooltip="Altitude en mètre."
+                          matTooltipPosition="right"
+                        >
+                          <span *ngIf="row.altitude_min == row.altitude_max; else altitudeDiff">
+                            {{ row.altitude_min }}m
+                          </span>
+                          <ng-template #altitudeDiff>
+                            min. : {{ row.altitude_min }}m / max. : {{ row.altitude_max }}m
+                          </ng-template>
+                        </span>
+                        &nbsp;
+                      </dd>
+
+                      <dt> Surface </dt>
+                      <dd>
+                        {{ row.area | number:'1.0-0':'fr' }}m²&nbsp;
+                      </dd>
+
+                      <dt> Pente </dt>
+                      <dd>
+                        <span
+                          [matTooltip]="row.incline?.definition_default"
+                          matTooltipPosition="right"
+                        >
+                          {{ row.incline?.label_default }}
+                        </span>
+                        &nbsp;
+                      </dd>
+
+                      <dt> Physionomies </dt>
+                      <dd>
+                        <ul class="comma-list">
+                          <li
+                            *ngFor="let physiognomy of row.physiognomies"
+                            [matTooltip]="physiognomy.definition_default"
+                          >
+                            {{ physiognomy.label_default }}
+                            <mat-icon class="material-icons-outlined" inline>info</mat-icon>
+                          </li>
+                        </ul>
+                        &nbsp;
+                      </dd>
+                    </dl>
                   </dd>
 
-                  <dt>Pente</dt>
-                  <dd [matTooltip]="row.incline?.definition_default">
-                    {{ row.incline?.label_default }}&nbsp;
+                  <dt>2. Habitat</dt>
+                  <dd>
+                    <dl class="def-list-inline">
+                      <dt matTooltip="État de conservation dominant de l'habitat">
+                        État
+                        <mat-icon class="material-icons-outlined" inline>info</mat-icon>
+                      </dt>
+                      <dd>
+                        <span
+                          [matTooltip]="row.habitat?.definition_default"
+                          matTooltipPosition="right"
+                        >
+                          {{ row.habitat?.label_default }}
+                        </span>
+                        &nbsp;
+                      </dd>
+
+                      <dt matTooltip="Estimation % AP en état de conservation favorable">
+                        % favorable
+                        <mat-icon class="material-icons-outlined" inline>info</mat-icon>
+                      </dt>
+                      <dd>{{ row.favorable_status_percent }}%&nbsp;</dd>
+
+                      <dt matTooltip="Niveau de menace/perturbation">
+                        Niveau
+                        <mat-icon class="material-icons-outlined" inline>info</mat-icon>
+                      </dt>
+                      <dd>
+                        <span
+                          [matTooltip]="row.threat_level?.definition_default"
+                          matTooltipPosition="right"
+                        >
+                          {{ row.threat_level?.label_default }}
+                        </span>
+                        &nbsp;
+                      </dd>
+
+                      <dt> Perturbations </dt>
+                      <dd>
+                        <ul class="comma-list">
+                          <li
+                            *ngFor="let perturbation of row.perturbations"
+                            [matTooltip]="perturbation.definition_default"
+                          >
+                            {{ perturbation.label_default }}
+                            <mat-icon class="material-icons-outlined" inline>info</mat-icon>
+                          </li>
+                        </ul>
+                        &nbsp;
+                      </dd>
+                    </dl>
                   </dd>
 
-                  <dt>Type d'habitat</dt>
-                  <dd [matTooltip]="row.habitat?.definition_default">
-                    {{ row.habitat?.label_default }}&nbsp;
+                  <dt>3. Phénologie</dt>
+                  <dd>
+                    <span
+                      [matTooltip]="row.pheno?.definition_default"
+                      matTooltipPosition="right"
+                    >
+                      {{ row.pheno?.label_default }}&nbsp;
+                    </span>
                   </dd>
 
-                  <dt>Dénombrement</dt>
+                  <dt>4. Fréquence</dt>
+                  <dd>
+                    <span>
+                      {{ row.frequency }}%
+                    </span>
+                    <ng-container *ngIf="row.frequency_method">
+                      (<span [matTooltip]="row.frequency_method?.definition_default">
+                        {{ row.frequency_method?.label_default }} </span
+                      >)
+                    </ng-container>
+                    &nbsp;
+                  </dd>
+
+                  <dt>5. Dénombrement</dt>
                   <dd>
                     <span
                       *ngIf="row.total_min == row.total_max; else totalDiff"
                     >
                       {{ row.total_min }}
                     </span>
-                    <ng-template>
-                      <span #totalDiff>
+                    <ng-template #totalDiff>
+                      <span>
                         min. : {{ row.total_min }} / max. : {{ row.total_max }}
                       </span>
                     </ng-template>
@@ -182,18 +294,7 @@
                     &nbsp;
                   </dd>
 
-                  <dt>Perturbations</dt>
-                  <dd>
-                    <ul class="comma-list">
-                      <li
-                        *ngFor="let perturbation of row.perturbations"
-                        [matTooltip]="perturbation.definition_default"
-                      >{{ perturbation.label_default }}</li>
-                    </ul>
-                    &nbsp;
-                  </dd>
-
-                  <dt>Remarques</dt>
+                  <dt>6. Commentaires</dt>
                   <dd>{{ row.comment }}&nbsp;</dd>
                 </dl>
               </ng-template>
@@ -247,7 +348,6 @@
               [name]="col.name"
               [prop]="col.prop"
               maxWidth="col.maxWidth"
-              [cellClass]="col.prop == 'area' ? 'text-right' : ''"
             >
               <ng-template
                 *ngIf="col.prop == 'frequency'"
@@ -269,7 +369,6 @@
                 *ngIf="col.prop == 'area'"
                 let-value="value"
                 ngx-datatable-cell-template
-                style="text-align: right;"
               >
                 {{ value | number:'1.0-0':'fr' }}
               </ng-template>

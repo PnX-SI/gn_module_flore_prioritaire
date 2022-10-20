@@ -7,18 +7,23 @@
     float: left;
     clear: left;
     font-weight: bold;
-    text-align: right;
-    width: 100px;
-    margin-right: 10px;
+    text-align: left;
   }
   dt:after {
     content: " : ";
   }
   dd {
-    margin-left: 105px;
+    margin-left: 115px;
     white-space: pre-wrap;
   }
 }
+.def-list-inline dd:has(.def-list-inline) {
+  margin-left: 25px;
+}
+.def-list-inline dd .def-list-inline {
+  clear: left;
+}
+
 // Comma list
 .comma-list {
   & {
