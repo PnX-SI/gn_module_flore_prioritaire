@@ -77,6 +77,9 @@ class CorApPerturbation(db.Model):
     __tablename__ = "cor_ap_perturbation"
     __table_args__ = {"schema": "pr_priority_flora"}
 
+    def __str__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
+
     id_ap = db.Column(
         db.ForeignKey("pr_priority_flora.t_apresence.id_ap"),
         primary_key=True,
@@ -107,6 +110,9 @@ cor_ap_physiognomy = db.Table(
 class TApresence(db.Model):
     __tablename__ = "t_apresence"
     __table_args__ = {"schema": "pr_priority_flora"}
+
+    def __str__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
 
     id_ap = db.Column(db.Integer, primary_key=True, autoincrement=True)
     id_zp = db.Column(
@@ -215,6 +221,9 @@ class CorApArea(db.Model):
     __tablename__ = "cor_ap_area"
     __table_args__ = {"schema": "pr_priority_flora"}
 
+    def __str__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
+
     id_area = db.Column(
         db.Integer,
         ForeignKey(LAreas.id_area),
@@ -232,6 +241,9 @@ class CorApArea(db.Model):
 class TZprospect(ZpCruvedAuth):
     __tablename__ = "t_zprospect"
     __table_args__ = {"schema": "pr_priority_flora"}
+
+    def __str__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
 
     id_zp = db.Column(db.Integer, primary_key=True, autoincrement=True)
     id_dataset = db.Column(
@@ -299,6 +311,9 @@ class TZprospect(ZpCruvedAuth):
 class ExportAp(db.Model):
     __tablename__ = "export_ap"
     __table_args__ = {"schema": "pr_priority_flora"}
+
+    def __str__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
 
     id_zp = db.Column(db.Integer, primary_key=True)
     taxon = db.Column(db.Unicode)
