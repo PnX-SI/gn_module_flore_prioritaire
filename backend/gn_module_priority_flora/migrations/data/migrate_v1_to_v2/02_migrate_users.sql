@@ -4,7 +4,7 @@
 --  1. go to sql directory: cd backend/gn_module_priority_flora/migrations/data/migrate_v1_to_v2
 --  2. migrate data with scripts #3 :
 --    export PGPASSWORD="<db_pass>"; \
---      psql -h "<db_host>" -U "<db_user>" -d "<db_name>" -f "03_migrate_users.sql"
+--      psql -h "<db_host>" -U "<db_user>" -d "<db_name>" -f "02_migrate_users.sql"
 --
 -- where:
 -- - <db_pass>: GeoNature v2 database user password.
