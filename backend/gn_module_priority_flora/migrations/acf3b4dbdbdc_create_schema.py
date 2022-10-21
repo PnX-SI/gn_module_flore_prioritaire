@@ -14,7 +14,7 @@ from geonature.core.gn_commons.models import TParameters
 
 # revision identifiers, used by Alembic.
 revision = "acf3b4dbdbdc"
-down_revision = "955c298bac7b" # add specific data
+down_revision = "955c298bac7b"  # add specific data
 branch_labels = None
 depends_on = None
 
@@ -27,9 +27,7 @@ def upgrade():
         .parameter_value
     )
     operations = text(
-        importlib.resources.read_text(
-            "gn_module_priority_flora.migrations.data", "schema.sql"
-        )
+        importlib.resources.read_text("gn_module_priority_flora.migrations.data", "schema.sql")
     )
     op.get_bind().execute(operations, {"localSrid": int(local_srid)})
 

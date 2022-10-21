@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f6092b0c6ef4'
-down_revision = 'd95854d81b68' # add synthese triggers
+revision = "f6092b0c6ef4"
+down_revision = "d95854d81b68"  # add synthese triggers
 branch_labels = None
 depends_on = None
 
@@ -50,11 +50,19 @@ def remove_history_triggers():
     op.execute("DROP TRIGGER tri_log_update_t_apresence ON pr_priority_flora.t_apresence")
     op.execute("DROP TRIGGER tri_log_insert_delete_t_apresence ON pr_priority_flora.t_apresence")
 
-    op.execute("DROP TRIGGER tri_delete_presence_area_perturbation ON pr_priority_flora.cor_ap_perturbation")
-    op.execute("DROP TRIGGER tri_insert_presence_area_perturbation ON pr_priority_flora.cor_ap_perturbation")
+    op.execute(
+        "DROP TRIGGER tri_delete_presence_area_perturbation ON pr_priority_flora.cor_ap_perturbation"
+    )
+    op.execute(
+        "DROP TRIGGER tri_insert_presence_area_perturbation ON pr_priority_flora.cor_ap_perturbation"
+    )
 
-    op.execute("DROP TRIGGER tri_delete_presence_area_physiognomy ON pr_priority_flora.cor_ap_physiognomy")
-    op.execute("DROP TRIGGER tri_insert_presence_area_physiognomy ON pr_priority_flora.cor_ap_physiognomy")
+    op.execute(
+        "DROP TRIGGER tri_delete_presence_area_physiognomy ON pr_priority_flora.cor_ap_physiognomy"
+    )
+    op.execute(
+        "DROP TRIGGER tri_insert_presence_area_physiognomy ON pr_priority_flora.cor_ap_physiognomy"
+    )
 
 
 def remove_history_functions():
@@ -73,28 +81,37 @@ def remove_history_functions():
 
 
 def delete_history_data():
-    op.execute("""
+    op.execute(
+        """
         DELETE FROM gn_commons.t_history_actions
         WHERE id_table_location = gn_commons.get_table_location_id('pr_priority_flora', 't_apresence')
-    """)
-    op.execute("""
+        """
+    )
+    op.execute(
+        """
         DELETE FROM gn_commons.t_history_actions
         WHERE id_table_location = gn_commons.get_table_location_id('pr_priority_flora', 't_zprospect')
-    """)
+        """
+    )
 
 
 def remove_history_locations():
-    op.execute("""
+    op.execute(
+        """
         DELETE FROM gn_commons.bib_tables_location
         WHERE "schema_name" = 'pr_priority_flora'
             AND table_name IN ('t_zprospect', 't_apresence')
-    """)
+        """
+    )
+
 
 def delete_validations():
-    op.execute("""
+    op.execute(
+        """
         DELETE FROM gn_commons.t_validations
         WHERE uuid_attached_row IN (
             SELECT uuid_ap
             FROM pr_priority_flora.t_apresence
         )
-    """)
+        """
+    )

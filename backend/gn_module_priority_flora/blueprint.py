@@ -46,7 +46,7 @@ def get_prospect_zones(info_role):
     page = int(parameters.get("page", 0))
     limit = int(parameters.get("limit", 100))
 
-    if info_role.value_filter == "0" :
+    if info_role.value_filter == "0":
         raise Forbidden("Vous n'avez pas les droits permettant de consulter cette ZP.")
 
     # TODO: use a dedicated web service for transfert this user cruved (?)
@@ -54,25 +54,25 @@ def get_prospect_zones(info_role):
         id_role=info_role.id_role, module_code=MODULE_CODE
     )
     info_role.id_organism = (
-        db.session.query(User.id_organisme)
-        .filter(User.id_role == info_role.id_role)
-        .scalar()
+        db.session.query(User.id_organisme).filter(User.id_role == info_role.id_role).scalar()
     )
 
     # Build query
     query = TZprospect.query
     if info_role.value_filter == "2":
         query = query.filter(
-                TZprospect.observers.any(or_(
+            TZprospect.observers.any(
+                or_(
                     User.id_role == info_role.id_role,
                     User.id_organisme == info_role.id_organisme,
-                ))
+                )
+            )
         )
     if info_role.value_filter == "1":
         query = query.filter(
-                TZprospect.observers.any(
-                    User.id_role == info_role.id_role,
-                )
+            TZprospect.observers.any(
+                User.id_role == info_role.id_role,
+            )
         )
 
     if "id_zp" in parameters:
@@ -111,10 +111,16 @@ def get_prospect_zones(info_role):
         )
         cruved_auth = d.get_model_cruved(info_role, user_cruved[0])
         feature["properties"]["rights"] = cruved_auth
-        feature["properties"]["organisms_list"] = ", ".join(list(set(map(
-            lambda obs: obs["organisme"]["nom_organisme"],
-            feature["properties"]["observers"],
-        ))))
+        feature["properties"]["organisms_list"] = ", ".join(
+            list(
+                set(
+                    map(
+                        lambda obs: obs["organisme"]["nom_organisme"],
+                        feature["properties"]["observers"],
+                    )
+                )
+            )
+        )
         feature["properties"]["ap_number"] = len(feature["properties"]["ap"])
         features.append(feature)
     return {"total": filtered_number, "items": FeatureCollection(features)}
@@ -137,11 +143,7 @@ def get_presence_areas():
         query = query.filter(TApresence.id_zp == parameters["id_zp"])
 
     data = (
-        query
-        .order_by(TApresence.meta_create_date.desc())
-        .limit(limit)
-        .offset(page * limit)
-        .all()
+        query.order_by(TApresence.meta_create_date.desc()).limit(limit).offset(page * limit).all()
     )
 
     features = []
@@ -181,10 +183,8 @@ def edit_prospect_zone(info_role, id_zp=None):
 
     if "id_dataset" not in data or data["id_dataset"] == "":
         dataset_code = METADATA_CODE
-        Dataset = (db.session
-            .query(TDatasets)
-            .filter(TDatasets.dataset_shortname == dataset_code)
-            .first()
+        Dataset = (
+            db.session.query(TDatasets).filter(TDatasets.dataset_shortname == dataset_code).first()
         )
         if Dataset:
             data["id_dataset"] = Dataset.id_dataset
@@ -213,16 +213,18 @@ def edit_prospect_zone(info_role, id_zp=None):
                 query = db.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
                 if info_role.value_filter == "2":
                     query = query.filter(
-                            TZprospect.observers.any(or_(
+                        TZprospect.observers.any(
+                            or_(
                                 User.id_role == info_role.id_role,
                                 User.id_organisme == info_role.id_organisme,
-                            ))
+                            )
+                        )
                     )
                 if info_role.value_filter == "1":
                     query = query.filter(
-                            TZprospect.observers.any(
-                                User.id_role == info_role.id_role,
-                            )
+                        TZprospect.observers.any(
+                            User.id_role == info_role.id_role,
+                        )
                     )
                 check_cruved = db.session.query(query.exists()).scalar()
 
@@ -323,16 +325,18 @@ def edit_presence_area(info_role, id_ap=None):
                 query = db.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
                 if info_role.value_filter == "2":
                     query = query.filter(
-                            TZprospect.observers.any(or_(
+                        TZprospect.observers.any(
+                            or_(
                                 User.id_role == info_role.id_role,
                                 User.id_organisme == info_role.id_organisme,
-                            ))
+                            )
+                        )
                     )
                 elif info_role.value_filter == "1":
                     query = query.filter(
-                            TZprospect.observers.any(
-                                User.id_role == info_role.id_role,
-                            )
+                        TZprospect.observers.any(
+                            User.id_role == info_role.id_role,
+                        )
                     )
                 check_cruved = db.session.query(query.exists()).scalar()
 
@@ -374,9 +378,7 @@ def get_organisms():
     Retourne la liste de tous les organismes présents
     """
     query = (
-        db.session.query(
-            Organisme.nom_organisme, Organisme.id_organisme
-        )
+        db.session.query(Organisme.nom_organisme, Organisme.id_organisme)
         .distinct()
         .join(User, Organisme.id_organisme == User.id_organisme)
         .join(cor_zp_observer, cor_zp_observer.c.id_role == User.id_role)
@@ -401,7 +403,7 @@ def get_municipalities():
         .distinct()
         .join(CorApArea, CorApArea.id_area == LAreas.id_area)
         .join(BibAreasTypes, BibAreasTypes.id_type == LAreas.id_type)
-        .filter(BibAreasTypes.type_code == 'COM')
+        .filter(BibAreasTypes.type_code == "COM")
         .order_by(LAreas.area_name)
     )
     data = query.all()
@@ -418,15 +420,23 @@ def get_prospect_zone(id_zp):
     zp = db.session.query(TZprospect).get(id_zp)
     if zp:
         return {
-            "aps": FeatureCollection([
-                ap.get_geofeature(
-                    fields=[
-                        "incline", "habitat", "threat_level", "pheno", "frequency_method",
-                        "counting", "perturbations", "physiognomies",
-                    ]
-                )
-                for ap in zp.ap
-            ]),
+            "aps": FeatureCollection(
+                [
+                    ap.get_geofeature(
+                        fields=[
+                            "incline",
+                            "habitat",
+                            "threat_level",
+                            "pheno",
+                            "frequency_method",
+                            "counting",
+                            "perturbations",
+                            "physiognomies",
+                        ]
+                    )
+                    for ap in zp.ap
+                ]
+            ),
             "zp": zp.get_geofeature(fields=["observers", "taxonomy", "areas", "areas.area_type"]),
         }
     raise NotFound(f"Prospect zone with ID {id_zp} not found !")
@@ -440,8 +450,14 @@ def get_presence_area(id_ap):
     if ap:
         return ap.get_geofeature(
             fields=[
-                "incline", "habitat", "threat_level", "pheno", "frequency_method", "counting",
-                "perturbations", "physiognomies",
+                "incline",
+                "habitat",
+                "threat_level",
+                "pheno",
+                "frequency_method",
+                "counting",
+                "perturbations",
+                "physiognomies",
             ]
         )
     raise NotFound(f"Presence area with ID {id_ap} not found !")
@@ -479,9 +495,7 @@ def export_presence_areas():
     """
     parameters = request.args
 
-    export_format = (
-        parameters["export_format"] if "export_format" in request.args else "geojson"
-    )
+    export_format = parameters["export_format"] if "export_format" in request.args else "geojson"
 
     file_name = datetime.datetime.now().strftime("%Y_%m_%d_%Hh%Mm%S")
     query = db.session.query(ExportAp)
@@ -493,27 +507,21 @@ def export_presence_areas():
         query = query.filter(ExportAp.id_zp == parameters["id_zp"])
 
     if "id_organism" in parameters:
-        query = (
-            query
-            .join(Organisme, Organisme.nom_organisme == ExportAp.organisme)
-            .filter(Organisme.id_organisme == parameters["id_organism"])
+        query = query.join(Organisme, Organisme.nom_organisme == ExportAp.organisme).filter(
+            Organisme.id_organisme == parameters["id_organism"]
         )
 
     if "id_area" in parameters:
-        query = (
-            query
-            .join(cor_zp_area, cor_zp_area.c.id_zp == ExportAp.id_zp)
-            .filter(cor_zp_area.c.id_area == parameters["id_area"])
+        query = query.join(cor_zp_area, cor_zp_area.c.id_zp == ExportAp.id_zp).filter(
+            cor_zp_area.c.id_area == parameters["id_area"]
         )
 
     if "year" in parameters:
         query = query.filter(func.date_part("year", ExportAp.date_min) == parameters["year"])
 
     if "cd_nom" in parameters:
-        query = (
-            query
-            .join(Taxref, Taxref.nom_valide == ExportAp.taxon)
-            .filter(Taxref.cd_nom == parameters["cd_nom"])
+        query = query.join(Taxref, Taxref.nom_valide == ExportAp.taxon).filter(
+            Taxref.cd_nom == parameters["cd_nom"]
         )
 
     data = query.all()
@@ -545,11 +553,14 @@ def check_geom_a_contain_geom_b():
     except AssertionError:
         raise BadRequest("Missing geom_a or geom_b in posted JSON.")
 
-    query = db.session.execute(select([
-            func.st_contains(
-               func.ST_GeomFromGeoJSON(json.dumps(data["geom_a"])),
-                func.ST_GeomFromGeoJSON(json.dumps(data["geom_b"])),
-            )]
+    query = db.session.execute(
+        select(
+            [
+                func.st_contains(
+                    func.ST_GeomFromGeoJSON(json.dumps(data["geom_a"])),
+                    func.ST_GeomFromGeoJSON(json.dumps(data["geom_b"])),
+                )
+            ]
         )
     )
     return query.scalar()

@@ -14,6 +14,7 @@ from geonature.core.gn_meta.models import TDatasets
 from geonature.core.ref_geo.models import LAreas
 from geonature.utils.env import db
 
+
 class ZpCruvedAuth(db.Model):
     """
     Classe abstraite de contrôle d'accès à la donnée

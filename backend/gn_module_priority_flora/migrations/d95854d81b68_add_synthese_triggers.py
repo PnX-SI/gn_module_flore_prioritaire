@@ -14,28 +14,31 @@ from gn_module_priority_flora import MODULE_CODE
 
 
 # revision identifiers, used by Alembic.
-revision = 'd95854d81b68'
-down_revision = '0c9bb3b1e33a' # add default dataset
+revision = "d95854d81b68"
+down_revision = "0c9bb3b1e33a"  # add default dataset
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
     operations = text(
-        importlib.resources.read_text(
-            "gn_module_priority_flora.migrations.data", "synthese.sql"
-        )
+        importlib.resources.read_text("gn_module_priority_flora.migrations.data", "synthese.sql")
     )
 
-    op.get_bind().execute(operations, { "moduleCode": MODULE_CODE })
+    op.get_bind().execute(operations, {"moduleCode": MODULE_CODE})
 
 
 def downgrade():
-    op.get_bind().execute(text("""
-        DELETE FROM gn_synthese.synthese
-        WHERE id_module = gn_commons.get_id_module_bycode(:moduleCode)
-            AND id_dataset = pr_priority_flora.get_dataset_id()
-    """), { "moduleCode": MODULE_CODE })
+    op.get_bind().execute(
+        text(
+            """
+            DELETE FROM gn_synthese.synthese
+            WHERE id_module = gn_commons.get_id_module_bycode(:moduleCode)
+                AND id_dataset = pr_priority_flora.get_dataset_id()
+            """
+        ),
+        {"moduleCode": MODULE_CODE},
+    )
 
     op.execute("DROP TRIGGER tri_insert_synthese_observer ON pr_priority_flora.cor_zp_obs")
     op.execute("DROP TRIGGER tri_delete_synthese_observer ON pr_priority_flora.cor_zp_obs")
