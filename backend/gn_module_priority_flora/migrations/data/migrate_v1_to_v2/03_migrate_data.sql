@@ -47,7 +47,7 @@ INSERT INTO pr_priority_flora.t_zprospect (
     dateobs,
     dateobs,
     the_geom_2154,
-    public.st_transform(geom_mixte_3857, 4326),
+    public.st_transform(the_geom_3857, 4326),
     public.st_transform(geom_point_3857, 4326),
     public.st_area(the_geom_2154),
     saisie_initiale,

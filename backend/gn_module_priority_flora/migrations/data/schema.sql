@@ -208,8 +208,12 @@ CREATE OR REPLACE FUNCTION pr_priority_flora.edit_zp()
   RETURNS trigger AS
 $BODY$
 BEGIN
-  NEW.geom_local = public.st_transform(NEW.geom_4326, :localSrid);
-  NEW.geom_point_4326 = public.st_pointonsurface(NEW.geom_4326);
+  IF (NEW.geom_local IS NULL) THEN
+    NEW.geom_local = public.st_transform(NEW.geom_4326, :localSrid);
+  END IF ;
+  IF (NEW.geom_point_4326 IS NULL) THEN
+    NEW.geom_point_4326 = public.st_pointonsurface(NEW.geom_4326);
+  END IF ;
   IF (NEW."area" IS NULL) THEN
     NEW."area" = public.st_area(NEW.geom_local);
   END IF ;
@@ -227,8 +231,12 @@ CREATE OR REPLACE FUNCTION pr_priority_flora.edit_ap()
   RETURNS trigger AS
 $BODY$
 BEGIN
-  NEW.geom_local = public.st_transform(NEW.geom_4326, :localSrid);
-  NEW.geom_point_4326 = public.st_pointonsurface(NEW.geom_4326);
+  IF (NEW.geom_local IS NULL) THEN
+    NEW.geom_local = public.st_transform(NEW.geom_4326, :localSrid);
+  END IF ;
+  IF (NEW.geom_point_4326 IS NULL) THEN
+    NEW.geom_point_4326 = public.st_pointonsurface(NEW.geom_4326);
+  END IF ;
   IF (NEW."area" IS NULL) THEN
     NEW."area" = public.st_area(NEW.geom_local);
   END IF ;
