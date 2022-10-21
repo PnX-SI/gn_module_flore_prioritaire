@@ -6,7 +6,6 @@ import { AppConfig } from '@geonature_config/app.config';
 
 import { ModuleConfig } from '../module.config';
 
-
 @Injectable()
 export class StoreService {
   public sites;
@@ -31,15 +30,12 @@ export class StoreService {
 
   loadQueryString() {
     this.queryString = new HttpParams({
-      fromString: localStorage.getItem('priority-flora-filters-querystring')
+      fromString: localStorage.getItem('priority-flora-filters-querystring'),
     });
   }
 
   saveQueryString() {
-    localStorage.setItem(
-      'priority-flora-filters-querystring',
-      this.queryString.toString()
-    );
+    localStorage.setItem('priority-flora-filters-querystring', this.queryString.toString());
   }
 
   clearQueryString() {

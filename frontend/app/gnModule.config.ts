@@ -1,8 +1,6 @@
 import { InjectionToken } from '@angular/core';
 
-export const MODULE_CONFIG_TOKEN = new InjectionToken<ModuleConfigInterface>(
-  'PriorityFloraConfig'
-);
+export const MODULE_CONFIG_TOKEN = new InjectionToken<ModuleConfigInterface>('PriorityFloraConfig');
 
 export interface ModuleConfigInterface {
   FRONTEND_PATH: string;

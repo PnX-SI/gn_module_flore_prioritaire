@@ -13,7 +13,7 @@ export class DataService {
 
   getProspectZones(params?: any) {
     return this.api.get<any>(`${this.moduleBaseUrl}/prospect-zones`, {
-      params: params
+      params: params,
     });
   }
 
@@ -24,15 +24,13 @@ export class DataService {
       urlParams = urlParams.set(key, params[key]);
     }
     return this.api.get<any>(`${this.moduleBaseUrl}/presence-areas`, {
-      params: urlParams
+      params: urlParams,
     });
   }
 
   getOneProspectZone(idZp) {
     return this.api.get<any>(
-      `${AppConfig.API_ENDPOINT}${
-        ModuleConfig.MODULE_URL
-      }/prospect-zones/${idZp}`
+      `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/prospect-zones/${idZp}`
     );
   }
 
@@ -53,10 +51,7 @@ export class DataService {
   }
 
   updateProspectZone(data: any, idZp) {
-    return this.api.put<any>(
-      `${this.moduleBaseUrl}/prospect-zones/${idZp}`,
-      data
-    );
+    return this.api.put<any>(`${this.moduleBaseUrl}/prospect-zones/${idZp}`, data);
   }
 
   addPresenceArea(data: any) {
@@ -64,10 +59,7 @@ export class DataService {
   }
 
   updatePresenceArea(data: any, idAp) {
-    return this.api.put<any>(
-      `${this.moduleBaseUrl}/presence-areas/${idAp}`,
-      data
-    );
+    return this.api.put<any>(`${this.moduleBaseUrl}/presence-areas/${idAp}`, data);
   }
 
   deleteProspectZone(idZp) {
@@ -81,7 +73,7 @@ export class DataService {
   containArea(geomA, geomB) {
     return this.api.post(`${this.moduleBaseUrl}/area-contain`, {
       geom_a: geomA,
-      geom_b: geomB
+      geom_b: geomB,
     });
   }
 }

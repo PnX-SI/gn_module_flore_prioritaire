@@ -16,7 +16,8 @@
       <pnx-leaflet-filelayer
         [editMode]="true"
         (onLoad)="displayFileLayerInfoMessage()"
-        [style]="{'color': mapGpxColor}">
+        [style]="{ color: mapGpxColor }"
+      >
       </pnx-leaflet-filelayer>
     </pnx-map>
   </div>
@@ -33,9 +34,7 @@
     <div class="card-body overflow-auto px-2 no-gutters">
       <p class="card-text">
         <b>Observateur(s) : </b>
-        <b *ngFor="let obs of storeService.zpProperties?.observers">
-          {{ obs.nom_complet }} ;</b
-        >
+        <b *ngFor="let obs of storeService.zpProperties?.observers"> {{ obs.nom_complet }} ;</b>
       </p>
 
       <form>
@@ -73,13 +72,8 @@
             </div>
           </div>
 
-          <div
-            *ngIf="apForm.errors?.invalidAltitude"
-            class="alert alert-warning"
-            role="alert"
-          >
-            L'altitude maximum ne peut pas être inférieur à l'altitude
-            minimum.
+          <div *ngIf="apForm.errors?.invalidAltitude" class="alert alert-warning" role="alert">
+            L'altitude maximum ne peut pas être inférieur à l'altitude minimum.
           </div>
 
           <div class="row form-group">
@@ -87,9 +81,7 @@
               <label for="id_nomenclature_incline">Pente estimée</label>
               <div id="newPente">
                 <pnx-nomenclature
-                  [parentFormControl]="
-                    apForm.controls.id_nomenclature_incline
-                  "
+                  [parentFormControl]="apForm.controls.id_nomenclature_incline"
                   [multiSelect]="false"
                   keyValue="id_nomenclature"
                   codeNomenclatureType="INCLINE_TYPE"
@@ -145,11 +137,11 @@
 
           <div class="row form-group">
             <div class="col-sm-12 col-md-8">
-              <label for="id_nomenclature_habitat">État de conservation dominant de l'habitat</label>
+              <label for="id_nomenclature_habitat">
+                État de conservation dominant de l'habitat
+              </label>
               <pnx-nomenclature
-                [parentFormControl]="
-                  apForm.controls.id_nomenclature_habitat
-                "
+                [parentFormControl]="apForm.controls.id_nomenclature_habitat"
                 [multiSelect]="false"
                 keyValue="id_nomenclature"
                 codeNomenclatureType="HABITAT_STATUS"
@@ -157,7 +149,6 @@
               </pnx-nomenclature>
             </div>
           </div>
-
 
           <div class="row form-group">
             <div class="col-xs-3">
@@ -177,13 +168,15 @@
                   <span class="input-group-text">
                     <ng-container
                       *ngIf="
-                        apForm.controls.favorable_status_percent.value != undefined ;
+                        apForm.controls.favorable_status_percent.value != undefined;
                         else undefinedFavorableStatusPercent
                       "
                     >
                       {{ apForm.controls.favorable_status_percent.value }}%
                     </ng-container>
-                    <ng-template #undefinedFavorableStatusPercent class="input-group-text">?</ng-template>
+                    <ng-template #undefinedFavorableStatusPercent class="input-group-text"
+                      >?</ng-template
+                    >
                   </span>
                 </div>
               </div>
@@ -245,9 +238,7 @@
           <div class="row form-group">
             <div class="col-sm-12 col-md-8">
               <pnx-nomenclature
-                [parentFormControl]="
-                  apForm.controls.id_nomenclature_phenology
-                "
+                [parentFormControl]="apForm.controls.id_nomenclature_phenology"
                 [multiSelect]="false"
                 keyValue="id_nomenclature"
                 codeNomenclatureType="PHENOLOGY_TYPE"
@@ -292,14 +283,11 @@
                 />
                 <div class="input-group-append ml-3">
                   <ng-container
-                      *ngIf="
-                        apForm.controls.frequency.value != undefined ;
-                        else undefinedFrequency
-                      "
-                    >
-                      {{ apForm.controls.frequency.value }}%
-                    </ng-container>
-                    <ng-template #undefinedFrequency class="input-group-text">?</ng-template>
+                    *ngIf="apForm.controls.frequency.value != undefined; else undefinedFrequency"
+                  >
+                    {{ apForm.controls.frequency.value }}%
+                  </ng-container>
+                  <ng-template #undefinedFrequency class="input-group-text">?</ng-template>
                 </div>
               </div>
             </div>
@@ -336,9 +324,7 @@
               <div id="newCounting">
                 <pnx-nomenclature
                   #countingMethod
-                  [parentFormControl]="
-                    apForm.controls.id_nomenclature_counting
-                  "
+                  [parentFormControl]="apForm.controls.id_nomenclature_counting"
                   [multiSelect]="false"
                   keyValue="id_nomenclature"
                   codeNomenclatureType="COUNTING_TYPE"
@@ -392,7 +378,6 @@
                 [formControl]="apForm.controls.total_max"
               />
             </div>
-
           </div>
 
           <div
@@ -422,13 +407,8 @@
             La dénombrement maximum ne peux être inférieure à 0.
           </div>
 
-          <div
-            *ngIf="apForm.errors?.invalidCount"
-            class="alert alert-warning"
-            role="alert"
-          >
-            Le dénombrement maximum ne peut pas être inférieur au
-            dénombrement minimum.
+          <div *ngIf="apForm.errors?.invalidCount" class="alert alert-warning" role="alert">
+            Le dénombrement maximum ne peut pas être inférieur au dénombrement minimum.
           </div>
         </fieldset>
 
@@ -439,9 +419,7 @@
               6. Commentaires
             </h4>
           </legend>
-          <div
-            class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm"
-          >
+          <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-sm">
             <textarea
               class="form-control"
               rows="5"
@@ -469,17 +447,13 @@
         <div class="col text-right">
           <div
             [matTooltip]="
-              (apForm.valid && apForm.dirty)
-              ? 'Enregistrer le formulaire.'
-              : (
-                (!apForm.pristine)
+              apForm.valid && apForm.dirty
+                ? 'Enregistrer le formulaire.'
+                : !apForm.pristine
                 ? 'Formulaire invalide, vérifier les messages d&rsquo;erreur.'
-                : (
-                  (idAp === undefined)
-                  ? 'Veuillez compléter le formulaire.'
-                  : 'Veuillez modifier le formulaire.'
-                )
-              )
+                : idAp === undefined
+                ? 'Veuillez compléter le formulaire.'
+                : 'Veuillez modifier le formulaire.'
             "
           >
             <button

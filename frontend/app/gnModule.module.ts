@@ -16,7 +16,6 @@ import { routes } from './gnModule.routes';
 import { ModuleConfig } from './module.config';
 import { MODULE_CONFIG_TOKEN } from './gnModule.config';
 
-
 @NgModule({
   imports: [CommonModule, GN2CommonModule, RouterModule.forChild(routes)],
   declarations: [

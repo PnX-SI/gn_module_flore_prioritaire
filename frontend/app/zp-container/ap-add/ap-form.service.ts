@@ -24,10 +24,7 @@ export class ApFormService {
         id_nomenclature_incline: null,
         physiognomies: new Array(),
         id_nomenclature_habitat: null,
-        favorable_status_percent: [
-          null,
-          [Validators.min(0), Validators.max(100)]
-        ],
+        favorable_status_percent: [null, [Validators.min(0), Validators.max(100)]],
         id_nomenclature_threat_level: null,
         perturbations: new Array(),
         id_nomenclature_phenology: null,

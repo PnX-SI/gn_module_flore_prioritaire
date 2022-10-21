@@ -1,11 +1,4 @@
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  OnDestroy,
-  Inject,
-  ViewChild
-} from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, Inject, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
@@ -25,23 +18,19 @@ import { NomenclatureComponent } from '@geonature_common/form/nomenclature/nomen
 import { DataService } from '../../services/data.service';
 import { ApFormService } from './ap-form.service';
 import { StoreService } from '../../services/store.service';
-import {
-  ModuleConfigInterface,
-  MODULE_CONFIG_TOKEN
-} from '../../gnModule.config';
-
+import { ModuleConfigInterface, MODULE_CONFIG_TOKEN } from '../../gnModule.config';
 
 enum COUNTING_TYPES {
   census = '1',
   sampling = '2',
-  NoCounting = '9'
+  NoCounting = '9',
 }
 
 @Component({
   selector: 'gn-pf-ap-add',
   templateUrl: 'ap-add.component.html',
   styleUrls: ['ap-add.component.scss'],
-  providers: [MapListService]
+  providers: [MapListService],
 })
 export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   leafletDrawOptions = leafletDrawOption;
@@ -104,87 +93,76 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(distinctUntilChanged())
       .subscribe(geojson => {
         // check if ap is in zp
-        this.api
-          .containArea(this.storeService.zp.geometry, geojson.geometry)
-          .subscribe(contain => {
-            if (contain) {
-              // Update geom control in form
-              this.apForm.patchValue({
-                geom_4326: geojson.geometry
-              });
+        this.api.containArea(this.storeService.zp.geometry, geojson.geometry).subscribe(contain => {
+          if (contain) {
+            // Update geom control in form
+            this.apForm.patchValue({
+              geom_4326: geojson.geometry,
+            });
 
-              // Get area size
-              if (geojson.geometry.type == 'Point') {
-                this.apForm.controls['area'].enable();
-                if (this.apForm.controls.area.value == null) {
-                  this.apForm.patchValue({ area: 1 });
-                  this.commonService.regularToaster(
-                    'info',
-                    "Veuillez saisir la surface en m² de l'aire de présence."
-                  );
-                }
-              } else {
-                this.apForm.controls['area'].disable();
-                this.dataFormService
-                  .getAreaSize(geojson)
-                  .subscribe(areaSize => {
-                    this.apForm.patchValue({
-                      area: Math.round(areaSize)
-                    });
-                  });
+            // Get area size
+            if (geojson.geometry.type == 'Point') {
+              this.apForm.controls['area'].enable();
+              if (this.apForm.controls.area.value == null) {
+                this.apForm.patchValue({ area: 1 });
+                this.commonService.regularToaster(
+                  'info',
+                  "Veuillez saisir la surface en m² de l'aire de présence."
+                );
               }
-
-              // Get to geo info from API
-              this.dataFormService.getGeoInfo(geojson).subscribe(res => {
-                if (res.altitude.altitude_min && res.altitude.altitude_max) {
-                  this.apForm.patchValue({
-                    altitude_min: res.altitude.altitude_min,
-                    altitude_max: res.altitude.altitude_max
-                  });
-                } else {
-                  this.commonService.regularToaster(
-                    'warning',
-                    'Les altitudes minimum et maximum de la nouvelle aire de présence ' +
-                      "n'ont pu être mis à jour automatiquement. Vérifier votre DEM !"
-                  );
-                }
-              });
-
-              // Get intersected geometry
-              this.dataFormService
-                .getFormatedGeoIntersection(geojson)
-                .subscribe(res => {
-                  this.areasIntersected = res;
-                });
             } else {
-              this.geojson = null;
-              this.apForm.patchValue({
-                geom_4326: null
+              this.apForm.controls['area'].disable();
+              this.dataFormService.getAreaSize(geojson).subscribe(areaSize => {
+                this.apForm.patchValue({
+                  area: Math.round(areaSize),
+                });
               });
-              this.commonService.regularToaster(
-                'warning',
-                "L'aire de présence n'est pas inclue dans la zone de prospection."
-              );
             }
-            // WARNING: markAsDirty() must be call after controls update.
-            this.apForm.markAsDirty();
-          });
+
+            // Get to geo info from API
+            this.dataFormService.getGeoInfo(geojson).subscribe(res => {
+              if (res.altitude.altitude_min && res.altitude.altitude_max) {
+                this.apForm.patchValue({
+                  altitude_min: res.altitude.altitude_min,
+                  altitude_max: res.altitude.altitude_max,
+                });
+              } else {
+                this.commonService.regularToaster(
+                  'warning',
+                  'Les altitudes minimum et maximum de la nouvelle aire de présence ' +
+                    "n'ont pu être mis à jour automatiquement. Vérifier votre DEM !"
+                );
+              }
+            });
+
+            // Get intersected geometry
+            this.dataFormService.getFormatedGeoIntersection(geojson).subscribe(res => {
+              this.areasIntersected = res;
+            });
+          } else {
+            this.geojson = null;
+            this.apForm.patchValue({
+              geom_4326: null,
+            });
+            this.commonService.regularToaster(
+              'warning',
+              "L'aire de présence n'est pas inclue dans la zone de prospection."
+            );
+          }
+          // WARNING: markAsDirty() must be call after controls update.
+          this.apForm.markAsDirty();
+        });
       });
   }
 
   private initializeTotalMaxAutocomplete() {
-    this.apForm.controls.total_min.valueChanges
-      .distinctUntilChanged()
-      .subscribe(value => {
-        if (
-          this.apForm.controls.total_max === null ||
-          this.apForm.controls.total_max.pristine
-        ) {
-          this.apForm.patchValue({
-            total_max: value
-          });
-        }
-      });
+    this.apForm.controls.total_min.valueChanges.distinctUntilChanged().subscribe(value => {
+      if (this.apForm.controls.total_max === null || this.apForm.controls.total_max.pristine) {
+        this.apForm.patchValue({
+          total_max: value,
+        });
+      }
+    });
   }
 
   ngAfterViewInit() {
@@ -215,33 +193,23 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
           altitude_min: ap.altitude_min,
           altitude_max: ap.altitude_max,
           area: Math.round(ap.area),
-          id_nomenclature_incline: ap.incline
-            ? ap.incline.id_nomenclature
-            : null,
+          id_nomenclature_incline: ap.incline ? ap.incline.id_nomenclature : null,
           physiognomies: ap.physiognomies === null ? [] : ap.physiognomies,
-          id_nomenclature_habitat: ap.habitat
-            ? ap.habitat.id_nomenclature
-            : null,
+          id_nomenclature_habitat: ap.habitat ? ap.habitat.id_nomenclature : null,
           favorable_status_percent: ap.favorable_status_percent,
-          id_nomenclature_threat_level: ap.threat_level
-            ? ap.threat_level.id_nomenclature
-            : null,
+          id_nomenclature_threat_level: ap.threat_level ? ap.threat_level.id_nomenclature : null,
           perturbations: ap.perturbations === null ? [] : ap.perturbations,
           id_nomenclature_phenology: ap.pheno ? ap.pheno.id_nomenclature : null,
           id_nomenclature_frequency_method: ap.frequency_method
             ? ap.frequency_method.id_nomenclature
             : null,
           frequency: ap.frequency,
-          id_nomenclature_counting: ap.counting
-            ? ap.counting.id_nomenclature
-            : null,
+          id_nomenclature_counting: ap.counting ? ap.counting.id_nomenclature : null,
           total:
-            ap.counting && ap.counting.cd_nomenclature == COUNTING_TYPES.census
-              ? ap.total_min
-              : 0,
+            ap.counting && ap.counting.cd_nomenclature == COUNTING_TYPES.census ? ap.total_min : 0,
           total_min: ap.total_min,
           total_max: ap.total_max,
-          comment: ap.comment
+          comment: ap.comment,
         });
         this.geojson = element.geometry;
       },
@@ -251,7 +219,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
             "Une erreur est survenue lors de la récupération des informations de l'AP sur le serveur",
             '',
             {
-              positionClass: 'toast-top-right'
+              positionClass: 'toast-top-right',
             }
           );
           console.log('error: ', error);
@@ -265,9 +233,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
       data => {
         this.storeService.zp = data['zp'];
         this.storeService.zpProperties = data['zp']['properties'];
-        this.storeService.zpProperties[
-          'areas'
-        ] = this.storeService.zpProperties['areas'].filter(
+        this.storeService.zpProperties['areas'] = this.storeService.zpProperties['areas'].filter(
           area => area.area_type.type_code == 'COM'
         );
 
@@ -279,7 +245,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
             'Une erreur est survenue lors de la récupération des informations sur le serveur',
             '',
             {
-              positionClass: 'toast-top-right'
+              positionClass: 'toast-top-right',
             }
           );
           console.log('error: ', error);
@@ -336,14 +302,10 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private onPresenceAreaSavedSuccess(apData) {
     this.toastrService.success('Aire de présence enregistrée', '', {
-      positionClass: 'toast-top-center'
+      positionClass: 'toast-top-center',
     });
 
-    this.router.navigate([
-      `${this.config.MODULE_URL}/zps`,
-      this.storeService.zp.id,
-      'details'
-    ]);
+    this.router.navigate([`${this.config.MODULE_URL}/zps`, this.storeService.zp.id, 'details']);
 
     // TODO: try to simplify the code below
     // Push ap maplist data
@@ -367,9 +329,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onPresenceAreaSavedError(error) {
-    const title = this.isUpdateMode()
-      ? 'Problème de mise à jour'
-      : "Problème d'ajout";
+    const title = this.isUpdateMode() ? 'Problème de mise à jour' : "Problème d'ajout";
     const genericMsg = this.isUpdateMode()
       ? `Une erreur ${error.status} est survenue lors de la mise à jour des informations sur le serveur.`
       : `Une erreur ${error.status} est survenue lors de l'ajout des informations sur le serveur.`;
@@ -378,7 +338,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
         ? `${error.status} ${error.statusText} - ${error.error.description}`
         : genericMsg;
     const options = {
-      positionClass: 'toast-top-right'
+      positionClass: 'toast-top-right',
     };
     this.toastrService.error(msg, title, options);
     console.log(`Error ${error.status} ${error.statusText}:`, error);
@@ -393,17 +353,17 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     if (countingCode == COUNTING_TYPES.census) {
       this.apForm.patchValue({
         total_min: null,
-        total_max: null
+        total_max: null,
       });
     } else if (countingCode == COUNTING_TYPES.sampling) {
       this.apForm.patchValue({
-        total: null
+        total: null,
       });
     } else {
       this.apForm.patchValue({
         total_min: null,
         total_max: null,
-        total: null
+        total: null,
       });
     }
   }
@@ -413,7 +373,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.apForm.patchValue({
       geom_4326: null,
-      area: null
+      area: null,
     });
     this.apForm.markAsDirty();
     this.geojson = null;

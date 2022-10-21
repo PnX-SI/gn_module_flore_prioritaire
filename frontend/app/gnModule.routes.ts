@@ -9,15 +9,15 @@ import { ZpContainerComponent } from './zp-container/zp-container.component';
 export const routes: Routes = [
   {
     path: '',
-    component: ZpMapListComponent
+    component: ZpMapListComponent,
   },
   {
     path: 'zps/add',
-    component: ZpAddComponent
+    component: ZpAddComponent,
   },
   {
     path: 'zps/:idZp/edit',
-    component: ZpAddComponent
+    component: ZpAddComponent,
   },
   {
     path: 'zps/:idZp',
@@ -25,21 +25,21 @@ export const routes: Routes = [
     children: [
       {
         path: 'details',
-        component: ZpDetailsComponent
+        component: ZpDetailsComponent,
       },
       {
         path: 'aps/add',
-        component: ApAddComponent
+        component: ApAddComponent,
       },
       {
         path: 'aps/:idAp/edit',
-        component: ApAddComponent
+        component: ApAddComponent,
       },
       {
         path: '',
         redirectTo: 'details',
-        pathMatch: 'full'
-      }
-    ]
-  }
+        pathMatch: 'full',
+      },
+    ],
+  },
 ];

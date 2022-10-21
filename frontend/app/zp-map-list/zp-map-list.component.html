@@ -1,10 +1,7 @@
 <div class="row mx-0">
   <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 px-0">
     <pnx-map height="92vh" [center]="center" [zoom]="zoom">
-      <pnx-geojson
-        [onEachFeature]="onEachFeature.bind(this)"
-        [geojson]="geojson"
-      ></pnx-geojson>
+      <pnx-geojson [onEachFeature]="onEachFeature.bind(this)" [geojson]="geojson"></pnx-geojson>
     </pnx-map>
   </div>
 
@@ -74,10 +71,7 @@
                 <option [ngValue]="null">
                   -- Sélectionnez un organisme --
                 </option>
-                <option
-                  [value]="org.id_organism"
-                  *ngFor="let org of organisms"
-                >
+                <option [value]="org.id_organism" *ngFor="let org of organisms">
                   {{ org.name }}
                 </option>
               </select>
@@ -198,7 +192,7 @@
               ngx-datatable-cell-template
               style="text-align: right;"
             >
-              {{ value | number:'1.0-0':'fr' }}
+              {{ value | number: '1.0-0':'fr' }}
             </ng-template>
           </ngx-datatable-column>
         </ngx-datatable>
@@ -217,17 +211,12 @@
           </pnx-modal-download>
         </div>
         <div class="col text-right">
-          <button
-            type="button"
-            class="btn btn-sm btn-success box-shadow"
-            (click)="onAddZp()"
-          >
+          <button type="button" class="btn btn-sm btn-success box-shadow" (click)="onAddZp()">
             <i class="fa fa-plus-circle" aria-hidden="true"></i>
             Ajouter une nouvelle zone de prospection
           </button>
         </div>
       </div>
     </div>
-
   </div>
 </div>

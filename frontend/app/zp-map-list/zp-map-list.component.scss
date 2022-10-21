@@ -1,46 +1,46 @@
 // Tags
 fieldset {
-    padding: 0.35em 0.625em 0.75em !important;
-    border: 1px solid silver !important;
-    margin: 0 2px !important;
-    border-radius: 3px;
-    // background-color: #f3f3f3;
+  padding: 0.35em 0.625em 0.75em !important;
+  border: 1px solid silver !important;
+  margin: 0 2px !important;
+  border-radius: 3px;
+  // background-color: #f3f3f3;
 }
 legend {
-    width: auto;
-    font-size: inherit;
+  width: auto;
+  font-size: inherit;
 }
 ngx-datatable {
-    max-height: 79vh !important;
-    box-shadow: none !important;
-    overflow-y: auto;
+  max-height: 79vh !important;
+  box-shadow: none !important;
+  overflow-y: auto;
 }
 // Datatable
 :host /deep/ .single-selection .datatable-body-row.active .datatable-row-group {
-    background-color: rgb(154, 217, 247) !important;
+  background-color: rgb(154, 217, 247) !important;
 }
 :host /deep/ .ngx-datatable.material .datatable-footer .page-count {
-    padding: 5px;
-    line-height: 1.2;
-    height: 40px;
+  padding: 5px;
+  line-height: 1.2;
+  height: 40px;
 }
 // Grid rows gutters
 .no-gutters .row {
-    margin-right: 0;
-    margin-left: 0;
+  margin-right: 0;
+  margin-left: 0;
 
-    > .col,
-    > [class*="col-"] {
-        padding-right: 0;
-        padding-left: 0;
-    }
+  > .col,
+  > [class*="col-"] {
+    padding-right: 0;
+    padding-left: 0;
+  }
 }
 // Others
 @media (min-width: 768px) {
-    .card-body {
-        height: 70vh;
-    }
+  .card-body {
+    height: 70vh;
+  }
 }
 .box-shadow {
-    box-shadow: 4px 5px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  box-shadow: 4px 5px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }

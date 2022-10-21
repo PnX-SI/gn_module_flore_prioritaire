@@ -17,7 +17,7 @@ import { ModuleConfig } from '../../module.config';
   selector: 'gn-pf-zp-details',
   templateUrl: 'zp-details.component.html',
   styleUrls: ['./zp-details.component.scss'],
-  providers: [MapListService]
+  providers: [MapListService],
 })
 export class ZpDetailsComponent implements OnInit {
   public idZp: string;
@@ -42,10 +42,7 @@ export class ZpDetailsComponent implements OnInit {
     this.displayColumns = this.storeService.fpConfig.datatable_ap_columns;
     this.activatedRoute.parent.params.subscribe(params => {
       this.idZp = params['idZp'];
-      this.storeService.queryString = this.storeService.queryString.set(
-        'id_zp',
-        this.idZp
-      );
+      this.storeService.queryString = this.storeService.queryString.set('id_zp', this.idZp);
       this.storeService.idSite = this.idZp;
     });
   }
@@ -58,9 +55,7 @@ export class ZpDetailsComponent implements OnInit {
       data => {
         this.storeService.zp = data['zp'];
         this.storeService.zpProperties = data['zp']['properties'];
-        this.storeService.zpProperties[
-          'areas'
-        ] = this.storeService.zpProperties['areas'].filter(
+        this.storeService.zpProperties['areas'] = this.storeService.zpProperties['areas'].filter(
           area => area.area_type.type_code == 'COM'
         );
 
@@ -74,7 +69,7 @@ export class ZpDetailsComponent implements OnInit {
             'Une erreur est survenue lors de la récupération des informations sur le serveur',
             '',
             {
-              positionClass: 'toast-top-right'
+              positionClass: 'toast-top-right',
             }
           );
           console.log('error: ', error);
@@ -84,22 +79,11 @@ export class ZpDetailsComponent implements OnInit {
   }
 
   onAddAp(idZp) {
-    this.router.navigate([
-      `${ModuleConfig.MODULE_URL}/zps`,
-      idZp,
-      'aps',
-      'add'
-    ]);
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/zps`, idZp, 'aps', 'add']);
   }
 
   onEditAp(idZp, idAp) {
-    this.router.navigate([
-      `${ModuleConfig.MODULE_URL}/zps`,
-      idZp,
-      'aps',
-      idAp,
-      'edit'
-    ]);
+    this.router.navigate([`${ModuleConfig.MODULE_URL}/zps`, idZp, 'aps', idAp, 'edit']);
   }
 
   onDeleteAp(idAp) {
@@ -107,33 +91,23 @@ export class ZpDetailsComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmationDialog, {
       width: '350px',
       position: { top: '5%' },
-      data: { message: msg }
+      data: { message: msg },
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.api.deletePresenceArea(idAp).subscribe(
           data => {
-            this.mapListService.tableData = this.mapListService.tableData.filter(
-              item => {
-                return idAp !== item.id_ap;
-              }
-            );
-            const filterFeature = this.storeService.sites.features.filter(
-              feature => {
-                return idAp !== feature.properties.id_ap;
-              }
-            );
+            this.mapListService.tableData = this.mapListService.tableData.filter(item => {
+              return idAp !== item.id_ap;
+            });
+            const filterFeature = this.storeService.sites.features.filter(feature => {
+              return idAp !== feature.properties.id_ap;
+            });
             this.storeService.sites['features'] = filterFeature;
 
-            this.storeService.sites = Object.assign(
-              {},
-              this.storeService.sites
-            );
-            this.commonService.translateToaster(
-              'success',
-              'Releve.DeleteSuccessfully'
-            );
+            this.storeService.sites = Object.assign({}, this.storeService.sites);
+            this.commonService.translateToaster('success', 'Releve.DeleteSuccessfully');
           },
           error => {
             if (error.status === 403) {
@@ -179,7 +153,7 @@ export class ZpDetailsComponent implements OnInit {
       ' m\u00b2' +
       '</div>';
     const customOptions = {
-      className: 'custom-popup'
+      className: 'custom-popup',
     };
     layer.bindPopup(customPopup, customOptions);
 
@@ -196,7 +170,7 @@ export class ZpDetailsComponent implements OnInit {
       },
       mouseout: e => {
         layer.closePopup();
-      }
+      },
     });
   }
 

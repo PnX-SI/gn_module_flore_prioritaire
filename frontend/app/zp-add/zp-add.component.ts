@@ -9,7 +9,6 @@ import { ToastrService } from 'ngx-toastr';
 import { CommonService } from '@geonature_common/service/common.service';
 import { DataFormService } from '@geonature_common/form/data-form.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
-import { MapService } from '@geonature_common/map/map.service';
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 
 import { DataService } from '../services/data.service';
@@ -20,7 +19,7 @@ import { ModuleConfigInterface, MODULE_CONFIG_TOKEN } from '../gnModule.config';
   selector: 'gn-pf-zp-add',
   templateUrl: 'zp-add.component.html',
   styleUrls: ['zp-add.component.scss'],
-  providers: [MapListService, MapService],
+  providers: [MapListService],
 })
 export class ZpAddComponent implements OnInit, AfterViewInit {
   public leafletDrawOptions = leafletDrawOption;
@@ -73,7 +72,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     // Update mode
     if (this.idZp !== undefined) {
-      this.api.getOneProspectZone(this.idZp).subscribe((element) => {
+      this.api.getOneProspectZone(this.idZp).subscribe(element => {
         const zp = element.zp.properties;
         this.zpForm.patchValue({
           id_zp: zp.id_zp,
@@ -96,19 +95,19 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
     let finalForm = this.formatDataFormZp();
 
     if (this.idZp) {
-      this.api
-        .updateProspectZone(finalForm, this.idZp)
-        .subscribe(data => {
-          this.onFormSaved(data);
-        });
+      this.api.updateProspectZone(finalForm, this.idZp).subscribe(data => {
+        this.onFormSaved(data);
+      });
     } else {
-      this.api.addProspectZone(finalForm).subscribe(data => { this.onFormSaved(data) });
+      this.api.addProspectZone(finalForm).subscribe(data => {
+        this.onFormSaved(data);
+      });
     }
   }
 
   private onFormSaved(data) {
     this.toastrService.success('Zone de prospection enregistrée', '', {
-      positionClass: 'toast-top-center'
+      positionClass: 'toast-top-center',
     });
 
     this.router.navigate([`${this.config.MODULE_URL}/zps`, data.id, 'details']);
@@ -125,7 +124,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
 
     // Observers
     if (finalForm['observers']) {
-      finalForm['observers'] = finalForm['observers'].map((obs) => {
+      finalForm['observers'] = finalForm['observers'].map(obs => {
         return obs.id_role;
       });
     } else {

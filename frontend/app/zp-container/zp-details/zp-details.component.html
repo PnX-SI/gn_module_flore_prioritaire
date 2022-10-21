@@ -7,30 +7,21 @@
         [zoomOnFirstTime]="true"
       >
       </pnx-geojson>
-      <pnx-geojson
-        [onEachFeature]="onEachFeature.bind(this)"
-        [geojson]="storeService.sites"
-      >
+      <pnx-geojson [onEachFeature]="onEachFeature.bind(this)" [geojson]="storeService.sites">
       </pnx-geojson>
     </pnx-map>
   </div>
 
   <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 p-0 mh-100">
     <div class="col px-0 text-left">
-      <button
-        type="button"
-        class="btn btn-link btn-sm back-button"
-        (click)="backToZpsList()"
-      >
+      <button type="button" class="btn btn-link btn-sm back-button" (click)="backToZpsList()">
         <i class="fa fa-arrow-left" aria-hidden="true"> </i>
         Retour à la liste des zones de prospection
       </button>
     </div>
 
     <div class="card px-0">
-      <h3 class="card-header">
-        Consultation des aires de présence de la ZP {{ idZp }}
-      </h3>
+      <h3 class="card-header">Consultation des aires de présence de la ZP {{ idZp }}</h3>
 
       <div class="card-body overflow-auto px-2">
         <ul class="nav nav-tabs" role="tablist">
@@ -82,19 +73,16 @@
             <div class="mb-2">
               <mat-icon class="h5">event</mat-icon>
               <b> Date : </b>
-              {{
-                storeService.zpProperties.date_min
-                  | date: 'longDate':null:'fr'
-              }}
+              {{ storeService.zpProperties.date_min | date: 'longDate':null:'fr' }}
             </div>
 
             <div class="mb-2">
               <mat-icon class="h5">group_add</mat-icon>
               <b>Observateur(s) : </b>
               <ul class="comma-list">
-                <li
-                  *ngFor="let obs of storeService.zpProperties?.observers"
-                >{{ obs.nom_complet }}</li>
+                <li *ngFor="let obs of storeService.zpProperties?.observers">
+                  {{ obs.nom_complet }}
+                </li>
               </ul>
             </div>
           </div>
@@ -115,9 +103,7 @@
               <mat-icon class="h5">map</mat-icon>
               <b>Commune(s) : </b>
               <ul class="comma-list">
-                <li
-                  *ngFor="let area of storeService.zpProperties?.areas"
-                >{{ area.area_name }}</li>
+                <li *ngFor="let area of storeService.zpProperties?.areas">{{ area.area_name }}</li>
               </ul>
             </div>
           </div>
@@ -141,21 +127,14 @@
             [rowClass]="mapListService.getRowClass"
           >
             <ngx-datatable-row-detail [rowHeight]="auto" #myDetailRow>
-              <ng-template
-                let-row="row"
-                let-expanded="expanded"
-                ngx-datatable-row-detail-template
-              >
+              <ng-template let-row="row" let-expanded="expanded" ngx-datatable-row-detail-template>
                 <dl class="def-list-inline small">
                   <dt>1. Localisation</dt>
                   <dd>
                     <dl class="def-list-inline">
-                      <dt> Altitude </dt>
+                      <dt>Altitude</dt>
                       <dd>
-                        <span
-                          matTooltip="Altitude en mètre."
-                          matTooltipPosition="right"
-                        >
+                        <span matTooltip="Altitude en mètre." matTooltipPosition="right">
                           <span *ngIf="row.altitude_min == row.altitude_max; else altitudeDiff">
                             {{ row.altitude_min }}m
                           </span>
@@ -166,12 +145,10 @@
                         &nbsp;
                       </dd>
 
-                      <dt> Surface </dt>
-                      <dd>
-                        {{ row.area | number:'1.0-0':'fr' }}m²&nbsp;
-                      </dd>
+                      <dt>Surface</dt>
+                      <dd>{{ row.area | number: '1.0-0':'fr' }}m²&nbsp;</dd>
 
-                      <dt> Pente </dt>
+                      <dt>Pente</dt>
                       <dd>
                         <span
                           [matTooltip]="row.incline?.definition_default"
@@ -182,7 +159,7 @@
                         &nbsp;
                       </dd>
 
-                      <dt> Physionomies </dt>
+                      <dt>Physionomies</dt>
                       <dd>
                         <ul class="comma-list">
                           <li
@@ -235,7 +212,7 @@
                         &nbsp;
                       </dd>
 
-                      <dt> Perturbations </dt>
+                      <dt>Perturbations</dt>
                       <dd>
                         <ul class="comma-list">
                           <li
@@ -253,19 +230,14 @@
 
                   <dt>3. Phénologie</dt>
                   <dd>
-                    <span
-                      [matTooltip]="row.pheno?.definition_default"
-                      matTooltipPosition="right"
-                    >
+                    <span [matTooltip]="row.pheno?.definition_default" matTooltipPosition="right">
                       {{ row.pheno?.label_default }}&nbsp;
                     </span>
                   </dd>
 
                   <dt>4. Fréquence</dt>
                   <dd>
-                    <span>
-                      {{ row.frequency }}%
-                    </span>
+                    <span> {{ row.frequency }}% </span>
                     <ng-container *ngIf="row.frequency_method">
                       (<span [matTooltip]="row.frequency_method?.definition_default">
                         {{ row.frequency_method?.label_default }} </span
@@ -276,15 +248,11 @@
 
                   <dt>5. Dénombrement</dt>
                   <dd>
-                    <span
-                      *ngIf="row.total_min == row.total_max; else totalDiff"
-                    >
+                    <span *ngIf="row.total_min == row.total_max; else totalDiff">
                       {{ row.total_min }}
                     </span>
                     <ng-template #totalDiff>
-                      <span>
-                        min. : {{ row.total_min }} / max. : {{ row.total_max }}
-                      </span>
+                      <span> min. : {{ row.total_min }} / max. : {{ row.total_max }} </span>
                     </ng-template>
                     <ng-container *ngIf="row.counting">
                       (<span [matTooltip]="row.counting?.definition_default">
@@ -301,11 +269,7 @@
             </ngx-datatable-row-detail>
 
             <ngx-datatable-column maxWidth="10">
-              <ng-template
-                let-row="row"
-                let-expanded="expanded"
-                ngx-datatable-cell-template
-              >
+              <ng-template let-row="row" let-expanded="expanded" ngx-datatable-cell-template>
                 <a
                   href="javascript:void(0)"
                   [class.datatable-icon-right]="!expanded"
@@ -354,7 +318,7 @@
                 let-value="value"
                 ngx-datatable-cell-template
               >
-                {{ value | number:'1.0-2':'fr'}}
+                {{ value | number: '1.0-2':'fr' }}
               </ng-template>
 
               <ng-template
@@ -362,15 +326,11 @@
                 let-value="value"
                 ngx-datatable-cell-template
               >
-                {{ value | number:'1.0-2':'fr' }}%
+                {{ value | number: '1.0-2':'fr' }}%
               </ng-template>
 
-              <ng-template
-                *ngIf="col.prop == 'area'"
-                let-value="value"
-                ngx-datatable-cell-template
-              >
-                {{ value | number:'1.0-0':'fr' }}
+              <ng-template *ngIf="col.prop == 'area'" let-value="value" ngx-datatable-cell-template>
+                {{ value | number: '1.0-0':'fr' }}
               </ng-template>
             </ngx-datatable-column>
           </ngx-datatable>

@@ -20,7 +20,7 @@ import { ModuleConfig } from '../module.config';
   selector: 'gn-pf-map-list',
   templateUrl: 'zp-map-list.component.html',
   styleUrls: ['zp-map-list.component.scss'],
-  providers: [MapListService]
+  providers: [MapListService],
 })
 export class ZpMapListComponent implements OnInit, AfterViewInit {
   public currentYear: number = new Date().getFullYear();
@@ -62,7 +62,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
   private loadInitialData() {
     this.storeService.loadQueryString();
-    this.deleteQueryString('cd_nom');// WARNING: pnx-taxonomy component can't be initialized !
+    this.deleteQueryString('cd_nom'); // WARNING: pnx-taxonomy component can't be initialized !
     this.deleteQueryString('page');
     this.setQueryString('limit', '10');
     this.loadData();
@@ -74,7 +74,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       filterOrga: this.getInitialFilterValue('id_organism'),
       filterCom: this.getInitialFilterValue('id_area'),
       filterTaxon: this.getInitialFilterValue('cd_nom'),
-      idZp: null
+      idZp: null,
     });
   }
 
@@ -160,14 +160,9 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   }
 
   private setQueryString(param: string, value) {
-    this.storeService.queryString = this.storeService.queryString.set(
-      param,
-      value
-    );
+    this.storeService.queryString = this.storeService.queryString.set(param, value);
     if (param != 'page') {
-      this.storeService.queryString = this.storeService.queryString.delete(
-        'page'
-      );
+      this.storeService.queryString = this.storeService.queryString.delete('page');
       this.mapListService.page.pageNumber = 0;
     }
     this.storeService.saveQueryString();
@@ -177,9 +172,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   private deleteQueryString(param: string) {
     this.storeService.queryString = this.storeService.queryString.delete(param);
     if (param != 'page') {
-      this.storeService.queryString = this.storeService.queryString.delete(
-        'page'
-      );
+      this.storeService.queryString = this.storeService.queryString.delete('page');
       this.mapListService.page.pageNumber = 0;
     }
     this.storeService.saveQueryString();
@@ -210,8 +203,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
         'button',
         ' btn btn-sm btn-outline-shadow leaflet-bar leaflet-control leaflet-control-custom'
       );
-      container.innerHTML =
-        '<i class="material-icons" style="line-height:normal;">crop_free</i>';
+      container.innerHTML = '<i class="material-icons" style="line-height:normal;">crop_free</i>';
       container.style.padding = '4px 4px 1px';
       container.title = "Réinitialiser l'emprise de la carte";
       container.onclick = () => {
@@ -228,7 +220,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       click: e => {
         this.mapListService.toggleStyle(layer);
         this.mapListService.mapSelected.next(feature.id);
-      }
+      },
     });
   }
 
@@ -255,7 +247,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     const dialogRef = this.dialog.open(ConfirmationDialog, {
       width: '350px',
       position: { top: '5%' },
-      data: { message: msg }
+      data: { message: msg },
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -270,10 +262,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
             });
             this.geojson['features'] = filterFeature;
             this.geojson = Object.assign({}, this.geojson);
-            this.commonService.translateToaster(
-              'success',
-              'Releve.DeleteSuccessfully'
-            );
+            this.commonService.translateToaster('success', 'Releve.DeleteSuccessfully');
           },
           error => {
             if (error.status === 403) {
