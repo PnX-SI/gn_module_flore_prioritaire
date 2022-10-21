@@ -249,7 +249,16 @@
                   <dt>5. Dénombrement</dt>
                   <dd>
                     <span *ngIf="row.total_min == row.total_max; else totalDiff">
-                      {{ row.total_min }}
+                      <ng-container
+                        *ngIf="
+                          row.counting?.cd_nomenclature == '9' &&
+                            (row.total_min == 0 || row.total_min == null);
+                          else total
+                        "
+                      >
+                        NA
+                      </ng-container>
+                      <ng-template #total>{{ row.total_min }}</ng-template>
                     </span>
                     <ng-template #totalDiff>
                       <span> min. : {{ row.total_min }} / max. : {{ row.total_max }} </span>
