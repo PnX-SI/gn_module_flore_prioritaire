@@ -260,6 +260,7 @@
             <div class="col-sm-12 col-md-8">
               <label for="id_nomenclature_frequency_method">Méthode</label>
               <pnx-nomenclature
+                #frequencyMethod
                 [parentFormControl]="apForm.controls.id_nomenclature_frequency_method"
                 [multiSelect]="false"
                 keyValue="id_nomenclature"
@@ -271,7 +272,17 @@
 
           <div class="row form-group">
             <div class="col-xs-3">
-              <label for="frequency">Fréquence estimée en %</label>
+              <label for="frequency">
+                <ng-container
+                  *ngIf="
+                    frequencyMethod.getCdNomenclature() == FREQUENCY_METHOD.transect ;
+                    else estimatedFrequency
+                  "
+                >
+                  Fréquence calculée en %
+                </ng-container>
+                <ng-template #estimatedFrequency>Fréquence estimée en %</ng-template>
+              </label>
               <div class="input-group">
                 <input
                   type="range"

@@ -12,6 +12,7 @@ import { ConfirmationDialog } from '@geonature_common/others/modal-confirmation/
 import { DataService } from '../../services/data.service';
 import { StoreService } from '../../services/store.service';
 import { ModuleConfig } from '../../module.config';
+import { COUNTING_TYPES } from '../../shared/nomenclatures';
 
 @Component({
   selector: 'gn-pf-zp-details',
@@ -25,6 +26,7 @@ export class ZpDetailsComponent implements OnInit {
   public filteredData = [];
   @ViewChild('table') table: any;
   public displayColumns: Array<any>;
+  COUNTING_TYPES = COUNTING_TYPES;
 
   constructor(
     public dialog: MatDialog,

@@ -19,12 +19,7 @@ import { DataService } from '../../services/data.service';
 import { ApFormService } from './ap-form.service';
 import { StoreService } from '../../services/store.service';
 import { ModuleConfigInterface, MODULE_CONFIG_TOKEN } from '../../gnModule.config';
-
-enum COUNTING_TYPES {
-  census = '1',
-  sampling = '2',
-  NoCounting = '9',
-}
+import { COUNTING_TYPES, FREQUENCY_METHOD } from '../../shared/nomenclatures';
 
 @Component({
   selector: 'gn-pf-ap-add',
@@ -45,6 +40,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   mapGpxColor: string;
   COUNTING_TYPES = COUNTING_TYPES;
   @ViewChild('countingMethod') countingMethod: NomenclatureComponent;
+  FREQUENCY_METHOD = FREQUENCY_METHOD;
 
   constructor(
     @Inject(MODULE_CONFIG_TOKEN) private config: ModuleConfigInterface,
