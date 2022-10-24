@@ -306,6 +306,7 @@ class TZprospect(ZpCruvedAuth):
         )
 
 
+# TODO: rename all fields to english. Translate fields when exported to web service.
 @serializable
 @geoserializable
 @geofileserializable

@@ -507,8 +507,8 @@ def export_presence_areas():
         query = query.filter(ExportAp.id_zp == parameters["id_zp"])
 
     if "id_organism" in parameters:
-        query = query.join(Organisme, Organisme.nom_organisme == ExportAp.organisme).filter(
-            Organisme.id_organisme == parameters["id_organism"]
+        query = query.join(TZprospect, TZprospect.id_zp == ExportAp.id_zp).filter(
+            TZprospect.observers.any(id_organisme=parameters["id_organism"])
         )
 
     if "id_area" in parameters:
