@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### 🚀 Added
 
 - Added a right management of this module in a section of the installation documentation.
+- Added possibility to sort, select and rename export columns names.
 
 ### 🐛 Fixed
 
@@ -17,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed migration script. We are now using the correct geometry field for the ZP geometry.
 - Enable edit mode on the `pnx-leaflet-filelayer` component to avoid deletion of the GPX file when geometry is drawn.
 - In the ZP map list view, organism filter no longer returns "Internal Server Error". Export is possible again.
+- User SRID 4326 for GeoJson export.
+- Added missing ZP and AP geometry fields in CSV export.
 
 ### 🔄 Changed
 
@@ -26,6 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed Prettier config. Trailing comma is not removed  when compatible with ES5.
 - Reformatted all frontend source code files with Prettier.
 - Reformatted all backend source code files with Black.
+- GeoJson export includes ZP geometries.
+- Used english for export view fields.
+- Improved debug for models DB classes with a parent class.
 
 ## [2.1.0] - 2022-10-20
 
