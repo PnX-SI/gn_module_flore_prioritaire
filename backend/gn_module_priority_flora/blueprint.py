@@ -3,7 +3,7 @@ import json
 from operator import or_
 
 from flask import Blueprint, request
-from geoalchemy2.shape import from_shape
+from geoalchemy2.shape import from_shape, to_shape
 from geojson import FeatureCollection
 from shapely.geometry import asShape
 from sqlalchemy.sql.expression import func, select
@@ -29,6 +29,7 @@ from .models import (
     cor_zp_observer,
     CorApArea,
 )
+from .repositories import translate_exported_columns, get_export_headers
 
 
 blueprint = Blueprint("priority_flora", __name__)
@@ -497,7 +498,7 @@ def export_presence_areas():
 
     export_format = parameters["export_format"] if "export_format" in request.args else "geojson"
 
-    file_name = datetime.datetime.now().strftime("%Y_%m_%d_%Hh%Mm%S")
+    # Build query and get data from db
     query = db.session.query(ExportAp)
 
     if "id_ap" in parameters:
@@ -520,25 +521,70 @@ def export_presence_areas():
         query = query.filter(func.date_part("year", ExportAp.date_min) == parameters["year"])
 
     if "cd_nom" in parameters:
-        query = query.join(Taxref, Taxref.nom_valide == ExportAp.taxon).filter(
+        query = query.join(Taxref, Taxref.cd_nom == ExportAp.sciname_code).filter(
             Taxref.cd_nom == parameters["cd_nom"]
         )
 
     data = query.all()
 
+    # Format data
+    output_items = []
+    computed_zp = []
+    for d in data:
+        ap = d.as_dict()
+
+        prepared_ap = {}
+        if export_format == "csv":
+            # Add geom column remove previously by .as_dict() method.
+            ap["zp_geom_local"] = to_shape(d.zp_geom_local)
+            ap["ap_geom_local"] = to_shape(d.ap_geom_local)
+            prepared_ap = translate_exported_columns(ap)
+        elif export_format == "geojson":
+            if ap["id_zp"] not in computed_zp:
+                computed_zp.append(ap["id_zp"])
+                prepared_zp = {
+                    "geometry": ap["zp_geojson"],
+                    "properties": translate_exported_columns({
+                        "id_zp": ap["id_zp"],
+                        "sciname": ap["sciname"],
+                        "sciname_code": ap["sciname_code"],
+                        "date_min": ap["date_min"],
+                        "date_max": ap["date_max"],
+                        "observaters": ap["observaters"],
+                    })
+                }
+                output_items.append(prepared_zp)
+
+            prepared_ap["geometry"] = ap["ap_geojson"]
+            geom_fields = [
+                "zp_ap_geojson",
+                "zp_geojson",
+                "zp_geom_local",
+                "ap_geojson",
+                "ap_geom_local",
+            ]
+            for field in geom_fields:
+                ap.pop(field, None)
+            prepared_ap["properties"] = translate_exported_columns(ap)
+
+        output_items.append(prepared_ap)
+
+    # Return data
+    file_name = datetime.datetime.now().strftime("%Y_%m_%d_%Hh%Mm%S")
     if export_format == "csv":
-        ap_list = []
-        for d in data:
-            ap = d.as_dict()
-            ap_list.append(ap)
-        return to_csv_resp(file_name, ap_list, ap_list[0].keys(), ";")
+        headers = get_export_headers()
+        return to_csv_resp(file_name, output_items, headers, ";")
     else:
         features = []
-        for d in data:
-            feature = d.get_geofeature()
+        for ap in output_items:
+            feature = {
+                "type": "Feature",
+                "geometry": json.loads(ap["geometry"]),
+                "properties": ap["properties"],
+            }
             features.append(feature)
         result = FeatureCollection(features)
-        return to_json_resp(result, as_file=True, filename=file_name, indent=4)
+        return to_json_resp(result, as_file=True, filename=file_name, indent=4, extension="geojson")
 
 
 @blueprint.route("/area-contain", methods=["POST"])

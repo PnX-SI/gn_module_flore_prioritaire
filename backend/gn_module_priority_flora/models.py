@@ -15,7 +15,22 @@ from geonature.core.ref_geo.models import LAreas
 from geonature.utils.env import db
 
 
-class ZpCruvedAuth(db.Model):
+class PriorityFlora(db.Model):
+    """
+    Module DB master parent abstract class.
+    Debug is more easy.
+    """
+
+    __abstract__ = True
+
+    def __repr__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
+
+    def __str__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
+
+
+class ZpCruvedAuth(PriorityFlora):
     """
     Classe abstraite de contrôle d'accès à la donnée
     """
@@ -74,12 +89,9 @@ class ZpCruvedAuth(db.Model):
 
 
 @serializable
-class CorApPerturbation(db.Model):
+class CorApPerturbation(PriorityFlora):
     __tablename__ = "cor_ap_perturbation"
     __table_args__ = {"schema": "pr_priority_flora"}
-
-    def __str__(self):
-        return str(self.__class__) + ": " + str(self.__dict__)
 
     id_ap = db.Column(
         db.ForeignKey("pr_priority_flora.t_apresence.id_ap"),
@@ -108,12 +120,9 @@ cor_ap_physiognomy = db.Table(
 
 @serializable
 @geoserializable
-class TApresence(db.Model):
+class TApresence(PriorityFlora):
     __tablename__ = "t_apresence"
     __table_args__ = {"schema": "pr_priority_flora"}
-
-    def __str__(self):
-        return str(self.__class__) + ": " + str(self.__dict__)
 
     id_ap = db.Column(db.Integer, primary_key=True, autoincrement=True)
     id_zp = db.Column(
@@ -218,12 +227,9 @@ cor_zp_area = db.Table(
 
 
 @serializable
-class CorApArea(db.Model):
+class CorApArea(PriorityFlora):
     __tablename__ = "cor_ap_area"
     __table_args__ = {"schema": "pr_priority_flora"}
-
-    def __str__(self):
-        return str(self.__class__) + ": " + str(self.__dict__)
 
     id_area = db.Column(
         db.Integer,
@@ -242,9 +248,6 @@ class CorApArea(db.Model):
 class TZprospect(ZpCruvedAuth):
     __tablename__ = "t_zprospect"
     __table_args__ = {"schema": "pr_priority_flora"}
-
-    def __str__(self):
-        return str(self.__class__) + ": " + str(self.__dict__)
 
     id_zp = db.Column(db.Integer, primary_key=True, autoincrement=True)
     id_dataset = db.Column(
@@ -310,49 +313,42 @@ class TZprospect(ZpCruvedAuth):
 @serializable
 @geoserializable
 @geofileserializable
-class ExportAp(db.Model):
+class ExportAp(PriorityFlora):
     __tablename__ = "export_ap"
     __table_args__ = {"schema": "pr_priority_flora"}
 
-    def __str__(self):
-        return str(self.__class__) + ": " + str(self.__dict__)
-
     id_zp = db.Column(db.Integer, primary_key=True)
-    taxon = db.Column(db.Unicode)
+    sciname = db.Column(db.Unicode)
+    sciname_code = db.Column(db.Integer)
     date_min = db.Column(db.DateTime)
     date_max = db.Column(db.DateTime)
-    observateurs = db.Column(db.Unicode)
+    observaters = db.Column(db.Unicode)
     zp_geom_local = db.Column(Geometry("GEOMETRY"))
+    zp_geojson = db.Column(db.Unicode)
     zp_surface = db.Column(db.Integer)
 
     id_ap = db.Column(db.Integer, primary_key=True)
-    secteur = db.Column(db.Unicode)
+    municipalities = db.Column(db.Unicode)
     ap_geom_local = db.Column(Geometry("GEOMETRY"))
+    ap_geojson = db.Column(db.Unicode)
     ap_surface = db.Column(db.Integer)
     altitude_min = db.Column(db.Integer)
     altitude_max = db.Column(db.Integer)
-    pente = db.Column(db.Unicode)
-    physionomie = db.Column(db.Unicode)
+    incline = db.Column(db.Unicode)
+    physiognomies = db.Column(db.Unicode)
 
-    etat_dominant_habitat = db.Column(db.Unicode)
-    pourcentage_statut_favorable = db.Column(db.Integer)
-    menaces = db.Column(db.Unicode)
+    habitat_state = db.Column(db.Unicode)
+    favorable_state_percentage = db.Column(db.Integer)
+    threat_level = db.Column(db.Unicode)
     perturbations = db.Column(db.Unicode)
 
-    phenologie = db.Column(db.Unicode)
+    phenology = db.Column(db.Unicode)
 
-    methode_frequence = db.Column(db.Unicode)
-    frequence = db.Column(db.Integer)
+    frequency_method = db.Column(db.Unicode)
+    frequency = db.Column(db.Integer)
 
-    methode_comptage = db.Column(db.Unicode)
+    counting_method = db.Column(db.Unicode)
     total_min = db.Column(db.Integer)
     total_max = db.Column(db.Integer)
 
-    remarques = db.Column(db.Unicode)
-
-    def get_geofeature(self, fields=[]):
-        return self.as_geofeature(
-            "ap_geom_local",
-            "id_ap",
-            fields=fields,
-        )
+    comment = db.Column(db.Unicode)

@@ -306,37 +306,40 @@ CREATE OR REPLACE VIEW pr_priority_flora.export_ap
 AS
   SELECT DISTINCT
     ta.id_zp AS id_zp,
-    t.nom_complet AS taxon,
+    t.nom_complet AS sciname,
+    tz.cd_nom AS sciname_code,
     tz.date_min AS date_min,
     tz.date_max AS date_max,
-    string_agg(DISTINCT (roles.prenom_role || ' ' || roles.nom_role || ' (' || bo.nom_organisme || ')'), ', ') AS observateurs,
+    string_agg(DISTINCT (roles.prenom_role || ' ' || roles.nom_role || ' (' || bo.nom_organisme || ')'), ', ') AS observaters,
     tz.geom_local AS zp_geom_local,
+    public.ST_AsGeoJSON(tz.geom_4326) AS zp_geojson,
     tz."area" AS zp_surface,
 
     ta.id_ap AS id_ap,
-    string_agg(DISTINCT la.area_name, ', ') AS secteur,
+    string_agg(DISTINCT la.area_name, ', ') AS municipalities,
     ta.geom_local AS ap_geom_local,
+    public.ST_AsGeoJSON(ta.geom_4326) AS ap_geojson,
     ta."area" AS ap_surface,
     ta.altitude_min AS altitude_min,
     ta.altitude_max AS altitude_max,
-    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclature_incline) AS pente,
-    string_agg(DISTINCT tnphy.label_default, ', ') AS physionomie,
+    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclature_incline) AS incline,
+    string_agg(DISTINCT tnphy.label_default, ', ') AS physiognomies,
 
-    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclature_habitat) AS etat_dominant_habitat,
-    ta.favorable_status_percent AS pourcentage_statut_favorable,
-    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclature_threat_level) AS menaces,
+    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclature_habitat) AS habitat_state,
+    ta.favorable_status_percent AS favorable_state_percentage,
+    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclature_threat_level) AS threat_level,
     string_agg(DISTINCT tnper.label_default, ', ') AS perturbations,
 
-    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclature_phenology) AS phenologie,
+    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclature_phenology) AS phenology,
 
-    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclature_frequency_method) AS methode_frequence,
-    ta.frequency AS frequence,
+    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclature_frequency_method) AS frequency_method,
+    ta.frequency AS frequency,
 
-    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclature_counting) AS methode_comptage,
+    ref_nomenclatures.get_nomenclature_label(ta.id_nomenclature_counting) AS counting_method,
     ta.total_min,
     ta.total_max,
 
-    ta."comment"  AS remarques
+    ta."comment" AS comment
   FROM pr_priority_flora.t_apresence AS ta
     LEFT JOIN pr_priority_flora.cor_ap_area AS cap
       ON cap.id_ap = ta.id_ap
@@ -361,5 +364,5 @@ AS
     LEFT JOIN taxonomie.taxref AS t
       ON t.cd_nom = tz.cd_nom
   WHERE la.id_type = ref_geo.get_id_area_type('COM'::character varying)
-  GROUP BY ta.id_ap, ta.id_zp, t.nom_complet, tz.geom_local, tz."area", tz.date_min, tz.date_max ;
+  GROUP BY ta.id_ap, ta.id_zp, t.nom_complet, tz.cd_nom, tz.geom_local, tz.geom_4326, tz."area", tz.date_min, tz.date_max ;
 ;
