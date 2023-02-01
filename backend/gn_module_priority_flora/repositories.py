@@ -63,7 +63,7 @@ def translate_exported_columns(data):
     return translated_sorted_data
 
 class StatRepository:
-    def get_prospections():
+    def get_prospections(self, taxon_code, territory_code, date_start, nbr):
         # Subqueries
         commune = (
             db.session.query(LAreas.id_area, LAreas.area_name)
@@ -126,7 +126,7 @@ class StatRepository:
         data = query.all()
         return [d._asdict() for d in data]
 
-    def get_populations():
+    def get_populations(self, taxon_code, territory_code, date_start, nbr):
         # Subqueries
         commune = (
             db.session.query(LAreas.id_area, LAreas.area_name)
@@ -163,40 +163,42 @@ class StatRepository:
         data = query.all()
         return [d._asdict() for d in data]
 
-def get_habitats():
-    # Subqueries
-    habitat = (
-        db.session.query(
-        cor_ap_physiognomy.c.id_ap,
-        func.string_agg(TNomenclatures.label_default, ", ").label("type_habitat")
-        )
-        .join(TNomenclatures,
-              TNomenclatures.id_nomenclature == cor_ap_physiognomy.c.id_nomenclature)
-        .group_by(cor_ap_physiognomy.c.id_ap)
-    ).cte("habitat")
+    def get_habitats(self, taxon_code, territory_code, date_start, nbr):
+        # Subqueries
+        habitat = (
+            db.session.query(
+            cor_ap_physiognomy.c.id_ap,
+            func.string_agg(TNomenclatures.label_default, ", ").label("type_habitat")
+            )
+            .join(TNomenclatures,
+                TNomenclatures.id_nomenclature == cor_ap_physiognomy.c.id_nomenclature)
+            .group_by(cor_ap_physiognomy.c.id_ap)
+        ).cte("habitat")
 
-    perturbation = (
-        db.session.query(
-        CorApPerturbation.id_ap,
-        func.string_agg(TNomenclatures.label_default, ", ").label("type_perturbation")
-        )
-        .join(TNomenclatures, TNomenclatures.id_nomenclature == CorApPerturbation.id_nomenclature)
-        .group_by(CorApPerturbation.id_ap)
-    ).cte("perturbation")
+        perturbation = (
+            db.session.query(
+            CorApPerturbation.id_ap,
+            func.string_agg(TNomenclatures.label_default, ", ").label("type_perturbation")
+            )
+            .join(TNomenclatures, TNomenclatures.id_nomenclature == CorApPerturbation.id_nomenclature)
+            .group_by(CorApPerturbation.id_ap)
+        ).cte("perturbation")
 
-    # Execute query
-    query = (
-        db.session.query(
-            TApresence.id_ap.label("id-ap"),
-            habitat.c.type_habitat.label("type-habitat"),
-            perturbation.c.type_perturbation.label("type-perturbation"),
-            TNomenclatures.label_default.label("evaluation-menace")
+        # Execute query
+        query = (
+            db.session.query(
+                TApresence.id_ap.label("id-ap"),
+                habitat.c.type_habitat.label("type-habitat"),
+                perturbation.c.type_perturbation.label("type-perturbation"),
+                TNomenclatures.label_default.label("evaluation-menace")
+            )
+            .outerjoin(habitat, habitat.c.id_ap == TApresence.id_ap)
+            .outerjoin(perturbation, perturbation.c.id_ap == TApresence.id_ap)
+            .outerjoin(TNomenclatures,
+                    TNomenclatures.id_nomenclature == TApresence.id_nomenclature_threat_level)
         )
-        .outerjoin(habitat, habitat.c.id_ap == TApresence.id_ap)
-        .outerjoin(perturbation, perturbation.c.id_ap == TApresence.id_ap)
-        .outerjoin(TNomenclatures,
-                   TNomenclatures.id_nomenclature == TApresence.id_nomenclature_threat_level)
-    )
 
-    data = query.all()
-    return [d._asdict() for d in data]
+        data = query.all()
+        return [d._asdict() for d in data]
+
+
