@@ -1,33 +1,32 @@
-import datetime
-import json
-from operator import or_
-
-from flask import Blueprint, request
-from geoalchemy2.shape import from_shape, to_shape
-from geojson import FeatureCollection
-from shapely.geometry import asShape
-from sqlalchemy.sql.expression import func, select
-from sqlalchemy.orm import aliased
-from werkzeug.exceptions import BadRequest, Forbidden, InternalServerError, NotFound
-
 from geonature.core.gn_meta.models import TDatasets
 from geonature.core.gn_permissions import decorators as permissions
 from geonature.core.gn_permissions.tools import cruved_scope_for_user_in_module
 from geonature.core.ref_geo.models import LAreas, BibAreasTypes
 from geonature.core.taxonomie.models import Taxref
 from geonature.utils.env import db
+
+from datetime import datetime, date
+import json
+from operator import or_
+from flask import Blueprint, request
+from geoalchemy2.shape import from_shape, to_shape
+from geojson import FeatureCollection
+from shapely.geometry import asShape
+from sqlalchemy import Date
+from sqlalchemy.dialects.postgresql import INTERVAL
+from sqlalchemy.sql.functions import concat
+from sqlalchemy.sql.expression import func, select
+from werkzeug.exceptions import BadRequest, Forbidden, InternalServerError, NotFound
 from pypnnomenclature.models import TNomenclatures
 from pypnusershub.db.models import User
 from pypnusershub.db.models import Organisme
 from utils_flask_sqla.response import json_resp, to_json_resp, to_csv_resp
-from psycopg2.extensions import register_adapter
 
 from gn_module_priority_flora import METADATA_CODE
 from .models import (
     TZprospect,
     TApresence,
     ExportAp,
-    cor_zp_area,
     cor_zp_observer,
     CorApArea,
 )
@@ -618,23 +617,35 @@ def check_geom_a_contain_geom_b():
 @permissions.check_cruved_scope("R", module_code="CONSERVATION_STRATEGY")
 @json_resp
 def get_stats():
+
+    today = date.today()
     # Get request parameters
     cd_nom = request.args.get("taxon-code")
     area_code = request.args.get("territory-code")
-    years = request.args.get("nbr")
-    date_min = request.args.get("date-start")
-
+    years = request.args.get("nbr", 3)
+    date_start = request.args.get("date-start", today)
 
 
     # Filter with parameters
-    # if cd_nom:
-    #     query = query.filter(TZprospect.cd_nom == cd_nom)
+    if cd_nom:
+        query = query.filter(TZprospect.cd_nom == cd_nom)
 
-    # if area_code:
-    #     query = query.filter(departement.c.area_code == area_code)
+    if area_code:
+        query = query.filter(
+            or_(
+                departement.c.area_code == area_code,
+                region.c.area_code ==  area_code
+            )
+        )
 
-    # if date_min:
-    #     query = query.filter(TZprospect.date_min == date_min)
+    if date_start:
+        query = query.filter(TZprospect.date_max <= date_start)
+
+    if years:
+        date_interval = func.cast(concat(years, 'YEARS'), INTERVAL)
+        previous_datetime = func.date(date_start) - date_interval
+        previous_date = func.cast(previous_datetime, Date)
+        query = query.filter(TZprospect.date_min >= previous_date)
 
     data = query.all()
     return [d._asdict() for d in data]
