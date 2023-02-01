@@ -30,7 +30,7 @@ from .models import (
     cor_zp_observer,
     CorApArea,
 )
-from .repositories import translate_exported_columns, get_export_headers
+from .repositories import translate_exported_columns, get_export_headers, StatRepository
 
 
 blueprint = Blueprint("priority_flora", __name__)
@@ -617,13 +617,14 @@ def check_geom_a_contain_geom_b():
 @json_resp
 def get_stats():
 
+    statrepo = StatRepository
     today = date.today()
+
     # Get request parameters
     cd_nom = request.args.get("taxon-code")
     area_code = request.args.get("territory-code")
-    years = request.args.get("nbr", 3)
     date_start = request.args.get("date-start", today)
-
+    years = request.args.get("nbr", 3)
 
     # Filter with parameters
     if cd_nom:
