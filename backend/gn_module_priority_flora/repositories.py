@@ -1,8 +1,11 @@
+
 from geonature.utils.env import db
 from geonature.core.ref_geo.models import LAreas
 
-from sqlalchemy import func, case
+from datetime import date
+from sqlalchemy import Date, Interval, func, case, or_
 from sqlalchemy.orm import aliased
+from sqlalchemy.sql.functions import concat
 from pypnusershub.db.models import User
 from pypnnomenclature.models import TNomenclatures
 
@@ -63,7 +66,14 @@ def translate_exported_columns(data):
     return translated_sorted_data
 
 class StatRepository:
-    def get_prospections(self, taxon_code, territory_code, date_start, nbr):
+
+    def __init__(self, cd_nom, area_code, date_start, years):
+        self.cd_nom = cd_nom
+        self.area_code = area_code
+        self.date_start = date_start
+        self.years = years
+
+    def get_prospections(self):
         # Subqueries
         commune = (
             db.session.query(LAreas.id_area, LAreas.area_name)
@@ -122,6 +132,27 @@ class StatRepository:
             .outerjoin(apresence, apresence.c.id_zp == TZprospect.id_zp)
             .group_by(TZprospect.id_zp)
         )
+
+        # Filter with parameters
+        if self.cd_nom:
+            query = query.filter(TZprospect.cd_nom == self.cd_nom)
+
+        if self.area_code:
+            query = query.filter(
+                or_(
+                    departement.c.area_code == self.area_code,
+                    region.c.area_code ==  self.area_code
+                )
+            )
+
+        if self.date_start:
+            query = query.filter(TZprospect.date_max <= self.date_start)
+
+        if self.years:
+            date_interval = func.cast(concat(self.years, 'YEARS'), Interval)
+            previous_datetime = func.date(self.date_start) - date_interval
+            previous_date = func.cast(previous_datetime, Date)
+            query = query.filter(TZprospect.date_min >= previous_date)
 
         data = query.all()
         return [d._asdict() for d in data]
