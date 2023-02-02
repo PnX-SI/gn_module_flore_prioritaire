@@ -617,37 +617,16 @@ def check_geom_a_contain_geom_b():
 @json_resp
 def get_stats():
 
-    statrepo = StatRepository
-    today = date.today()
-
     # Get request parameters
     cd_nom = request.args.get("taxon-code")
     area_code = request.args.get("territory-code")
-    date_start = request.args.get("date-start", today)
+    date_start = request.args.get("date-start", date.today())
     years = request.args.get("nbr", 3)
 
-    # Filter with parameters
-    if cd_nom:
-        query = query.filter(TZprospect.cd_nom == cd_nom)
+    statrepo = StatRepository(cd_nom=cd_nom, area_code=area_code, date_start=date_start, years=years)
 
-    if area_code:
-        query = query.filter(
-            or_(
-                departement.c.area_code == area_code,
-                region.c.area_code ==  area_code
-            )
-        )
+    data = {"prospections": statrepo.get_prospections()}
 
-    if date_start:
-        query = query.filter(TZprospect.date_max <= date_start)
-
-    if years:
-        date_interval = func.cast(concat(years, 'YEARS'), INTERVAL)
-        previous_datetime = func.date(date_start) - date_interval
-        previous_date = func.cast(previous_datetime, Date)
-        query = query.filter(TZprospect.date_min >= previous_date)
-
-    data = query.all()
-    return [d._asdict() for d in data]
+    return data
 
 
