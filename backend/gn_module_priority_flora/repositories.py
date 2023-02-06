@@ -3,7 +3,7 @@ from geonature.utils.env import db
 from geonature.core.ref_geo.models import LAreas
 
 from datetime import date
-from sqlalchemy import Date, Interval, func, case, or_
+from sqlalchemy import Date, Interval, func, true
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql.functions import concat
 from pypnusershub.db.models import User
@@ -74,63 +74,71 @@ class StatRepository:
         self.years = years
 
     def get_prospections(self):
-        # Subqueries
+        # Prepare subqueries for lateral join
         commune = (
-            db.session.query(LAreas.id_area, LAreas.area_name)
-            .filter(LAreas.id_type == 25)
-        ).cte("commune")
+            db.session.query(
+                cor_zp_area.c.id_zp,
+                func.string_agg(LAreas.area_name, ", ").label("area_name"))
+            .join(LAreas, LAreas.id_area == cor_zp_area.c.id_area)
+            .filter(
+                cor_zp_area.c.id_zp == TZprospect.id_zp,
+                LAreas.id_type == func.ref_geo.get_id_area_type("COM"))
+            .group_by(cor_zp_area.c.id_zp)
+            ).subquery(
+            ).lateral()
 
         departement = (
-            db.session.query(LAreas.id_area, LAreas.area_name, LAreas.area_code)
-            .filter(LAreas.id_type == 26)
-        ).cte("departement")
-
-        region = (
-            db.session.query(LAreas.id_area, LAreas.area_name, LAreas.area_code)
-            .filter(LAreas.id_type == 36)
-        ).cte("region")
+            db.session.query(
+                cor_zp_area.c.id_zp,
+                func.string_agg(LAreas.area_name, ", ").label("area_name"))
+            .join(LAreas, LAreas.id_area == cor_zp_area.c.id_area)
+            .filter(
+                cor_zp_area.c.id_zp == TZprospect.id_zp,
+                LAreas.id_type == func.ref_geo.get_id_area_type("DEP"))
+            .group_by(cor_zp_area.c.id_zp)
+            ).subquery(
+            ).lateral()
 
         observateur = (
             db.session.query(
                 cor_zp_observer.c.id_zp,
                 func.string_agg(
-                    func.concat(User.nom_role, " ", User.prenom_role), ", ").label("observateur")
-            ).join(User, User.id_role == cor_zp_observer.c.id_role)
+                    func.concat(User.nom_role, " ", User.prenom_role), ", ").label("observateurs"))
+            .join(User, User.id_role == cor_zp_observer.c.id_role)
+            .filter(cor_zp_observer.c.id_zp == TZprospect.id_zp)
             .group_by(cor_zp_observer.c.id_zp)
-        ).cte("observateur")
+            ).subquery(
+            ).lateral()
+
+        tzprospect = aliased(TZprospect)
 
         apresence = (
             db.session.query(
-                TZprospect.id_zp,
-                func.count(TApresence.id_ap).label("nb_ap")
-            ).outerjoin(TApresence, TApresence.id_zp == TZprospect.id_zp)
-            .group_by(TZprospect.id_zp)
-        ).cte("apresence")
-
-        # Prepare column
-        presence_ap = case(
-            [(func.max(apresence.c.nb_ap) > 0,("Oui"))],
-            else_=("Non")
-        )
+                tzprospect.id_zp,
+                func.count(TApresence.id_ap).label("nb_ap"))
+            .outerjoin(TApresence, TApresence.id_zp == tzprospect.id_zp)
+            .filter(tzprospect.id_zp == TZprospect.id_zp)
+            .group_by(tzprospect.id_zp)
+            ).subquery(
+            ).lateral()
 
         # Execute query
         query = (
             db.session.query(
-                TZprospect.id_zp.label("id-zp"),
+                TZprospect.id_zp.label("id"),
                 TZprospect.date_max.label("date"),
-                func.string_agg(commune.c.area_name, ", ").label("communes"),
-                func.string_agg(departement.c.area_name, ", ").label("departement"),
-                func.max(observateur.c.observateur).label("observateurs"),
-                presence_ap.label("presence-ap"),
-                TZprospect.cd_nom.label("cd-nom")
+                TZprospect.cd_nom.label("sciname_code"),
+                commune.c.area_name.label("town"),
+                departement.c.area_name.label("departement"),
+                observateur.c.observateurs.label("observers"),
+                apresence.c.nb_ap.label("has_presence_area")
             )
             .outerjoin(cor_zp_area, cor_zp_area.c.id_zp == TZprospect.id_zp)
-            .outerjoin(commune, commune.c.id_area == cor_zp_area.c.id_area)
-            .outerjoin(departement, departement.c.id_area == cor_zp_area.c.id_area)
-            .outerjoin(region, region.c.id_area == cor_zp_area.c.id_area)
-            .outerjoin(observateur, observateur.c.id_zp == TZprospect.id_zp)
-            .outerjoin(apresence, apresence.c.id_zp == TZprospect.id_zp)
-            .group_by(TZprospect.id_zp)
+            .outerjoin(LAreas, LAreas.id_area == cor_zp_area.c.id_area)
+            .outerjoin(commune, true())
+            .outerjoin(departement, true())
+            .outerjoin(observateur, true())
+            .outerjoin(apresence, true())
         )
 
         # Filter with parameters
@@ -139,17 +147,14 @@ class StatRepository:
 
         if self.area_code:
             query = query.filter(
-                or_(
-                    departement.c.area_code == self.area_code,
-                    region.c.area_code ==  self.area_code
+                LAreas.area_code == self.area_code
                 )
-            )
 
         if self.date_start:
             query = query.filter(TZprospect.date_max <= self.date_start)
 
         if self.years:
-            date_interval = func.cast(concat(self.years, 'YEARS'), Interval)
+            date_interval = func.cast(concat(self.years, "YEARS"), Interval)
             previous_datetime = func.date(self.date_start) - date_interval
             previous_date = func.cast(previous_datetime, Date)
             query = query.filter(TZprospect.date_min >= previous_date)
@@ -157,7 +162,7 @@ class StatRepository:
         data = query.all()
         return [d._asdict() for d in data]
 
-    def get_populations(self, taxon_code, territory_code, date_start, nbr):
+    def get_populations(self):
         # Subqueries
         commune = (
             db.session.query(LAreas.id_area, LAreas.area_name)
@@ -190,11 +195,13 @@ class StatRepository:
                 TNomenclaturesC.id_nomenclature == TApresence.id_nomenclature_counting)
             .group_by(TApresence.id_ap)
         )
+        from sqlalchemy.dialects import postgresql;
+        print(query.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}))
 
         data = query.all()
         return [d._asdict() for d in data]
 
-    def get_habitats(self, taxon_code, territory_code, date_start, nbr):
+    def get_habitats(self):
         # Subqueries
         habitat = (
             db.session.query(
@@ -231,5 +238,3 @@ class StatRepository:
 
         data = query.all()
         return [d._asdict() for d in data]
-
-
