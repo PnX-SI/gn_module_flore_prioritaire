@@ -623,7 +623,7 @@ def get_stats():
     date_start = request.args.get("date-start", date.today())
     years = request.args.get("nbr", 5)
 
-    statrepo = StatRepository(cd_nom=cd_nom, area_code=area_code, date_start=date_start, years=years)
+    statrepo = StatRepository(cd_nom=cd_nom, area_code=area_code, area_type_code=area_type_code, date_start=date_start, years=years)
 
     data = {
         "prospections": statrepo.get_prospections(),

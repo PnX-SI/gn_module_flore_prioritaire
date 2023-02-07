@@ -1,6 +1,6 @@
 
 from geonature.utils.env import db
-from geonature.core.ref_geo.models import LAreas
+from geonature.core.ref_geo.models import LAreas, BibAreasTypes
 
 from datetime import date
 from sqlalchemy import Date, Interval, func, true
@@ -68,9 +68,10 @@ def translate_exported_columns(data):
 
 class StatRepository:
 
-    def __init__(self, cd_nom, area_code, date_start, years):
+    def __init__(self, cd_nom, area_code, area_type_code, date_start, years):
         self.cd_nom = cd_nom
         self.area_code = area_code
+        self.area_type_code = area_type_code
         self.date_start = date_start
         self.years = years
 
@@ -146,8 +147,11 @@ class StatRepository:
             query = query.filter(TZprospect.cd_nom == self.cd_nom)
 
         if self.area_code:
+            query = query.filter(LAreas.area_code == self.area_code)
+
+        if self.area_type_code:
             query = query.filter(
-                LAreas.area_code == self.area_code
+                LAreas.id_type == func.ref_geo.get_id_area_type(self.area_type_code)
                 )
 
         if self.date_start:
@@ -212,6 +216,11 @@ class StatRepository:
         if self.area_code:
             query = query.filter(LAreas.area_code == self.area_code)
 
+        if self.area_type_code:
+            query = query.filter(
+                LAreas.id_type == func.ref_geo.get_id_area_type(self.area_type_code)
+                )
+
         if self.date_start:
             query = query.filter(TZprospect.date_max <= self.date_start)
 
@@ -273,6 +282,11 @@ class StatRepository:
 
         if self.area_code:
             query = query.filter(LAreas.area_code == self.area_code)
+
+        if self.area_type_code:
+            query = query.filter(
+                LAreas.id_type == func.ref_geo.get_id_area_type(self.area_type_code)
+                )
 
         if self.date_start:
             query = query.filter(TZprospect.date_max <= self.date_start)
