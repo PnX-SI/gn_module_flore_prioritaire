@@ -619,15 +619,16 @@ def get_stats():
 
     # Get request parameters
     cd_nom = request.args.get("taxon-code")
-    area_code = request.args.get("territory-code",'84') #AURA
+    area_code = request.args.get("territory-code")
     date_start = request.args.get("date-start", date.today())
     years = request.args.get("nbr", 5)
 
     statrepo = StatRepository(cd_nom=cd_nom, area_code=area_code, date_start=date_start, years=years)
 
-    data = {"prospections": statrepo.get_prospections()}
+    data = {
+        "prospections": statrepo.get_prospections(),
+        "populations" : statrepo.get_populations(),
+        "habitats" : statrepo.get_habitats()
+        }
 
     return data
-
-
-
