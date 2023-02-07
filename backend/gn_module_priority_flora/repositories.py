@@ -127,7 +127,6 @@ class StatRepository:
             db.session.query(
                 TZprospect.id_zp.label("id"),
                 TZprospect.date_max.label("date"),
-                TZprospect.cd_nom.label("sciname_code"),
                 commune.c.area_name.label("town"),
                 departement.c.area_name.label("departement"),
                 observateur.c.observateurs.label("observers"),
@@ -163,11 +162,18 @@ class StatRepository:
         return [d._asdict() for d in data]
 
     def get_populations(self):
-        # Subqueries
+        # Prepare subqueries for lateral join
         commune = (
-            db.session.query(LAreas.id_area, LAreas.area_name)
-            .filter(LAreas.id_type == 25)
-        ).cte("commune")
+            db.session.query(
+                CorApArea.id_ap,
+                func.string_agg(LAreas.area_name, ", ").label("area_name"))
+            .join(LAreas, LAreas.id_area == CorApArea.id_area)
+            .filter(
+                CorApArea.id_ap == TApresence.id_ap,
+                LAreas.id_type == func.ref_geo.get_id_area_type("COM"))
+            .group_by(CorApArea.id_ap)
+            ).subquery(
+            ).lateral()
 
         # Aliased tables
         TNomenclaturesF= aliased(TNomenclatures)
@@ -176,65 +182,103 @@ class StatRepository:
         # Execute query
         query = (
             db.session.query(
-                TApresence.id_ap.label("id-ap"),
-                TApresence.id_zp.label("id-zp"),
-                TApresence.area.label("surface-ap"),
-                func.round(TApresence.frequency).label("frequence-occurence"),
-                func.max((TApresence.total_min+TApresence.total_max)/2).label("effectifs"),
-                func.string_agg(commune.c.area_name, ', ').label("communes"),
-                func.max(TNomenclaturesF.label_default).label("methode-estimation"),
-                func.max(TNomenclaturesC.label_default).label("type-comptage")
+                TApresence.id_ap.label("id_ap"),
+                TApresence.id_zp.label("id_zp"),
+                TApresence.area.label("area_ap"),
+                TApresence.frequency.label("occurrence_frequency"),
+                ((TApresence.total_min+TApresence.total_max)/2).label("count"),
+                commune.c.area_name.label("town"),
+                TNomenclaturesF.label_default.label("estimate_method"),
+                TNomenclaturesC.label_default.label("counting_type")
             )
+            .outerjoin(TZprospect, TZprospect.id_zp == TApresence.id_zp)
             .outerjoin(CorApArea, CorApArea.id_ap == TApresence.id_ap)
-            .outerjoin(commune, commune.c.id_area == CorApArea.id_area)
+            .outerjoin(LAreas, LAreas.id_area == CorApArea.id_area)
+            .outerjoin(commune, true())
             .outerjoin(
                 TNomenclaturesF,
                 TNomenclaturesF.id_nomenclature == TApresence.id_nomenclature_frequency_method)
             .outerjoin(
                 TNomenclaturesC,
                 TNomenclaturesC.id_nomenclature == TApresence.id_nomenclature_counting)
-            .group_by(TApresence.id_ap)
         )
-        from sqlalchemy.dialects import postgresql;
-        print(query.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}))
+
+        # Filter with parameters
+        if self.cd_nom:
+            query = query.filter(TZprospect.cd_nom == self.cd_nom)
+
+        if self.area_code:
+            query = query.filter(LAreas.area_code == self.area_code)
+
+        if self.date_start:
+            query = query.filter(TZprospect.date_max <= self.date_start)
+
+        if self.years:
+            date_interval = func.cast(concat(self.years, "YEARS"), Interval)
+            previous_datetime = func.date(self.date_start) - date_interval
+            previous_date = func.cast(previous_datetime, Date)
+            query = query.filter(TZprospect.date_min >= previous_date)
 
         data = query.all()
         return [d._asdict() for d in data]
 
     def get_habitats(self):
-        # Subqueries
+        # Prepare subqueries for lateral join
         habitat = (
             db.session.query(
-            cor_ap_physiognomy.c.id_ap,
-            func.string_agg(TNomenclatures.label_default, ", ").label("type_habitat")
+                cor_ap_physiognomy.c.id_ap,
+                func.string_agg(TNomenclatures.label_default, ", ").label("type_habitat")
             )
             .join(TNomenclatures,
                 TNomenclatures.id_nomenclature == cor_ap_physiognomy.c.id_nomenclature)
             .group_by(cor_ap_physiognomy.c.id_ap)
-        ).cte("habitat")
+            .filter(cor_ap_physiognomy.c.id_ap == TApresence.id_ap)
+            ).subquery(
+            ).lateral()
 
         perturbation = (
             db.session.query(
-            CorApPerturbation.id_ap,
-            func.string_agg(TNomenclatures.label_default, ", ").label("type_perturbation")
+                CorApPerturbation.id_ap,
+                func.string_agg(TNomenclatures.label_default, ", ").label("type_perturbation")
             )
             .join(TNomenclatures, TNomenclatures.id_nomenclature == CorApPerturbation.id_nomenclature)
             .group_by(CorApPerturbation.id_ap)
-        ).cte("perturbation")
+            .filter(CorApPerturbation.id_ap == TApresence.id_ap)
+            ).subquery(
+            ).lateral()
 
         # Execute query
         query = (
             db.session.query(
-                TApresence.id_ap.label("id-ap"),
-                habitat.c.type_habitat.label("type-habitat"),
-                perturbation.c.type_perturbation.label("type-perturbation"),
-                TNomenclatures.label_default.label("evaluation-menace")
+                TApresence.id_ap.label("id"),
+                habitat.c.type_habitat.label("habitat_type"),
+                perturbation.c.type_perturbation.label("perturbation_type"),
+                TNomenclatures.label_default.label("threat_level")
             )
-            .outerjoin(habitat, habitat.c.id_ap == TApresence.id_ap)
-            .outerjoin(perturbation, perturbation.c.id_ap == TApresence.id_ap)
+            .outerjoin(TZprospect, TZprospect.id_zp == TApresence.id_zp)
+            .outerjoin(CorApArea, CorApArea.id_ap == TApresence.id_ap)
+            .outerjoin(LAreas, LAreas.id_area == CorApArea.id_area)
+            .outerjoin(habitat, true())
+            .outerjoin(perturbation, true())
             .outerjoin(TNomenclatures,
                     TNomenclatures.id_nomenclature == TApresence.id_nomenclature_threat_level)
         )
+
+        # Filter with parameters
+        if self.cd_nom:
+            query = query.filter(TZprospect.cd_nom == self.cd_nom)
+
+        if self.area_code:
+            query = query.filter(LAreas.area_code == self.area_code)
+
+        if self.date_start:
+            query = query.filter(TZprospect.date_max <= self.date_start)
+
+        if self.years:
+            date_interval = func.cast(concat(self.years, "YEARS"), Interval)
+            previous_datetime = func.date(self.date_start) - date_interval
+            previous_date = func.cast(previous_datetime, Date)
+            query = query.filter(TZprospect.date_min >= previous_date)
 
         data = query.all()
         return [d._asdict() for d in data]
