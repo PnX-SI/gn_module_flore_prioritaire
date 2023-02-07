@@ -18,6 +18,7 @@ from .models import (
     cor_ap_physiognomy,
     CorApPerturbation
 )
+from .utils import prepare_output
 
 def get_export_mapping_columns():
     # Use this dictionary to define export columns order.
@@ -159,7 +160,8 @@ class StatRepository:
             query = query.filter(TZprospect.date_min >= previous_date)
 
         data = query.all()
-        return [d._asdict() for d in data]
+        output = [d._asdict() for d in data]
+        return prepare_output(output)
 
     def get_populations(self):
         # Prepare subqueries for lateral join
@@ -220,7 +222,8 @@ class StatRepository:
             query = query.filter(TZprospect.date_min >= previous_date)
 
         data = query.all()
-        return [d._asdict() for d in data]
+        output = [d._asdict() for d in data]
+        return prepare_output(output)
 
     def get_habitats(self):
         # Prepare subqueries for lateral join
@@ -281,4 +284,5 @@ class StatRepository:
             query = query.filter(TZprospect.date_min >= previous_date)
 
         data = query.all()
-        return [d._asdict() for d in data]
+        output = [d._asdict() for d in data]
+        return prepare_output(output)
