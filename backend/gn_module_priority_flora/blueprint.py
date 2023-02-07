@@ -619,7 +619,8 @@ def get_stats():
 
     # Get request parameters
     cd_nom = request.args.get("taxon-code")
-    area_code = request.args.get("territory-code")
+    area_code = request.args.get("area-code")
+    area_type_code = request.args.get("area-type")
     date_start = request.args.get("date-start", date.today())
     years = request.args.get("nbr", 5)
 
