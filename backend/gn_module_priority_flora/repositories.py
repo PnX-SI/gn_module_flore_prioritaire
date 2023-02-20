@@ -1,8 +1,8 @@
 
 from geonature.utils.env import db
 from geonature.core.ref_geo.models import LAreas, BibAreasTypes
+from geonature.core.taxonomie.models import Taxref
 
-from datetime import date
 from sqlalchemy import Date, Interval, func, true
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql.functions import concat
@@ -68,10 +68,10 @@ def translate_exported_columns(data):
 
 class StatRepository:
 
-    def __init__(self, cd_nom, area_code, area_type_code, date_start, years):
+    def __init__(self, cd_nom, area_code, area_type, date_start, years):
         self.cd_nom = cd_nom
         self.area_code = area_code
-        self.area_type_code = area_type_code
+        self.area_type = area_type
         self.date_start = date_start
         self.years = years
 
@@ -129,13 +129,14 @@ class StatRepository:
             db.session.query(
                 TZprospect.id_zp.label("id"),
                 TZprospect.date_max.label("date"),
-                commune.c.area_name.label("town"),
+                commune.c.area_name.label("municipality"),
                 departement.c.area_name.label("departement"),
                 observateur.c.observateurs.label("observers"),
-                apresence.c.nb_ap.label("has_presence_area")
+                apresence.c.nb_ap.label("presence_area_nb")
             )
             .outerjoin(cor_zp_area, cor_zp_area.c.id_zp == TZprospect.id_zp)
             .outerjoin(LAreas, LAreas.id_area == cor_zp_area.c.id_area)
+            .outerjoin(BibAreasTypes, BibAreasTypes.id_type == LAreas.id_type)
             .outerjoin(commune, true())
             .outerjoin(departement, true())
             .outerjoin(observateur, true())
@@ -149,10 +150,8 @@ class StatRepository:
         if self.area_code:
             query = query.filter(LAreas.area_code == self.area_code)
 
-        if self.area_type_code:
-            query = query.filter(
-                LAreas.id_type == func.ref_geo.get_id_area_type(self.area_type_code)
-                )
+        if self.area_type:
+            query = query.filter(BibAreasTypes.type_code == self.area_type)
 
         if self.date_start:
             query = query.filter(TZprospect.date_max <= self.date_start)
@@ -193,13 +192,14 @@ class StatRepository:
                 TApresence.area.label("area_ap"),
                 TApresence.frequency.label("occurrence_frequency"),
                 ((TApresence.total_min+TApresence.total_max)/2).label("count"),
-                commune.c.area_name.label("town"),
+                commune.c.area_name.label("municipality"),
                 TNomenclaturesF.label_default.label("estimate_method"),
                 TNomenclaturesC.label_default.label("counting_type")
             )
             .outerjoin(TZprospect, TZprospect.id_zp == TApresence.id_zp)
             .outerjoin(CorApArea, CorApArea.id_ap == TApresence.id_ap)
             .outerjoin(LAreas, LAreas.id_area == CorApArea.id_area)
+            .outerjoin(BibAreasTypes, BibAreasTypes.id_type == LAreas.id_type)
             .outerjoin(commune, true())
             .outerjoin(
                 TNomenclaturesF,
@@ -216,10 +216,8 @@ class StatRepository:
         if self.area_code:
             query = query.filter(LAreas.area_code == self.area_code)
 
-        if self.area_type_code:
-            query = query.filter(
-                LAreas.id_type == func.ref_geo.get_id_area_type(self.area_type_code)
-                )
+        if self.area_type:
+            query = query.filter(BibAreasTypes.type_code == self.area_type)
 
         if self.date_start:
             query = query.filter(TZprospect.date_max <= self.date_start)
@@ -270,6 +268,7 @@ class StatRepository:
             .outerjoin(TZprospect, TZprospect.id_zp == TApresence.id_zp)
             .outerjoin(CorApArea, CorApArea.id_ap == TApresence.id_ap)
             .outerjoin(LAreas, LAreas.id_area == CorApArea.id_area)
+            .outerjoin(BibAreasTypes, BibAreasTypes.id_type == LAreas.id_type)
             .outerjoin(habitat, true())
             .outerjoin(perturbation, true())
             .outerjoin(TNomenclatures,
@@ -283,10 +282,8 @@ class StatRepository:
         if self.area_code:
             query = query.filter(LAreas.area_code == self.area_code)
 
-        if self.area_type_code:
-            query = query.filter(
-                LAreas.id_type == func.ref_geo.get_id_area_type(self.area_type_code)
-                )
+        if self.area_type:
+            query = query.filter(BibAreasTypes.type_code == self.area_type)
 
         if self.date_start:
             query = query.filter(TZprospect.date_max <= self.date_start)

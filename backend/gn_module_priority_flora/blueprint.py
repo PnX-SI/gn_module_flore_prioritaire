@@ -620,11 +620,17 @@ def get_stats():
     # Get request parameters
     cd_nom = request.args.get("taxon-code")
     area_code = request.args.get("area-code")
-    area_type_code = request.args.get("area-type")
+    area_type = request.args.get("area-type")
     date_start = request.args.get("date-start", date.today())
     years = request.args.get("nbr", 5)
 
-    statrepo = StatRepository(cd_nom=cd_nom, area_code=area_code, area_type_code=area_type_code, date_start=date_start, years=years)
+    statrepo = StatRepository(
+        cd_nom=cd_nom,
+        area_code=area_code,
+        area_type=area_type,
+        date_start=date_start,
+        years=years
+    )
 
     data = {
         "prospections": statrepo.get_prospections(),
