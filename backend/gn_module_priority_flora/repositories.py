@@ -3,7 +3,7 @@ from geonature.utils.env import db
 from geonature.core.ref_geo.models import LAreas, BibAreasTypes
 from geonature.core.taxonomie.models import Taxref
 
-from sqlalchemy import Date, Interval, func, true
+from sqlalchemy import Date, Interval, and_, func, true
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql.functions import concat
 from pypnusershub.db.models import User
@@ -76,6 +76,16 @@ class StatRepository:
         self.years = years
 
     def get_prospections(self):
+        # Prepare cte and subquery to get all cd_nom from cd_ref
+        Taxref2 = aliased(Taxref)
+        taxref = (
+            db.session.query(Taxref2.cd_nom)
+            .join(Taxref, Taxref.cd_ref == Taxref2.cd_ref)
+            .filter(Taxref.cd_nom == self.cd_nom)
+        ).cte("taxref")
+
+        subquery = db.session.query(taxref.c.cd_nom).subquery()
+
         # Prepare subqueries for lateral join
         commune = (
             db.session.query(
@@ -145,7 +155,10 @@ class StatRepository:
 
         # Filter with parameters
         if self.cd_nom:
-            query = query.filter(TZprospect.cd_nom == self.cd_nom)
+            query = query.filter(and_(
+                TZprospect.cd_nom == self.cd_nom,
+                TZprospect.cd_nom.in_(subquery)
+            ))
 
         if self.area_code:
             query = query.filter(LAreas.area_code == self.area_code)
@@ -167,6 +180,16 @@ class StatRepository:
         return prepare_output(output)
 
     def get_populations(self):
+        # Prepare cte and subquery to get all cd_nom from cd_ref
+        Taxref2 = aliased(Taxref)
+        taxref = (
+            db.session.query(Taxref2.cd_nom)
+            .join(Taxref, Taxref.cd_ref == Taxref2.cd_ref)
+            .filter(Taxref.cd_nom == self.cd_nom)
+        ).cte("taxref")
+
+        subquery = db.session.query(taxref.c.cd_nom).subquery()
+
         # Prepare subqueries for lateral join
         commune = (
             db.session.query(
@@ -211,7 +234,10 @@ class StatRepository:
 
         # Filter with parameters
         if self.cd_nom:
-            query = query.filter(TZprospect.cd_nom == self.cd_nom)
+            query = query.filter(and_(
+                TZprospect.cd_nom == self.cd_nom,
+                TZprospect.cd_nom.in_(subquery)
+            ))
 
         if self.area_code:
             query = query.filter(LAreas.area_code == self.area_code)
@@ -233,6 +259,16 @@ class StatRepository:
         return prepare_output(output)
 
     def get_habitats(self):
+        # Prepare cte and subquery to get all cd_nom from cd_ref
+        Taxref2 = aliased(Taxref)
+        taxref = (
+            db.session.query(Taxref2.cd_nom)
+            .join(Taxref, Taxref.cd_ref == Taxref2.cd_ref)
+            .filter(Taxref.cd_nom == self.cd_nom)
+        ).cte("taxref")
+
+        subquery = db.session.query(taxref.c.cd_nom).subquery()
+
         # Prepare subqueries for lateral join
         habitat = (
             db.session.query(
@@ -277,7 +313,10 @@ class StatRepository:
 
         # Filter with parameters
         if self.cd_nom:
-            query = query.filter(TZprospect.cd_nom == self.cd_nom)
+            query = query.filter(and_(
+                TZprospect.cd_nom == self.cd_nom,
+                TZprospect.cd_nom.in_(subquery)
+            ))
 
         if self.area_code:
             query = query.filter(LAreas.area_code == self.area_code)
