@@ -1,15 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
-import { AppConfig } from '@geonature_config/app.config';
-
+import { APP_CONFIG_TOKEN } from '@geonature_config/app.config';
 import { ModuleConfig } from '../module.config';
 
 @Injectable()
 export class DataService {
-  private moduleBaseUrl = `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}`;
+  private moduleBaseUrl: string;
 
-  constructor(private api: HttpClient) {}
+  constructor(private api: HttpClient, @Inject(APP_CONFIG_TOKEN) private cfg) {
+    this.moduleBaseUrl = `${this.cfg.API_ENDPOINT}${ModuleConfig.MODULE_URL}`;
+  }
 
   getProspectZones(params?: any) {
     return this.api.get<any>(`${this.moduleBaseUrl}/prospect-zones`, {
@@ -30,7 +31,7 @@ export class DataService {
 
   getOneProspectZone(idZp) {
     return this.api.get<any>(
-      `${AppConfig.API_ENDPOINT}${ModuleConfig.MODULE_URL}/prospect-zones/${idZp}`
+      `${this.cfg.API_ENDPOINT}${ModuleConfig.MODULE_URL}/prospect-zones/${idZp}`
     );
   }
 
