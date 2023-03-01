@@ -20,7 +20,7 @@ from pypnusershub.db.models import User
 from pypnusershub.db.models import Organisme
 from utils_flask_sqla.response import json_resp, to_json_resp, to_csv_resp
 
-from gn_module_priority_flora import METADATA_CODE
+from gn_module_priority_flora import MODULE_CODE, METADATA_CODE
 from .models import (
     TZprospect,
     TApresence,
@@ -36,13 +36,12 @@ blueprint = Blueprint("priority_flora", __name__)
 
 
 @blueprint.route("/prospect-zones", methods=["GET"])
-@permissions.check_cruved_scope("R", True, module_code="PRIORITY_FLORA")
+@permissions.check_cruved_scope("R", get_role=True, module_code=MODULE_CODE)
 @json_resp
 def get_prospect_zones(info_role):
     """
     Retourne toutes les zones de prospection du module.
     """
-    MODULE_CODE = blueprint.config["MODULE_CODE"]
     parameters = request.args
     page = int(parameters.get("page", 0))
     limit = int(parameters.get("limit", 100))
@@ -128,7 +127,7 @@ def get_prospect_zones(info_role):
 
 
 @blueprint.route("/presence-areas", methods=["GET"])
-@permissions.check_cruved_scope("R", module_code="PRIORITY_FLORA")
+@permissions.check_cruved_scope("R", module_code=MODULE_CODE)
 @json_resp
 def get_presence_areas():
     """
@@ -247,14 +246,14 @@ def edit_prospect_zone(info_role, id_zp=None):
 
 
 @blueprint.route("/prospect-zones", methods=["POST"])
-@permissions.check_cruved_scope("C", True, module_code="PRIORITY_FLORA")
+@permissions.check_cruved_scope("C", get_role=True, module_code=MODULE_CODE)
 @json_resp
 def add_prospect_zone(info_role):
     return edit_prospect_zone(info_role)
 
 
 @blueprint.route("/prospect-zones/<int:id_zp>", methods=["PUT"])
-@permissions.check_cruved_scope("U", True, module_code="PRIORITY_FLORA")
+@permissions.check_cruved_scope("U", get_role=True, module_code=MODULE_CODE)
 @json_resp
 def update_prospect_zone(info_role, id_zp):
     return edit_prospect_zone(info_role, id_zp)
@@ -359,14 +358,14 @@ def edit_presence_area(info_role, id_ap=None):
 
 
 @blueprint.route("/presence-areas", methods=["POST"])
-@permissions.check_cruved_scope("C", True, module_code="PRIORITY_FLORA")
+@permissions.check_cruved_scope("C", get_role=True, module_code=MODULE_CODE)
 @json_resp
 def add_presence_area(info_role):
     return edit_presence_area(info_role)
 
 
 @blueprint.route("/presence-areas/<int:id_ap>", methods=["PUT"])
-@permissions.check_cruved_scope("U", True, module_code="PRIORITY_FLORA")
+@permissions.check_cruved_scope("U", get_role=True, module_code=MODULE_CODE)
 @json_resp
 def update_presence_area(info_role, id_ap):
     return edit_presence_area(info_role, id_ap)
@@ -415,7 +414,7 @@ def get_municipalities():
 
 
 @blueprint.route("/prospect-zones/<int:id_zp>", methods=["GET"])
-@permissions.check_cruved_scope("R", module_code="PRIORITY_FLORA")
+@permissions.check_cruved_scope("R", module_code=MODULE_CODE)
 @json_resp
 def get_prospect_zone(id_zp):
     zp = db.session.query(TZprospect).get(id_zp)
@@ -444,7 +443,7 @@ def get_prospect_zone(id_zp):
 
 
 @blueprint.route("/presence-areas/<int:id_ap>", methods=["GET"])
-@permissions.check_cruved_scope("R", module_code="PRIORITY_FLORA")
+@permissions.check_cruved_scope("R", module_code=MODULE_CODE)
 @json_resp
 def get_presence_area(id_ap):
     ap = db.session.query(TApresence).get(id_ap)
@@ -465,7 +464,7 @@ def get_presence_area(id_ap):
 
 
 @blueprint.route("/prospect-zones/<int:id_zp>", methods=["DELETE"])
-@permissions.check_cruved_scope("D", module_code="PRIORITY_FLORA")
+@permissions.check_cruved_scope("D", module_code=MODULE_CODE)
 @json_resp
 def delete_prospect_zone(id_zp):
     zp = db.session.query(TZprospect).get(id_zp)
@@ -477,7 +476,7 @@ def delete_prospect_zone(id_zp):
 
 
 @blueprint.route("/presence-areas/<int:id_ap>", methods=["DELETE"])
-@permissions.check_cruved_scope("D", module_code="PRIORITY_FLORA")
+@permissions.check_cruved_scope("D", module_code=MODULE_CODE)
 @json_resp
 def delete_presence_area(id_ap):
     ap = db.session.query(TApresence).get(id_ap)
@@ -489,7 +488,7 @@ def delete_presence_area(id_ap):
 
 
 @blueprint.route("/presence-areas/export", methods=["GET"])
-@permissions.check_cruved_scope("E", module_code="PRIORITY_FLORA")
+@permissions.check_cruved_scope("E", module_code=MODULE_CODE)
 def export_presence_areas():
     """
     Télécharge les données d'une aire de présence
