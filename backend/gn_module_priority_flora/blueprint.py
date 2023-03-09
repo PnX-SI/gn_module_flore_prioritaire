@@ -28,6 +28,7 @@ from .models import (
     TApresence,
     ExportAp,
     cor_zp_observer,
+    cor_zp_area,
     CorApArea,
 )
 from .repositories import translate_exported_columns, get_export_headers, StatRepository
