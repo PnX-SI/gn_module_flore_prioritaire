@@ -297,6 +297,7 @@ class StatRepository:
         query = (
             db.session.query(
                 TApresence.id_ap.label("id"),
+                TApresence.id_nomenclature_habitat.label("conservation_status"),
                 habitat.c.type_habitat.label("habitat_type"),
                 perturbation.c.type_perturbation.label("perturbation_type"),
                 TNomenclatures.label_default.label("threat_level")
