@@ -296,7 +296,9 @@ class StatRepository:
         # Execute query
         query = (
             db.session.query(
-                TApresence.id_ap.label("id"),
+                TApresence.id_ap.label("id_ap"),
+                TApresence.id_zp.label("id_zp"),
+                TApresence.area.label("area_ap"),
                 TApresence.id_nomenclature_habitat.label("conservation_status"),
                 habitat.c.type_habitat.label("habitat_type"),
                 perturbation.c.type_perturbation.label("perturbation_type"),
@@ -334,6 +336,19 @@ class StatRepository:
             previous_date = func.cast(previous_datetime, Date)
             query = query.filter(TZprospect.date_min >= previous_date)
 
+        # Calculations
+        cte = query.cte("cte")
+        query_calculations = (
+            db.session.query(
+                func.count(func.distinct(cte.c.id_zp)).label("nb_stations"),
+                func.sum(cte.c.area_ap).label("area_presence"),
+            )
+        )
+        calculations = {
+            "nbStations" : query_calculations.one()[0],
+            "areaPresence" : query_calculations.one()[1],
+            }
+
         data = query.all()
         output = [d._asdict() for d in data]
-        return prepare_output(output)
+        return prepare_output(output), calculations
