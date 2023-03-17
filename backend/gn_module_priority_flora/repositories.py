@@ -302,7 +302,8 @@ class StatRepository:
                 TApresence.id_nomenclature_habitat.label("conservation_status"),
                 habitat.c.type_habitat.label("habitat_type"),
                 perturbation.c.type_perturbation.label("perturbation_type"),
-                TNomenclatures.label_default.label("threat_level")
+                TNomenclatures.label_default.label("threat_level"),
+                TNomenclatures.cd_nomenclature.label("threat_level_code")
             )
             .outerjoin(TZprospect, TZprospect.id_zp == TApresence.id_zp)
             .outerjoin(CorApArea, CorApArea.id_ap == TApresence.id_ap)
@@ -338,15 +339,26 @@ class StatRepository:
 
         # Calculations
         cte = query.cte("cte")
+
+        threatened_stations = (
+            db.session.query(
+                func.sum(cte.c.area_ap)
+                .filter(cte.c.threat_level_code.in_(('2','3')))
+            ).one()
+        )
+
         query_calculations = (
             db.session.query(
                 func.count(func.distinct(cte.c.id_zp)).label("nb_stations"),
                 func.sum(cte.c.area_ap).label("area_presence"),
-            )
+                (threatened_stations/func.sum(cte.c.area_ap)*100).label("threat_level")
+            ).one()
         )
+
         calculations = {
-            "nbStations" : query_calculations.one()[0],
-            "areaPresence" : query_calculations.one()[1],
+            "nbStations" : query_calculations[0],
+            "areaPresence" : query_calculations[1],
+            "threatLevel" : query_calculations[2],
             }
 
         data = query.all()
