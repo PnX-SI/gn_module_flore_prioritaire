@@ -293,6 +293,8 @@ class StatRepository:
             ).subquery(
             ).lateral()
 
+        TNomenclaturesHab = aliased(TNomenclatures)
+
         # Execute query
         query = (
             db.session.query(
@@ -303,7 +305,8 @@ class StatRepository:
                 habitat.c.type_habitat.label("habitat_type"),
                 perturbation.c.type_perturbation.label("perturbation_type"),
                 TNomenclatures.label_default.label("threat_level"),
-                TNomenclatures.cd_nomenclature.label("threat_level_code")
+                TNomenclatures.cd_nomenclature.label("threat_level_code"),
+                TNomenclaturesHab.cd_nomenclature.label("habitat_favorable")
             )
             .outerjoin(TZprospect, TZprospect.id_zp == TApresence.id_zp)
             .outerjoin(CorApArea, CorApArea.id_ap == TApresence.id_ap)
@@ -313,6 +316,8 @@ class StatRepository:
             .outerjoin(perturbation, true())
             .outerjoin(TNomenclatures,
                     TNomenclatures.id_nomenclature == TApresence.id_nomenclature_threat_level)
+            .outerjoin(TNomenclaturesHab,
+                    TNomenclaturesHab.id_nomenclature == TApresence.id_nomenclature_habitat)
         )
 
         # Filter with parameters
@@ -347,11 +352,19 @@ class StatRepository:
             ).one()
         )
 
+        habitats_favorables = (
+            db.session.query(
+                func.sum(cte.c.area_ap)
+                .filter(cte.c.habitat_favorable.ilike('1'))
+            ).one()
+        )
+
         query_calculations = (
             db.session.query(
                 func.count(func.distinct(cte.c.id_zp)).label("nb_stations"),
                 func.sum(cte.c.area_ap).label("area_presence"),
-                (threatened_stations/func.sum(cte.c.area_ap)*100).label("threat_level")
+                (threatened_stations/func.sum(cte.c.area_ap)*100).label("threat_level"),
+                (habitats_favorables/func.sum(cte.c.area_ap)*100).label("habitat_favorable")
             ).one()
         )
 
@@ -359,6 +372,7 @@ class StatRepository:
             "nbStations" : query_calculations[0],
             "areaPresence" : query_calculations[1],
             "threatLevel" : query_calculations[2],
+            "habitatFavorable" : query_calculations[3],
             }
 
         data = query.all()
