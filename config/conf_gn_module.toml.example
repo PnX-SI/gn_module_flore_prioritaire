@@ -1,18 +1,5 @@
 # Module parameters example with doc
 
-# Nom utilisé pour le cadre d'acquisition, le jeux de données et la source
-# du module. Utilisé lors de l'installation de la base de données.
-# ATTENTION : Une mise à jour ultérieure nécessite de mettre à jour les
-# métadonnées et la fonction pr_priority_flora.get_source_id() dans la
-# base de données.
-metadata_name = "Bilan Stationnel"
-
-# Code utilisé pour le jeux de données. Utilisé lors de l'installation de
-# la base de données.
-# ATTENTION : Une mise à jour ultérieure nécessite de mettre à jour la
-# table t_datasets (dataset_shortname) des métadonnées.
-metadata_code = "PRIORITY_FLORA"
-
 # Prospect zones Datatable column names, attributs linked and width
 datatable_zp_columns = [
     {"name": "Id", "prop": "id_zp", "width": 70},
@@ -46,8 +33,8 @@ export_available_format = ["csv", "geojson"]
 # Code of observers list used in the module
 observers_list_code = "PRIORITY_FLORA"
 
-# Code of taxons list used in the module
-taxons_list_code = "PRIORITY_FLORA"
+# ID of taxons list used in the module (not mandatory - default to all Taxref)
+id_taxon_list = <ID_TAXON_LIST>
 
 # Coordinates of center used for all maps displayed in the module
 zoom_center = [44.982667966765845, 6.062455200884894]

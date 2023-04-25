@@ -1,10 +1,12 @@
 from sqlalchemy import Date, Interval, and_, func, true
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql.functions import concat
+from sqlalchemy.sql.expression import select
+
 
 from geonature.utils.env import db
-from geonature.core.ref_geo.models import LAreas, BibAreasTypes
-from geonature.core.taxonomie.models import Taxref
+from ref_geo.models import LAreas, BibAreasTypes
+from apptax.taxonomie.models import Taxref
 from pypnusershub.db.models import User
 from pypnnomenclature.models import TNomenclatures
 
@@ -79,8 +81,7 @@ class StatRepository:
     # Prepare subqueries for lateral joins
     def _get_departements_subquery(self):
         departements = (
-            (
-                db.session.query(
+                select(
                     cor_zp_area.c.id_zp,
                     func.string_agg(LAreas.area_name, ", ").label("area_name"),
                 )
@@ -90,7 +91,6 @@ class StatRepository:
                     LAreas.id_type == func.ref_geo.get_id_area_type("DEP"),
                 )
                 .group_by(cor_zp_area.c.id_zp)
-            )
             .subquery()
             .lateral()
         )
@@ -99,7 +99,7 @@ class StatRepository:
     def _get_municipalities_subquery(self):
         municipalities = (
             (
-                db.session.query(
+                select(
                     cor_zp_area.c.id_zp,
                     func.string_agg(LAreas.area_name, ", ").label("area_name"),
                 )
@@ -118,7 +118,7 @@ class StatRepository:
     def _get_observers_subquery(self):
         observers = (
             (
-                db.session.query(
+                select(
                     cor_zp_observer.c.id_zp,
                     func.string_agg(func.concat(User.nom_role, " ", User.prenom_role), ", ").label(
                         "observers"
@@ -136,7 +136,7 @@ class StatRepository:
     def _get_scinames_code_subquery(self):
         Taxref2 = aliased(Taxref)
         scinames_codes = (
-            db.session.query(Taxref2.cd_nom)
+            select(Taxref2.cd_nom)
             .join(Taxref, Taxref.cd_ref == Taxref2.cd_ref)
             .filter(Taxref.cd_nom == self.cd_nom)
         ).cte("scinames_codes")
@@ -145,7 +145,7 @@ class StatRepository:
     def _get_habitat_type_subquery(self):
         habitat_type = (
             (
-                db.session.query(
+                select(
                     cor_ap_physiognomy.c.id_ap,
                     func.string_agg(TNomenclatures.label_default, ", ").label("type_habitat"),
                 )
@@ -154,7 +154,7 @@ class StatRepository:
                     TNomenclatures.id_nomenclature == cor_ap_physiognomy.c.id_nomenclature,
                 )
                 .group_by(cor_ap_physiognomy.c.id_ap)
-                .filter(cor_ap_physiognomy.c.id_ap == TApresence.id_ap)
+                .where(cor_ap_physiognomy.c.id_ap == TApresence.id_ap)
             )
             .subquery()
             .lateral()
@@ -164,7 +164,7 @@ class StatRepository:
     def _get_perturbation_type_subquery(self):
         perturbation_type = (
             (
-                db.session.query(
+                select(
                     CorApPerturbation.id_ap,
                     func.string_agg(TNomenclatures.label_default, ", ").label("type_perturbation"),
                 )
@@ -173,7 +173,7 @@ class StatRepository:
                     TNomenclatures.id_nomenclature == CorApPerturbation.id_nomenclature,
                 )
                 .group_by(CorApPerturbation.id_ap)
-                .filter(CorApPerturbation.id_ap == TApresence.id_ap)
+                .where(CorApPerturbation.id_ap == TApresence.id_ap)
             )
             .subquery()
             .lateral()
@@ -184,9 +184,9 @@ class StatRepository:
         tzprospect = aliased(TZprospect)
         apresence = (
             (
-                db.session.query(tzprospect.id_zp, func.count(TApresence.id_ap).label("nb_ap"))
+                select(tzprospect.id_zp, func.count(TApresence.id_ap).label("nb_ap"))
                 .outerjoin(TApresence, TApresence.id_zp == tzprospect.id_zp)
-                .filter(tzprospect.id_zp == TZprospect.id_zp)
+                .where(tzprospect.id_zp == TZprospect.id_zp)
                 .group_by(tzprospect.id_zp)
             )
             .subquery()
@@ -203,7 +203,7 @@ class StatRepository:
 
         # Execute query
         query = (
-            db.session.query(
+            select(
                 TZprospect.id_zp.label("id"),
                 TZprospect.date_max.label("date"),
                 municipalities.c.area_name.label("municipality"),
@@ -222,26 +222,26 @@ class StatRepository:
 
         # Filter with parameters
         if self.cd_nom:
-            query = query.filter(
+            query = query.where(
                 and_(TZprospect.cd_nom == self.cd_nom, TZprospect.cd_nom.in_(scinames_codes))
             )
 
         if self.area_code:
-            query = query.filter(LAreas.area_code == self.area_code)
+            query = query.where(LAreas.area_code == self.area_code)
 
         if self.area_type:
-            query = query.filter(BibAreasTypes.type_code == self.area_type)
+            query = query.where(BibAreasTypes.type_code == self.area_type)
 
         if self.date_start:
-            query = query.filter(TZprospect.date_max <= self.date_start)
+            query = query.where(TZprospect.date_max <= self.date_start)
 
         if self.years:
             date_interval = func.cast(concat(self.years, "YEARS"), Interval)
             previous_datetime = func.date(self.date_start) - date_interval
             previous_date = func.cast(previous_datetime, Date)
-            query = query.filter(TZprospect.date_min >= previous_date)
+            query = query.where(TZprospect.date_min >= previous_date)
 
-        data = query.all()
+        data = db.session.execute(query).all()
         output = [d._asdict() for d in data]
         return output
 
@@ -255,7 +255,7 @@ class StatRepository:
 
         # Execute query
         query = (
-            db.session.query(
+            select(
                 TApresence.id_ap.label("id_ap"),
                 TApresence.id_zp.label("id_zp"),
                 TApresence.area.label("area_ap"),
@@ -282,26 +282,26 @@ class StatRepository:
 
         # Filter with parameters
         if self.cd_nom:
-            query = query.filter(
+            query = query.where(
                 and_(TZprospect.cd_nom == self.cd_nom, TZprospect.cd_nom.in_(scinames_codes))
             )
 
         if self.area_code:
-            query = query.filter(LAreas.area_code == self.area_code)
+            query = query.where(LAreas.area_code == self.area_code)
 
         if self.area_type:
-            query = query.filter(BibAreasTypes.type_code == self.area_type)
+            query = query.where(BibAreasTypes.type_code == self.area_type)
 
         if self.date_start:
-            query = query.filter(TZprospect.date_max <= self.date_start)
+            query = query.where(TZprospect.date_max <= self.date_start)
 
         if self.years:
             date_interval = func.cast(concat(self.years, "YEARS"), Interval)
             previous_datetime = func.date(self.date_start) - date_interval
             previous_date = func.cast(previous_datetime, Date)
-            query = query.filter(TZprospect.date_min >= previous_date)
+            query = query.where(TZprospect.date_min >= previous_date)
 
-        data = query.all()
+        data = db.session.execute(query).all()
         output = [d._asdict() for d in data]
         return output
 
@@ -314,7 +314,7 @@ class StatRepository:
 
         # Execute query
         query = (
-            db.session.query(
+            select(
                 TApresence.id_ap.label("id_ap"),
                 TApresence.id_zp.label("id_zp"),
                 TApresence.area.label("area_ap"),
@@ -343,30 +343,30 @@ class StatRepository:
 
         # Filter with parameters
         if self.cd_nom:
-            query = query.filter(
+            query = query.where(
                 and_(TZprospect.cd_nom == self.cd_nom, TZprospect.cd_nom.in_(scinames_codes))
             )
 
         if self.area_code:
-            query = query.filter(LAreas.area_code == self.area_code)
+            query = query.where(LAreas.area_code == self.area_code)
 
         if self.area_type:
-            query = query.filter(BibAreasTypes.type_code == self.area_type)
+            query = query.where(BibAreasTypes.type_code == self.area_type)
 
         if self.date_start:
-            query = query.filter(TZprospect.date_max <= self.date_start)
+            query = query.where(TZprospect.date_max <= self.date_start)
 
         if self.years:
             date_interval = func.cast(concat(self.years, "YEARS"), Interval)
             previous_datetime = func.date(self.date_start) - date_interval
             previous_date = func.cast(previous_datetime, Date)
-            query = query.filter(TZprospect.date_min >= previous_date)
+            query = query.where(TZprospect.date_min >= previous_date)
 
         return query
 
     def get_habitats(self):
         query = self._get_habitats_infos_query()
-        data = query.all()
+        data = db.session.execute(query).all()
         output = [d._asdict() for d in data]
         return output
 
@@ -374,20 +374,22 @@ class StatRepository:
         query = self._get_habitats_infos_query()
         hab_infos = query.cte("hab_infos")
 
-        threatened_stations = db.session.query(
-            func.sum(hab_infos.c.area_ap).filter(hab_infos.c.threat_level_code.in_(("2", "3")))
-        ).one()
+        threatened_stations = db.session.execute(
+            select(func.sum(hab_infos.c.area_ap)).where(hab_infos.c.threat_level_code.in_(("2", "3")))
+        ).scalar()
 
-        habitats_favorables = db.session.query(
-            func.sum(hab_infos.c.area_ap).filter(hab_infos.c.habitat_favorable.like("1"))
-        ).one()
+        habitats_favorables = db.session.execute(
+            select(func.sum(hab_infos.c.area_ap)).where(hab_infos.c.habitat_favorable.like("1"))
+        ).scalar()
 
-        calculations_result = db.session.query(
-            func.count(func.distinct(hab_infos.c.id_zp)).label("nb_stations"),
-            func.sum(hab_infos.c.area_ap).label("area_presence"),
-            (threatened_stations / func.sum(hab_infos.c.area_ap) * 100).label("threat_level"),
-            (habitats_favorables / func.sum(hab_infos.c.area_ap) * 100).label("habitat_favorable"),
-        ).one()
+        calculations_result = db.session.execute(
+            select(
+                func.count(func.distinct(hab_infos.c.id_zp)).label("nb_stations"),
+                func.sum(hab_infos.c.area_ap).label("area_presence"),
+                (threatened_stations / func.sum(hab_infos.c.area_ap) * 100).label("threat_level"),
+                (habitats_favorables / func.sum(hab_infos.c.area_ap) * 100).label("habitat_favorable"),
+            )
+        ).first()
 
         output = {
             "nb_stations": calculations_result[0],

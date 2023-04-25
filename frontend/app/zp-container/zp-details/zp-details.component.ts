@@ -2,8 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { ToastrService } from 'ngx-toastr';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 
+import { ConfigService } from '@geonature/services/config.service';
 import { CommonService } from '@geonature_common/service/common.service';
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
@@ -11,7 +12,6 @@ import { ConfirmationDialog } from '@geonature_common/others/modal-confirmation/
 
 import { DataService } from '../../services/data.service';
 import { StoreService } from '../../services/store.service';
-import { ModuleConfig } from '../../module.config';
 import { COUNTING_TYPES } from '../../shared/nomenclatures';
 
 @Component({
@@ -37,12 +37,13 @@ export class ZpDetailsComponent implements OnInit {
     public api: DataService,
     private commonService: CommonService,
     public mapListService: MapListService,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private config: ConfigService
   ) {}
 
   ngOnInit() {
     this.displayColumns = this.storeService.fpConfig.datatable_ap_columns;
-    this.activatedRoute.parent.params.subscribe(params => {
+    this.activatedRoute.parent.params.subscribe((params) => {
       this.idZp = params['idZp'];
       this.storeService.queryString = this.storeService.queryString.set('id_zp', this.idZp);
       this.storeService.idSite = this.idZp;
@@ -54,18 +55,18 @@ export class ZpDetailsComponent implements OnInit {
     this.mapListService.idName = 'id_ap';
     this.mapListService.enableMapListConnexion(this.mapService.getMap());
     this.api.getOneProspectZone(this.storeService.idSite).subscribe(
-      data => {
+      (data) => {
         this.storeService.zp = data['zp'];
         this.storeService.zpProperties = data['zp']['properties'];
         this.storeService.zpProperties['areas'] = this.storeService.zpProperties['areas'].filter(
-          area => area.area_type.type_code == 'COM'
+          (area) => area.area_type.type_code == 'COM'
         );
 
         this.storeService.sites = data['aps'];
         this.mapListService.loadTableData(data['aps']);
         this.filteredData = this.mapListService.tableData;
       },
-      error => {
+      (error) => {
         if (error.status != 404) {
           this.toastrService.error(
             'Une erreur est survenue lors de la récupération des informations sur le serveur',
@@ -81,11 +82,22 @@ export class ZpDetailsComponent implements OnInit {
   }
 
   onAddAp(idZp) {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/zps`, idZp, 'aps', 'add']);
+    this.router.navigate([
+      `${this.config['PRIORITY_FLORA']['MODULE_URL']}/zps`,
+      idZp,
+      'aps',
+      'add',
+    ]);
   }
 
   onEditAp(idZp, idAp) {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/zps`, idZp, 'aps', idAp, 'edit']);
+    this.router.navigate([
+      `${this.config['PRIORITY_FLORA']['MODULE_URL']}/zps`,
+      idZp,
+      'aps',
+      idAp,
+      'edit',
+    ]);
   }
 
   onDeleteAp(idAp) {
@@ -96,14 +108,14 @@ export class ZpDetailsComponent implements OnInit {
       data: { message: msg },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.api.deletePresenceArea(idAp).subscribe(
-          data => {
-            this.mapListService.tableData = this.mapListService.tableData.filter(item => {
+          (data) => {
+            this.mapListService.tableData = this.mapListService.tableData.filter((item) => {
               return idAp !== item.id_ap;
             });
-            const filterFeature = this.storeService.sites.features.filter(feature => {
+            const filterFeature = this.storeService.sites.features.filter((feature) => {
               return idAp !== feature.properties.id_ap;
             });
             this.storeService.sites['features'] = filterFeature;
@@ -111,7 +123,7 @@ export class ZpDetailsComponent implements OnInit {
             this.storeService.sites = Object.assign({}, this.storeService.sites);
             this.commonService.translateToaster('success', 'Releve.DeleteSuccessfully');
           },
-          error => {
+          (error) => {
             if (error.status === 403) {
               this.commonService.translateToaster('error', 'NotAllowed');
             } else {
@@ -124,7 +136,7 @@ export class ZpDetailsComponent implements OnInit {
   }
 
   backToZpsList() {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}`]);
+    this.router.navigate([`${this.config['PRIORITY_FLORA']['MODULE_URL']}`]);
   }
 
   toggleExpandRow(row) {
@@ -161,16 +173,16 @@ export class ZpDetailsComponent implements OnInit {
 
     // Actions on layer
     layer.on({
-      click: e => {
+      click: (e) => {
         // toggle style
         this.mapListService.toggleStyle(layer);
         // observable
         this.mapListService.mapSelected.next(feature.id);
       },
-      mouseover: e => {
+      mouseover: (e) => {
         layer.openPopup();
       },
-      mouseout: e => {
+      mouseout: (e) => {
         layer.closePopup();
       },
     });

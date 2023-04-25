@@ -17,7 +17,7 @@ datatable_zp_messages = {
     "totalMessage": "zone(s) de prospection",
 }
 datatable_ap_columns = [
-    {"name": "Fréquence", "prop": "frequency", "width": 50},
+    {"name": "Fréquence (%)", "prop": "frequency", "width": 50},
     {"name": "Statut favorable (%)", "prop": "favorable_status_percent", "width": 50},
     {"name": "Surface (m²)", "prop": "area", "width": 50},
 ]
@@ -44,7 +44,7 @@ class GnModuleSchemaConf(Schema):
         load_default=export_available_format,
     )
     observers_list_code = fields.String(load_default="PRIORITY_FLORA")
-    taxons_list_code = fields.String(load_default="PRIORITY_FLORA")
+    taxons_list_code = fields.String()
     zoom_center = fields.List(
         fields.Float(),
         load_default=[44.982667966765845, 6.062455200884894],

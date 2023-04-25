@@ -36,16 +36,28 @@
             </p>
           </div>
 
+
+
           <div class="row mt-3">
+            <div class="col-lg-12 mb-3">
+
+              <pnx-datasets
+                label="{{ 'MetaData.Datasets' | translate }}"
+                [parentFormControl]="zpForm.controls.id_dataset"
+                moduleCode="PRIORITY_FLORA"
+                creatableInModule="PRIORITY_FLORA"
+              >
+              </pnx-datasets>
+            </div>
             <div class="col-lg-12">
               <label for="cd_nom" class="required">
-                <mat-icon class="h5">local_florist</mat-icon>
+                <mat-icon>local_florist</mat-icon>
                 Taxon :
               </label>
               <pnx-taxonomy
                 #taxon
                 [parentFormControl]="zpForm.controls.cd_nom"
-                [idList]="storeService.fpConfig.taxons_list_code"
+                [idList]="storeService.fpConfig.id_taxon_list"
                 [charNumber]="3"
                 [listLength]="20"
                 matTooltipPosition="above"
@@ -68,16 +80,24 @@
           <div class="row mt-3">
             <div class="col-sm-12 col-md-5 col-lg-5">
               <label for="date_min" class="required">
-                <mat-icon class="h5">event</mat-icon>
+                <mat-icon>event</mat-icon>
                 Dates :
               </label>
-              <pnx-date [parentFormControl]="zpForm.controls.date_min" [disabled]="disabledForm">
+              <pnx-date [parentFormControl]="zpForm.controls.date_min">
               </pnx-date>
             </div>
+            <!-- TODO - submited does not exist
             <div
               class="col-sm-12 col-md-6 col-lg-6 mt-2 ml-3"
               *ngIf="
                 (zpForm.controls.date_min.touched || submitted) &&
+                zpForm.controls.date_min.errors?.required
+              "
+            > -->
+            <div
+              class="col-sm-12 col-md-6 col-lg-6 mt-2 ml-3"
+              *ngIf="
+                (zpForm.controls.date_min.touched) &&
                 zpForm.controls.date_min.errors?.required
               "
             >
@@ -91,7 +111,7 @@
           <div class="row mt-3">
             <div class="col-lg-12">
               <label for="observers">
-                <mat-icon class="h5">group_add</mat-icon>
+                <mat-icon>group_add</mat-icon>
                 Observateur(s) :
               </label>
               <pnx-observers
@@ -103,10 +123,17 @@
               >
               </pnx-observers>
             </div>
-            <div
+            <!-- TODO : submited does not exists <div
               class="col-lg-12 mt-2"
               *ngIf="
                 (zpForm.controls.observers.touched || submitted) &&
+                zpForm.controls.observers.errors?.required
+              "
+            > -->
+            <div
+              class="col-lg-12 mt-2"
+              *ngIf="
+                (zpForm.controls.observers.touched) &&
                 zpForm.controls.observers.errors?.required
               "
             >

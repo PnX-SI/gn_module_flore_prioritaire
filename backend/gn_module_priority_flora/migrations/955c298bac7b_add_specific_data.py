@@ -13,7 +13,6 @@ import sqlalchemy as sa
 from sqlalchemy.sql import text
 
 from utils_flask_sqla.migrations.utils import logger
-from gn_module_priority_flora import MODULE_CODE
 
 
 # revision identifiers, used by Alembic.
@@ -137,8 +136,7 @@ def downgrade():
     delete_nomenclatures("FREQUENCY_METHOD")
     delete_nomenclatures("COUNTING_TYPE")
 
-    delete_taxonomy_list(MODULE_CODE)
-    delete_module(MODULE_CODE)
+    delete_source()
 
 
 def delete_nomenclatures(mnemonique):
@@ -157,41 +155,11 @@ def delete_nomenclatures(mnemonique):
     op.get_bind().execute(operation, {"mnemonique": mnemonique})
 
 
-def delete_taxonomy_list(sciname_list_code):
-    operation = text(
-        """
-        -- Delete names list : taxonomie.bib_listes, taxonomie.cor_nom_liste, taxonomie.bib_noms
-        WITH names_deleted AS (
-            DELETE FROM taxonomie.cor_nom_liste WHERE id_liste IN (
-                SELECT id_liste FROM taxonomie.bib_listes
-                WHERE code_liste = :listCode
-            )
-            RETURNING id_nom
-        )
-        DELETE FROM taxonomie.bib_noms WHERE id_nom IN (
-            SELECT id_nom FROM names_deleted
-        );
 
-        DELETE FROM taxonomie.bib_listes WHERE code_liste = :listCode;
+
+def delete_source():
+    op.execute(
+        """
+            DELETE FROM gn_synthese.t_sources where name_source = 'Bilan stationnel v2'
         """
     )
-    op.get_bind().execute(operation, {"listCode": sciname_list_code})
-
-
-def delete_module(module_code):
-    operation = text(
-        """
-        -- Unlink module from dataset
-        DELETE FROM gn_commons.cor_module_dataset
-            WHERE id_module = (
-                SELECT id_module
-                FROM gn_commons.t_modules
-                WHERE module_code = :moduleCode
-            ) ;
-
-        -- Uninstall module (unlink this module of GeoNature)
-        DELETE FROM gn_commons.t_modules
-            WHERE module_code = :moduleCode ;
-        """
-    )
-    op.get_bind().execute(operation, {"moduleCode": module_code})

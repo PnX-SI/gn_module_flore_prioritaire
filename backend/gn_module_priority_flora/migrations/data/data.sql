@@ -1,3 +1,25 @@
+-------------------------------------------------------------------------
+-- COMMONS : create PRIORITY_FLORA module
+-------------------------------------------------------------------------
+
+UPDATE gn_commons.t_modules
+SET
+  module_label = 'Bilan stationnel',
+  module_picto = 'fa-pagelines',
+  module_desc = 'Module de Suivi de la flore prioritaire d''un territoire.',
+  module_doc_url = 'https://github.com/PnX-SI/gn_module_flore_prioritaire'
+WHERE module_code = 'PRIORITY_FLORA' ;
+
+INSERT INTO gn_synthese.t_sources
+(name_source, desc_source, entity_source_pk_field, id_module)
+VALUES(
+  'Bilan stationnel v2', 
+  'Données issues du module bilan stationnel v2',
+  'pr_priority_flora.t_apresence.id_zp', 
+  (select id_module FROM gn_commons.t_modules where module_code = 'PRIORITY_FLORA')
+);
+
+
 ------------------------------------------------------------------------
 -- Nomenclature: Type de pente
 ------------------------------------------------------------------------
@@ -144,32 +166,3 @@ INSERT INTO ref_nomenclatures.bib_nomenclatures_types (
   'CBNA'
 );
 
-
--------------------------------------------------------------------------
--- TAXONOMIE => Insert data into "bib_listes"
--------------------------------------------------------------------------
-
-INSERT INTO taxonomie.bib_listes (
-  nom_liste,
-  desc_liste,
-  regne,
-  code_liste
-) VALUES (
-  'Priority Flora',
-  'Liste de taxons pour le module Priority Flora.',
-  'Plantae',
-  'PRIORITY_FLORA'
-) ;
-
-
--------------------------------------------------------------------------
--- COMMONS : update PRIORITY_FLORA module
--------------------------------------------------------------------------
-
-UPDATE gn_commons.t_modules
-SET
-  module_label = 'Bilan stationnel',
-  module_picto = 'fa-pagelines',
-  module_desc = 'Module de Suivi de la flore prioritaire d''un territoire.',
-  module_doc_url = 'https://github.com/PnX-SI/gn_module_flore_prioritaire'
-WHERE module_code = 'PRIORITY_FLORA' ;

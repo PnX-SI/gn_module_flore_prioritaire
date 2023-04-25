@@ -2,18 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-##  [2.2.1] - 2023-11-15
+#### 🚀 Added
+
+- Compatibility with GeoNature 2.13
+- Possibility of choosing the Dataset in the creation of ZP.
+- Creation of datasets, acquisitions frameworks and taxa list is done in a separate Alembic branch (`priority_flora_sample`)
+- The parameter for the list of taxa is no longer mandatory. By default, we query all Taxref. It can be restricted via the `id_taxon_list` parameter.
+
+### 🐛 Fixed
+
+- Fixed a redirection bug caused by bootstrap “tabs” on ZP info sheets and switching to Material tabs.
+
+### 🔄 Changed
+
+- The field `id_source` used in trigger previously get from `__init__.py` is now get from module source code (via `gn_synthese.t_sources`).
+- ⚠️ `code_taxon_list` parameter renamed `id_taxon_list` now, must be set with a value of the primary key (`id_liste`) of `taxonomie.bib_listes` table.
+
+
+## [2.2.1] - 2023-11-15
 
 ### 🐛 Fixed
 
 - Fixed use of datetime in export web service
 
-##  [2.2.0] - 2023-10-13
+
+## [2.2.0] - 2023-10-13
 
 #### 🚀 Added
 
