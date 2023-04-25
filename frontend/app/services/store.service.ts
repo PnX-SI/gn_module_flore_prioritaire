@@ -2,22 +2,24 @@ import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
-import { AppConfig } from '@geonature_config/app.config';
-
-import { ModuleConfig } from '../module.config';
+import { ConfigService } from '@geonature/services/config.service';
 
 @Injectable()
 export class StoreService {
   public sites;
   public zp;
-  public zpProperties = {};
+  public zpProperties: any = {};
   public idSite;
-  public fpConfig = ModuleConfig;
+  public fpConfig: any = {};
   public leafletDrawOptions = leafletDrawOption;
   public queryString = new HttpParams();
-  public urlLoad = `${AppConfig.API_ENDPOINT}/${ModuleConfig.MODULE_URL}/presence-areas/export`;
+  public urlLoad: string;
 
-  constructor() {}
+  constructor(public config: ConfigService) {
+    this.fpConfig = this.config['PRIORITY_FLORA'];
+
+    this.urlLoad = `${this.config.API_ENDPOINT}/${this.fpConfig.MODULE_URL}/presence-areas/export`;
+  }
 
   setLeafletDraw() {
     this.leafletDrawOptions.draw.rectangle = true;
@@ -25,7 +27,7 @@ export class StoreService {
     this.leafletDrawOptions.draw.polyline = false;
     this.leafletDrawOptions.draw.polygone = true;
     this.leafletDrawOptions.edit.remove = true;
-    this.leafletDrawOptions.edit.edit = true;
+    this.leafletDrawOptions.edit.edit = {};
   }
 
   loadQueryString() {
@@ -40,7 +42,7 @@ export class StoreService {
 
   clearQueryString() {
     let filterkey = this.queryString.keys();
-    filterkey.forEach(key => {
+    filterkey.forEach((key) => {
       this.queryString = this.queryString.delete(key);
     });
   }

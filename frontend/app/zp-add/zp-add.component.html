@@ -71,13 +71,21 @@
                 <mat-icon class="h5">event</mat-icon>
                 Dates :
               </label>
-              <pnx-date [parentFormControl]="zpForm.controls.date_min" [disabled]="disabledForm">
+              <pnx-date [parentFormControl]="zpForm.controls.date_min">
               </pnx-date>
             </div>
+            <!-- TODO - submited does not exist
             <div
               class="col-sm-12 col-md-6 col-lg-6 mt-2 ml-3"
               *ngIf="
                 (zpForm.controls.date_min.touched || submitted) &&
+                zpForm.controls.date_min.errors?.required
+              "
+            > -->
+            <div
+              class="col-sm-12 col-md-6 col-lg-6 mt-2 ml-3"
+              *ngIf="
+                (zpForm.controls.date_min.touched) &&
                 zpForm.controls.date_min.errors?.required
               "
             >
@@ -103,10 +111,17 @@
               >
               </pnx-observers>
             </div>
-            <div
+            <!-- TODO : submited does not exists <div
               class="col-lg-12 mt-2"
               *ngIf="
                 (zpForm.controls.observers.touched || submitted) &&
+                zpForm.controls.observers.errors?.required
+              "
+            > -->
+            <div
+              class="col-lg-12 mt-2"
+              *ngIf="
+                (zpForm.controls.observers.touched) &&
                 zpForm.controls.observers.errors?.required
               "
             >

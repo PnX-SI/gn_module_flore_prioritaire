@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
+import { ConfigService } from '@geonature/services/config.service';
 import { CommonService } from '@geonature_common/service/common.service';
 import { DataFormService } from '@geonature_common/form/data-form.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
@@ -18,7 +19,6 @@ import { NomenclatureComponent } from '@geonature_common/form/nomenclature/nomen
 import { DataService } from '../../services/data.service';
 import { ApFormService } from './ap-form.service';
 import { StoreService } from '../../services/store.service';
-import { ModuleConfigInterface, MODULE_CONFIG_TOKEN } from '../../gnModule.config';
 import { COUNTING_TYPES, FREQUENCY_METHOD } from '../../shared/nomenclatures';
 
 @Component({
@@ -29,7 +29,7 @@ import { COUNTING_TYPES, FREQUENCY_METHOD } from '../../shared/nomenclatures';
 })
 export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   leafletDrawOptions = leafletDrawOption;
-  private apForm: FormGroup;
+  public apForm: FormGroup;
   geojson: any;
   idAp;
   areasIntersected = new Array();
@@ -43,7 +43,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   FREQUENCY_METHOD = FREQUENCY_METHOD;
 
   constructor(
-    @Inject(MODULE_CONFIG_TOKEN) private config: ModuleConfigInterface,
+    private config: ConfigService,
     public formService: ApFormService,
     public mapService: MapService,
     public router: Router,
@@ -58,7 +58,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.mapGpxColor = this.config.map_gpx_color;
+    this.mapGpxColor = this.config['PRORITY_FLORA']['map_gpx_color'];
     this.extractUrlParams();
     this.apForm = this.formService.initFormAp();
     this.storeService.setLeafletDraw();
@@ -69,7 +69,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private extractUrlParams() {
     this.idAp = this.activatedRoute.snapshot.params['idAp'];
-    this.activatedRoute.parent.params.subscribe(params => {
+    this.activatedRoute.parent.params.subscribe((params) => {
       this.storeService.idSite = params['idZp'];
     });
   }
@@ -87,72 +87,74 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     // Subscription to the geojson observable. Used when new geom add on map by Leaflet Draw
     this.geojsonSubscription$ = this.mapService.gettingGeojson$
       .pipe(distinctUntilChanged())
-      .subscribe(geojson => {
+      .subscribe((geojson) => {
         // check if ap is in zp
-        this.api.containArea(this.storeService.zp.geometry, geojson.geometry).subscribe(contain => {
-          if (contain) {
-            // Update geom control in form
-            this.apForm.patchValue({
-              geom_4326: geojson.geometry,
-            });
-
-            // Get area size
-            if (geojson.geometry.type == 'Point') {
-              this.apForm.controls['area'].enable();
-              if (this.apForm.controls.area.value == null) {
-                this.apForm.patchValue({ area: 1 });
-                this.commonService.regularToaster(
-                  'info',
-                  "Veuillez saisir la surface en m² de l'aire de présence."
-                );
-              }
-            } else {
-              this.apForm.controls['area'].disable();
-              this.dataFormService.getAreaSize(geojson).subscribe(areaSize => {
-                this.apForm.patchValue({
-                  area: Math.round(areaSize),
-                });
+        this.api
+          .containArea(this.storeService.zp.geometry, geojson.geometry)
+          .subscribe((contain) => {
+            if (contain) {
+              // Update geom control in form
+              this.apForm.patchValue({
+                geom_4326: geojson.geometry,
               });
-            }
 
-            // Get to geo info from API
-            this.dataFormService.getGeoInfo(geojson).subscribe(res => {
-              if (res.altitude.altitude_min && res.altitude.altitude_max) {
-                this.apForm.patchValue({
-                  altitude_min: res.altitude.altitude_min,
-                  altitude_max: res.altitude.altitude_max,
-                });
+              // Get area size
+              if (geojson.geometry.type == 'Point') {
+                this.apForm.controls['area'].enable();
+                if (this.apForm.controls.area.value == null) {
+                  this.apForm.patchValue({ area: 1 });
+                  this.commonService.regularToaster(
+                    'info',
+                    "Veuillez saisir la surface en m² de l'aire de présence."
+                  );
+                }
               } else {
-                this.commonService.regularToaster(
-                  'warning',
-                  'Les altitudes minimum et maximum de la nouvelle aire de présence ' +
-                    "n'ont pu être mis à jour automatiquement. Vérifier votre DEM !"
-                );
+                this.apForm.controls['area'].disable();
+                this.dataFormService.getAreaSize(geojson).subscribe((areaSize) => {
+                  this.apForm.patchValue({
+                    area: Math.round(areaSize),
+                  });
+                });
               }
-            });
 
-            // Get intersected geometry
-            this.dataFormService.getFormatedGeoIntersection(geojson).subscribe(res => {
-              this.areasIntersected = res;
-            });
-          } else {
-            this.geojson = null;
-            this.apForm.patchValue({
-              geom_4326: null,
-            });
-            this.commonService.regularToaster(
-              'warning',
-              "L'aire de présence n'est pas inclue dans la zone de prospection."
-            );
-          }
-          // WARNING: markAsDirty() must be call after controls update.
-          this.apForm.markAsDirty();
-        });
+              // Get to geo info from API
+              this.dataFormService.getGeoInfo(geojson).subscribe((res) => {
+                if (res.altitude.altitude_min && res.altitude.altitude_max) {
+                  this.apForm.patchValue({
+                    altitude_min: res.altitude.altitude_min,
+                    altitude_max: res.altitude.altitude_max,
+                  });
+                } else {
+                  this.commonService.regularToaster(
+                    'warning',
+                    'Les altitudes minimum et maximum de la nouvelle aire de présence ' +
+                      "n'ont pu être mis à jour automatiquement. Vérifier votre DEM !"
+                  );
+                }
+              });
+
+              // Get intersected geometry
+              this.dataFormService.getFormatedGeoIntersection(geojson).subscribe((res) => {
+                this.areasIntersected = res;
+              });
+            } else {
+              this.geojson = null;
+              this.apForm.patchValue({
+                geom_4326: null,
+              });
+              this.commonService.regularToaster(
+                'warning',
+                "L'aire de présence n'est pas inclue dans la zone de prospection."
+              );
+            }
+            // WARNING: markAsDirty() must be call after controls update.
+            this.apForm.markAsDirty();
+          });
       });
   }
 
   private initializeTotalMaxAutocomplete() {
-    this.apForm.controls.total_min.valueChanges.distinctUntilChanged().subscribe(value => {
+    this.apForm.controls.total_min.valueChanges.pipe(distinctUntilChanged()).subscribe((value) => {
       if (this.apForm.controls.total_max === null || this.apForm.controls.total_max.pristine) {
         this.apForm.patchValue({
           total_max: value,
@@ -171,7 +173,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadApData() {
     this.api.getOnePresenceArea(this.idAp).subscribe(
-      element => {
+      (element) => {
         const ap = element.properties;
 
         // Manage area field activation
@@ -209,7 +211,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
         });
         this.geojson = element.geometry;
       },
-      error => {
+      (error) => {
         if (error.status != 404) {
           this.toastrService.error(
             "Une erreur est survenue lors de la récupération des informations de l'AP sur le serveur",
@@ -226,16 +228,16 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadZpData() {
     this.api.getOneProspectZone(this.storeService.idSite).subscribe(
-      data => {
+      (data) => {
         this.storeService.zp = data['zp'];
         this.storeService.zpProperties = data['zp']['properties'];
         this.storeService.zpProperties['areas'] = this.storeService.zpProperties['areas'].filter(
-          area => area.area_type.type_code == 'COM'
+          (area) => area.area_type.type_code == 'COM'
         );
 
         //this.storeService.sites = data['aps'];
       },
-      error => {
+      (error) => {
         if (error.status != 404) {
           this.toastrService.error(
             'Une erreur est survenue lors de la récupération des informations sur le serveur',
@@ -255,7 +257,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onCancel(idZp) {
-    this.router.navigate([`${this.config.MODULE_URL}/zps`, idZp, 'details']);
+    this.router.navigate([`${this.config['PRORITY_FLORA']['MODULE_URL']}/zps`, idZp, 'details']);
   }
 
   onSubmit() {
@@ -276,19 +278,19 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
       // Send presence area data
       if (this.isUpdateMode()) {
         this.api.updatePresenceArea(apForm, this.idAp).subscribe(
-          data => {
+          (data) => {
             this.onPresenceAreaSavedSuccess(data);
           },
-          error => {
+          (error) => {
             this.onPresenceAreaSavedError(error);
           }
         );
       } else {
         this.api.addPresenceArea(apForm).subscribe(
-          data => {
+          (data) => {
             this.onPresenceAreaSavedSuccess(data);
           },
-          error => {
+          (error) => {
             this.onPresenceAreaSavedError(error);
           }
         );
@@ -301,18 +303,22 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
       positionClass: 'toast-top-center',
     });
 
-    this.router.navigate([`${this.config.MODULE_URL}/zps`, this.storeService.zp.id, 'details']);
+    this.router.navigate([
+      `${this.config['PRORITY_FLORA']['MODULE_URL']}/zps`,
+      this.storeService.zp.id,
+      'details',
+    ]);
 
     // TODO: try to simplify the code below
     // Push ap maplist data
     if (this.isUpdateMode()) {
       // remove from list
       this.mapListService.tableData = this.mapListService.tableData.filter(
-        ap => ap.id_ap != apData.id
+        (ap) => ap.id_ap != apData.id
       );
       // remove from map
       this.storeService.sites.features = this.storeService.sites.features.filter(
-        ap => ap.id != apData.id
+        (ap) => ap.id != apData.id
       );
     }
 
