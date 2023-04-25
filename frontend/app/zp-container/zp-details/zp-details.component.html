@@ -126,7 +126,7 @@
             (select)="mapListService.onRowSelect($event)"
             [rowClass]="mapListService.getRowClass"
           >
-            <ngx-datatable-row-detail [rowHeight]="auto" #myDetailRow>
+            <ngx-datatable-row-detail rowHeight="auto" #myDetailRow>
               <ng-template let-row="row" let-expanded="expanded" ngx-datatable-row-detail-template>
                 <dl class="def-list-inline small">
                   <dt>1. Localisation</dt>

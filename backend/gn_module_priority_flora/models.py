@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from flask import g
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID, JSONB
@@ -11,17 +12,15 @@ from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable, geofileserializable
 
 from geonature.core.gn_meta.models import TDatasets
-from geonature.core.ref_geo.models import LAreas
+from ref_geo.models import LAreas
 from geonature.utils.env import db
 
 
-class PriorityFlora(db.Model):
+class ReprMixin(object):
     """
     Module DB master parent abstract class.
     Debug is more easy.
     """
-
-    __abstract__ = True
 
     def __repr__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
@@ -30,12 +29,10 @@ class PriorityFlora(db.Model):
         return str(self.__class__) + ": " + str(self.__dict__)
 
 
-class ZpCruvedAuth(PriorityFlora):
+class ZPAuthMixin(object):
     """
     Classe abstraite de contrôle d'accès à la donnée
     """
-
-    __abstract__ = True
 
     def user_is_observer(self, user):
         for obs in self.observers:
@@ -49,47 +46,45 @@ class ZpCruvedAuth(PriorityFlora):
                 return True
         return False
 
-    def user_is_allowed_to(self, user, level):
+    def has_instance_permission(self, scope):
         """
         Fonction permettant de dire si un utilisateur
         peu ou non agir sur une donnée
         """
         # Si l'utilisateur n'a pas de droit d'accès aux données
-        if level == "0" or level not in ("1", "2", "3"):
+        if scope == 0 or scope not in (1, 2, 3):
             return False
 
         # Si l'utilisateur à le droit d'accéder à toutes les données
-        if level == "3":
+        if scope == 3:
             return True
 
         # Si l'utilisateur est propriétaire de la données
-        if self.user_is_observer(user):
+        if self.user_is_observer(g.current_user):
             return True
 
         # Si l'utilisateur appartient à un organisme
         # qui a un droit sur la données et
         # que son niveau d'accès est 2 ou 3
-        if self.user_is_in_organism_of_zp(user) and level in ("2", "3"):
+        if self.user_is_in_organism_of_zp(g.current_user) and scope in (2, 3):
             return True
         return False
 
-    def get_model_cruved(self, user, user_cruved):
+    def get_instance_perms(self, scopes):
         """
-        Return the user's cruved for a model instance.
+        Return the user's perms for a model instance for each action.
         Use in the map-list interface to allow or not an action
         params:
-            - user : a TRole object
-            - user_cruved: object return by cruved_for_user_in_app(user)
+            - scopes:  the scope of the user for each action
         """
-        if not hasattr(user, "id_organism"):
-            raise Exception("Add id_organism to user parameter to use ZpCruvedAuth !")
         return {
-            action: self.user_is_allowed_to(user, level) for action, level in user_cruved.items()
+            action: self.has_instance_permission(scope)
+            for action, scope in scopes.items()
         }
 
 
 @serializable
-class CorApPerturbation(PriorityFlora):
+class CorApPerturbation(ReprMixin, db.Model):
     __tablename__ = "cor_ap_perturbation"
     __table_args__ = {"schema": "pr_priority_flora"}
 
@@ -113,14 +108,16 @@ class CorApPerturbation(PriorityFlora):
 cor_ap_physiognomy = db.Table(
     "cor_ap_physiognomy",
     db.Column("id_ap"),
-    db.Column("id_nomenclature", ForeignKey(TNomenclatures.id_nomenclature), primary_key=True),
+    db.Column(
+        "id_nomenclature", ForeignKey(TNomenclatures.id_nomenclature), primary_key=True
+    ),
     schema="pr_priority_flora",
 )
 
 
 @serializable
 @geoserializable
-class TApresence(PriorityFlora):
+class TApresence(ReprMixin, db.Model):
     __tablename__ = "t_apresence"
     __table_args__ = {"schema": "pr_priority_flora"}
 
@@ -177,7 +174,9 @@ class TApresence(PriorityFlora):
     )
     frequency_method = db.relationship(
         TNomenclatures,
-        primaryjoin=(TNomenclatures.id_nomenclature == id_nomenclature_frequency_method),
+        primaryjoin=(
+            TNomenclatures.id_nomenclature == id_nomenclature_frequency_method
+        ),
         foreign_keys=[id_nomenclature_frequency_method],
     )
     counting = db.relationship(
@@ -190,7 +189,9 @@ class TApresence(PriorityFlora):
         TNomenclatures,
         secondary=CorApPerturbation.__table__,
         primaryjoin=(CorApPerturbation.id_ap == id_ap),
-        secondaryjoin=(CorApPerturbation.id_nomenclature == TNomenclatures.id_nomenclature),
+        secondaryjoin=(
+            CorApPerturbation.id_nomenclature == TNomenclatures.id_nomenclature
+        ),
         foreign_keys=[CorApPerturbation.id_ap, CorApPerturbation.id_nomenclature],
     )
 
@@ -198,7 +199,9 @@ class TApresence(PriorityFlora):
         TNomenclatures,
         secondary=cor_ap_physiognomy,
         primaryjoin=(cor_ap_physiognomy.c.id_ap == id_ap),
-        secondaryjoin=(cor_ap_physiognomy.c.id_nomenclature == TNomenclatures.id_nomenclature),
+        secondaryjoin=(
+            cor_ap_physiognomy.c.id_nomenclature == TNomenclatures.id_nomenclature
+        ),
         foreign_keys=[cor_ap_physiognomy.c.id_ap, cor_ap_physiognomy.c.id_nomenclature],
     )
 
@@ -227,7 +230,7 @@ cor_zp_area = db.Table(
 
 
 @serializable
-class CorApArea(PriorityFlora):
+class CorApArea(ReprMixin, db.Model):
     __tablename__ = "cor_ap_area"
     __table_args__ = {"schema": "pr_priority_flora"}
 
@@ -245,7 +248,7 @@ class CorApArea(PriorityFlora):
 
 @serializable
 @geoserializable
-class TZprospect(ZpCruvedAuth):
+class TZprospect(ZPAuthMixin, ReprMixin, db.Model):
     __tablename__ = "t_zprospect"
     __table_args__ = {"schema": "pr_priority_flora"}
 
@@ -313,7 +316,7 @@ class TZprospect(ZpCruvedAuth):
 @serializable
 @geoserializable
 @geofileserializable
-class ExportAp(PriorityFlora):
+class ExportAp(ReprMixin, db.Model):
     __tablename__ = "export_ap"
     __table_args__ = {"schema": "pr_priority_flora"}
 
