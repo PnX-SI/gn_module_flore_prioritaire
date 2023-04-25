@@ -11,7 +11,7 @@ from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable, geofileserializable
 
 from geonature.core.gn_meta.models import TDatasets
-from geonature.core.ref_geo.models import LAreas
+from ref_geo.models import LAreas
 from geonature.utils.env import db
 
 

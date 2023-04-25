@@ -2,7 +2,7 @@ import datetime
 import json
 from operator import or_
 
-from flask import Blueprint, request
+from flask import Blueprint, request, g
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import FeatureCollection
 from shapely.geometry import asShape
@@ -12,8 +12,8 @@ from werkzeug.exceptions import BadRequest, Forbidden, InternalServerError, NotF
 from geonature.core.gn_meta.models import TDatasets
 from geonature.core.gn_permissions import decorators as permissions
 from geonature.core.gn_permissions.tools import cruved_scope_for_user_in_module
-from geonature.core.ref_geo.models import LAreas, BibAreasTypes
-from geonature.core.taxonomie.models import Taxref
+from ref_geo.models import LAreas, BibAreasTypes
+from apptax.taxonomie.models import Taxref
 from geonature.utils.env import db
 from pypnnomenclature.models import TNomenclatures
 from pypnusershub.db.models import User
@@ -36,9 +36,9 @@ blueprint = Blueprint("priority_flora", __name__)
 
 
 @blueprint.route("/prospect-zones", methods=["GET"])
-@permissions.check_cruved_scope("R", get_role=True, module_code=MODULE_CODE)
+@permissions.check_cruved_scope("R", get_scope=True, module_code=MODULE_CODE)
 @json_resp
-def get_prospect_zones(info_role):
+def get_prospect_zones(scope):
     """
     Retourne toutes les zones de prospection du module.
     """
@@ -46,32 +46,33 @@ def get_prospect_zones(info_role):
     page = int(parameters.get("page", 0))
     limit = int(parameters.get("limit", 100))
 
-    if info_role.value_filter == "0":
+    #TO CHECK : if 0 -> Forbidden déjà levée ?
+    if scope == 0:
         raise Forbidden("Vous n'avez pas les droits permettant de consulter cette ZP.")
 
     # TODO: use a dedicated web service for transfert this user cruved (?)
     user_cruved = cruved_scope_for_user_in_module(
-        id_role=info_role.id_role, module_code=MODULE_CODE
+        id_role=g.current_user.id_role, module_code=MODULE_CODE
     )
-    info_role.id_organism = (
-        db.session.query(User.id_organisme).filter(User.id_role == info_role.id_role).scalar()
+    g.current_user.id_organism = (
+        db.session.query(User.id_organisme).filter(User.id_role == g.current_user.id_role).scalar()
     )
 
     # Build query
     query = TZprospect.query
-    if info_role.value_filter == "2":
+    if scope == 2:
         query = query.filter(
             TZprospect.observers.any(
                 or_(
-                    User.id_role == info_role.id_role,
-                    User.id_organisme == info_role.id_organisme,
+                    User.id_role == g.current_user.id_role,
+                    User.id_organisme == g.current_user.id_organisme,
                 )
             )
         )
-    if info_role.value_filter == "1":
+    if scope == 1:
         query = query.filter(
             TZprospect.observers.any(
-                User.id_role == info_role.id_role,
+                User.id_role == g.current_user.id_role,
             )
         )
 
@@ -109,7 +110,7 @@ def get_prospect_zones(info_role):
                 "ap.id_ap",
             ],
         )
-        cruved_auth = d.get_model_cruved(info_role, user_cruved[0])
+        cruved_auth = d.get_model_cruved(g.current_user, user_cruved[0])
         feature["properties"]["rights"] = cruved_auth
         feature["properties"]["organisms_list"] = ", ".join(
             list(
@@ -153,7 +154,7 @@ def get_presence_areas():
     return FeatureCollection(features)
 
 
-def edit_prospect_zone(info_role, id_zp=None):
+def edit_prospect_zone(scope, id_zp=None):
     """
     Poste une nouvelle zone de prospection
     """
@@ -206,24 +207,24 @@ def edit_prospect_zone(info_role, id_zp=None):
 
     # Update or add prospect zone
     if "id_zp" in data:
-        if info_role.value_filter in ("0", "1", "2"):
-            if info_role.value_filter == "0":
+        if scope in (0, 1, 2):
+            if scope == 0:
                 check_cruved = False
             else:
                 query = db.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
-                if info_role.value_filter == "2":
+                if scope == 2:
                     query = query.filter(
                         TZprospect.observers.any(
                             or_(
-                                User.id_role == info_role.id_role,
-                                User.id_organisme == info_role.id_organisme,
+                                User.id_role == g.current_user.id_role,
+                                User.id_organisme == g.current_usetr.id_organisme,
                             )
                         )
                     )
                 if info_role.value_filter == "1":
                     query = query.filter(
                         TZprospect.observers.any(
-                            User.id_role == info_role.id_role,
+                            User.id_role == g.current_user.id_role,
                         )
                     )
                 check_cruved = db.session.query(query.exists()).scalar()
@@ -246,20 +247,20 @@ def edit_prospect_zone(info_role, id_zp=None):
 
 
 @blueprint.route("/prospect-zones", methods=["POST"])
-@permissions.check_cruved_scope("C", get_role=True, module_code=MODULE_CODE)
+@permissions.check_cruved_scope("C", get_scope=True, module_code=MODULE_CODE)
 @json_resp
-def add_prospect_zone(info_role):
-    return edit_prospect_zone(info_role)
+def add_prospect_zone(scope):
+    return edit_prospect_zone(scope)
 
 
 @blueprint.route("/prospect-zones/<int:id_zp>", methods=["PUT"])
-@permissions.check_cruved_scope("U", get_role=True, module_code=MODULE_CODE)
+@permissions.check_cruved_scope("U", get_scope=True, module_code=MODULE_CODE)
 @json_resp
-def update_prospect_zone(info_role, id_zp):
-    return edit_prospect_zone(info_role, id_zp)
+def update_prospect_zone(scope, id_zp):
+    return edit_prospect_zone(scope, id_zp)
 
 
-def edit_presence_area(info_role, id_ap=None):
+def edit_presence_area(scope, id_ap=None):
     """
     Édition d'une nouvelle aire de présence (ajout ou mise à jour).
     """
@@ -318,24 +319,24 @@ def edit_presence_area(info_role, id_ap=None):
             ap.physiognomies.append(item)
 
     if "id_ap" in data:
-        if info_role.value_filter in ("0", "1", "2"):
-            if info_role.value_filter == "0":
+        if scope in (0, 1, 2):
+            if scope == 0:
                 check_cruved = False
             else:
                 query = db.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
-                if info_role.value_filter == "2":
+                if scope == 2:
                     query = query.filter(
                         TZprospect.observers.any(
                             or_(
-                                User.id_role == info_role.id_role,
-                                User.id_organisme == info_role.id_organisme,
+                                User.id_role == g.current_user.id_role,
+                                User.id_organisme == g.current_user.id_organisme,
                             )
                         )
                     )
-                elif info_role.value_filter == "1":
+                elif scope == 1:
                     query = query.filter(
                         TZprospect.observers.any(
-                            User.id_role == info_role.id_role,
+                            User.id_role == g.current_user.id_role,
                         )
                     )
                 check_cruved = db.session.query(query.exists()).scalar()
@@ -358,21 +359,22 @@ def edit_presence_area(info_role, id_ap=None):
 
 
 @blueprint.route("/presence-areas", methods=["POST"])
-@permissions.check_cruved_scope("C", get_role=True, module_code=MODULE_CODE)
+@permissions.check_cruved_scope("C", get_scope=True, module_code=MODULE_CODE)
 @json_resp
-def add_presence_area(info_role):
-    return edit_presence_area(info_role)
+def add_presence_area(scope):
+    return edit_presence_area(scope)
 
 
 @blueprint.route("/presence-areas/<int:id_ap>", methods=["PUT"])
-@permissions.check_cruved_scope("U", get_role=True, module_code=MODULE_CODE)
+@permissions.check_cruved_scope("U", get_scope=True, module_code=MODULE_CODE)
 @json_resp
-def update_presence_area(info_role, id_ap):
-    return edit_presence_area(info_role, id_ap)
+def update_presence_area(scope, id_ap):
+    return edit_presence_area(scope, id_ap)
 
 
 @blueprint.route("/organisms", methods=["GET"])
 @json_resp
+@permissions.login_required
 def get_organisms():
     """
     Retourne la liste de tous les organismes présents
@@ -389,7 +391,7 @@ def get_organisms():
 
     if data:
         return [{"name": org[0], "id_organism": org[1]} for org in data]
-    raise NotFound("No organisms found !")
+    return []
 
 
 @blueprint.route("/municipalities", methods=["GET"])
@@ -410,7 +412,7 @@ def get_municipalities():
 
     if data:
         return [{"municipality": d[0], "id_area": d[1]} for d in data]
-    raise InternalServerError("An error occured !")
+    return []
 
 
 @blueprint.route("/prospect-zones/<int:id_zp>", methods=["GET"])
