@@ -58,7 +58,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.mapGpxColor = this.config['PRORITY_FLORA']['map_gpx_color'];
+    this.mapGpxColor = this.config['PRIORITY_FLORA']['map_gpx_color'];
     this.extractUrlParams();
     this.apForm = this.formService.initFormAp();
     this.storeService.setLeafletDraw();
@@ -257,7 +257,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onCancel(idZp) {
-    this.router.navigate([`${this.config['PRORITY_FLORA']['MODULE_URL']}/zps`, idZp, 'details']);
+    this.router.navigate([`${this.config['PRIORITY_FLORA']['MODULE_URL']}/zps`, idZp, 'details']);
   }
 
   onSubmit() {
@@ -304,7 +304,7 @@ export class ApAddComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.router.navigate([
-      `${this.config['PRORITY_FLORA']['MODULE_URL']}/zps`,
+      `${this.config['PRIORITY_FLORA']['MODULE_URL']}/zps`,
       this.storeService.zp.id,
       'details',
     ]);
