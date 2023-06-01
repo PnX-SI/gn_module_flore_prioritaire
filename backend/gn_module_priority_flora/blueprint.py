@@ -641,6 +641,7 @@ def get_stats():
         "prospections": statrepo.get_prospections(),
         "populations": statrepo.get_populations(),
         "habitats": statrepo.get_habitats(),
+        "calculations": statrepo.get_calculations(),
     }
 
     return prepare_output(data)

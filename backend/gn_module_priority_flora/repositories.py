@@ -246,7 +246,6 @@ class StatRepository:
         return output
 
     def get_populations(self):
-
         scinames_codes = self._get_scinames_code_subquery()
         municipalities = self._get_municipalities_subquery()
 
@@ -306,11 +305,10 @@ class StatRepository:
         output = [d._asdict() for d in data]
         return output
 
-    def get_habitats(self):
-
-        scinames_codes = self._get_scinames_code_subquery()
+    def _get_habitats_infos_query(self):
         habitat_type = self._get_habitat_type_subquery()
         perturbation_type = self._get_perturbation_type_subquery()
+        scinames_codes = self._get_scinames_code_subquery()
 
         TNomenclaturesHab = aliased(TNomenclatures)
 
@@ -364,31 +362,40 @@ class StatRepository:
             previous_date = func.cast(previous_datetime, Date)
             query = query.filter(TZprospect.date_min >= previous_date)
 
-        # Calculations
-        cte = query.cte("cte")
+        return query
+
+    def get_habitats(self):
+        query = self._get_habitats_infos_query()
+        data = query.all()
+        output = [d._asdict() for d in data]
+        return output
+
+    def get_calculations(self):
+        query = self._get_habitats_infos_query()
+        hab_infos = query.cte("hab_infos")
 
         threatened_stations = db.session.query(
-            func.sum(cte.c.area_ap).filter(cte.c.threat_level_code.in_(("2", "3")))
+            func.sum(hab_infos.c.area_ap).filter(hab_infos.c.threat_level_code.in_(("2", "3")))
         ).one()
 
         habitats_favorables = db.session.query(
-            func.sum(cte.c.area_ap).filter(cte.c.habitat_favorable.like("1"))
+            func.sum(hab_infos.c.area_ap).filter(hab_infos.c.habitat_favorable.like("1"))
         ).one()
 
         calculations_result = db.session.query(
-            func.count(func.distinct(cte.c.id_zp)).label("nb_stations"),
-            func.sum(cte.c.area_ap).label("area_presence"),
-            (threatened_stations / func.sum(cte.c.area_ap) * 100).label("threat_level"),
-            (habitats_favorables / func.sum(cte.c.area_ap) * 100).label("habitat_favorable"),
+            func.count(func.distinct(hab_infos.c.id_zp)).label("nb_stations"),
+            func.sum(hab_infos.c.area_ap).label("area_presence"),
+            (threatened_stations / func.sum(hab_infos.c.area_ap) * 100).label("threat_level"),
+            (habitats_favorables / func.sum(hab_infos.c.area_ap) * 100).label("habitat_favorable"),
         ).one()
 
-        calculations = {
-            "nbStations": calculations_result[0],
-            "areaPresence": calculations_result[1],
-            "threatLevel": calculations_result[2],
-            "habitatFavorable": calculations_result[3],
-        }
+        output = [
+            {
+                "nbStations": calculations_result[0],
+                "areaPresence": calculations_result[1],
+                "threatLevel": calculations_result[2],
+                "habitatFavorable": calculations_result[3],
+            }
+        ]
 
-        data = query.all()
-        output = [d._asdict() for d in data]
-        return output, calculations
+        return output
