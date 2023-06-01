@@ -1,26 +1,27 @@
+import json
+from datetime import datetime, date
+from operator import or_
+
+from flask import Blueprint, request
+from sqlalchemy import Date
+from sqlalchemy.dialects.postgresql import INTERVAL
+from sqlalchemy.sql.functions import concat
+from sqlalchemy.sql.expression import func, select
+from utils_flask_sqla.response import json_resp, to_json_resp, to_csv_resp
+from werkzeug.exceptions import BadRequest, Forbidden, InternalServerError, NotFound
+from geoalchemy2.shape import from_shape, to_shape
+from geojson import FeatureCollection
+from shapely.geometry import asShape
+
 from geonature.core.gn_meta.models import TDatasets
 from geonature.core.gn_permissions import decorators as permissions
 from geonature.core.gn_permissions.tools import cruved_scope_for_user_in_module
 from geonature.core.ref_geo.models import LAreas, BibAreasTypes
 from geonature.core.taxonomie.models import Taxref
 from geonature.utils.env import db
-
-from datetime import datetime, date
-import json
-from operator import or_
-from flask import Blueprint, request
-from geoalchemy2.shape import from_shape, to_shape
-from geojson import FeatureCollection
-from shapely.geometry import asShape
-from sqlalchemy import Date
-from sqlalchemy.dialects.postgresql import INTERVAL
-from sqlalchemy.sql.functions import concat
-from sqlalchemy.sql.expression import func, select
-from werkzeug.exceptions import BadRequest, Forbidden, InternalServerError, NotFound
 from pypnnomenclature.models import TNomenclatures
 from pypnusershub.db.models import User
 from pypnusershub.db.models import Organisme
-from utils_flask_sqla.response import json_resp, to_json_resp, to_csv_resp
 
 from gn_module_priority_flora import METADATA_CODE
 from .models import (
@@ -32,7 +33,7 @@ from .models import (
     CorApArea,
 )
 from .repositories import translate_exported_columns, get_export_headers, StatRepository
-
+from .utils import prepare_output
 
 blueprint = Blueprint("priority_flora", __name__)
 
@@ -546,14 +547,16 @@ def export_presence_areas():
                 computed_zp.append(ap["id_zp"])
                 prepared_zp = {
                     "geometry": ap["zp_geojson"],
-                    "properties": translate_exported_columns({
-                        "id_zp": ap["id_zp"],
-                        "sciname": ap["sciname"],
-                        "sciname_code": ap["sciname_code"],
-                        "date_min": ap["date_min"],
-                        "date_max": ap["date_max"],
-                        "observaters": ap["observaters"],
-                    })
+                    "properties": translate_exported_columns(
+                        {
+                            "id_zp": ap["id_zp"],
+                            "sciname": ap["sciname"],
+                            "sciname_code": ap["sciname_code"],
+                            "date_min": ap["date_min"],
+                            "date_max": ap["date_max"],
+                            "observaters": ap["observaters"],
+                        }
+                    ),
                 }
                 output_items.append(prepared_zp)
 
@@ -624,20 +627,20 @@ def get_stats():
     area_code = request.args.get("area-code")
     area_type = request.args.get("area-type")
     date_start = request.args.get("date-start", date.today())
-    years = request.args.get("nbr", 5)
+    years = request.args.get("years-nbr", 5)
 
     statrepo = StatRepository(
         cd_nom=cd_nom,
         area_code=area_code,
         area_type=area_type,
         date_start=date_start,
-        years=years
+        years=years,
     )
 
     data = {
         "prospections": statrepo.get_prospections(),
-        "populations" : statrepo.get_populations(),
-        "habitats" : statrepo.get_habitats()
-        }
+        "populations": statrepo.get_populations(),
+        "habitats": statrepo.get_habitats(),
+    }
 
-    return data
+    return prepare_output(data)
