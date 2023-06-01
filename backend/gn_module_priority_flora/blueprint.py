@@ -22,6 +22,7 @@ from geonature.utils.env import db
 from pypnnomenclature.models import TNomenclatures
 from pypnusershub.db.models import User
 from pypnusershub.db.models import Organisme
+from gn_conservation_backend_shared.webservices.io import prepare_output
 
 from gn_module_priority_flora import METADATA_CODE
 from .models import (
@@ -33,7 +34,7 @@ from .models import (
     CorApArea,
 )
 from .repositories import translate_exported_columns, get_export_headers, StatRepository
-from .utils import prepare_output
+
 
 blueprint = Blueprint("priority_flora", __name__)
 
