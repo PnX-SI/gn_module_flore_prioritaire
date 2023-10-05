@@ -106,7 +106,7 @@ class StatRepository:
                 .join(LAreas, LAreas.id_area == cor_zp_area.c.id_area)
                 .filter(
                     cor_zp_area.c.id_zp == TZprospect.id_zp,
-                    LAreas.id_type == func.ref_geo.get_id_area_type("DEP"),
+                    LAreas.id_type == func.ref_geo.get_id_area_type("COM"),
                 )
                 .group_by(cor_zp_area.c.id_zp)
             )
@@ -389,13 +389,11 @@ class StatRepository:
             (habitats_favorables / func.sum(hab_infos.c.area_ap) * 100).label("habitat_favorable"),
         ).one()
 
-        output = [
-            {
-                "nbStations": calculations_result[0],
-                "areaPresence": calculations_result[1],
-                "threatLevel": calculations_result[2],
-                "habitatFavorable": calculations_result[3],
-            }
-        ]
-
+        output = {
+            "nb_stations": calculations_result[0],
+            "area_presence": calculations_result[1],
+            "threat_level": calculations_result[2],
+            "habitat_favorable": calculations_result[3],
+        }
+        print(output)
         return output
