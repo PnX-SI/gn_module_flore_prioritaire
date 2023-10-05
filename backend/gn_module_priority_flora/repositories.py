@@ -395,5 +395,5 @@ class StatRepository:
             "threat_level": calculations_result[2],
             "habitat_favorable": calculations_result[3],
         }
-        print(output)
+
         return output
