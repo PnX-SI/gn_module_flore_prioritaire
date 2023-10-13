@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+##  [2.2.0] - 2023-10-13
+
 #### 🚀 Added
 
 - Added a right management of this module in a section of the installation documentation.
 - Added possibility to sort, select and rename export columns names.
+- Added new stats webservice for Conservation Strategy module.
 
 ### 🐛 Fixed
 
