@@ -10,6 +10,7 @@ import importlib
 from alembic import op
 from sqlalchemy.sql import text
 
+from geonature.utils.config import config
 from gn_module_priority_flora import METADATA_CODE, METADATA_NAME
 
 
@@ -19,10 +20,14 @@ down_revision = "acf3b4dbdbdc"  # create schema
 branch_labels = None
 depends_on = None
 
+DEFAULT_ID_DATASET = config["PRIORITY_FLORA"].default_id_dataset
+
 
 def upgrade():
     operations = text(
-        importlib.resources.read_text("gn_module_priority_flora.migrations.data", "metadata.sql")
+        importlib.resources.read_text(
+            "gn_module_priority_flora.migrations.data", "metadata.sql"
+        )
     )
 
     op.get_bind().execute(
@@ -41,17 +46,23 @@ def downgrade():
         WHERE id_source = pr_priority_flora.get_source_id()
         """
     )
-    op.execute(
-        """
+    op.get_bind.execute(
+        text(
+            """
         DELETE FROM pr_priority_flora.t_zprospect
-        WHERE id_dataset = pr_priority_flora.get_dataset_id()
-        """
+        WHERE id_dataset = :id_dataset
+        """,
+            {"id_dataset": DEFAULT_ID_DATASET},
+        )
     )
-    op.execute(
-        """
+    op.get_bind.execute(
+        text(
+            """
         DELETE FROM gn_meta.t_datasets
-        WHERE id_dataset = pr_priority_flora.get_dataset_id()
-        """
+        WHERE id_dataset = :id_dataset
+        """,
+            {"id_dataset": DEFAULT_ID_DATASET},
+        )
     )
     op.get_bind().execute(
         text(

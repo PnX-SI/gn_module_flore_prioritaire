@@ -12,6 +12,7 @@ from werkzeug.exceptions import BadRequest, Forbidden, InternalServerError, NotF
 from geonature.core.gn_meta.models import TDatasets
 from geonature.core.gn_permissions import decorators as permissions
 from geonature.core.gn_permissions.tools import get_scopes_by_action
+from geonature.utils.config import config
 from ref_geo.models import LAreas, BibAreasTypes
 from apptax.taxonomie.models import Taxref
 from geonature.utils.env import db
@@ -191,18 +192,12 @@ def edit_prospect_zone(scope, id_zp=None):
         data["date_max"] = data["date_min"]
 
     if "id_dataset" not in data or data["id_dataset"] == "":
-        dataset_code = METADATA_CODE
-        Dataset = (
-            db.session.query(TDatasets)
-            .filter(TDatasets.dataset_shortname == dataset_code)
-            .first()
-        )
-        if Dataset:
-            data["id_dataset"] = Dataset.id_dataset
+        id_dataset = config["PRIORITY_FLORA"]["default_id_dataset"]
+        dataset = TDatasets.query.get(id_dataset)
+        if dataset:
+            data["id_dataset"] = dataset.id_dataset
         else:
-            raise BadRequest(
-                f"Module dataset shortname '{dataset_code}' was not found !"
-            )
+            raise BadRequest(f"Id dataset '{id_dataset}' was not found !")
 
     # Create prospect zone object
     if id_zp is not None:

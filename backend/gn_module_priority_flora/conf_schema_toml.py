@@ -51,3 +51,4 @@ class GnModuleSchemaConf(Schema):
     )
     zoom = fields.Integer(load_default=10)
     map_gpx_color = fields.String(load_default="green")
+    default_id_dataset = fields.String(required=True)
