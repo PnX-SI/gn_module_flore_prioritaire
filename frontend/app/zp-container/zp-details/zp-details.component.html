@@ -24,90 +24,78 @@
       <h3 class="card-header">Consultation des aires de présence de la ZP {{ idZp }}</h3>
 
       <div class="card-body overflow-auto px-2">
-        <ul class="nav nav-tabs" role="tablist">
-          <li class="nav-item">
-            <a
-              id="nav-infos-general-tab"
-              class="nav-link active"
-              data-toggle="tab"
-              href="#infos-general"
-              role="tab"
-            >
+        <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+          <mat-tab>
+            <ng-template mat-tab-label>
               <mat-icon>info</mat-icon>
-              Informations Générales
-            </a>
-          </li>
-          <li class="nav-item">
-            <a
-              id="nav-infos-details-tab"
-              class="nav-link"
-              data-toggle="tab"
-              href="#infos-details"
-              role="tab"
-            >
-              <mat-icon>search</mat-icon>
+              Informations générales
+            </ng-template>
+            <div class="row row-sm">
+              <mat-list class="col-4">
+                <mat-list-item>
+                  <mat-icon matListItemIcon>tag</mat-icon>
+                  <div matListItemTitle> Identifiant </div> 
+                  <div matListItemLine> {{ storeService.zpProperties.id_zp }} </div> 
+                </mat-list-item>
+  
+                <mat-list-item>
+                  <mat-icon matListItemIcon>local_florist</mat-icon>
+                  <div matListItemTitle>Taxon</div>
+                  <div matListItemLine> {{ storeService.zpProperties?.taxonomy?.nom_complet }}</div>
+                </mat-list-item>
+              </mat-list>
+
+              <mat-list class="col-4">
+                <mat-list-item>
+                  <mat-icon matListItemIcon>event</mat-icon>
+                  <div matListItemTitle>Date</div>
+                  <div matListItemLine> {{ storeService.zpProperties.date_min | date: 'longDate':null:'fr' }}</div>
+                </mat-list-item>
+                
+                <mat-list-item>
+                  <mat-icon matListItemIcon>group_add</mat-icon>
+                  <div matListItemTitle>Observateur(s) </div>
+                  <div matListItemLine> 
+                      <span *ngFor="let obs of storeService.zpProperties?.observers; let index=index">
+                        {{ obs.nom_complet }}
+                        <span *ngIf="index != storeService.zpProperties?.observers.length -1" >, </span>
+                  </span>
+                  </div>
+                </mat-list-item>
+              </mat-list>
+            </div>
+          </mat-tab>
+          <mat-tab >
+            <ng-template mat-tab-label>
+              <mat-icon >search</mat-icon>
               Détails
-            </a>
-          </li>
-        </ul>
+            </ng-template>
+            <div class="tab-content m-2">
+              <mat-list>
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>signpost</mat-icon>
+                    <div matListItemTitle>Nom du site</div>
+                    <div matListItemLine> {{ storeService.zpProperties.id_zp }}</div>
+                  </mat-list-item>
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>map</mat-icon>
+                    <div matListItemTitle>Commune(s)</div>
+                    <div matListItemLine> 
+                      <span *ngFor="let area of storeService.zpProperties?.areas; let index=index">
+                        {{ area.area_name }}
+                        <span *ngIf="index != storeService.zpProperties?.areas.length -1" >, </span>
 
-        <div class="tab-content m-2">
-          <div
-            id="infos-general"
-            class="tab-pane active"
-            role="tabpanel"
-            aria-labelledby="nav-infos-general-tab"
-          >
-            <div class="mb-2">
-              <mat-icon class="h5">tag</mat-icon>
-              <b>Identifiant : </b>
-              {{ storeService.zpProperties.id_zp }}
-            </div>
+                      </span>
+                      <span *ngIf="storeService.zpProperties?.areas?.length == 0"> - </span>
 
-            <div class="mb-2">
-              <mat-icon class="h5">local_florist</mat-icon>
-              <b> Taxon : </b>
-              {{ storeService.zpProperties?.taxonomy?.nom_complet }}
+                    </div>
+                  </mat-list-item>
+              </mat-list>
+   
+     
             </div>
-
-            <div class="mb-2">
-              <mat-icon class="h5">event</mat-icon>
-              <b> Date : </b>
-              {{ storeService.zpProperties.date_min | date: 'longDate':null:'fr' }}
-            </div>
-
-            <div class="mb-2">
-              <mat-icon class="h5">group_add</mat-icon>
-              <b>Observateur(s) : </b>
-              <ul class="comma-list">
-                <li *ngFor="let obs of storeService.zpProperties?.observers">
-                  {{ obs.nom_complet }}
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div
-            id="infos-details"
-            class="tab-pane fade"
-            role="tabpanel"
-            aria-labelledby="nav-infos-details-tab"
-          >
-            <div class="mb-2">
-              <mat-icon class="h5">signpost</mat-icon>
-              <b> Nom du site : </b>
-              {{ storeService.zpProperties.id_zp }}
-            </div>
-
-            <div class="mb-2">
-              <mat-icon class="h5">map</mat-icon>
-              <b>Commune(s) : </b>
-              <ul class="comma-list">
-                <li *ngFor="let area of storeService.zpProperties?.areas">{{ area.area_name }}</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+          </mat-tab>
+        </mat-tab-group>
 
         <div class="mx-0 mb-0 mt-3">
           <ngx-datatable
