@@ -228,7 +228,7 @@ def edit_prospect_zone(scope, id_zp=None):
                             )
                         )
                     )
-                if info_role.value_filter == "1":
+                if scope == 1:
                     query = query.filter(
                         TZprospect.observers.any(
                             User.id_role == g.current_user.id_role,
