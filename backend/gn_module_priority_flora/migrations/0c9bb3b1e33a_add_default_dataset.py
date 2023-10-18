@@ -20,8 +20,6 @@ down_revision = "acf3b4dbdbdc"  # create schema
 branch_labels = None
 depends_on = None
 
-DEFAULT_ID_DATASET = config["PRIORITY_FLORA"].default_id_dataset
-
 
 def upgrade():
     operations = text(
@@ -40,6 +38,8 @@ def upgrade():
 
 
 def downgrade():
+    DEFAULT_ID_DATASET = config["PRIORITY_FLORA"].default_id_dataset
+
     op.execute(
         """
         DELETE FROM gn_synthese.t_sources
