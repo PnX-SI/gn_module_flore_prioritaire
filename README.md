@@ -7,9 +7,68 @@ Une liste d'espèces prioritaires est définie. Ces espèces sont prospectées s
 
 Pour chaque prospection d'une espèce, on note la *zone de prospection* (`ZP`) et les éventuelles *aires de présence* (`AP`).
 
-## Documentation
+## Instalation et configuration
 
-- [Installation et désinstallation du module](./docs/install.md)
+- Voir la doc GeoNature pour l'instalation d'un module : https://docs.geonature.fr/installation.html#installation-d-un-module-geonature
+
+- Créer le fichier de configuration du module comme expliquer ici : https://docs.geonature.fr/installation.html#configuration-du-module
+
+Pour créer des données d'exemple dans le module (jeux de données, cadre d'acquisition et liste de taxon), lancez la commande suivante :
+
+`geonature db upgrade priority_flora_sample@head`
+
+## Ajout du MNT (DEM)
+
+Ce module utilise le MNT pour déterminer les altitutdes minimum et maximum
+des aires de présence.
+
+Vous pouvez vérifier la présence du MNT dans la table : `ref_geo.dem`
+Si la table est vide, cela signifie que le MNT n'est pas installé.
+
+Pour ajouter le MNT *raster* à la base GeoNature utiliser la commande GeoNature suivante :
+```
+geonature db upgrade ign_bd_alti@head -x local-srid=<local-srid>
+```
+Remplacer `<local-srid>` par la valeur de votre SRID (généralement `2154`).
+Si vous ne le connaissez pas, regarder sa valeur au niveau du champ
+`ref_geo.l_areas.geom` de votre base de données.
+
+Si vous souhaiter augementer les performatnces du MNT, vous pouvez le vectoriser avec la commande :
+```
+geonature db upgrade ign_bd_alti_vector@head
+```
+
+## Réglage des droits
+
+Une fois le module installé, vous pouvez régler les droits du module pour votre groupe d'utilisateur :
+- Via le module *Admin* de GeoNature, accéder à l'interface d'administration des permissions (CRUVED).
+- Définissez les permissions suivant votre besoin. Voici un exemple :
+  - `C` (Créer) à `3` (Toutes les données)
+  - `R` (Lire) à `3` (Toutes les données)
+  - `U` (Mise à jour) à `2` (Les données de mon organisme)
+  - `E` (Export) à `3` (Toutes les données)
+  - `D` (Supprimer) à `1` (Mes données)
+
+
+
+## Désinstallation
+
+**⚠️ ATTENTION :** la désinstallation du module implique la suppression de toutes les données associées. Assurez vous d'avoir fait une sauvegarde de votre base de données au préalable.
+
+Suivez la procédure suivante :
+1. Rétrograder la base de données pour y enlever les données spécifiques au module :
+    ```bash
+    geonature db downgrade priority_flora@base
+    ```
+1. Désinstaller le package du virtual env :
+    ```
+    pip uninstall gn-module-priority-flora
+    ```
+    - Possibilité de voir le nom du module avec : `pip list`
+1. Supprimer la ligne relative au module dans `gn_commons.t_modules`
+1. Supprimer le lien symbolique du module dans les dossiers :
+    - `geonature/external_modules`
+    - `geonature/frontend/src/external_assets/`
 
 
 ## Licence

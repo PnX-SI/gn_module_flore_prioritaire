@@ -9,8 +9,8 @@ import importlib
 
 from alembic import op
 from sqlalchemy.sql import text
+from ref_geo.utils import get_local_srid
 
-from geonature.core.gn_commons.models import TParameters
 
 # revision identifiers, used by Alembic.
 revision = "acf3b4dbdbdc"
@@ -20,12 +20,7 @@ depends_on = None
 
 
 def upgrade():
-    local_srid = (
-        TParameters.query.filter_by(parameter_name="local_srid")
-        .with_entities(TParameters.parameter_value)
-        .one()
-        .parameter_value
-    )
+    local_srid = get_local_srid(op.get_bind())
     operations = text(
         importlib.resources.read_text("gn_module_priority_flora.migrations.data", "schema.sql")
     )

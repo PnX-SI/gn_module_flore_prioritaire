@@ -366,3 +366,25 @@ AS
   WHERE la.id_type = ref_geo.get_id_area_type('COM'::character varying)
   GROUP BY ta.id_ap, ta.id_zp, t.nom_complet, tz.cd_nom, tz.geom_local, tz.geom_4326, tz."area", tz.date_min, tz.date_max ;
 ;
+
+
+CREATE OR REPLACE FUNCTION pr_priority_flora.get_source_id()
+    RETURNS INTEGER
+    LANGUAGE plpgsql
+    IMMUTABLE
+AS
+$function$
+    -- Function that return the id of the Source (gn_synthese.t_sources) of this module.
+    -- USAGE: SELECT pr_priority_flora.get_source_id();
+    DECLARE
+        sourceId INTEGER;
+    BEGIN
+        SELECT id_source INTO sourceId
+        FROM gn_synthese.t_sources
+        JOIN gn_commons.t_modules using(id_module)
+        WHERE module_code = 'PRIORITY_FLORA'
+        LIMIT 1 ;
+
+        RETURN sourceId ;
+    END;
+$function$ ;

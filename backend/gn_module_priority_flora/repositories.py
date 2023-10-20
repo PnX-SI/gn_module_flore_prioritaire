@@ -3,8 +3,8 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql.functions import concat
 
 from geonature.utils.env import db
-from geonature.core.ref_geo.models import LAreas, BibAreasTypes
-from geonature.core.taxonomie.models import Taxref
+from ref_geo.models import LAreas, BibAreasTypes
+from apptax.taxonomie.models import Taxref
 from pypnusershub.db.models import User
 from pypnnomenclature.models import TNomenclatures
 

@@ -2,10 +2,12 @@ import { HttpParams } from '@angular/common/http';
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 import * as L from 'leaflet';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 
+import { ConfigService } from '@geonature/services/config.service';
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
 import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
@@ -14,7 +16,6 @@ import { ConfirmationDialog } from '@geonature_common/others/modal-confirmation/
 
 import { DataService } from '../services/data.service';
 import { StoreService } from '../services/store.service';
-import { ModuleConfig } from '../module.config';
 
 @Component({
   selector: 'gn-pf-map-list',
@@ -39,16 +40,17 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   constructor(
     public dialog: MatDialog,
     public mapService: MapService,
-    private mapListService: MapListService,
+    public mapListService: MapListService,
     public router: Router,
     public storeService: StoreService,
     private commonService: CommonService,
     public api: DataService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private config: ConfigService
   ) {}
 
   ngOnInit() {
-    this.displayColumns = ModuleConfig.datatable_zp_columns;
+    this.displayColumns = this.config['PRIORITY_FLORA']['datatable_zp_columns'];
     this.mapListService.idName = 'id_zp';
     this.center = this.storeService.fpConfig.zoom_center;
     this.zoom = this.storeService.fpConfig.zoom;
@@ -88,54 +90,66 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
   private setListenerOnYearFilter() {
     this.filtersForm.controls.filterYear.valueChanges
-      .filter(input => {
-        return input != null && input.toString().length === 4;
-      })
-      .subscribe(year => {
+      .pipe(
+        filter((input) => {
+          return input != null && input.toString().length === 4;
+        })
+      )
+      .subscribe((year) => {
         this.setQueryString('year', year.toString());
       });
 
     this.filtersForm.controls.filterYear.valueChanges
-      .filter(input => {
-        return input === null;
-      })
-      .subscribe(year => {
+      .pipe(
+        filter((input) => {
+          return input === null;
+        })
+      )
+      .subscribe((year) => {
         this.deleteQueryString('year');
       });
   }
 
   private setListenerOnOrganismFilter() {
     this.filtersForm.controls.filterOrga.valueChanges
-      .filter(select => {
-        return select !== null;
-      })
-      .subscribe(id_organism => {
+      .pipe(
+        filter((select) => {
+          return select !== null;
+        })
+      )
+      .subscribe((id_organism) => {
         this.setQueryString('id_organism', id_organism);
       });
 
     this.filtersForm.controls.filterOrga.valueChanges
-      .filter(input => {
-        return input === null;
-      })
-      .subscribe(id_organism => {
+      .pipe(
+        filter((input) => {
+          return input === null;
+        })
+      )
+      .subscribe((id_organism) => {
         this.deleteQueryString('id_organism');
       });
   }
 
   private setListenerOnMunicipalityFilter() {
     this.filtersForm.controls.filterCom.valueChanges
-      .filter(select => {
-        return select !== null;
-      })
-      .subscribe(id_area => {
+      .pipe(
+        filter((select) => {
+          return select !== null;
+        })
+      )
+      .subscribe((id_area) => {
         this.setQueryString('id_area', id_area);
       });
 
     this.filtersForm.controls.filterCom.valueChanges
-      .filter(input => {
-        return input === null;
-      })
-      .subscribe(id_area => {
+      .pipe(
+        filter((input) => {
+          return input === null;
+        })
+      )
+      .subscribe((id_area) => {
         this.deleteQueryString('id_area');
       });
   }
@@ -151,7 +165,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   }
 
   private loadData() {
-    this.api.getProspectZones(this.storeService.queryString).subscribe(data => {
+    this.api.getProspectZones(this.storeService.queryString).subscribe((data) => {
       this.nbZp = data.total;
       this.geojson = data.items;
       this.mapListService.loadTableData(data.items);
@@ -186,11 +200,11 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     this.map = this.mapService.getMap();
     this.addCustomControl();
 
-    this.api.getOrganisms().subscribe(orgs => {
+    this.api.getOrganisms().subscribe((orgs) => {
       this.organisms = orgs;
     });
 
-    this.api.getMunicipalities().subscribe(municipalities => {
+    this.api.getMunicipalities().subscribe((municipalities) => {
       this.municipalities = municipalities;
     });
   }
@@ -217,7 +231,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   onEachFeature(feature, layer) {
     this.mapListService.layerDict[feature.id] = layer;
     layer.on({
-      click: e => {
+      click: (e) => {
         this.mapListService.toggleStyle(layer);
         this.mapListService.mapSelected.next(feature.id);
       },
@@ -231,15 +245,15 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   }
 
   onAddZp() {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/zps`, 'add']);
+    this.router.navigate([`${this.config['PRIORITY_FLORA']['MODULE_URL']}/zps`, 'add']);
   }
 
   onEditZp(idZp) {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/zps`, idZp, 'edit']);
+    this.router.navigate([`${this.config['PRIORITY_FLORA']['MODULE_URL']}/zps`, idZp, 'edit']);
   }
 
   onInfo(idZp) {
-    this.router.navigate([`${ModuleConfig.MODULE_URL}/zps`, idZp, 'details']);
+    this.router.navigate([`${this.config['PRIORITY_FLORA']['MODULE_URL']}/zps`, idZp, 'details']);
   }
 
   onDeleteZp(idZp) {
@@ -250,21 +264,21 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       data: { message: msg },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.api.deleteProspectZone(idZp).subscribe(
-          data => {
-            this.filteredData = this.filteredData.filter(item => {
+          (data) => {
+            this.filteredData = this.filteredData.filter((item) => {
               return idZp !== item.id_zp;
             });
-            const filterFeature = this.geojson.features.filter(feature => {
+            const filterFeature = this.geojson.features.filter((feature) => {
               return idZp !== feature.properties.id_zp;
             });
             this.geojson['features'] = filterFeature;
             this.geojson = Object.assign({}, this.geojson);
             this.commonService.translateToaster('success', 'Releve.DeleteSuccessfully');
           },
-          error => {
+          (error) => {
             if (error.status === 403) {
               this.commonService.translateToaster('error', 'NotAllowed');
             } else {

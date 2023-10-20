@@ -16,10 +16,10 @@ ngx-datatable {
   overflow-y: auto;
 }
 // Datatable
-:host /deep/ .single-selection .datatable-body-row.active .datatable-row-group {
+:host ::ng-deep .single-selection .datatable-body-row.active .datatable-row-group {
   background-color: rgb(154, 217, 247) !important;
 }
-:host /deep/ .ngx-datatable.material .datatable-footer .page-count {
+:host ::ng-deep .ngx-datatable.material .datatable-footer .page-count {
   padding: 5px;
   line-height: 1.2;
   height: 40px;

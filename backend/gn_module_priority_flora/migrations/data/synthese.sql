@@ -344,7 +344,7 @@ $BODY$
       NEW.uuid_ap,
       prospectZone.uuid_zp,
       pr_priority_flora.get_source_id(),
-      gn_commons.get_id_module_bycode(:moduleCode),
+      gn_commons.get_id_module_bycode('PRIORITY_FLORA'),
       NEW.id_ap,
       prospectZone.id_dataset,
       ref_nomenclatures.get_id_nomenclature('NAT_OBJ_GEO','In'),
