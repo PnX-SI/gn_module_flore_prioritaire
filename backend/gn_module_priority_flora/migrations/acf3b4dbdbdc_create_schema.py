@@ -11,7 +11,6 @@ from alembic import op
 from sqlalchemy.sql import text
 from ref_geo.utils import get_local_srid
 
-from geonature.core.gn_commons.models import TParameters
 
 # revision identifiers, used by Alembic.
 revision = "acf3b4dbdbdc"

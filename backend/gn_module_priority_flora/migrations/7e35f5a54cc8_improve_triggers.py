@@ -80,25 +80,6 @@ def upgrade():
 def downgrade():
     op.execute(
         """
-        CREATE OR REPLACE FUNCTION pr_priority_flora.get_source_id()
-            RETURNS INTEGER
-            LANGUAGE plpgsql
-            IMMUTABLE
-        AS
-        $function$
-            -- Function that return the id of the Source (gn_synthese.t_sources) of this module.
-            -- USAGE: SELECT pr_priority_flora.get_source_id();
-            DECLARE
-                sourceId INTEGER;
-            BEGIN
-                SELECT id_source INTO sourceId
-                FROM gn_synthese.t_sources
-                WHERE name_source = :metadataName
-                LIMIT 1 ;
-
-                RETURN sourceId ;
-            END;
-        $function$ ;
 
 CREATE OR REPLACE FUNCTION pr_priority_flora.update_synthese_zp()
 RETURNS trigger AS

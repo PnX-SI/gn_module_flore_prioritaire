@@ -15,7 +15,7 @@ from gn_module_priority_flora import MODULE_CODE
 
 # revision identifiers, used by Alembic.
 revision = "d95854d81b68"
-down_revision = "0c9bb3b1e33a"  # add default dataset
+down_revision = "acf3b4dbdbdc"  # create schema
 branch_labels = None
 depends_on = None
 
@@ -34,7 +34,6 @@ def downgrade():
             """
             DELETE FROM gn_synthese.synthese
             WHERE id_module = gn_commons.get_id_module_bycode(:moduleCode)
-                AND id_dataset = pr_priority_flora.get_dataset_id()
             """
         ),
         {"moduleCode": MODULE_CODE},
@@ -60,3 +59,27 @@ def downgrade():
     op.execute("DROP FUNCTION pr_priority_flora.build_observers")
     op.execute("DROP FUNCTION pr_priority_flora.get_observers_ids")
     op.execute("DROP FUNCTION pr_priority_flora.get_taxon_name")
+
+
+    delete_taxonomy_list(MODULE_CODE)
+
+
+def delete_taxonomy_list(sciname_list_code):
+    operation = text(
+        """
+        -- Delete names list : taxonomie.bib_listes, taxonomie.cor_nom_liste, taxonomie.bib_noms
+        WITH names_deleted AS (
+            DELETE FROM taxonomie.cor_nom_liste WHERE id_liste IN (
+                SELECT id_liste FROM taxonomie.bib_listes
+                WHERE code_liste = :listCode
+            )
+            RETURNING id_nom
+        )
+        DELETE FROM taxonomie.bib_noms WHERE id_nom IN (
+            SELECT id_nom FROM names_deleted
+        );
+
+        DELETE FROM taxonomie.bib_listes WHERE code_liste = :listCode;
+        """
+    )
+    op.get_bind().execute(operation, {"listCode": sciname_list_code})

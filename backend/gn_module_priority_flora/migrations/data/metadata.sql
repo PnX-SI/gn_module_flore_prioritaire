@@ -1,49 +1,3 @@
------------------------------------------------------------------------
--- Utility functions
------------------------------------------------------------------------
-
-CREATE OR REPLACE FUNCTION pr_priority_flora.get_dataset_id()
-    RETURNS INTEGER
-    LANGUAGE plpgsql
-    IMMUTABLE
-AS
-$function$
-    -- Function that return the id of the Dataset (gn_meta.t_datasets) of this module.
-    -- USAGE: SELECT pr_priority_flora.get_dataset_id();
-    DECLARE
-        datasetId INTEGER;
-    BEGIN
-        SELECT id_dataset INTO datasetId
-        FROM gn_meta.t_datasets
-        WHERE dataset_shortname = :metadataCode
-        LIMIT 1 ;
-
-        RETURN datasetId ;
-    END;
-$function$ ;
-
-
-CREATE OR REPLACE FUNCTION pr_priority_flora.get_source_id()
-    RETURNS INTEGER
-    LANGUAGE plpgsql
-    IMMUTABLE
-AS
-$function$
-    -- Function that return the id of the Source (gn_synthese.t_sources) of this module.
-    -- USAGE: SELECT pr_priority_flora.get_source_id();
-    DECLARE
-        sourceId INTEGER;
-    BEGIN
-        SELECT id_source INTO sourceId
-        FROM gn_synthese.t_sources
-        WHERE name_source = :metadataName
-        LIMIT 1 ;
-
-        RETURN sourceId ;
-    END;
-$function$ ;
-
-
 ----------------------------------------------------------------------------------------------------
 -- Insertion du cadre d'acquisition dans t_acquisition_frameworks
 ----------------------------------------------------------------------------------------------------
@@ -58,7 +12,7 @@ INSERT INTO gn_meta.t_acquisition_frameworks (
     is_parent,
     acquisition_framework_start_date
 ) VALUES (
-    :metadataName,
+    'Bilan stationnel',
     'Cadre d''acquisition du module Priority Flora (aka Bilan Stationnel, Bilan Conservatoire Flore).',
     ref_nomenclatures.get_id_nomenclature('NIVEAU_TERRITORIAL', '4'),
     'flore, bilan stationnel, flore prioritaire',
@@ -74,7 +28,7 @@ INSERT INTO gn_meta.t_acquisition_frameworks (
 WITH pf_af_id AS (
     SELECT af.id_acquisition_framework
     FROM gn_meta.t_acquisition_frameworks AS af
-    WHERE af.acquisition_framework_name = :metadataName
+    WHERE af.acquisition_framework_name = 'Bilan stationnel'
     ORDER BY af.meta_create_date DESC
     LIMIT 1
 )
@@ -96,8 +50,8 @@ INSERT INTO gn_meta.t_datasets (
     meta_create_date
 ) VALUES (
     (SELECT id_acquisition_framework FROM pf_af_id),
-    'Observations de ' || :metadataName,
-    :metadataCode,
+    'Bilan stationnel' ,
+    'Bilan stationnel',
     'Données du module Priority Flora (aka Bilan Stationnel, Bilan Conservatoire Flore).',
     ref_nomenclatures.get_id_nomenclature('DATA_TYP', '1'),
     'flore, bilan stationnel, flore prioritaire',
@@ -112,14 +66,15 @@ INSERT INTO gn_meta.t_datasets (
     NOW()
 );
 
-----------------------------------------------------------------------------------------------------
--- Insertion de la source dans t_sources
-----------------------------------------------------------------------------------------------------
-
-INSERT INTO gn_synthese.t_sources (
-    name_source,
-    desc_source
+INSERT INTO taxonomie.bib_listes (
+  nom_liste,
+  desc_liste,
+  regne,
+  code_liste
 ) VALUES (
-    :metadataName,
-    'Données du module Priority Flora (aka Bilan Stationnel, Bilan Conservatoire Flore).'
-);
+  'Priority Flora',
+  'Liste de taxons pour le module Priority Flora.',
+  'Plantae',
+  'PRIORITY_FLORA'
+) ;
+
