@@ -21,7 +21,7 @@ from pypnusershub.db.models import User
 from pypnusershub.db.models import Organisme
 from utils_flask_sqla.response import json_resp, to_json_resp, to_csv_resp
 
-from gn_module_priority_flora import MODULE_CODE, METADATA_CODE
+from gn_module_priority_flora import MODULE_CODE
 from .models import (
     TZprospect,
     TApresence,
@@ -192,12 +192,7 @@ def edit_prospect_zone(scope, id_zp=None):
         data["date_max"] = data["date_min"]
 
     if "id_dataset" not in data or data["id_dataset"] == "":
-        id_dataset = config["PRIORITY_FLORA"]["default_id_dataset"]
-        dataset = TDatasets.query.get(id_dataset)
-        if dataset:
-            data["id_dataset"] = dataset.id_dataset
-        else:
-            raise BadRequest(f"Id dataset '{id_dataset}' was not found !")
+        raise BadRequest(f"Missing id_dataset")
 
     # Create prospect zone object
     if id_zp is not None:

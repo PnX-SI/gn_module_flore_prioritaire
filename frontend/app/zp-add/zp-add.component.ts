@@ -66,6 +66,7 @@ export class ZpAddComponent implements OnInit, AfterViewInit {
       date_min: [null, Validators.required],
       observers: [[], Validators.required],
       geom_4326: [null, Validators.required],
+      id_dataset: [null, Validators.required],
     });
   }
 
