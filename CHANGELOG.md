@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+##  [2.3.0]
+
+**🚀 Nouveautés**
+
+* Compatibilité avec GeoNature 2.13
+* Possibilité de choisir le JDD dans la création de  ZP
+* La création des JDD/CA/Liste de taxons se fait dans une branche alembic séparée (`priority_flora_sample`)
+* Le paramètre pour la liste des taxons n'est plus obligatoire. Par défaut, on interroge tout Taxref. On peut le restreindre via le paramètre `id_taxon_list`
+
+**🐛 Corrections**
+
+* Correction d'un bug de redirection causé par les "tab" bootstrap sur les fiche info des ZP et passage aux tabs Material
+
+**💻 Développement**
+
+* Le champs `id_source` utilisé dans les trigger est maintenant déduit du code du module (via `gn_synthese.t_sources`) et non du fichier `__init__.py`
+
+**⚠️ Notes de version**
+
+* Le paramètre `code_taxon_list` est renommé `id_taxon_list`, à remplir avec la clé primaire (`id_liste`) de la table `taxonomie.bib_listes`
+
+
+
+## [Unreleased]
+
 ##  [2.2.0] - 2023-10-13
 
 #### 🚀 Added
