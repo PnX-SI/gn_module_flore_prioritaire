@@ -1,13 +1,17 @@
-import datetime
 import json
+from datetime import datetime, date
 from operator import or_
 
 from flask import Blueprint, request, g
+from sqlalchemy import Date
+from sqlalchemy.dialects.postgresql import INTERVAL
+from sqlalchemy.sql.functions import concat
+from sqlalchemy.sql.expression import func, select
+from utils_flask_sqla.response import json_resp, to_json_resp, to_csv_resp
+from werkzeug.exceptions import BadRequest, Forbidden, InternalServerError, NotFound
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import FeatureCollection
 from shapely.geometry import asShape
-from sqlalchemy.sql.expression import func, select
-from werkzeug.exceptions import BadRequest, Forbidden, InternalServerError, NotFound
 
 from geonature.core.gn_meta.models import TDatasets
 from geonature.core.gn_permissions import decorators as permissions
@@ -19,18 +23,18 @@ from geonature.utils.env import db
 from pypnnomenclature.models import TNomenclatures
 from pypnusershub.db.models import User
 from pypnusershub.db.models import Organisme
-from utils_flask_sqla.response import json_resp, to_json_resp, to_csv_resp
+from gn_conservation_backend_shared.webservices.io import prepare_output
 
 from gn_module_priority_flora import MODULE_CODE
 from .models import (
     TZprospect,
     TApresence,
     ExportAp,
-    cor_zp_area,
     cor_zp_observer,
+    cor_zp_area,
     CorApArea,
 )
-from .repositories import translate_exported_columns, get_export_headers
+from .repositories import translate_exported_columns, get_export_headers, StatRepository
 
 
 blueprint = Blueprint("priority_flora", __name__)
@@ -623,3 +627,33 @@ def check_geom_a_contain_geom_b():
         )
     )
     return query.scalar()
+
+
+@blueprint.route("/stats", methods=["GET"])
+@permissions.check_cruved_scope("R", module_code="PRIORITY_FLORA")
+@json_resp
+def get_stats():
+
+    # Get request parameters
+    cd_nom = request.args.get("taxon-code")
+    area_code = request.args.get("area-code")
+    area_type = request.args.get("area-type")
+    date_start = request.args.get("date-start", date.today())
+    years = request.args.get("years-nbr", 5)
+
+    statrepo = StatRepository(
+        cd_nom=cd_nom,
+        area_code=area_code,
+        area_type=area_type,
+        date_start=date_start,
+        years=years,
+    )
+
+    data = {
+        "prospections": statrepo.get_prospections(),
+        "populations": statrepo.get_populations(),
+        "habitats": statrepo.get_habitats(),
+        "calculations": statrepo.get_calculations(),
+    }
+
+    return prepare_output(data)
