@@ -575,7 +575,7 @@ def export_presence_areas():
         output_items.append(prepared_ap)
 
     # Return data
-    file_name = datetime.datetime.now().strftime("%Y_%m_%d_%Hh%Mm%S")
+    file_name = datetime.now().strftime("%Y_%m_%d_%Hh%Mm%S")
     if export_format == "csv":
         headers = get_export_headers()
         return to_csv_resp(file_name, output_items, headers, ";")
