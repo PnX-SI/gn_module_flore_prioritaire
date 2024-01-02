@@ -374,6 +374,18 @@ class StatRepository:
         query = self._get_habitats_infos_query()
         hab_infos = query.cte("hab_infos")
 
+        calculations_query = db.session.query(
+            func.count(func.distinct(hab_infos.c.id_zp)).label("nb_stations"),
+            func.sum(hab_infos.c.area_ap).label("area_presence")
+        )
+
+        calculations_result = calculations_query.one()
+
+        output = {
+            "nb_stations": calculations_result[0],
+            "area_presence": calculations_result[1]
+        }
+
         threatened_stations = db.session.query(
             func.sum(hab_infos.c.area_ap).filter(hab_infos.c.threat_level_code.in_(("2", "3")))
         ).one()
@@ -382,18 +394,19 @@ class StatRepository:
             func.sum(hab_infos.c.area_ap).filter(hab_infos.c.habitat_favorable.like("1"))
         ).one()
 
-        calculations_result = db.session.query(
-            func.count(func.distinct(hab_infos.c.id_zp)).label("nb_stations"),
-            func.sum(hab_infos.c.area_ap).label("area_presence"),
-            (threatened_stations / func.sum(hab_infos.c.area_ap) * 100).label("threat_level"),
-            (habitats_favorables / func.sum(hab_infos.c.area_ap) * 100).label("habitat_favorable"),
-        ).one()
-
-        output = {
-            "nb_stations": calculations_result[0],
-            "area_presence": calculations_result[1],
-            "threat_level": calculations_result[2],
-            "habitat_favorable": calculations_result[3],
-        }
+        if threatened_stations[0] != 0 :
+            print(f"threatened_stations : {threatened_stations[0]}")
+            calculations_query.add_columns(
+                (threatened_stations[0] / func.sum(hab_infos.c.area_ap) * 100).label("threat_level")
+                )
+            calculations_result = calculations_query.one()
+            print(f"calculations_result : {calculations_result}")
+            output["threat_level"] = calculations_result[2]
+        if habitats_favorables[0] != 0 :
+            calculations_query.add_columns(
+                (habitats_favorables[0] / func.sum(hab_infos.c.area_ap) * 100).label("habitat_favorable")
+                )
+            calculations_result = calculations_query.one()
+            output["habitat_favorable"] = calculations_result[3]
 
         return output
