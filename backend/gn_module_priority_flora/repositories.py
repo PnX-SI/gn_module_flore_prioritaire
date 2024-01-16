@@ -318,12 +318,12 @@ class StatRepository:
                 TApresence.id_ap.label("id_ap"),
                 TApresence.id_zp.label("id_zp"),
                 TApresence.area.label("area_ap"),
-                TApresence.id_nomenclature_habitat.label("conservation_status"),
                 habitat_type.c.type_habitat.label("habitat_type"),
                 perturbation_type.c.type_perturbation.label("perturbation_type"),
                 TNomenclatures.label_default.label("threat_level"),
                 TNomenclatures.cd_nomenclature.label("threat_level_code"),
                 TNomenclaturesHab.cd_nomenclature.label("habitat_favorable"),
+                TNomenclaturesHab.label_default.label("conservation_status")
             )
             .outerjoin(TZprospect, TZprospect.id_zp == TApresence.id_zp)
             .outerjoin(CorApArea, CorApArea.id_ap == TApresence.id_ap)
