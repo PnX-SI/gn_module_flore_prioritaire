@@ -222,9 +222,7 @@ class StatRepository:
 
         # Filter with parameters
         if self.cd_nom:
-            query = query.filter(
-                and_(TZprospect.cd_nom == self.cd_nom, TZprospect.cd_nom.in_(scinames_codes))
-            )
+            query = query.filter(TZprospect.cd_nom.in_(scinames_codes))
 
         if self.area_code:
             query = query.filter(LAreas.area_code == self.area_code)
