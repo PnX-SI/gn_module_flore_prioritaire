@@ -21,12 +21,13 @@ class ReprMixin(object):
     Module DB master parent abstract class.
     Debug is more easy.
     """
+    pass
 
-    def __repr__(self):
-        return str(self.__class__) + ": " + str(self.__dict__)
+    # def __repr__(self):
+    #     return str(self.__class__) + ": " + str(self.__dict__)
 
-    def __str__(self):
-        return str(self.__class__) + ": " + str(self.__dict__)
+    # def __str__(self):
+    #     return str(self.__class__) + ": " + str(self.__dict__)
 
 
 class ZPAuthMixin(object):

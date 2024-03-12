@@ -59,16 +59,11 @@ def get_prospect_zones(scope):
     user_scopes = get_scopes_by_action(
         id_role=g.current_user.id_role, module_code=MODULE_CODE
     )
-    g.current_user.id_organism = (
-        db.session.query(User.id_organisme)
-        .filter(User.id_role == g.current_user.id_role)
-        .scalar()
-    )
 
     # Build query
-    query = TZprospect.query
+    query = select(TZprospect)
     if scope == 2:
-        query = query.filter(
+        query = query.where(
             TZprospect.observers.any(
                 or_(
                     User.id_role == g.current_user.id_role,
@@ -77,33 +72,33 @@ def get_prospect_zones(scope):
             )
         )
     if scope == 1:
-        query = query.filter(
+        query = query.where(
             TZprospect.observers.any(
                 User.id_role == g.current_user.id_role,
             )
         )
 
     if "id_zp" in parameters:
-        query = query.filter(TZprospect.id_zp == parameters["id_zp"])
+        query = query.where(TZprospect.id_zp == parameters["id_zp"])
 
     if "cd_nom" in parameters:
-        query = query.filter(TZprospect.taxonomy.has(cd_nom=parameters["cd_nom"]))
+        query = query.where(TZprospect.taxonomy.has(cd_nom=parameters["cd_nom"]))
 
     if "id_area" in parameters:
-        query = query.filter(TZprospect.areas.any(id_area=parameters["id_area"]))
+        query = query.where(TZprospect.areas.any(id_area=parameters["id_area"]))
 
     if "id_organism" in parameters:
-        query = query.filter(
+        query = query.where(
             TZprospect.observers.any(id_organisme=parameters["id_organism"])
         )
 
     if "year" in parameters:
-        query = query.filter(
+        query = query.where(
             func.date_part("year", TZprospect.date_min) == parameters["year"]
         )
 
-    filtered_number = query.count()
-    data = query.order_by(TZprospect.date_min.desc()).limit(limit).offset(page * limit)
+    filtered_number = db.session.scalar(select(func.count("*")).select_from(query))
+    data = db.session.scalars(query.order_by(TZprospect.date_min.desc()).limit(limit).offset(page * limit)).unique().all()
 
     features = []
     for d in data:
@@ -148,15 +143,18 @@ def get_presence_areas():
     page = int(parameters.get("page", 0))
     limit = int(parameters.get("limit", 100))
 
-    query = db.session.query(TApresence)
+    query = select(TApresence)
 
     if "id_zp" in parameters:
-        query = query.filter(TApresence.id_zp == parameters["id_zp"])
+        query = query.where(TApresence.id_zp == parameters["id_zp"])
 
     data = (
-        query.order_by(TApresence.meta_create_date.desc())
-        .limit(limit)
-        .offset(page * limit)
+        db.session.scalars(
+            query.order_by(TApresence.meta_create_date.desc())
+            .limit(limit)
+            .offset(page * limit)
+        )
+        .unique()
         .all()
     )
 
@@ -180,14 +178,14 @@ def edit_prospect_zone(scope, id_zp=None):
         data.pop("id_zp")
 
     # TODO: if no geom 4326 with POST send 400 BAD REQUEST
-    shape = None
+    new_shape = None
     if "geom_4326" in data:
-        shape = shape(data.pop("geom_4326"))
+        new_shape = shape(data.pop("geom_4326"))
 
     observers = None
     if "observers" in data:
         observers = data.pop("observers")
-        observers = db.session.query(User).filter(User.id_role.in_(observers)).all()
+        observers = db.session.scalars(select(User).where(User.id_role.in_(observers))).all()
 
     if "initial_insert" not in data:
         data["initial_insert"] = "web"
@@ -200,43 +198,21 @@ def edit_prospect_zone(scope, id_zp=None):
 
     # Create prospect zone object
     if id_zp is not None:
-        zp = db.session.query(TZprospect).filter_by(id_zp=id_zp).first()
+        zp = db.session.get(TZprospect, id_zp)
     else:
         zp = TZprospect(**data)
 
-    if shape is not None:
-        zp.geom_4326 = from_shape(shape, srid=4326)
+    if new_shape is not None:
+        zp.geom_4326 = from_shape(new_shape, srid=4326)
 
     if observers is not None:
         for o in observers:
             zp.observers.append(o)
 
     # Update or add prospect zone
-    if "id_zp" in data:
-        if scope in (0, 1, 2):
-            if scope == 0:
-                check_cruved = False
-            else:
-                query = db.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
-                if scope == 2:
-                    query = query.filter(
-                        TZprospect.observers.any(
-                            or_(
-                                User.id_role == g.current_user.id_role,
-                                User.id_organisme == g.current_usetr.id_organisme,
-                            )
-                        )
-                    )
-                if scope == 1:
-                    query = query.filter(
-                        TZprospect.observers.any(
-                            User.id_role == g.current_user.id_role,
-                        )
-                    )
-                check_cruved = db.session.query(query.exists()).scalar()
-
-            if not check_cruved:
-                raise Forbidden("Vous n'avez pas les droits pour éditer cette ZP.")
+    if zp:
+        if not zp.has_instance_permission(scope):
+            raise Forbidden("Vous n'avez pas les droits pour éditer cette ZP.")
 
         for key, value in data.items():
             if hasattr(zp, key):
@@ -278,9 +254,9 @@ def edit_presence_area(scope, id_ap=None):
         data.pop("id_ap")
 
     # TODO: if no geom 4326 with POST send 400 BAD REQUEST
-    shape = None
+    new_shape = None
     if "geom_4326" in data:
-        shape = shape(data.pop("geom_4326"))
+        new_shape = shape(data.pop("geom_4326"))
 
     perturbations = None
     if "perturbations" in data:
@@ -291,12 +267,12 @@ def edit_presence_area(scope, id_ap=None):
         physiognomies = data.pop("physiognomies")
 
     if id_ap is not None:
-        ap = db.session.query(TApresence).filter_by(id_ap=id_ap).first()
+        ap = db.session.get(TApresence, id_ap)
     else:
         ap = TApresence(**data)
 
-    if shape is not None:
-        ap.geom_4326 = from_shape(shape, srid=4326)
+    if new_shape is not None:
+        ap.geom_4326 = from_shape(new_shape, srid=4326)
 
     if perturbations is not None:
         ap_pertubations = (
@@ -325,30 +301,9 @@ def edit_presence_area(scope, id_ap=None):
             ap.physiognomies.append(item)
 
     if "id_ap" in data:
-        if scope in (0, 1, 2):
-            if scope == 0:
-                check_cruved = False
-            else:
-                query = db.session.query(TZprospect).filter_by(id_zp=data["id_zp"])
-                if scope == 2:
-                    query = query.filter(
-                        TZprospect.observers.any(
-                            or_(
-                                User.id_role == g.current_user.id_role,
-                                User.id_organisme == g.current_user.id_organisme,
-                            )
-                        )
-                    )
-                elif scope == 1:
-                    query = query.filter(
-                        TZprospect.observers.any(
-                            User.id_role == g.current_user.id_role,
-                        )
-                    )
-                check_cruved = db.session.query(query.exists()).scalar()
-
-            if not check_cruved:
-                raise Forbidden("Vous n'avez pas les droits pour éditer cette AP.")
+        zp = db.session.get(TZprospect, data["id_zp"])
+        if not zp.has_instance_permission(scope):
+            raise Forbidden("Vous n'avez pas les droits pour éditer cette AP.")
 
         for key, value in data.items():
             if hasattr(ap, key):
@@ -385,16 +340,18 @@ def get_organisms():
     """
     Retourne la liste de tous les organismes présents
     """
-    query = (
-        db.session.query(Organisme.nom_organisme, Organisme.id_organisme)
-        .distinct()
-        .join(User, Organisme.id_organisme == User.id_organisme)
-        .join(cor_zp_observer, cor_zp_observer.c.id_role == User.id_role)
-        .join(TZprospect, TZprospect.id_zp == cor_zp_observer.c.id_zp)
-        .order_by(Organisme.nom_organisme)
+    data = (
+        db.session.execute(
+            select(
+                Organisme.nom_organisme, Organisme.id_organisme
+        )
+            .distinct()
+            .join(User, Organisme.id_organisme == User.id_organisme)
+            .join(cor_zp_observer, cor_zp_observer.c.id_role == User.id_role)
+            .join(TZprospect, TZprospect.id_zp == cor_zp_observer.c.id_zp)
+            .order_by(Organisme.nom_organisme)
+        ).all()
     )
-    data = query.all()
-
     if data:
         return [{"name": org[0], "id_organism": org[1]} for org in data]
     return []
@@ -406,15 +363,16 @@ def get_municipalities():
     """
     Retourne toutes les communes présentes dans le module
     """
-    query = (
-        db.session.query(LAreas.area_name, LAreas.id_area)
-        .distinct()
-        .join(CorApArea, CorApArea.id_area == LAreas.id_area)
-        .join(BibAreasTypes, BibAreasTypes.id_type == LAreas.id_type)
-        .filter(BibAreasTypes.type_code == "COM")
-        .order_by(LAreas.area_name)
+    data = (
+        db.session.execute(
+            select(LAreas.area_name, LAreas.id_area)
+                .distinct()
+                .join(CorApArea, CorApArea.id_area == LAreas.id_area)
+                .join(BibAreasTypes, BibAreasTypes.id_type == LAreas.id_type)
+                .filter(BibAreasTypes.type_code == "COM")
+                .order_by(LAreas.area_name)
+        ).all()
     )
-    data = query.all()
 
     if data:
         return [{"municipality": d[0], "id_area": d[1]} for d in data]
@@ -425,76 +383,68 @@ def get_municipalities():
 @permissions.check_cruved_scope("R", module_code=MODULE_CODE)
 @json_resp
 def get_prospect_zone(id_zp):
-    zp = db.session.query(TZprospect).get(id_zp)
-    if zp:
-        return {
-            "aps": FeatureCollection(
-                [
-                    ap.get_geofeature(
-                        fields=[
-                            "incline",
-                            "habitat",
-                            "threat_level",
-                            "pheno",
-                            "frequency_method",
-                            "counting",
-                            "perturbations",
-                            "physiognomies",
-                        ]
-                    )
-                    for ap in zp.ap
-                ]
-            ),
-            "zp": zp.get_geofeature(
-                fields=["observers", "taxonomy", "areas", "areas.area_type"]
-            ),
-        }
-    raise NotFound(f"Prospect zone with ID {id_zp} not found !")
+    zp = db.session.get_or_404(TZprospect, id_zp)
+    return {
+        "aps": FeatureCollection(
+            [
+                ap.get_geofeature(
+                    fields=[
+                        "incline",
+                        "habitat",
+                        "threat_level",
+                        "pheno",
+                        "frequency_method",
+                        "counting",
+                        "perturbations",
+                        "physiognomies",
+                    ]
+                )
+                for ap in zp.ap
+            ]
+        ),
+        "zp": zp.get_geofeature(
+            fields=["observers", "taxonomy", "areas", "areas.area_type"]
+        ),
+    }
 
 
 @blueprint.route("/presence-areas/<int:id_ap>", methods=["GET"])
 @permissions.check_cruved_scope("R", module_code=MODULE_CODE)
 @json_resp
 def get_presence_area(id_ap):
-    ap = db.session.query(TApresence).get(id_ap)
-    if ap:
-        return ap.get_geofeature(
-            fields=[
-                "incline",
-                "habitat",
-                "threat_level",
-                "pheno",
-                "frequency_method",
-                "counting",
-                "perturbations",
-                "physiognomies",
-            ]
-        )
-    raise NotFound(f"Presence area with ID {id_ap} not found !")
+    ap = db.get_or_404(TApresence, id_ap)
+    return ap.get_geofeature(
+        fields=[
+            "incline",
+            "habitat",
+            "threat_level",
+            "pheno",
+            "frequency_method",
+            "counting",
+            "perturbations",
+            "physiognomies",
+        ]
+    )
 
 
 @blueprint.route("/prospect-zones/<int:id_zp>", methods=["DELETE"])
 @permissions.check_cruved_scope("D", module_code=MODULE_CODE)
 @json_resp
 def delete_prospect_zone(id_zp):
-    zp = db.session.query(TZprospect).get(id_zp)
-    if zp:
-        db.session.delete(zp)
-        db.session.commit()
-        return None, 204
-    raise NotFound(f"Prospect zone with ID {id_zp} not found !")
+    zp = db.get_or_404(TZprospect, id_zp)
+    db.session.delete(zp)
+    db.session.commit()
+    return None, 204
 
 
 @blueprint.route("/presence-areas/<int:id_ap>", methods=["DELETE"])
 @permissions.check_cruved_scope("D", module_code=MODULE_CODE)
 @json_resp
 def delete_presence_area(id_ap):
-    ap = db.session.query(TApresence).get(id_ap)
-    if ap:
-        db.session.delete(ap)
-        db.session.commit()
-        return None, 204
-    raise NotFound(f"Presence area with ID {id_ap} not found !")
+    ap = db.get_or_404(TApresence, id_ap)
+    db.session.delete(ap)
+    db.session.commit()
+    return None, 204
 
 
 @blueprint.route("/presence-areas/export", methods=["GET"])
@@ -510,35 +460,35 @@ def export_presence_areas():
     )
 
     # Build query and get data from db
-    query = db.session.query(ExportAp)
+    query = select(ExportAp)
 
     if "id_ap" in parameters:
-        query = query.filter(ExportAp.id_ap == parameters["id_ap"])
+        query = query.where(ExportAp.id_ap == parameters["id_ap"])
 
     if "id_zp" in parameters:
-        query = query.filter(ExportAp.id_zp == parameters["id_zp"])
+        query = query.where(ExportAp.id_zp == parameters["id_zp"])
 
     if "id_organism" in parameters:
-        query = query.join(TZprospect, TZprospect.id_zp == ExportAp.id_zp).filter(
+        query = query.join(TZprospect, TZprospect.id_zp == ExportAp.id_zp).where(
             TZprospect.observers.any(id_organisme=parameters["id_organism"])
         )
 
     if "id_area" in parameters:
-        query = query.join(cor_zp_area, cor_zp_area.c.id_zp == ExportAp.id_zp).filter(
+        query = query.join(cor_zp_area, cor_zp_area.c.id_zp == ExportAp.id_zp).where(
             cor_zp_area.c.id_area == parameters["id_area"]
         )
 
     if "year" in parameters:
-        query = query.filter(
+        query = query.where(
             func.date_part("year", ExportAp.date_min) == parameters["year"]
         )
 
     if "cd_nom" in parameters:
-        query = query.join(Taxref, Taxref.cd_nom == ExportAp.sciname_code).filter(
+        query = query.join(Taxref, Taxref.cd_nom == ExportAp.sciname_code).where(
             Taxref.cd_nom == parameters["cd_nom"]
         )
 
-    data = query.all()
+    data = db.session.scalars(query).unique().all()
 
     # Format data
     output_items = []
