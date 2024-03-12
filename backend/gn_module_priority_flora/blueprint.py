@@ -11,7 +11,7 @@ from utils_flask_sqla.response import json_resp, to_json_resp, to_csv_resp
 from werkzeug.exceptions import BadRequest, Forbidden, InternalServerError, NotFound
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import FeatureCollection
-from shapely.geometry import asShape
+from shapely.geometry import shape
 
 from geonature.core.gn_meta.models import TDatasets
 from geonature.core.gn_permissions import decorators as permissions
@@ -182,7 +182,7 @@ def edit_prospect_zone(scope, id_zp=None):
     # TODO: if no geom 4326 with POST send 400 BAD REQUEST
     shape = None
     if "geom_4326" in data:
-        shape = asShape(data.pop("geom_4326"))
+        shape = shape(data.pop("geom_4326"))
 
     observers = None
     if "observers" in data:
@@ -280,7 +280,7 @@ def edit_presence_area(scope, id_ap=None):
     # TODO: if no geom 4326 with POST send 400 BAD REQUEST
     shape = None
     if "geom_4326" in data:
-        shape = asShape(data.pop("geom_4326"))
+        shape = shape(data.pop("geom_4326"))
 
     perturbations = None
     if "perturbations" in data:
