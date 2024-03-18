@@ -43,7 +43,7 @@ class GnModuleSchemaConf(Schema):
         fields.String(),
         load_default=export_available_format,
     )
-    observers_list_code = fields.String(load_default="PRIORITY_FLORA")
+    observers_list_code = fields.String(load_default="OFS")
     taxons_list_code = fields.String()
     zoom_center = fields.List(
         fields.Float(),

@@ -210,7 +210,7 @@ def edit_prospect_zone(scope, id_zp=None):
             zp.observers.append(o)
 
     # Update or add prospect zone
-    if zp:
+    if zp.id_zp is not None:
         if not zp.has_instance_permission(scope):
             raise Forbidden("Vous n'avez pas les droits pour éditer cette ZP.")
 
@@ -383,7 +383,7 @@ def get_municipalities():
 @permissions.check_cruved_scope("R", module_code=MODULE_CODE)
 @json_resp
 def get_prospect_zone(id_zp):
-    zp = db.session.get_or_404(TZprospect, id_zp)
+    zp = db.get_or_404(TZprospect, id_zp)
     return {
         "aps": FeatureCollection(
             [
