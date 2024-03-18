@@ -99,12 +99,6 @@ class CorApPerturbation(ReprMixin, db.Model):
     )
     effective_presence = db.Column(db.Boolean)
 
-    t_nomenclature = db.relationship(
-        TNomenclatures,
-        primaryjoin=id_nomenclature == TNomenclatures.id_nomenclature,
-        foreign_keys=[id_nomenclature],
-    )
-
 
 cor_ap_physiognomy = db.Table(
     "cor_ap_physiognomy",
