@@ -31,7 +31,7 @@ datatable_ap_messages = {
 export_available_format = ["csv", "geojson"]
 
 # Code of observers list used in the module
-observers_list_code = "PRIORITY_FLORA"
+observers_list_code = "OFS"
 
 # ID of taxons list used in the module (not mandatory - default to all Taxref)
 id_taxon_list = <ID_TAXON_LIST>
