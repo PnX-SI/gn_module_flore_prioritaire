@@ -66,6 +66,18 @@ INSERT INTO gn_meta.t_datasets (
     NOW()
 );
 
+----------------------------------------------------------------------------------------------------
+-- Liaison entre le jeu de données et le module
+----------------------------------------------------------------------------------------------------
+INSERT INTO gn_commons.cor_module_dataset (
+  id_module,
+  id_dataset
+) VALUES (
+  gn_commons.get_id_module_bycode('PRIORITY_FLORA'),
+  (SELECT id_dataset FROM gn_meta.t_datasets WHERE dataset_name ilike 'Bilan Stationnel')
+);
+
+
 INSERT INTO taxonomie.bib_listes (
   nom_liste,
   desc_liste,

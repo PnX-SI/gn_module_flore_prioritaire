@@ -51,6 +51,14 @@ def downgrade():
             WHERE acquisition_framework_name = 'Bilan stationnel'
             """
         )
+    op.execute(
+            """
+            DELETE FROM gn_commons.cor_module_dataset
+            WHERE id_dataset = (
+                SELECT id_dataset FROM gn_meta.t_datasets WHERE dataset_name like 'Bilan Stationnel'
+                )
+            """
+        )
     delete_taxonomy_list(MODULE_CODE)
 
 
