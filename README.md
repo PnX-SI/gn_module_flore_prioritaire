@@ -7,7 +7,7 @@ Une liste d'espèces prioritaires est définie. Ces espèces sont prospectées s
 
 Pour chaque prospection d'une espèce, on note la *zone de prospection* (`ZP`) et les éventuelles *aires de présence* (`AP`).
 
-## Instalation et configuration
+## Installation et configuration
 
 - Voir la doc GeoNature pour l'instalation d'un module : https://docs.geonature.fr/installation.html#installation-d-un-module-geonature
 
@@ -49,7 +49,20 @@ Une fois le module installé, vous pouvez régler les droits du module pour votr
   - `E` (Export) à `3` (Toutes les données)
   - `D` (Supprimer) à `1` (Mes données)
 
+## Association du jeu de données à un/des acteur-s
 
+Soit via l'interface du module "Métadonnées", soit via la table "gn_meta.cor_dataset_actor".
+
+## Associer d'une liste d'utilisateurs pour créer des ZP & AP
+
+Renseigner le paramètre "observers_list_code" qui par défaut prend la valeur "OFS" (Observateurs Flore Sentinelle).
+Renseigner la table de correspondance "cor_role"liste" pour associer des utilisateurs à cette liste.
+
+## Charger les communes pour que le filtre par commune fonctionne
+Si vous souhaitez filtrer les données par communes, il faut que votre base de données dispose des communes de France, vous pouvez les récupérer avec la commande : 
+```
+geonature db upgrade ref_geo_fr_municipalities@head
+```
 
 ## Désinstallation
 
