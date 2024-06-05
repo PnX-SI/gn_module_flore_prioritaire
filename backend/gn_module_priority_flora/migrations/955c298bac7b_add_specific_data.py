@@ -68,7 +68,8 @@ def copy_from_csv(
             f"""
         INSERT INTO {schema}.{final_table}{final_table_cols}
           SELECT {source_cols}
-            FROM {schema}.{table};
+            FROM {schema}.{table}
+        ON CONFLICT DO NOTHING;
         """
         )
         op.drop_table(table, schema=schema)
