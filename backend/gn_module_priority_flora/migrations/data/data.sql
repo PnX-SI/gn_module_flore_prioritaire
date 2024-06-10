@@ -13,9 +13,9 @@ WHERE module_code = 'PRIORITY_FLORA' ;
 INSERT INTO gn_synthese.t_sources
 (name_source, desc_source, entity_source_pk_field, id_module)
 VALUES(
-  'Bilan stationnel v2',
+  'Bilan stationnel v2', 
   'Données issues du module bilan stationnel v2',
-  'pr_priority_flora.t_apresence.id_zp',
+  'pr_priority_flora.t_apresence.id_zp', 
   (select id_module FROM gn_commons.t_modules where module_code = 'PRIORITY_FLORA')
 );
 
@@ -38,8 +38,7 @@ INSERT INTO ref_nomenclatures.bib_nomenclatures_types (
   'Type de pentes',
   'Nomenclatures des types de pentes.',
   'PNE'
-)
-ON CONFLICT DO NOTHING;
+);
 
 
 ------------------------------------------------------------------------
@@ -60,8 +59,7 @@ INSERT INTO ref_nomenclatures.bib_nomenclatures_types (
   'Type de physionomie',
   'Nomenclature des physionomies.',
   'CBNA'
-)
-ON CONFLICT DO NOTHING;
+);
 
 
 ------------------------------------------------------------------------
@@ -82,8 +80,7 @@ INSERT INTO ref_nomenclatures.bib_nomenclatures_types (
   'Type d''état d''habitat',
   'Nomenclature des type d''états d''habitat',
   'CBNA'
-)
-ON CONFLICT DO NOTHING;
+);
 
 
 ------------------------------------------------------------------------
@@ -104,8 +101,7 @@ INSERT INTO ref_nomenclatures.bib_nomenclatures_types (
   'Niveau de menace',
   'Nomenclature des niveaux de menace ou perturbation d''une aire de présence.',
   'CBNA'
-)
-ON CONFLICT DO NOTHING;
+);
 
 
 ------------------------------------------------------------------------
@@ -126,8 +122,7 @@ INSERT INTO ref_nomenclatures.bib_nomenclatures_types (
   'Type de phénologies',
   'Nomenclatures des types de phénologies.',
   'CBNA'
-)
-ON CONFLICT DO NOTHING;
+);
 
 
 ------------------------------------------------------------------------
@@ -148,8 +143,7 @@ INSERT INTO ref_nomenclatures.bib_nomenclatures_types (
   'Méthode de la fréquence',
   'Méthode utilisée pour calculer la fréquence.',
   'CBNA'
-)
-ON CONFLICT DO NOTHING;
+);
 
 
 ------------------------------------------------------------------------
@@ -170,6 +164,5 @@ INSERT INTO ref_nomenclatures.bib_nomenclatures_types (
   'Type de comptage',
   'Nomenclature des types de comptage des taxons présent dans une surface donnée.',
   'CBNA'
-)
-ON CONFLICT DO NOTHING;
+);
 

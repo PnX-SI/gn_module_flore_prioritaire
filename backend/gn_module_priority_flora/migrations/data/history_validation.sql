@@ -13,9 +13,7 @@ INSERT INTO gn_commons.bib_tables_location (
   't_zprospect',
   'id_zp',
   'uuid_zp'
-)
-ON CONFLICT DO NOTHING;
-
+);
 
 INSERT INTO gn_commons.bib_tables_location (
   table_desc,
@@ -29,8 +27,7 @@ INSERT INTO gn_commons.bib_tables_location (
   't_apresence',
   'id_ap',
   'uuid_ap'
-)
-ON CONFLICT DO NOTHING;
+);
 
 
 ------------------------------------------------------------------------
