@@ -7,32 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-##  [2.3.0]
+## [2.3.0] - 2024-07-02
 
-**🚀 Nouveautés**
+#### 🚀 Added
 
-* Compatibilité avec GeoNature 2.13
-* Possibilité de choisir le JDD dans la création de  ZP
-* La création des JDD/CA/Liste de taxons se fait dans une branche alembic séparée (`priority_flora_sample`)
-* Le paramètre pour la liste des taxons n'est plus obligatoire. Par défaut, on interroge tout Taxref. On peut le restreindre via le paramètre `id_taxon_list`
+- Compatibility with GeoNature 2.14
+- Possibility to choose the dataset when creating prospection zone (ZP)
+- Datasets, acquisition frameworks and taxon list created in a separate alembic branch (`priority_flora_sample`)
+- The taxon list parameter is no longer mandatory. By default, Taxref is queried. You can restrict it via the `id_taxon_list` parameter.
+- Add link between module and dataset on `priority_flora_sample` branch
 
-**🐛 Corrections**
+### 🐛 Fixed
 
-* Correction d'un bug de redirection causé par les "tab" bootstrap sur les fiche info des ZP et passage aux tabs Material
+- Fixed a redirection bug caused by bootstrap "tabs" on ZP info sheets and switched to tabs Material
 
-**💻 Développement**
+### 🔄 Changed
 
-* Le champs `id_source` utilisé dans les trigger est maintenant déduit du code du module (via `gn_synthese.t_sources`) et non du fichier `__init__.py`
+- Update `observers_list_code` default name to 'OFS'
+- Update `README`
 
-**⚠️ Notes de version**
+### 💻 Developpement
 
-* Le paramètre `code_taxon_list` est renommé `id_taxon_list`, à remplir avec la clé primaire (`id_liste`) de la table `taxonomie.bib_listes`
+- The `id_source` field used in triggers is now deduced from the module code (via `gn_synthese.t_sources`) and not from the `__init__.py` file.
 
+### ⚠️ Release notes
 
+- The parameter `taxon_code_list` is renamed `taxon_id_list`, to be filled with the primary key (`id_list`) of the table `taxonomy.bib_lists`.
 
-## [Unreleased]
-
-##  [2.2.0] - 2023-10-13
+## [2.2.0] - 2023-10-13
 
 #### 🚀 Added
 
@@ -53,8 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - In the ZP map list view, the taxon filter tooltip is now displayed above the filter.
 - In the ZP details view, in expanded line section of the AP details, `NA` is displayed if no counting is being done.
-- In the AP form view, the percentage label is dynamically changed from "Estimated frequency in %" to  "Computed frequency in %" when the frequency method value is "Transect".
-- Changed Prettier config. Trailing comma is not removed  when compatible with ES5.
+- In the AP form view, the percentage label is dynamically changed from "Estimated frequency in %" to "Computed frequency in %" when the frequency method value is "Transect".
+- Changed Prettier config. Trailing comma is not removed when compatible with ES5.
 - Reformatted all frontend source code files with Prettier.
 - Reformatted all backend source code files with Black.
 - GeoJson export includes ZP geometries.
