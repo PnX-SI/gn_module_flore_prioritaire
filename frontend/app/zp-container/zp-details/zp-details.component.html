@@ -340,7 +340,7 @@
             <pnx-modal-download
               *ngIf="mapListService.tableData.length > 0"
               labelButton="Télécharger ces aires de présence"
-              [pathDownload]="storeService.urlLoad"
+              [pathDownload]="storeService.urlApLoad"
               [exportFormat]="storeService.fpConfig.export_available_format"
               [queryString]="storeService.queryString"
             >
