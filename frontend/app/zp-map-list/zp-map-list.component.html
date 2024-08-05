@@ -204,8 +204,17 @@
       <div class="row">
         <div class="col">
           <pnx-modal-download
+            labelButton="Télécharger ces zones de prospection"
+            [pathDownload]="storeService.urlZpLoad"
+            [exportFormat]="storeService.fpConfig.export_available_format"
+            [queryString]="storeService.queryString"
+          >
+          </pnx-modal-download>
+        </div>
+        <div class="col">
+          <pnx-modal-download
             labelButton="Télécharger ces aires de présence"
-            [pathDownload]="storeService.urlLoad"
+            [pathDownload]="storeService.urlApLoad"
             [exportFormat]="storeService.fpConfig.export_available_format"
             [queryString]="storeService.queryString"
           >

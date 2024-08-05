@@ -298,9 +298,9 @@ WHEN (OLD.geom_4326 IS DISTINCT FROM NEW.geom_4326)
 EXECUTE PROCEDURE pr_priority_flora.edit_ap();
 
 
-------------------------------------
--- Vue: Création de la vue d'export
-------------------------------------
+-------------------------------------------
+-- Vue: Création de la vue d'export des AP
+-------------------------------------------
 
 CREATE OR REPLACE VIEW pr_priority_flora.export_ap
 AS
@@ -310,7 +310,7 @@ AS
     tz.cd_nom AS sciname_code,
     tz.date_min AS date_min,
     tz.date_max AS date_max,
-    string_agg(DISTINCT (roles.prenom_role || ' ' || roles.nom_role || ' (' || bo.nom_organisme || ')'), ', ') AS observaters,
+    string_agg(DISTINCT (roles.prenom_role || ' ' || roles.nom_role || ' (' || bo.nom_organisme || ')'), ', ') AS observers,
     tz.geom_local AS zp_geom_local,
     public.ST_AsGeoJSON(tz.geom_4326) AS zp_geojson,
     tz."area" AS zp_surface,

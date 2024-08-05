@@ -21,7 +21,7 @@ from .models import (
 )
 
 
-def get_export_mapping_columns():
+def get_ap_export_mapping_columns():
     # Use this dictionary to define export columns order.
     # Change value to redefine or translate the exported column name.
     # Remove item to remove column from the export.
@@ -31,7 +31,7 @@ def get_export_mapping_columns():
         "sciname_code": "cd_nom",
         "date_min": "date_min",
         "date_max": "date_max",
-        "observaters": "observers",
+        "observers": "observers",
         "zp_surface": "zp_surface",
         "zp_geom_local": "zp_geom_local",
         "id_ap": "id_ap",
@@ -56,12 +56,47 @@ def get_export_mapping_columns():
     }
 
 
-def get_export_headers():
-    return get_export_mapping_columns().values()
+def get_zp_export_mapping_columns():
+    # Use this dictionary to define export columns order.
+    # Change value to redefine or translate the exported column name.
+    # Remove item to remove column from the export.
+    return {
+        "id_zp": "id_zp",
+        "sciname": "taxon",
+        "sciname_code": "cd_nom",
+        "date_min": "date_min",
+        "date_max": "date_max",
+        "observers": "observateurs",
+        "zp_geom_local": "zp_geom_local",
+        "zp_geom_4326": "zp_geom_4326",
+        "zp_geom_point_4326": "zp_geom_point_4326",
+        "zp_geojson": "zp_geojson",
+        "zp_surface": "zp_surface",
+        "municipalities": "communes",
+    }
 
 
-def translate_exported_columns(data):
-    mapping_columns = get_export_mapping_columns()
+def get_ap_export_headers():
+    return get_ap_export_mapping_columns().values()
+
+
+def get_zp_export_headers():
+    return get_zp_export_mapping_columns().values()
+
+def translate_ap_exported_columns(data):
+    return _translate_exported_columns(data, "AP")
+
+def translate_zp_exported_columns(data):
+    return _translate_exported_columns(data, "ZP")
+
+
+def _translate_exported_columns(data, type):
+    if "AP" == type :
+        mapping_columns = get_ap_export_mapping_columns()
+    elif "ZP" == type :
+        mapping_columns = get_zp_export_mapping_columns()
+    else:
+        raise Exception("Only AP or ZP mapping columns exist")
     translated_sorted_data = dict(
         (column_name, data[field])
         for (field, column_name) in mapping_columns.items()

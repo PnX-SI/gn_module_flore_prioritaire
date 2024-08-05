@@ -9,10 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### 🚀 Added
 
-- Compatibility with GeoNature 2.13
+- Compatibility with GeoNature 2.14
 - Possibility of choosing the Dataset in the creation of ZP.
 - Creation of datasets, acquisitions frameworks and taxa list is done in a separate Alembic branch (`priority_flora_sample`)
 - The parameter for the list of taxa is no longer mandatory. By default, we query all Taxref. It can be restricted via the `id_taxon_list` parameter.
+- Possibility to export prospect zones separately from presence areas
 
 ### 🐛 Fixed
 
@@ -23,13 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The field `id_source` used in trigger previously get from `__init__.py` is now get from module source code (via `gn_synthese.t_sources`).
 - ⚠️ `code_taxon_list` parameter renamed `id_taxon_list` now, must be set with a value of the primary key (`id_liste`) of `taxonomie.bib_listes` table.
 
-
 ## [2.2.1] - 2023-11-15
 
 ### 🐛 Fixed
 
 - Fixed use of datetime in export web service
-
 
 ## [2.2.0] - 2023-10-13
 
@@ -52,8 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - In the ZP map list view, the taxon filter tooltip is now displayed above the filter.
 - In the ZP details view, in expanded line section of the AP details, `NA` is displayed if no counting is being done.
-- In the AP form view, the percentage label is dynamically changed from "Estimated frequency in %" to  "Computed frequency in %" when the frequency method value is "Transect".
-- Changed Prettier config. Trailing comma is not removed  when compatible with ES5.
+- In the AP form view, the percentage label is dynamically changed from "Estimated frequency in %" to "Computed frequency in %" when the frequency method value is "Transect".
+- Changed Prettier config. Trailing comma is not removed when compatible with ES5.
 - Reformatted all frontend source code files with Prettier.
 - Reformatted all backend source code files with Black.
 - GeoJson export includes ZP geometries.

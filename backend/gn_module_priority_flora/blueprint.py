@@ -30,11 +30,18 @@ from .models import (
     TZprospect,
     TApresence,
     ExportAp,
+    ExportZp,
     cor_zp_observer,
     cor_zp_area,
     CorApArea,
 )
-from .repositories import translate_exported_columns, get_export_headers, StatRepository
+from .repositories import (
+    translate_ap_exported_columns,
+    translate_zp_exported_columns,
+    get_ap_export_headers,
+    get_zp_export_headers,
+    StatRepository,
+)
 
 
 blueprint = Blueprint("priority_flora", __name__)
@@ -501,20 +508,20 @@ def export_presence_areas():
             # Add geom column remove previously by .as_dict() method.
             ap["zp_geom_local"] = to_shape(d.zp_geom_local)
             ap["ap_geom_local"] = to_shape(d.ap_geom_local)
-            prepared_ap = translate_exported_columns(ap)
+            prepared_ap = translate_ap_exported_columns(ap)
         elif export_format == "geojson":
             if ap["id_zp"] not in computed_zp:
                 computed_zp.append(ap["id_zp"])
                 prepared_zp = {
                     "geometry": ap["zp_geojson"],
-                    "properties": translate_exported_columns(
+                    "properties": translate_ap_exported_columns(
                         {
                             "id_zp": ap["id_zp"],
                             "sciname": ap["sciname"],
                             "sciname_code": ap["sciname_code"],
                             "date_min": ap["date_min"],
                             "date_max": ap["date_max"],
-                            "observaters": ap["observaters"],
+                            "observers": ap["observers"],
                         }
                     ),
                 }
@@ -530,14 +537,14 @@ def export_presence_areas():
             ]
             for field in geom_fields:
                 ap.pop(field, None)
-            prepared_ap["properties"] = translate_exported_columns(ap)
+            prepared_ap["properties"] = translate_ap_exported_columns(ap)
 
         output_items.append(prepared_ap)
 
     # Return data
     file_name = datetime.now().strftime("%Y_%m_%d_%Hh%Mm%S")
     if export_format == "csv":
-        headers = get_export_headers()
+        headers = get_ap_export_headers()
         return to_csv_resp(file_name, output_items, headers, ";")
     else:
         features = []
@@ -552,6 +559,104 @@ def export_presence_areas():
         return to_json_resp(
             result, as_file=True, filename=file_name, indent=4, extension="geojson"
         )
+@blueprint.route("/prospect-zones/export", methods=["GET"])
+@permissions.check_cruved_scope("E", module_code=MODULE_CODE)
+def export_prospect_zones():
+    """
+    Télécharge les zones de prospections
+    """
+    parameters = request.args
+
+    export_format = parameters["export_format"] if "export_format" in request.args else "geojson"
+
+    # Build query and get data from db
+    query = select(ExportZp)
+
+    if "id_zp" in parameters:
+        query = query.where(ExportZp.id_zp == parameters["id_zp"])
+
+    if "id_organism" in parameters:
+        query = query.join(TZprospect, TZprospect.id_zp == ExportZp.id_zp).where(
+            TZprospect.observers.any(id_organisme=parameters["id_organism"])
+        )
+
+    if "id_area" in parameters:
+        query = query.join(cor_zp_area, cor_zp_area.c.id_zp == ExportZp.id_zp).where(
+            cor_zp_area.c.id_area == parameters["id_area"]
+        )
+
+    if "year" in parameters:
+        query = query.where(func.date_part("year", ExportZp.date_min) == parameters["year"])
+
+    if "cd_nom" in parameters:
+        query = query.join(Taxref, Taxref.cd_nom == ExportZp.sciname_code).where(
+            Taxref.cd_nom == parameters["cd_nom"]
+        )
+
+    data = db.session.scalars(query).unique().all()
+
+    # Format data
+    output_items = []
+    computed_zp = []
+    for d in data:
+        zp = d.as_dict()
+
+        prepared_zp = {}
+        if export_format == "csv":
+            # Add geom column remove previously by .as_dict() method.
+            zp["zp_geom_local"] = to_shape(d.zp_geom_local)
+            zp["zp_geom_4326"] = to_shape(d.zp_geom_4326)
+            zp["zp_geom_point_4326"] = to_shape(d.zp_geom_point_4326)
+            prepared_zp = translate_zp_exported_columns(zp)
+
+        elif export_format == "geojson":
+            if zp["id_zp"] not in computed_zp:
+                computed_zp.append(zp["id_zp"])
+                prepared_zp = {
+                    "geometry": zp["zp_geojson"],
+                    "properties": translate_zp_exported_columns(
+                        {
+                            "id_zp": zp["id_zp"],
+                            "sciname": zp["sciname"],
+                            "sciname_code": zp["sciname_code"],
+                            "date_min": zp["date_min"],
+                            "date_max": zp["date_max"],
+                            "observers": zp["observers"],
+                            "municipalities": zp["municipalities"]
+                        }
+                    ),
+                }
+                output_items.append(prepared_zp)
+
+            prepared_zp["geometry"] = zp["zp_geojson"]
+            geom_fields = [
+                "zp_geojson",
+                "zp_geom_local",
+                "zp_geom_4326",
+                "zp_geom_point_4326"
+            ]
+            for field in geom_fields:
+                zp.pop(field, None)
+            prepared_zp["properties"] = translate_zp_exported_columns(zp)
+
+        output_items.append(prepared_zp)
+
+    # Return data
+    file_name = datetime.now().strftime("%Y_%m_%d_%Hh%Mm%S")
+    if export_format == "csv":
+        headers = get_zp_export_headers()
+        return to_csv_resp(file_name, output_items, headers, ";")
+    else:
+        features = []
+        for zp in output_items:
+            feature = {
+                "type": "Feature",
+                "geometry": json.loads(zp["geometry"]),
+                "properties": zp["properties"],
+            }
+            features.append(feature)
+        result = FeatureCollection(features)
+        return to_json_resp(result, as_file=True, filename=file_name, indent=4, extension="geojson")
 
 
 @blueprint.route("/area-contain", methods=["POST"])
