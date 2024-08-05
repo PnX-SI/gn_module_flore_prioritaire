@@ -13,12 +13,13 @@ export class StoreService {
   public fpConfig: any = {};
   public leafletDrawOptions = leafletDrawOption;
   public queryString = new HttpParams();
-  public urlLoad: string;
+  public urlApLoad: string;
+  public urlZpLoad: string;
 
   constructor(public config: ConfigService) {
     this.fpConfig = this.config['PRIORITY_FLORA'];
-
-    this.urlLoad = `${this.config.API_ENDPOINT}/${this.fpConfig.MODULE_URL}/presence-areas/export`;
+    this.urlApLoad = `${this.config.API_ENDPOINT}/${this.fpConfig.MODULE_URL}/presence-areas/export`;
+    this.urlZpLoad = `${this.config.API_ENDPOINT}/${this.fpConfig.MODULE_URL}/prospect-zones/export`;
   }
 
   setLeafletDraw() {
