@@ -298,9 +298,9 @@ WHEN (OLD.geom_4326 IS DISTINCT FROM NEW.geom_4326)
 EXECUTE PROCEDURE pr_priority_flora.edit_ap();
 
 
-------------------------------------
--- Vue: Création de la vue d'export
-------------------------------------
+-------------------------------------------
+-- Vue: Création de la vue d'export des AP
+-------------------------------------------
 
 CREATE OR REPLACE VIEW pr_priority_flora.export_ap
 AS
