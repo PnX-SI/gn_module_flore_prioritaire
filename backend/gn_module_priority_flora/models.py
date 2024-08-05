@@ -350,3 +350,23 @@ class ExportAp(ReprMixin, db.Model):
     total_max = db.Column(db.Integer)
 
     comment = db.Column(db.Unicode)
+
+
+@geoserializable
+@geofileserializable
+class ExportZp(ReprMixin, db.Model):
+    __tablename__ = "export_zp"
+    __table_args__ = {"schema": "pr_priority_flora"}
+
+    id_zp = db.Column(db.Integer, primary_key=True)
+    sciname = db.Column(db.Unicode)
+    sciname_code = db.Column(db.Integer)
+    date_min = db.Column(db.DateTime)
+    date_max = db.Column(db.DateTime)
+    observaters = db.Column(db.Unicode)
+    zp_geom_local = db.Column(Geometry("GEOMETRY"))
+    zp_geom_4326 = db.Column(Geometry("GEOMETRY"))
+    zp_geom_point_4326 = db.Column(Geometry("GEOMETRY"))
+    zp_geojson = db.Column(db.Unicode)
+    zp_surface = db.Column(db.Integer)
+    municipalities = db.Column(db.Unicode)
