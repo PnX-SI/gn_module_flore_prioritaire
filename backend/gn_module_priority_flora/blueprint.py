@@ -36,7 +36,8 @@ from .models import (
     CorApArea,
 )
 from .repositories import (
-    translate_exported_columns,
+    translate_ap_exported_columns,
+    translate_zp_exported_columns,
     get_ap_export_headers,
     get_zp_export_headers,
     StatRepository,
@@ -507,20 +508,20 @@ def export_presence_areas():
             # Add geom column remove previously by .as_dict() method.
             ap["zp_geom_local"] = to_shape(d.zp_geom_local)
             ap["ap_geom_local"] = to_shape(d.ap_geom_local)
-            prepared_ap = translate_exported_columns(ap)
+            prepared_ap = translate_ap_exported_columns(ap)
         elif export_format == "geojson":
             if ap["id_zp"] not in computed_zp:
                 computed_zp.append(ap["id_zp"])
                 prepared_zp = {
                     "geometry": ap["zp_geojson"],
-                    "properties": translate_exported_columns(
+                    "properties": translate_ap_exported_columns(
                         {
                             "id_zp": ap["id_zp"],
                             "sciname": ap["sciname"],
                             "sciname_code": ap["sciname_code"],
                             "date_min": ap["date_min"],
                             "date_max": ap["date_max"],
-                            "observaters": ap["observaters"],
+                            "observers": ap["observers"],
                         }
                     ),
                 }
@@ -536,7 +537,7 @@ def export_presence_areas():
             ]
             for field in geom_fields:
                 ap.pop(field, None)
-            prepared_ap["properties"] = translate_exported_columns(ap)
+            prepared_ap["properties"] = translate_ap_exported_columns(ap)
 
         output_items.append(prepared_ap)
 
@@ -605,22 +606,22 @@ def export_prospect_zones():
             # Add geom column remove previously by .as_dict() method.
             zp["zp_geom_local"] = to_shape(d.zp_geom_local)
             zp["zp_geom_4326"] = to_shape(d.zp_geom_4326)
-            zp["zp_geom_point_4326"] = to_shape(d.zp_geom_4326)
-            prepared_zp = translate_exported_columns(zp)
+            zp["zp_geom_point_4326"] = to_shape(d.zp_geom_point_4326)
+            prepared_zp = translate_zp_exported_columns(zp)
 
         elif export_format == "geojson":
             if zp["id_zp"] not in computed_zp:
                 computed_zp.append(zp["id_zp"])
                 prepared_zp = {
                     "geometry": zp["zp_geojson"],
-                    "properties": translate_exported_columns(
+                    "properties": translate_zp_exported_columns(
                         {
                             "id_zp": zp["id_zp"],
                             "sciname": zp["sciname"],
                             "sciname_code": zp["sciname_code"],
                             "date_min": zp["date_min"],
                             "date_max": zp["date_max"],
-                            "observaters": zp["observaters"],
+                            "observers": zp["observers"],
                             "municipalities": zp["municipalities"]
                         }
                     ),
@@ -636,7 +637,7 @@ def export_prospect_zones():
             ]
             for field in geom_fields:
                 zp.pop(field, None)
-            prepared_zp["properties"] = translate_exported_columns(zp)
+            prepared_zp["properties"] = translate_zp_exported_columns(zp)
 
         output_items.append(prepared_zp)
 

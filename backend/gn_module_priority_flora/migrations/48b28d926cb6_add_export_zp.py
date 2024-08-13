@@ -55,7 +55,7 @@ def upgrade():
             tz.cd_nom AS sciname_code,
             tz.date_min AS date_min,
             tz.date_max AS date_max,
-            obs.observers AS observaters,
+            obs.observers AS observers,
             tz.geom_local AS zp_geom_local,
             tz.geom_4326 AS zp_geom_4326,
             tz.geom_point_4326 AS zp_geom_point_4326,
@@ -68,7 +68,7 @@ def upgrade():
             LEFT JOIN observers AS obs
                 ON obs.id_zp = tz.id_zp
             LEFT JOIN taxonomie.taxref AS t
-            ON t.cd_nom = tz.cd_nom
+                ON t.cd_nom = tz.cd_nom
         ;
         """
     )
