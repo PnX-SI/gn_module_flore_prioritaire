@@ -12,6 +12,7 @@ import { ZpAddComponent } from './zp-add/zp-add.component';
 import { ApAddComponent } from './zp-container/ap-add/ap-add.component';
 import { ZpDetailsComponent } from './zp-container/zp-details/zp-details.component';
 import { ZpContainerComponent } from './zp-container/zp-container.component';
+import { ModalDownloadComponent } from './zp-map-list/modal-download/modal-download.component';
 import { routes } from './gnModule.routes';
 
 @NgModule({
@@ -22,7 +23,8 @@ import { routes } from './gnModule.routes';
     ZpDetailsComponent,
     ApAddComponent,
     ZpContainerComponent,
+    ModalDownloadComponent,
   ],
   providers: [DataService, StoreService, ApFormService],
 })
-export class GeonatureModule {}
+export class GeonatureModule { }

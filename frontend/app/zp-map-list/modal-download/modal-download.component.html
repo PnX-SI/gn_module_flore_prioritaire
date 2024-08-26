@@ -1,0 +1,47 @@
+<div class="modal-header">
+  <h5>Téléchargement</h5>
+
+  <button
+    type="button"
+    class="close"
+    aria-label="Close"
+    (click)="activeModal.dismiss('Cross click')"
+    data-qa="pf-download-close-btn"
+  >
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="modal-body">
+  <div class="my-3 pt-2">
+    <h5 class="second-color">Télécharger les zones de prospection</h5>
+    <button
+      [disabled]="isDownloading"
+      style="margin-left: 5px"
+      *ngFor="let format of this.storeService.fpConfig.export_available_format"
+      mat-raised-button
+      (click)="downloadZp(format)"
+      type="button"
+      class="buttonLoad button-success format-btn"
+      [attr.data-qa]="'pf-zp-download-' + format"
+    >
+      Format {{ format }}
+    </button>
+  </div>
+
+  <div class="my-3 pt-2">
+    <h5 class="second-color">Télécharger les aires de présence</h5>
+    <button
+      [disabled]="isDownloading"
+      style="margin-left: 5px"
+      *ngFor="let format of this.storeService.fpConfig.export_available_format"
+      mat-raised-button
+      (click)="downloadAp(format)"
+      type="button"
+      class="buttonLoad button-success format-btn"
+      [attr.data-qa]="'pf-ap-download-' + format"
+    >
+      Format {{ format }}
+    </button>
+  </div>
+</div>

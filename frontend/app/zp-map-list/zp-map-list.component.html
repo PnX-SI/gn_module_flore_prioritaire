@@ -203,22 +203,15 @@
     <div class="card-footer">
       <div class="row">
         <div class="col">
-          <pnx-modal-download
-            labelButton="Télécharger ces zones de prospection"
-            [pathDownload]="storeService.urlZpLoad"
-            [exportFormat]="storeService.fpConfig.export_available_format"
-            [queryString]="storeService.queryString"
+          <button
+            type="button"
+            class="btn btn-primary btn-sm box-shadow uppercase"
+            id="download-btn"
+            (click)="openDownloadModal()"
           >
-          </pnx-modal-download>
-        </div>
-        <div class="col">
-          <pnx-modal-download
-            labelButton="Télécharger ces aires de présence"
-            [pathDownload]="storeService.urlApLoad"
-            [exportFormat]="storeService.fpConfig.export_available_format"
-            [queryString]="storeService.queryString"
-          >
-          </pnx-modal-download>
+            <i class="fa fa-download" aria-hidden="true"> </i>
+            {{ 'Download' | translate }}
+          </button>
         </div>
         <div class="col text-right">
           <button type="button" class="btn btn-sm btn-success box-shadow" (click)="onAddZp()">

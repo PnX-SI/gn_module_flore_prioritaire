@@ -18,8 +18,8 @@ export class StoreService {
 
   constructor(public config: ConfigService) {
     this.fpConfig = this.config['PRIORITY_FLORA'];
-    this.urlApLoad = `${this.config.API_ENDPOINT}/${this.fpConfig.MODULE_URL}/presence-areas/export`;
-    this.urlZpLoad = `${this.config.API_ENDPOINT}/${this.fpConfig.MODULE_URL}/prospect-zones/export`;
+    this.urlApLoad = `${this.config.API_ENDPOINT}${this.fpConfig.MODULE_URL}/presence-areas/export`;
+    this.urlZpLoad = `${this.config.API_ENDPOINT}${this.fpConfig.MODULE_URL}/prospect-zones/export`;
   }
 
   setLeafletDraw() {

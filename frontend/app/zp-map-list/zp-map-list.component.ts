@@ -6,6 +6,7 @@ import { filter } from 'rxjs/operators';
 
 import * as L from 'leaflet';
 import { MatDialog } from '@angular/material/dialog';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ConfigService } from '@geonature/services/config.service';
 import { MapListService } from '@geonature_common/map-list/map-list.service';
@@ -16,6 +17,7 @@ import { ConfirmationDialog } from '@geonature_common/others/modal-confirmation/
 
 import { DataService } from '../services/data.service';
 import { StoreService } from '../services/store.service';
+import { ModalDownloadComponent } from './modal-download/modal-download.component';
 
 @Component({
   selector: 'gn-pf-map-list',
@@ -46,8 +48,9 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     private commonService: CommonService,
     public api: DataService,
     private formBuilder: FormBuilder,
-    private config: ConfigService
-  ) {}
+    private config: ConfigService,
+    public ngbModal: NgbModal
+  ) { }
 
   ngOnInit() {
     this.displayColumns = this.config['PRIORITY_FLORA']['datatable_zp_columns'];
@@ -287,6 +290,12 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
           }
         );
       }
+    });
+  }
+
+  openDownloadModal() {
+    this.ngbModal.open(ModalDownloadComponent, {
+      size: 'lg',
     });
   }
 
