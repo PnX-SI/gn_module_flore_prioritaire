@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🐛 Fixed
 
 - Fixed a redirection bug caused by bootstrap “tabs” on ZP info sheets and switching to Material tabs.
+- Handle ZP and AP exports with a null value for geometry fields
 
 ### 🔄 Changed
 
