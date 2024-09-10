@@ -13,32 +13,30 @@
 </div>
 
 <div class="modal-body">
-  <div class="my-3 pt-2">
+  <div class="ml-2 pt-2">
     <h5 class="second-color">Télécharger les zones de prospection</h5>
     <button
       [disabled]="isDownloading"
-      style="margin-left: 5px"
       *ngFor="let format of this.storeService.fpConfig.export_available_format"
       mat-raised-button
       (click)="downloadZp(format)"
       type="button"
-      class="buttonLoad button-success format-btn"
+      class="buttonLoad button-success format-btn ml-2"
       [attr.data-qa]="'pf-zp-download-' + format"
     >
       Format {{ format }}
     </button>
   </div>
 
-  <div class="my-3 pt-2">
+  <div class="ml-2 my-3 pt-2">
     <h5 class="second-color">Télécharger les aires de présence</h5>
     <button
       [disabled]="isDownloading"
-      style="margin-left: 5px"
       *ngFor="let format of this.storeService.fpConfig.export_available_format"
       mat-raised-button
       (click)="downloadAp(format)"
       type="button"
-      class="buttonLoad button-success format-btn"
+      class="buttonLoad button-success format-btn ml-2"
       [attr.data-qa]="'pf-ap-download-' + format"
     >
       Format {{ format }}
