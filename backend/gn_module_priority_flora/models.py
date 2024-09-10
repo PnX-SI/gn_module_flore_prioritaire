@@ -307,7 +307,6 @@ class TZprospect(ZPAuthMixin, ReprMixin, db.Model):
         )
 
 
-# TODO: rename all fields to english. Translate fields when exported to web service.
 @serializable
 @geoserializable
 @geofileserializable
@@ -352,6 +351,8 @@ class ExportAp(ReprMixin, db.Model):
     comment = db.Column(db.Unicode)
 
 
+# TODO: delete useless prefix "zp_" in fields names
+@serializable
 @geoserializable
 @geofileserializable
 class ExportZp(ReprMixin, db.Model):

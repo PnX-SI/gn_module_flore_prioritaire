@@ -506,8 +506,8 @@ def export_presence_areas():
         prepared_ap = {}
         if export_format == "csv":
             # Add geom column remove previously by .as_dict() method.
-            ap["zp_geom_local"] = to_shape(d.zp_geom_local)
-            ap["ap_geom_local"] = to_shape(d.ap_geom_local)
+            ap["zp_geom_local"] = "" if d.zp_geom_local is None else to_shape(d.zp_geom_local)
+            ap["ap_geom_local"] = "" if d.ap_geom_local is None else to_shape(d.ap_geom_local)
             prepared_ap = translate_ap_exported_columns(ap)
         elif export_format == "geojson":
             if ap["id_zp"] not in computed_zp:
@@ -551,7 +551,7 @@ def export_presence_areas():
         for ap in output_items:
             feature = {
                 "type": "Feature",
-                "geometry": json.loads(ap["geometry"]),
+                "geometry": None if ap["geometry"] is None else json.loads(ap["geometry"]),
                 "properties": ap["properties"],
             }
             features.append(feature)
@@ -559,6 +559,8 @@ def export_presence_areas():
         return to_json_resp(
             result, as_file=True, filename=file_name, indent=4, extension="geojson"
         )
+
+
 @blueprint.route("/prospect-zones/export", methods=["GET"])
 @permissions.check_cruved_scope("E", module_code=MODULE_CODE)
 def export_prospect_zones():
@@ -603,10 +605,10 @@ def export_prospect_zones():
 
         prepared_zp = {}
         if export_format == "csv":
-            # Add geom column remove previously by .as_dict() method.
-            zp["zp_geom_local"] = to_shape(d.zp_geom_local)
-            zp["zp_geom_4326"] = to_shape(d.zp_geom_4326)
-            zp["zp_geom_point_4326"] = to_shape(d.zp_geom_point_4326)
+            # Add geom column remove previously by .as_dict() method
+            zp["zp_geom_local"] = "" if d.zp_geom_local is None else to_shape(d.zp_geom_local)
+            zp["zp_geom_4326"] = "" if d.zp_geom_4326 is None else to_shape(d.zp_geom_4326)
+            zp["zp_geom_point_4326"] = "" if d.zp_geom_point_4326 is None else to_shape(d.zp_geom_point_4326)
             prepared_zp = translate_zp_exported_columns(zp)
 
         elif export_format == "geojson":
@@ -651,7 +653,7 @@ def export_prospect_zones():
         for zp in output_items:
             feature = {
                 "type": "Feature",
-                "geometry": json.loads(zp["geometry"]),
+                "geometry": None if zp["geometry"] is None else json.loads(zp["geometry"]),
                 "properties": zp["properties"],
             }
             features.append(feature)
