@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Creation of datasets, acquisitions frameworks and taxa list is done in a separate Alembic branch (`priority_flora_sample`)
 - The parameter for the list of taxa is no longer mandatory. By default, we query all Taxref. It can be restricted via the `id_taxon_list` parameter.
 - Possibility to export prospect zones separately from presence areas
+- Use new `pyproject.toml` file for installation and requirements instead of `setup.py`
+- Add the example `tsconfig.json` file to use with module development outside the GeoNature directory
 
 ### 🐛 Fixed
 
