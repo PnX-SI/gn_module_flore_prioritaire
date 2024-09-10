@@ -8,6 +8,8 @@ Create Date: 2023-10-17 17:12:50.105878
 from alembic import op
 import sqlalchemy as sa
 
+from gn_module_priority_flora import MODULE_CODE
+
 
 # revision identifiers, used by Alembic.
 revision = "7e35f5a54cc8"
@@ -17,8 +19,8 @@ depends_on = None
 
 
 def upgrade():
-    op.execute(
-        """
+    op.get_bind().execute(
+        f"""
         CREATE OR REPLACE FUNCTION pr_priority_flora.get_source_id()
             RETURNS INTEGER
             LANGUAGE plpgsql
@@ -33,7 +35,7 @@ def upgrade():
                 SELECT id_source INTO sourceId
                 FROM gn_synthese.t_sources
                 JOIN gn_commons.t_modules using(id_module)
-                WHERE module_code = 'PRIORITY_FLORA'
+                WHERE module_code = :moduleCode
                 LIMIT 1 ;
 
                 RETURN sourceId ;
@@ -72,8 +74,8 @@ def upgrade():
         $BODY$
         LANGUAGE plpgsql VOLATILE
         COST 100;
-
-    """
+        """,
+        {"moduleCode": MODULE_CODE},
     )
 
 

@@ -687,7 +687,7 @@ def check_geom_a_contain_geom_b():
 
 
 @blueprint.route("/stats", methods=["GET"])
-@permissions.check_cruved_scope("R", module_code="PRIORITY_FLORA")
+@permissions.check_cruved_scope("R", module_code=MODULE_CODE)
 @json_resp
 def get_stats():
 
