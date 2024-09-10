@@ -14,11 +14,12 @@ from sqlalchemy.sql import text
 
 from utils_flask_sqla.migrations.utils import logger
 
+from gn_module_priority_flora import MODULE_DB_BRANCH
 
 # revision identifiers, used by Alembic.
 revision = "955c298bac7b"
 down_revision = None
-branch_labels = "priority_flora"
+branch_labels = MODULE_DB_BRANCH
 # Add nomenclatures shared in conservation modules
 depends_on = ("0a97fffb151c",)
 
@@ -153,8 +154,6 @@ def delete_nomenclatures(mnemonique):
         """
     )
     op.get_bind().execute(operation, {"mnemonique": mnemonique})
-
-
 
 
 def delete_source():
