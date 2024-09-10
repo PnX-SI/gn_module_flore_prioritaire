@@ -6,7 +6,7 @@ Create Date: 2023-10-17 17:12:50.105878
 
 """
 from alembic import op
-import sqlalchemy as sa
+from sqlalchemy.sql import text
 
 from gn_module_priority_flora import MODULE_CODE
 
@@ -19,8 +19,8 @@ depends_on = None
 
 
 def upgrade():
-    op.get_bind().execute(
-        f"""
+    op.get_bind().execute(text(
+        """
         CREATE OR REPLACE FUNCTION pr_priority_flora.get_source_id()
             RETURNS INTEGER
             LANGUAGE plpgsql
@@ -74,46 +74,44 @@ def upgrade():
         $BODY$
         LANGUAGE plpgsql VOLATILE
         COST 100;
-        """,
+        """),
         {"moduleCode": MODULE_CODE},
     )
 
 
 def downgrade():
-    op.execute(
+    op.execute(text(
         """
+        CREATE OR REPLACE FUNCTION pr_priority_flora.update_synthese_zp()
+        RETURNS trigger AS
+        $BODY$
+        DECLARE
+            presenceArea RECORD;
 
-CREATE OR REPLACE FUNCTION pr_priority_flora.update_synthese_zp()
-RETURNS trigger AS
-$BODY$
-  DECLARE
-    presenceArea RECORD;
+        BEGIN
+            FOR presenceArea IN (
+            SELECT ap.id_ap
+            FROM pr_priority_flora.t_zprospect AS zp
+                JOIN pr_priority_flora.t_apresence AS ap
+                ON ap.id_zp = zp.id_zp
+            WHERE ap.id_zp = NEW.id_zp
+            )  LOOP
+                -- Update synthese
+                UPDATE gn_synthese.synthese SET
+                unique_id_sinp_grp = NEW.uuid_zp,
+                cd_nom = NEW.cd_nom,
+                nom_cite = pr_priority_flora.get_taxon_name(NEW.id_zp),
+                date_min = NEW.date_min,
+                date_max = NEW.date_max,
+                last_action = 'U'
+                WHERE id_source = pr_priority_flora.get_source_id()
+                AND entity_source_pk_value = CAST(presenceArea.id_ap AS VARCHAR) ;
+            END LOOP;
 
-  BEGIN
-    FOR presenceArea IN (
-      SELECT ap.id_ap
-      FROM pr_priority_flora.t_zprospect AS zp
-        JOIN pr_priority_flora.t_apresence AS ap
-          ON ap.id_zp = zp.id_zp
-      WHERE ap.id_zp = NEW.id_zp
-    )  LOOP
-        -- Update synthese
-        UPDATE gn_synthese.synthese SET
-          unique_id_sinp_grp = NEW.uuid_zp,
-          cd_nom = NEW.cd_nom,
-          nom_cite = pr_priority_flora.get_taxon_name(NEW.id_zp),
-          date_min = NEW.date_min,
-          date_max = NEW.date_max,
-          last_action = 'U'
-        WHERE id_source = pr_priority_flora.get_source_id()
-          AND entity_source_pk_value = CAST(presenceArea.id_ap AS VARCHAR) ;
-    END LOOP;
-
-    RETURN NULL; -- Result is ignored since this is an AFTER trigger
-  END;
-$BODY$
-LANGUAGE plpgsql VOLATILE
-COST 100;
-
-    """
+            RETURN NULL; -- Result is ignored since this is an AFTER trigger
+        END;
+        $BODY$
+        LANGUAGE plpgsql VOLATILE
+        COST 100;
+    """)
     )

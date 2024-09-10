@@ -67,16 +67,10 @@ def downgrade():
 def delete_taxonomy_list(sciname_list_code):
     operation = text(
         """
-        -- Delete names list : taxonomie.bib_listes, taxonomie.cor_nom_liste, taxonomie.bib_noms
-        WITH names_deleted AS (
-            DELETE FROM taxonomie.cor_nom_liste WHERE id_liste IN (
-                SELECT id_liste FROM taxonomie.bib_listes
-                WHERE code_liste = :listCode
-            )
-            RETURNING id_nom
-        )
-        DELETE FROM taxonomie.bib_noms WHERE id_nom IN (
-            SELECT id_nom FROM names_deleted
+        -- Delete names list : taxonomie.bib_listes, taxonomie.cor_nom_liste
+        DELETE FROM taxonomie.cor_nom_liste WHERE id_liste IN (
+            SELECT id_liste FROM taxonomie.bib_listes
+            WHERE code_liste = :listCode
         );
 
         DELETE FROM taxonomie.bib_listes WHERE code_liste = :listCode;

@@ -6,7 +6,7 @@ Create Date: 2023-05-25 11:39:13.275368
 
 """
 from alembic import op
-import sqlalchemy as sa
+from sqlalchemy.sql import text
 
 from gn_module_priority_flora import MODULE_CODE
 
@@ -19,7 +19,7 @@ depends_on = None
 
 
 def upgrade():
-    op.get_bind().execute(
+    op.get_bind().execute(text(
         """
         INSERT INTO
             gn_permissions.t_permissions_available (
@@ -48,10 +48,10 @@ def upgrade():
             gn_permissions.t_objects o ON o.code_object = v.object_code
         JOIN
             gn_permissions.bib_actions a ON a.code_action = v.action_code
-        """,
+        """),
         {"moduleCode": MODULE_CODE},
     )
-    op.get_bind().execute(
+    op.get_bind().execute(text(
         """
         WITH bad_permissions AS (
             SELECT
@@ -78,13 +78,13 @@ def upgrade():
                 USING bad_permissions bp
         WHERE
             bp.id_permission = p.id_permission;
-        """,
+        """),
         {"moduleCode": MODULE_CODE},
     )
 
 
 def downgrade():
-    op.get_bind().execute(
+    op.get_bind().execute(text(
         """
         DELETE FROM
             gn_permissions.t_permissions_available pa
@@ -94,6 +94,6 @@ def downgrade():
             pa.id_module = m.id_module
             AND
             module_code = :moduleCode
-        """,
+        """),
         {"moduleCode": MODULE_CODE},
     )
