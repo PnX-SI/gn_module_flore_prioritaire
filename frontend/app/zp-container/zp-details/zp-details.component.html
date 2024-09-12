@@ -31,13 +31,13 @@
               Informations générales
             </ng-template>
             <div class="row row-sm">
-              <mat-list class="col-4">
+              <mat-list class="col-6">
                 <mat-list-item>
                   <mat-icon matListItemIcon>tag</mat-icon>
-                  <div matListItemTitle> Identifiant </div> 
-                  <div matListItemLine> {{ storeService.zpProperties.id_zp }} </div> 
+                  <div matListItemTitle> Identifiant </div>
+                  <div matListItemLine> {{ storeService.zpProperties.id_zp }} </div>
                 </mat-list-item>
-  
+
                 <mat-list-item>
                   <mat-icon matListItemIcon>local_florist</mat-icon>
                   <div matListItemTitle>Taxon</div>
@@ -45,17 +45,17 @@
                 </mat-list-item>
               </mat-list>
 
-              <mat-list class="col-4">
+              <mat-list class="col-6">
                 <mat-list-item>
                   <mat-icon matListItemIcon>event</mat-icon>
                   <div matListItemTitle>Date</div>
                   <div matListItemLine> {{ storeService.zpProperties.date_min | date: 'longDate':null:'fr' }}</div>
                 </mat-list-item>
-                
+
                 <mat-list-item>
                   <mat-icon matListItemIcon>group_add</mat-icon>
                   <div matListItemTitle>Observateur(s) </div>
-                  <div matListItemLine> 
+                  <div matListItemLine>
                       <span *ngFor="let obs of storeService.zpProperties?.observers; let index=index">
                         {{ obs.nom_complet }}
                         <span *ngIf="index != storeService.zpProperties?.observers.length -1" >, </span>
@@ -80,7 +80,7 @@
                   <mat-list-item>
                     <mat-icon matListItemIcon>map</mat-icon>
                     <div matListItemTitle>Commune(s)</div>
-                    <div matListItemLine> 
+                    <div matListItemLine>
                       <span *ngFor="let area of storeService.zpProperties?.areas; let index=index">
                         {{ area.area_name }}
                         <span *ngIf="index != storeService.zpProperties?.areas.length -1" >, </span>
@@ -91,8 +91,8 @@
                     </div>
                   </mat-list-item>
               </mat-list>
-   
-     
+
+
             </div>
           </mat-tab>
         </mat-tab-group>
