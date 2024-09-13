@@ -16,10 +16,10 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Compatibilité avec GeoNature 2.14
 - Possibilité de choisir le Dataset dans la création de ZP.
 - La création des datasets, des frameworks d'acquisitions et de la liste des taxons se fait dans une branche Alembic séparée (`priority_flora_sample`)
-- Le paramètre pour la liste des taxons n'est plus obligatoire. Par défaut, nous interrogeons tous les Taxref. Il peut être restreint via le paramètre `id_taxon_list`.
+- Le paramètre pour la liste des taxons n'est plus obligatoire. Par défaut, nous interrogeons tous Taxref. Il peut être restreint via le paramètre `taxons_list_code`.
 - Possibilité d'exporter les zones de prospection séparément des zones de présence
-- Utiliser le nouveau fichier `pyproject.toml` pour l'installation et les exigences au lieu de `setup.py`
-- Ajouter l'exemple de fichier `tsconfig.json` à utiliser avec le développement de modules en dehors du répertoire GeoNature
+- Utilisation du nouveau fichier `pyproject.toml` pour l'installation et les dépendances au lieu de `setup.py`
+- Ajout d'un exemple de fichier `tsconfig.json` à utiliser avec le développement de modules en dehors du répertoire GeoNature
 
 ### 🐛 Corrigé
 
@@ -29,7 +29,10 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### 🔄 Modifié
 
 - Le champ `id_source` utilisé dans le déclencheur précédemment obtenu à partir de `__init__.py` est désormais obtenu à partir du code source du module (via `gn_synthese.t_sources`).
-- ⚠️ Le paramètre `code_taxon_list` est renommé `id_taxon_list` maintenant, il doit être défini avec une valeur de la clé primaire (`id_liste`) de la table `taxonomie.bib_listes`.
+- ⚠️ Le paramètre `taxons_list_code` doit être défini avec une valeur de la clé primaire (`id_liste`) de la table `taxonomie.bib_listes`.
+- ⚠️ Le champ `observaters` de l'export des aires de présence a été renommé `observers`. Lors de la mise à jour du module, il est nécessaire de supprimer la vue`DROP VIEW pr_priority_flora.export_ap;` et de la créer à nouveau avec le code présent dans le fichier [schema.sql](backend/gn_module_priority_flora/migrations/data/schema.sql#L305)
+- ⚠️ Depuis la version 2.12 de GeoNature, le fichier de config du module reste présent dans le dossier `config/` du module mais doit être placé et utilisé sous le nom `<code-module>_config.toml` (ex. `priority_flora_config.toml`) dans le dossier `config/` de GeoNature ([voir GeoNature#2423](https://github.com/PnX-SI/GeoNature/issues/2423)).
+
 
 ## [2.2.1] - 2023-11-15
 

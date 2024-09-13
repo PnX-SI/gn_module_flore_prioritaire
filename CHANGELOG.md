@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compatibility with GeoNature 2.14
 - Possibility of choosing the Dataset in the creation of ZP.
 - Creation of datasets, acquisitions frameworks and taxa list is done in a separate Alembic branch (`priority_flora_sample`)
-- The parameter for the list of taxa is no longer mandatory. By default, we query all Taxref. It can be restricted via the `id_taxon_list` parameter.
+- The parameter for the list of taxa is no longer mandatory. By default, we query all Taxref. It can be restricted via the `taxons_list_code` parameter.
 - Possibility to export prospect zones separately from presence areas
 - Use new `pyproject.toml` file for installation and requirements instead of `setup.py`
 - Add the example `tsconfig.json` file to use with module development outside the GeoNature directory
@@ -27,7 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🔄 Changed
 
 - The field `id_source` used in trigger previously get from `__init__.py` is now get from module source code (via `gn_synthese.t_sources`).
-- ⚠️ `code_taxon_list` parameter renamed `id_taxon_list` now, must be set with a value of the primary key (`id_liste`) of `taxonomie.bib_listes` table.
+- ⚠️ `taxons_list_code` must be set with a value of the primary key (`id_liste`) of `taxonomie.bib_listes` table.
+- ⚠️ The `observaters` field of the presence area export has been renamed to `observers`. With the module update, you need to `DROP VIEW pr_priority_flora.export_ap;` and recreate the view with the SQL code from the file [schema.sql](backend/gn_module_priority_flora/migrations/data/schema.sql#L305)
+- ⚠️ Since GeoNature 2.12, the module configuration file is present in the module's `config/` directory but it must be copied and used from the GeoNature `config/` directory with the name `<code-module>_config.toml` (ex. `priority_flora_config.toml`) ([voir GeoNature#2423](https://github.com/PnX-SI/GeoNature/issues/2423)).
 
 ## [2.2.1] - 2023-11-15
 
