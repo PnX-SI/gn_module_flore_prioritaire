@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🔄 Changed
 
-- ⚠️ Modification of export_ap view. When upgrading the module, re-create the view with the SQL code present in backend/migrations/data/schema.sql (l.305).
+- ⚠️ Modification of export_ap view. When upgrading the module, re-create the view with the SQL code present in [schema.sql](backend/gn_module_priority_flora/migrations/data/schema.sql#L305).
 
 ## [2.3.0] - 2024-08-20
 
