@@ -311,8 +311,6 @@ AS
     tz.date_min AS date_min,
     tz.date_max AS date_max,
     string_agg(DISTINCT (roles.prenom_role || ' ' || roles.nom_role || ' (' || bo.nom_organisme || ')'), ', ') AS observers,
-    public.ST_AsGeoJSON(tz.geom_4326) AS zp_geojson,
-    tz."area" AS zp_surface,
     ta.id_ap AS id_ap,
     string_agg(DISTINCT la.area_name, ', ') AS municipalities,
     ta.geom_local AS ap_geom_local,

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🔄 Changed
+
+- Modified export_ap : removed all references to ZP instead of id_zp.
+
 ## [2.3.0] - 2024-08-20
 
 #### 🚀 Added

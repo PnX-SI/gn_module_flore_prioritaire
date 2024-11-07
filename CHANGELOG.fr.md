@@ -5,9 +5,11 @@ Toutes les modifications notables apportées à ce projet seront documentées da
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
 ## [Inédit]
 
+### 🔄 Modifié
+
+- Modification de la vue d'export_ap
 
 ## [2.3.0] - 2024-08-20
 
@@ -32,7 +34,6 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - ⚠️ Le paramètre `taxons_list_code` doit être défini avec une valeur de la clé primaire (`id_liste`) de la table `taxonomie.bib_listes`.
 - ⚠️ Le champ `observaters` de l'export des aires de présence a été renommé `observers`. Lors de la mise à jour du module, il est nécessaire de supprimer la vue`DROP VIEW pr_priority_flora.export_ap;` et de la créer à nouveau avec le code présent dans le fichier [schema.sql](backend/gn_module_priority_flora/migrations/data/schema.sql#L305)
 - ⚠️ Depuis la version 2.12 de GeoNature, le fichier de config du module reste présent dans le dossier `config/` du module mais doit être placé et utilisé sous le nom `<code-module>_config.toml` (ex. `priority_flora_config.toml`) dans le dossier `config/` de GeoNature ([voir GeoNature#2423](https://github.com/PnX-SI/GeoNature/issues/2423)).
-
 
 ## [2.2.1] - 2023-11-15
 
@@ -68,7 +69,6 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - L'exportation GeoJson inclut les géométries ZP.
 - Utilisation de l'anglais pour les champs de vue d'exportation.
 - Débogage amélioré pour les classes DB de modèles avec une classe parent.
-
 
 ## [2.1.0] - 2022-10-20
 

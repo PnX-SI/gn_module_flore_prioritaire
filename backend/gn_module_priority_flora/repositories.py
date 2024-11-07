@@ -32,7 +32,6 @@ def get_ap_export_mapping_columns():
         "date_min": "date_min",
         "date_max": "date_max",
         "observers": "observers",
-        "zp_surface": "zp_surface",
         "id_ap": "id_ap",
         "municipalities": "municipalities",
         "ap_surface": "ap_surface",
