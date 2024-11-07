@@ -320,9 +320,6 @@ class ExportAp(ReprMixin, db.Model):
     date_min = db.Column(db.DateTime)
     date_max = db.Column(db.DateTime)
     observers = db.Column(db.Unicode)
-    zp_geom_local = db.Column(Geometry("GEOMETRY"))
-    zp_geojson = db.Column(db.Unicode)
-    zp_surface = db.Column(db.Integer)
 
     id_ap = db.Column(db.Integer, primary_key=True)
     municipalities = db.Column(db.Unicode)
