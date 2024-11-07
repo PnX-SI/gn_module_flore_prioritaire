@@ -9,7 +9,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### 🔄 Modifié
 
-- Modification de la vue d'export_ap
+- ⚠️ Modification de la vue d'export_ap. Lors de la montée en version du module, re-créer la vue avec le code SQL présent dans backend/migrations/data/schema.sql (l.305).
 
 ## [2.3.0] - 2024-08-20
 
