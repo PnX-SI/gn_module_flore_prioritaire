@@ -499,39 +499,17 @@ def export_presence_areas():
 
     # Format data
     output_items = []
-    computed_zp = []
     for d in data:
         ap = d.as_dict()
 
         prepared_ap = {}
         if export_format == "csv":
             # Add geom column remove previously by .as_dict() method.
-            ap["zp_geom_local"] = "" if d.zp_geom_local is None else to_shape(d.zp_geom_local)
             ap["ap_geom_local"] = "" if d.ap_geom_local is None else to_shape(d.ap_geom_local)
             prepared_ap = translate_ap_exported_columns(ap)
         elif export_format == "geojson":
-            if ap["id_zp"] not in computed_zp:
-                computed_zp.append(ap["id_zp"])
-                prepared_zp = {
-                    "geometry": ap["zp_geojson"],
-                    "properties": translate_ap_exported_columns(
-                        {
-                            "id_zp": ap["id_zp"],
-                            "sciname": ap["sciname"],
-                            "sciname_code": ap["sciname_code"],
-                            "date_min": ap["date_min"],
-                            "date_max": ap["date_max"],
-                            "observers": ap["observers"],
-                        }
-                    ),
-                }
-                output_items.append(prepared_zp)
-
             prepared_ap["geometry"] = ap["ap_geojson"]
             geom_fields = [
-                "zp_ap_geojson",
-                "zp_geojson",
-                "zp_geom_local",
                 "ap_geojson",
                 "ap_geom_local",
             ]
