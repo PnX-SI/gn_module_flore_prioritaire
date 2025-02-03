@@ -7,9 +7,11 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Inédit]
 
-### 🔄 Modifié
+### ⚠️ Migration
 
-- ⚠️ Modification de la vue d'export_ap. Lors de la montée en version du module, re-créer la vue avec le code SQL présent dans [schema.sql](backend/gn_module_priority_flora/migrations/data/schema.sql#L305).
+- Modification de la vue d'"export_ap". Lors de la montée en version du module, re-créer la vue avec le code SQL présent dans [schema.sql](backend/gn_module_priority_flora/migrations/data/schema.sql#L305).
+
+- Création de la vue d'export "export_zp". Créer la vue avec le code SQL présent dans [schema.sql](backend/gn_module_priority_flora/migrations/data/schema.sql#L367).
 
 ## [2.3.0] - 2024-08-20
 

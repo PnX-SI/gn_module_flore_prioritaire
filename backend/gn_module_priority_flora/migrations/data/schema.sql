@@ -364,6 +364,42 @@ AS
 ;
 
 
+CREATE OR REPLACE VIEW pr_priority_flora.export_zp
+AS WITH observers AS (
+         SELECT tz_1.id_zp,
+            string_agg(DISTINCT ((((roles.prenom_role::text || ' '::text) || roles.nom_role::text) || ' ('::text) || bo.nom_organisme::text) || ')'::text, ', '::text) AS observers
+           FROM pr_priority_flora.t_zprospect tz_1
+             LEFT JOIN pr_priority_flora.cor_zp_obs observer ON observer.id_zp = tz_1.id_zp
+             LEFT JOIN utilisateurs.t_roles roles ON roles.id_role = observer.id_role
+             LEFT JOIN utilisateurs.bib_organismes bo ON bo.id_organisme = roles.id_organisme
+          GROUP BY tz_1.id_zp
+        ), municiplaties AS (
+         SELECT tz_1.id_zp,
+            string_agg(DISTINCT la.area_name::text, ', '::text) AS municipalities
+           FROM pr_priority_flora.t_zprospect tz_1
+             LEFT JOIN pr_priority_flora.cor_zp_area czp ON czp.id_zp = tz_1.id_zp
+             LEFT JOIN ref_geo.l_areas la ON la.id_area = czp.id_area
+          WHERE la.id_type = ref_geo.get_id_area_type('COM'::character varying)
+          GROUP BY tz_1.id_zp
+        )
+SELECT tz.id_zp,
+    t.nom_complet AS sciname,
+    tz.cd_nom AS sciname_code,
+    tz.date_min,
+    tz.date_max,
+    obs.observers,
+    tz.geom_local AS zp_geom_local,
+    tz.geom_4326 AS zp_geom_4326,
+    tz.geom_point_4326 AS zp_geom_point_4326,
+    st_asgeojson(tz.geom_4326) AS zp_geojson,
+    tz.area AS zp_surface,
+    mun.municipalities
+FROM pr_priority_flora.t_zprospect tz
+    LEFT JOIN municiplaties mun ON mun.id_zp = tz.id_zp
+    LEFT JOIN observers obs ON obs.id_zp = tz.id_zp
+    LEFT JOIN taxonomie.taxref t ON t.cd_nom = tz.cd_nom;
+
+
 CREATE OR REPLACE FUNCTION pr_priority_flora.get_source_id()
     RETURNS INTEGER
     LANGUAGE plpgsql
