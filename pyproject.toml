@@ -2,7 +2,7 @@
 name = "gn-module-priority-flora"
 description = "GeoNature Priority Flora (aka Stational Assessment) module for Conservation."
 readme = "README.md"
-requires-python = ">=3.11"
+# requires-python = ">=3.11"
 keywords = ["conservation", "stational", "assesslebt", "taxa", "flora"]
 license = {file = "LICENSE"}
 maintainers = [
@@ -30,7 +30,7 @@ urls.documentation = "https://github.com/PnX-SI/gn_module_flore_prioritaire"
 urls.repository = "https://github.com/PnX-SI/gn_module_flore_prioritaire"
 dynamic = ["version"]
 dependencies = [
-    "gn_conservation_backend_shared>=0.5.2",
+    "gn_conservation_backend_shared@git+https://github.com/cbn-alpin/gn_conservation_backend_shared.git@0.5.2",
     "geonature>=2.13"
 ]
 

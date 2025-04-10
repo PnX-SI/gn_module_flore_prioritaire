@@ -1,0 +1,61 @@
+# Module parameters example with doc
+
+# Export format available in Export modal
+export_available_format = ["csv", "geojson"]
+
+# Code of observers list used in the module
+observers_list_code = "MY_OBSERLIST_LIST_CODE"
+
+# ID of taxons list used in the module (not mandatory - default to all Taxref)
+taxons_list_code = "MY_TAXON_LIST_CODE"
+
+# Coordinates of center used for all maps displayed in the module
+zoom_center = [44.982667966765845, 6.062455200884894]
+
+# Initial zoom used for all maps displayed in the module
+zoom = 12
+
+# Color of tracks and GPX points loaded on the map
+map_gpx_color = "green"
+
+# Prospect zones Datatable column names, attributs linked and width
+[[datatable_zp_columns]]
+    name= "Id"
+    prop= "id_zp"
+    width= 70
+
+[[datatable_zp_columns]]
+    name= "Taxon"
+    prop= "taxonomy.nom_valide"
+    width= 350
+
+[[datatable_zp_columns]]
+    name = "Date"
+    prop = "date_min"
+    width = 120
+
+[[datatable_zp_columns]]
+    name= "Organisme"
+    prop = "organisms_list"
+    width= 400
+
+# Prospect zones Datatable messages
+[datatable_zp_messages]
+    emptyMessage = "Aucune zone de prospection à afficher "
+    totalMessage = "zone(s) de prospection"
+
+# Presence areas Datatable column names, attributs linked and width
+[[datatable_ap_columns]]
+    name = "Fréquence"
+    prop= "frequency"
+[[datatable_ap_columns]]
+    name= "Altitude min"
+    prop= "altitude_min"
+[[datatable_ap_columns]]
+    name= "Altitude max"
+    prop= "altitude_max"
+
+# Presence areas Datatable messages
+[datatable_ap_messages]
+    emptyMessage = "Aucune aire de présence sur cette zone de prospection"
+    totalMessage = "aire(s) de présence"
