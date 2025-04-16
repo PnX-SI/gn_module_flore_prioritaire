@@ -7,9 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🐛 Fixed
+
+- Use the right configuration parameter in the `idList` attribute of the `pnx-taxonomy` component used in the prospect zone form.
+
 ### 🔄 Changed
 
 - ⚠️ Modification of export_ap view. When upgrading the module, re-create the view with the SQL code present in [schema.sql](backend/gn_module_priority_flora/migrations/data/schema.sql#L305).
+- ⚠️ Modification of export_zp view. When upgrading the module, re-create the view with the SQL code present in [schema.sql](backend/gn_module_priority_flora/migrations/data/schema.sql#L367).
+- ⚠️ Until the issue [#3457](https://github.com/PnX-SI/GeoNature/issues/3457) is closed, use the `id_liste` value from `taxonomie.bib_listes` table in config parameter `taxons_list_code`.
+In database, also set the same value in the `id_liste` and `code_liste` fields from `taxonomie.bib_listes` table.
+Use `PRIORITY_FLORA` as the default value of the `code_liste` field after resolving the issue mentioned above.
 
 ## [2.3.0] - 2024-08-20
 

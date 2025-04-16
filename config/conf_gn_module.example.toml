@@ -7,6 +7,10 @@ export_available_format = ["csv", "geojson"]
 observers_list_code = "MY_OBSERLIST_LIST_CODE"
 
 # ID of taxons list used in the module (not mandatory - default to all Taxref)
+# WARNING: until the issue #3457 is closed, use the id_liste value from bib_listes
+# table in this field. In database, also set the same value in the id_liste and
+# code_liste fields. Use 'PRIORITY_FLORA' as the default value of the code_liste field after
+# resolving the issue #3457.
 taxons_list_code = "MY_TAXON_LIST_CODE"
 
 # Coordinates of center used for all maps displayed in the module
