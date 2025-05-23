@@ -9,6 +9,9 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### 🐛 Corrigé
  - Utilisation du bon paramètre de config dans l'attribut `idList` du composant `pnx-taxonomy` du formulaire d'une zone de prospection.
+ - Correction des géométries importées en 3D (avec altitude Z) pour les transformer en 2D
+
+
 
 ### ⚠️ Migration
 

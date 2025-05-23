@@ -17,6 +17,7 @@ from geonature.core.gn_meta.models import TDatasets
 from geonature.core.gn_permissions import decorators as permissions
 from geonature.core.gn_permissions.tools import get_scopes_by_action
 from geonature.utils.config import config
+from utils_flask_sqla_geo.utilsgeometry import remove_third_dimension
 from ref_geo.models import LAreas, BibAreasTypes
 from apptax.taxonomie.models import Taxref
 from geonature.utils.env import db
@@ -210,7 +211,8 @@ def edit_prospect_zone(scope, id_zp=None):
         zp = TZprospect(**data)
 
     if new_shape is not None:
-        zp.geom_4326 = from_shape(new_shape, srid=4326)
+        two_dimension_geom = remove_third_dimension(new_shape)
+        zp.geom_4326 = from_shape(two_dimension_geom, srid=4326)
 
     if observers is not None:
         for o in observers:
@@ -279,7 +281,8 @@ def edit_presence_area(scope, id_ap=None):
         ap = TApresence(**data)
 
     if new_shape is not None:
-        ap.geom_4326 = from_shape(new_shape, srid=4326)
+        two_dimension_geom = remove_third_dimension(new_shape)
+        ap.geom_4326 = from_shape(two_dimension_geom, srid=4326)
 
     if perturbations is not None:
         ap_pertubations = (
