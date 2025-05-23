@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🐛 Fixed
 
 - Use the right configuration parameter in the `idList` attribute of the `pnx-taxonomy` component used in the prospect zone form.
+- Correction of geometries imported in 3D (with Z altitude) to transform them into 2D
+
 
 ### 🔄 Changed
 
