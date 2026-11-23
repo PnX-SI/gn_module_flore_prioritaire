@@ -12,9 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use the right configuration parameter in the `idList` attribute of the `pnx-taxonomy` component used in the prospect zone form.
 - Correction of geometries imported in 3D (with Z altitude) to transform them into 2D
 
-
 ### 🔄 Changed
 
+- Updating to GeoNature 2.17: 
+    - Updating to new i18n paths
+    - Adding the new multiSelect parameters to pnx-observers and setting it to true to keep the multi observers input behaviour
 - ⚠️ Modification of export_ap view. When upgrading the module, re-create the view with the SQL code present in [schema.sql](backend/gn_module_priority_flora/migrations/data/schema.sql#L305).
 - ⚠️ Modification of export_zp view. When upgrading the module, re-create the view with the SQL code present in [schema.sql](backend/gn_module_priority_flora/migrations/data/schema.sql#L367).
 - ⚠️ Until the issue [#3457](https://github.com/PnX-SI/GeoNature/issues/3457) is closed, use the `id_liste` value from `taxonomie.bib_listes` table in config parameter `taxons_list_code`.
