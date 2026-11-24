@@ -42,7 +42,7 @@
             <div class="col-lg-12 mb-3">
 
               <pnx-datasets
-                label="{{ 'MetaData.Datasets' | translate }}"
+                label="{{ 'Datasets' | translate }}"
                 [parentFormControl]="zpForm.controls.id_dataset"
                 moduleCode="PRIORITY_FLORA"
                 creatableInModule="PRIORITY_FLORA"
@@ -117,6 +117,7 @@
               <pnx-observers
                 [parentFormControl]="zpForm.controls.observers"
                 [codeList]="storeService.fpConfig.observers_list_code"
+                [multiSelect]="true"
                 matTooltipPosition="above"
                 matTooltip="Pour pouvoir modifier cette ZP une fois créée,
                   il vous faut faire partie des observateurs."

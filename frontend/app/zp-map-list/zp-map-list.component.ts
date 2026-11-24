@@ -1,6 +1,5 @@
-import { HttpParams } from '@angular/common/http';
-import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
@@ -11,7 +10,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfigService } from '@geonature/services/config.service';
 import { MapListService } from '@geonature_common/map-list/map-list.service';
 import { MapService } from '@geonature_common/map/map.service';
-import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { CommonService } from '@geonature_common/service/common.service';
 import { ConfirmationDialog } from '@geonature_common/others/modal-confirmation/confirmation.dialog';
 
@@ -27,7 +25,6 @@ import { ModalDownloadComponent } from './modal-download/modal-download.componen
 })
 export class ZpMapListComponent implements OnInit, AfterViewInit {
   public currentYear: number = new Date().getFullYear();
-  public leafletDrawOptions = leafletDrawOption;
   public geojson;
   public filteredData = [];
   public organisms = [];
@@ -38,6 +35,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   public center;
   public zoom;
   public nbZp: number;
+  public displayedLabel: string = 'nom_valide';
 
   constructor(
     public dialog: MatDialog,
@@ -59,7 +57,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     this.zoom = this.storeService.fpConfig.zoom;
 
     this.loadInitialData();
-    this.intializeFiltersForm();
+    this.initializeFiltersForm();
     this.setListenerOnYearFilter();
     this.setListenerOnOrganismFilter();
     this.setListenerOnMunicipalityFilter();
@@ -67,18 +65,19 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
 
   private loadInitialData() {
     this.storeService.loadQueryString();
-    this.deleteQueryString('cd_nom'); // WARNING: pnx-taxonomy component can't be initialized !
-    this.deleteQueryString('page');
-    this.setQueryString('limit', '10');
+    this.storeService.queryString = this.storeService.queryString
+      .delete('page')
+      .set('limit', '10');
+    this.storeService.saveQueryString();
     this.loadData();
   }
 
-  private intializeFiltersForm() {
+  private initializeFiltersForm() {
     this.filtersForm = this.formBuilder.group({
       filterYear: this.getInitialFilterValue('year'),
       filterOrga: this.getInitialFilterValue('id_organism'),
       filterCom: this.getInitialFilterValue('id_area'),
-      filterTaxon: this.getInitialFilterValue('cd_nom'),
+      filterTaxon: {[this.displayedLabel]: this.storeService.loadTaxonName()},
       idZp: null,
     });
   }
@@ -108,7 +107,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
           return input === null;
         })
       )
-      .subscribe((year) => {
+      .subscribe(() => {
         this.deleteQueryString('year');
       });
   }
@@ -130,7 +129,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
           return input === null;
         })
       )
-      .subscribe((id_organism) => {
+      .subscribe(() => {
         this.deleteQueryString('id_organism');
       });
   }
@@ -152,19 +151,21 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
           return input === null;
         })
       )
-      .subscribe((id_area) => {
+      .subscribe(() => {
         this.deleteQueryString('id_area');
       });
   }
 
   onRemoveTaxon() {
+    this.storeService.saveTaxonName(null);
     this.deleteQueryString('cd_nom');
-    this.loadData();
   }
 
   onSearchTaxon(event) {
-    this.setQueryString('cd_nom', event.item.cd_nom);
-    this.loadData();
+    const taxon = event.item;
+    const taxonName = taxon.nom_valide.replace(/<[^>]*>/g, '');
+    this.storeService.saveTaxonName(taxonName);
+    this.setQueryString('cd_nom', taxon.cd_nom);
   }
 
   private loadData() {
@@ -213,10 +214,10 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   }
 
   private addCustomControl() {
-    let initzoomcontrol = new L.Control();
+    const initzoomcontrol = new L.Control();
     initzoomcontrol.setPosition('topleft');
     initzoomcontrol.onAdd = () => {
-      var container = L.DomUtil.create(
+      const container = L.DomUtil.create(
         'button',
         ' btn btn-sm btn-outline-shadow leaflet-bar leaflet-control leaflet-control-custom'
       );
@@ -244,7 +245,6 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   onChangePage(event) {
     this.mapListService.page.pageNumber = event.offset;
     this.setQueryString('page', event.offset.toString());
-    this.loadData();
   }
 
   onAddZp() {
@@ -270,7 +270,7 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.api.deleteProspectZone(idZp).subscribe(
-          (data) => {
+          () => {
             this.filteredData = this.filteredData.filter((item) => {
               return idZp !== item.id_zp;
             });

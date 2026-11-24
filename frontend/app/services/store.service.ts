@@ -1,8 +1,8 @@
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 import { ConfigService } from '@geonature/services/config.service';
+import { leafletDrawOption } from '@geonature_common/map/leaflet-draw.options';
 
 @Injectable()
 export class StoreService {
@@ -15,6 +15,8 @@ export class StoreService {
   public queryString = new HttpParams();
   public urlApLoad: string;
   public urlZpLoad: string;
+  private readonly taxonNameStorageKey = 'priority-flora-filters-taxon-name';
+  private readonly queryStringStorageKey = 'priority-flora-filters-querystring';
 
   constructor(public config: ConfigService) {
     this.fpConfig = this.config['PRIORITY_FLORA'];
@@ -33,18 +35,27 @@ export class StoreService {
 
   loadQueryString() {
     this.queryString = new HttpParams({
-      fromString: localStorage.getItem('priority-flora-filters-querystring'),
+      fromString: localStorage.getItem(this.queryStringStorageKey) ?? '',
     });
   }
 
   saveQueryString() {
-    localStorage.setItem('priority-flora-filters-querystring', this.queryString.toString());
+    localStorage.setItem(this.queryStringStorageKey, this.queryString.toString());
   }
 
   clearQueryString() {
-    let filterkey = this.queryString.keys();
-    filterkey.forEach((key) => {
-      this.queryString = this.queryString.delete(key);
-    });
+    this.queryString = new HttpParams();
+  }
+
+  loadTaxonName(): string {
+    return localStorage.getItem(this.taxonNameStorageKey) ?? '';
+  }
+
+  saveTaxonName(name: string | null): void {
+    if (name) {
+      localStorage.setItem(this.taxonNameStorageKey, name);
+    } else {
+      localStorage.removeItem(this.taxonNameStorageKey);
+    }
   }
 }
