@@ -42,11 +42,11 @@
                 </small>
               </label>
               <pnx-taxonomy
-                #taxon
                 [parentFormControl]="filtersForm.controls.filterTaxon"
                 [idList]="storeService.fpConfig.taxons_list_code"
                 [charNumber]="3"
                 [listLength]="20"
+                [displayedLabel]="displayedLabel"
                 (onChange)="onSearchTaxon($event)"
                 (onDelete)="onRemoveTaxon()"
                 matTooltip="Commencez à saisir les 3 premiers caractères
@@ -103,7 +103,6 @@
 
       <div class="mx-0 mb-0 mt-3">
         <ngx-datatable
-          #table
           class="material striped margin-top-xs table-size expandable"
           [rows]="filteredData"
           maxWidth="90"
